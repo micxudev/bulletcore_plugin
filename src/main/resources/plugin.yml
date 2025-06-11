@@ -1,0 +1,4 @@
+name: BulletCore
+version: ${project.version}
+main: org.dredd.bulletCore.BulletCore
+api-version: ${api.version}
