@@ -8,6 +8,7 @@ import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
+import org.dredd.bulletcore.models.CustomBase.BaseAttributes;
 import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
@@ -135,7 +136,7 @@ public final class YMLLModelLoader {
      * @return the populated {@link CustomBase.BaseAttributes} object
      * @throws ItemLoadException if any required attribute is missing or failed validation
      */
-    private static @NotNull CustomBase.BaseAttributes loadBaseAttributes(YamlConfiguration config)
+    private static @NotNull BaseAttributes loadBaseAttributes(YamlConfiguration config)
         throws ItemLoadException {
         String name = config.getString("name");
         if (!CustomItemsRegistry.canNameBeUsed(name))
@@ -156,7 +157,7 @@ public final class YMLLModelLoader {
             1, 99
         );
 
-        return new CustomBase.BaseAttributes(name, materialStorage, displayName, lore, maxStackSize);
+        return new BaseAttributes(name, materialStorage, displayName, lore, maxStackSize);
     }
 
     /**
