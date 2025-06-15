@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
+import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
@@ -80,6 +81,7 @@ public final class CustomItemsRegistry {
         armor.clearAll();
         grenade.clearAll();
         weapon.clearAll();
+        MaterialStorage.clearAll();
     }
 
     /**

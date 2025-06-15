@@ -104,6 +104,13 @@ public final class MaterialStorage {
     }
 
     /**
+     * Clears all {@link MaterialStorage} instances from the internal registry.
+     */
+    public static void clearAll() {
+        STORAGE.clear();
+    }
+
+    /**
      * Attempts to look up a registered {@link MaterialStorage} that matches the given {@link ItemStack}.
      *
      * @param stack The item to check
