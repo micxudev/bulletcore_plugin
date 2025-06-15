@@ -5,7 +5,7 @@ name: BulletCore
 version: ${project.version}
 
 # Main plugin class that extends JavaPlugin
-main: org.dredd.bulletCore.BulletCore
+main: org.dredd.bulletcore.BulletCore
 
 # Target Bukkit/Spigot API version, taken from pom.xml properties
 api-version: ${api.version}
