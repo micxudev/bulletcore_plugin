@@ -1,6 +1,8 @@
 package org.dredd.bulletcore.commands.subcommands;
 
 import org.bukkit.command.CommandSender;
+import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +36,7 @@ public final class SubcommandReload implements Subcommand {
         long startTime = System.currentTimeMillis();
         CustomItemsRegistry.clearAll();
         YMLLModelLoader.loadAllItems();
+        ConfigManager.reload(BulletCore.getInstance());
         long endTime = System.currentTimeMillis();
         sender.sendMessage("Reloaded in " + (endTime - startTime) + "ms");
     }
