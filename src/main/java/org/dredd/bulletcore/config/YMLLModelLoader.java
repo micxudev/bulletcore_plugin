@@ -42,11 +42,6 @@ import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 public final class YMLLModelLoader {
 
     /**
-     * File extension used for model configuration files.
-     */
-    private static final String YML_EXTENSION = ".yml";
-
-    /**
      * Reference to the plugin's main instance, used for data folder access and logging.
      */
     private static final BulletCore plugin = BulletCore.getInstance();
@@ -106,7 +101,11 @@ public final class YMLLModelLoader {
             return;
         }
 
-        File[] files = folder.listFiles((dir, name) -> name.endsWith(YML_EXTENSION));
+        File[] files = folder.listFiles(
+            (dir, name) -> {
+                String lower = name.toLowerCase();
+                return lower.endsWith(".yml") || lower.endsWith(".yaml");
+            });
         if (files == null || files.length == 0) {
             plugin.getLogger().info("No " + type.getLabel() + " files found in " + folder.getPath());
             return;

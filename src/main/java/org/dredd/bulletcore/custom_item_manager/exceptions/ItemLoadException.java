@@ -3,7 +3,7 @@ package org.dredd.bulletcore.custom_item_manager.exceptions;
 import java.io.Serial;
 
 /**
- * Exception thrown when a custom item fails to load properly from configuration or data source.
+ * Exception thrown when a custom item fails to load properly from a configuration or data source.
  *
  * <p>This may occur due to invalid format, missing fields, or type mismatches during deserialization.</p>
  *
@@ -13,7 +13,8 @@ import java.io.Serial;
 public class ItemLoadException extends Exception {
 
     /**
-     * Used during deserialization to verify that the sender and receiver of a serialized object have loaded classes for that object that are compatible with respect to serialization.
+     * Used during deserialization to verify that the sender and receiver of a serialized object
+     * have loaded classes for that object that are compatible with respect to serialization.
      */
     @Serial
     private static final long serialVersionUID = 1L;
