@@ -4,6 +4,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
+import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
@@ -40,6 +41,7 @@ public final class BulletCore extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        ConfigManager.reload(this);
         YMLLModelLoader.loadAllItems();
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
     }
