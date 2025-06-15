@@ -8,9 +8,9 @@ import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a unique key for registering and identifying custom items (classes that extend {@link CustomBase }).
@@ -29,7 +29,7 @@ public final class MaterialStorage {
      * <p>
      * Populated exclusively via the {@link #create(String, int)} method.
      */
-    private static final Map<Key, MaterialStorage> STORAGE = new HashMap<>();
+    private static final Map<Key, MaterialStorage> STORAGE = new ConcurrentHashMap<>();
 
     /**
      * The base Minecraft {@link Material} used for the custom item.<br>
@@ -124,6 +124,14 @@ public final class MaterialStorage {
     @Override
     public int hashCode() {
         return Objects.hash(material, customModelData);
+    }
+
+    @Override
+    public String toString() {
+        return "MaterialStorage{" +
+            "material=" + material +
+            ", customModelData=" + customModelData +
+            '}';
     }
 
     /**

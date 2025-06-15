@@ -1,13 +1,14 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
 import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Abstract registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
@@ -21,12 +22,12 @@ abstract class ItemRegistry<T extends CustomBase> {
     /**
      * A mapping of {@link MaterialStorage} keys to their corresponding custom item instances.
      */
-    private final Map<MaterialStorage, T> items = new HashMap<>();
+    private final Map<MaterialStorage, T> items = new ConcurrentHashMap<>();
 
     /**
      * A mapping of item names to their corresponding custom item instances.
      */
-    private final Map<String, T> itemsByName = new HashMap<>();
+    private final Map<String, T> itemsByName = new ConcurrentHashMap<>();
 
     /**
      * Retrieves an item by its {@link MaterialStorage} key.
@@ -71,7 +72,10 @@ abstract class ItemRegistry<T extends CustomBase> {
      *
      * @param item the item to register
      */
-    void register(T item) {
+    void register(T item) throws ItemRegisterException {
+        if (items.containsKey(item.materialStorage) || itemsByName.containsKey(item.name))
+            throw new ItemRegisterException("Item already registered: " + item.name + " / " + item.materialStorage);
+
         items.put(item.materialStorage, item);
         itemsByName.put(item.name, item);
     }
