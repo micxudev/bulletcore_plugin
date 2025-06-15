@@ -19,7 +19,7 @@ public final class BulletCore extends JavaPlugin {
     /**
      * Singleton instance of the plugin.
      */
-    private static BulletCore INSTANCE;
+    private static BulletCore plugin;
 
     /**
      * Gets the singleton instance of the plugin.
@@ -27,7 +27,10 @@ public final class BulletCore extends JavaPlugin {
      * @return the {@code BulletCore} instance
      */
     public static BulletCore getInstance() {
-        return INSTANCE;
+        if (plugin == null)
+            throw new IllegalStateException("Attempted to use getInstance() while the plugin is null.");
+
+        return plugin;
     }
 
     /**
@@ -36,7 +39,7 @@ public final class BulletCore extends JavaPlugin {
      */
     @Override
     public void onEnable() {
-        INSTANCE = this;
+        plugin = this;
         YMLLModelLoader.loadAllItems();
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
     }
