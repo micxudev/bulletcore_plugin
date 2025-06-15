@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.commands.subcommands;
 
 import org.bukkit.command.CommandSender;
+import org.dredd.bulletcore.config.YMLLModelLoader;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,8 +31,11 @@ public final class SubcommandReload implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
+        long startTime = System.currentTimeMillis();
         CustomItemsRegistry.clearAll();
-        sender.sendMessage("Reloaded successfully!");
+        YMLLModelLoader.loadAllItems();
+        long endTime = System.currentTimeMillis();
+        sender.sendMessage("Reloaded in " + (endTime - startTime) + "ms");
     }
 
     @Override
