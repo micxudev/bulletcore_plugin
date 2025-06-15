@@ -2,6 +2,7 @@ package org.dredd.bulletcore.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.utils.MathUtils;
 
 public final class ConfigManager {
 
@@ -17,7 +18,7 @@ public final class ConfigManager {
      * @return the singleton instance
      */
     public static ConfigManager getOrLoad(BulletCore plugin) {
-        if (config == null) reload(plugin);
+        if (config == null) config = new ConfigManager(plugin);
         return config;
     }
 
@@ -60,7 +61,7 @@ public final class ConfigManager {
 
         language = cfg.getString("language", "en");
         friendlyFireEnabled = cfg.getBoolean("friendly-fire-enabled", false);
-        bulletDetectionStep = cfg.getDouble("bullet-detection-step", 0.1);
+        bulletDetectionStep = MathUtils.clamp(cfg.getDouble("bullet-detection-step", 0.1), 0.05, 1.0);
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
         enableRecoil = cfg.getBoolean("enable-recoil", true);
         headshotSound = cfg.getString("headshot-sound", "entity.experience_orb.pickup");

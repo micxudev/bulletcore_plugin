@@ -34,9 +34,9 @@ public final class SubcommandReload implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         long startTime = System.currentTimeMillis();
+        ConfigManager.reload(BulletCore.getInstance());
         CustomItemsRegistry.clearAll();
         YMLLModelLoader.loadAllItems();
-        ConfigManager.reload(BulletCore.getInstance());
         long endTime = System.currentTimeMillis();
         sender.sendMessage("Reloaded in " + (endTime - startTime) + "ms");
     }
