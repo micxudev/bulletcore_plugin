@@ -91,15 +91,16 @@ public final class MaterialStorage {
 
         Material material = getMetaCapableMaterial(materialName);
         Key key = new Key(material, customModelData);
+        MaterialStorage newStorage = new MaterialStorage(material, customModelData);
 
-        if (STORAGE.containsKey(key))
+        MaterialStorage existing = STORAGE.putIfAbsent(key, newStorage);
+
+        if (existing != null)
             throw new ItemLoadException(
                 "Duplicate MaterialStorage: " + material + " with CustomModelData " + customModelData
             );
 
-        MaterialStorage materialStorage = new MaterialStorage(material, customModelData);
-        STORAGE.put(key, materialStorage);
-        return materialStorage;
+        return newStorage;
     }
 
     /**

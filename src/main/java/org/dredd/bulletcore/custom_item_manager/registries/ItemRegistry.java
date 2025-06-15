@@ -72,12 +72,19 @@ abstract class ItemRegistry<T extends CustomBase> {
      *
      * @param item the item to register
      */
-    void register(T item) throws ItemRegisterException {
-        if (items.containsKey(item.materialStorage) || itemsByName.containsKey(item.name))
-            throw new ItemRegisterException("Item already registered: " + item.name + " / " + item.materialStorage);
+    void register(@NotNull T item) throws ItemRegisterException {
+        MaterialStorage key1 = item.materialStorage;
+        String key2 = item.name;
 
-        items.put(item.materialStorage, item);
-        itemsByName.put(item.name, item);
+        T existingByStorage = items.putIfAbsent(key1, item);
+        if (existingByStorage != null)
+            throw new ItemRegisterException("Item already registered: " + key1);
+
+        T existingByName = itemsByName.putIfAbsent(key2, item);
+        if (existingByName != null) {
+            items.remove(key1, item);
+            throw new ItemRegisterException("Item already registered by name: " + key2);
+        }
     }
 
     /**

@@ -19,7 +19,7 @@ public final class BulletCore extends JavaPlugin {
     /**
      * Singleton instance of the plugin.
      */
-    private static BulletCore plugin;
+    private volatile static BulletCore plugin;
 
     /**
      * Gets the singleton instance of the plugin.
@@ -42,6 +42,15 @@ public final class BulletCore extends JavaPlugin {
         plugin = this;
         YMLLModelLoader.loadAllItems();
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
+    }
+
+    /**
+     * Called by Bukkit when the plugin is disabled.
+     * <p>Performs cleanup and unregisters commands.
+     */
+    @Override
+    public void onDisable() {
+        plugin = null;
     }
 
     /**
