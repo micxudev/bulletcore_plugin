@@ -1,0 +1,48 @@
+# Notes:
+# 1. Placeholders must be written in the format: %placeholder_name%
+# 2. Messages are to be written in Minimessage format (https://docs.advntr.dev/minimessage/index.html)
+
+
+# · Used when: The command is run with no arguments.
+# · Placeholders: %command% – the main command name.
+no-subcommand-provided: "<red>Usage: <white>/%command% <subcommand></white>"
+
+
+# · Used when: The given subcommand doesn’t exist.
+# · Placeholders: %subcommand% – the name of the subcommand entered by the user.
+unknown-subcommand: "<red>Unknown subcommand: <white>%subcommand%</white>"
+
+
+# · Used when: The user lacks permission to run the subcommand.
+# · Placeholders: no placeholders
+no-subcommand-permission: "<red>You do not have permission to use this subcommand."
+
+
+# · Used when: The user didn’t provide the minimum required arguments.
+# · Placeholders:
+#     %command% – the main command name
+#     %subcommand% – the subcommand name
+#     %args% – correct arguments usage
+not-enough-args: "<red>Usage: <white>/%command% %subcommand% %args%</white>"
+
+
+# · Used when: Config is reloaded.
+# · Placeholders: %time% - reload time in milliseconds.
+config-reloaded: "<green>Reloaded in <white>%time%</white> ms."
+
+
+# · Used when: The provided item name does not match any known custom item.
+# · Placeholders: %item% – the name of the invalid item.
+invalid-item: "<red>Invalid item: <white>%item%</white>"
+
+
+# · Used when: The specified player is not online or not found.
+# · Placeholders: %player% – the name of the entered player.
+player-not-found: "<red>Player not found: <white>%player%</white>"
+
+
+# · Used when: The item was successfully given to the player.
+# · Placeholders:
+#     %item% – the name of the given item
+#     %player% – the name of the player who received the item
+item-given: "<green>Gave <white>%item%</white> to <white>%player%</white>"
