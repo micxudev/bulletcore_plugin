@@ -7,6 +7,7 @@ import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
 import org.dredd.bulletcore.config.messages.MessageManager;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
 
@@ -50,7 +51,7 @@ public final class BulletCore extends JavaPlugin {
     public void onEnable() {
         MessageManager.reload(this);
         ConfigManager.reload(this);
-        YMLLModelLoader.loadAllItems();
+        YMLLModelLoader.loadAllItems(this);
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
     }
 
@@ -61,6 +62,7 @@ public final class BulletCore extends JavaPlugin {
     @Override
     public void onDisable() {
         plugin = null;
+        CustomItemsRegistry.clearAll();
     }
 
     /**

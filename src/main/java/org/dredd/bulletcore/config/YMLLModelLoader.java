@@ -42,9 +42,9 @@ import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 public final class YMLLModelLoader {
 
     /**
-     * Reference to the plugin's main instance, used for data folder access and logging.
+     * Reference to the plugin's main instance.
      */
-    private static final BulletCore plugin = BulletCore.getInstance();
+    private static BulletCore plugin;
 
     /**
      * Functional interface for loading a custom item from a {@link YamlConfiguration}.
@@ -68,7 +68,9 @@ public final class YMLLModelLoader {
      * Loads all custom items for each supported item type from their respective folders
      * and registers them into their specific and global registries.
      */
-    public static void loadAllItems() {
+    public static void loadAllItems(BulletCore plugin) {
+        YMLLModelLoader.plugin = plugin;
+
         Map<CustomItemType, ItemLoader<?>> loaders = Map.of(
             CustomItemType.AMMO, YMLLModelLoader::loadAmmo,
             CustomItemType.ARMOR, YMLLModelLoader::loadArmor,

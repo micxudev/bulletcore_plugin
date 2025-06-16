@@ -12,9 +12,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.CONFIG_RELOADED;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
+/**
+ * Implements the {@code /bulletcore reload} subcommand.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class SubcommandReload implements Subcommand {
     @Override
     public @NotNull String getName() {
@@ -42,7 +48,7 @@ public final class SubcommandReload implements Subcommand {
         MessageManager.reload(BulletCore.getInstance());
         ConfigManager.reload(BulletCore.getInstance());
         CustomItemsRegistry.clearAll();
-        YMLLModelLoader.loadAllItems();
+        YMLLModelLoader.loadAllItems(BulletCore.getInstance());
         long endTime = System.currentTimeMillis();
         sender.sendMessage(of(sender, CONFIG_RELOADED, Map.of("time", String.valueOf(endTime - startTime))));
     }

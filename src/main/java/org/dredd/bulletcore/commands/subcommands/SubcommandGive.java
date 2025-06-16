@@ -17,6 +17,12 @@ import java.util.Map;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
+/**
+ * Implements the {@code /bulletcore give} subcommand.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class SubcommandGive implements Subcommand {
     @Override
     public @NotNull String getName() {

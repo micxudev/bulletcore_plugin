@@ -1,7 +1,3 @@
-# Interface language of the plugin (e.g., messages for players).
-# 'en' is supported (English); more localizations may be added in the future.
-language: en
-
 # Allows friendly fire (damage between allies).
 # True = allowed, false = disabled.
 friendly-fire-enabled: false
