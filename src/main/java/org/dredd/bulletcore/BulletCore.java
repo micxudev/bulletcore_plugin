@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
+import org.dredd.bulletcore.config.messages.MessageManager;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
 
@@ -20,7 +21,7 @@ public final class BulletCore extends JavaPlugin {
     /**
      * Singleton instance of the plugin.
      */
-    private volatile static BulletCore plugin;
+    private static BulletCore plugin;
 
     /**
      * Gets the singleton instance of the plugin.
@@ -35,12 +36,19 @@ public final class BulletCore extends JavaPlugin {
     }
 
     /**
+     * Constructs a new {@code BulletCore} instance.
+     */
+    public BulletCore() {
+        plugin = this;
+    }
+
+    /**
      * Called by Bukkit when the plugin is enabled.
      * <p>Performs initialization and registers commands.
      */
     @Override
     public void onEnable() {
-        plugin = this;
+        MessageManager.reload(this);
         ConfigManager.reload(this);
         YMLLModelLoader.loadAllItems();
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
