@@ -84,7 +84,7 @@ public enum ComponentMessage {
 
     /**
      * Shown when an item is successfully given to a player.<br>
-     * {@code %item%} – The name of the invalid item.<br>
+     * {@code %item%} – The name of the given item.<br>
      * {@code %player%} – The name of the entered player.
      */
     ITEM_GIVEN(

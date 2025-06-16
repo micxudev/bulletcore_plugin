@@ -50,7 +50,7 @@ public final class SubcommandReload implements Subcommand {
         CustomItemsRegistry.clearAll();
         YMLLModelLoader.loadAllItems(BulletCore.getInstance());
         long endTime = System.currentTimeMillis();
-        sender.sendMessage(of(sender, CONFIG_RELOADED, Map.of("time", String.valueOf(endTime - startTime))));
+        sender.sendMessage(of(sender, CONFIG_RELOADED, Map.of("time", Long.toString(endTime - startTime))));
     }
 
     @Override
