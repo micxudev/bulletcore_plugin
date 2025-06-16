@@ -12,6 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 public final class SubcommandGive implements Subcommand {
     @Override
@@ -39,18 +43,18 @@ public final class SubcommandGive implements Subcommand {
         String itemName = args[1];
         CustomBase item = CustomItemsRegistry.all.getItemOrNull(itemName);
         if (item == null) {
-            sender.sendMessage("Invalid item: " + itemName);
+            sender.sendMessage(of(sender, INVALID_ITEM, Map.of("item", itemName)));
             return;
         }
 
         Player player = Bukkit.getPlayer(args[2]);
         if (player == null) {
-            sender.sendMessage("Player not found: " + args[2]);
+            sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", args[2])));
             return;
         }
 
         player.getInventory().addItem(item.createItemStack());
-        sender.sendMessage("Gave " + itemName + " to " + player.getName());
+        sender.sendMessage(of(sender, ITEM_GIVEN, Map.of("item", itemName, "player", player.getName())));
     }
 
     @Override

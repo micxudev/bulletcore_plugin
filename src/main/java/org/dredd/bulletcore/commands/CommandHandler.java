@@ -4,13 +4,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
-import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.commands.subcommands.Subcommand;
 import org.dredd.bulletcore.commands.subcommands.SubcommandGive;
 import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Handles the execution and tab completion of the {@value #MAIN_COMMAND_NAME } command.
@@ -24,11 +26,6 @@ import java.util.*;
  * @since 1.0.0
  */
 public final class CommandHandler implements TabExecutor {
-
-    /**
-     * Reference to the plugin's main instance.
-     */
-    private static final BulletCore plugin = BulletCore.getInstance();
 
     /**
      * The name of the main command for this plugin.
@@ -71,26 +68,26 @@ public final class CommandHandler implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(plugin.getPluginMeta().getDisplayName() +
-                ". Usage: " + "/" + MAIN_COMMAND_NAME + " <subcommand>"
-            );
+            sender.sendMessage(of(sender, NO_SUBCOMMAND_PROVIDED, Map.of("command", MAIN_COMMAND_NAME)));
             return true;
         }
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         if (sub == null) {
-            sender.sendMessage("Unknown subcommand: " + args[0]);
+            sender.sendMessage(of(sender, UNKNOWN_SUBCOMMAND, Map.of("subcommand", args[0])));
             return true;
         }
 
         boolean checkPermission = sub.getPermission() != null && !sub.getPermission().isBlank();
         if (checkPermission && !sender.hasPermission(sub.getPermission())) {
-            sender.sendMessage("You do not have permission to use this subcommand.");
+            sender.sendMessage(of(sender, NO_SUBCOMMAND_PERMISSION, null));
             return true;
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            sender.sendMessage("Usage: " + "/" + MAIN_COMMAND_NAME + " " + sub.getName() + " " + sub.getUsageArgs());
+            sender.sendMessage(of(sender, NOT_ENOUGH_ARGS, Map.of(
+                "command", MAIN_COMMAND_NAME, "subcommand", args[0], "args", sub.getUsageArgs())
+            ));
             return true;
         }
 
