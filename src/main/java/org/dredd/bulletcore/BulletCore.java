@@ -1,13 +1,17 @@
 package org.dredd.bulletcore;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
 import org.dredd.bulletcore.config.messages.MessageManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.listeners.BulletCoreListener;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
 
@@ -61,6 +65,7 @@ public final class BulletCore extends JavaPlugin {
         ConfigManager.reload(this);
         YMLLModelLoader.loadAllItems(this);
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
+        registerListener(new BulletCoreListener(), this);
 
         plugin.getLogger().info("Version: " + version + " - Plugin Enabled");
         plugin.getLogger().info("==================================================================");
@@ -95,5 +100,15 @@ public final class BulletCore extends JavaPlugin {
         } else {
             getLogger().warning("Command '" + label + "' not found in plugin.yml");
         }
+    }
+
+    /**
+     * Registers a listener.
+     *
+     * @param listener the {@link Listener} to register
+     * @param plugin   the {@link Plugin} that owns the listener
+     */
+    private void registerListener(Listener listener, Plugin plugin) {
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 }

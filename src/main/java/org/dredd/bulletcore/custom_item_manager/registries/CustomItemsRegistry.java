@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
+import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
@@ -92,5 +93,15 @@ public final class CustomItemsRegistry {
      */
     public static boolean canNameBeUsed(@Nullable String name) {
         return name != null && !name.isBlank() && !all.exists(name);
+    }
+
+    /**
+     * Returns the {@link CustomBase} item associated with the given {@link ItemStack},
+     * @param stack the item stack to check
+     * @return the item if found, or {@code null} if not registered or the item stack is null
+     */
+    public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
+        MaterialStorage materialStorage = MaterialStorage.getFromItem(stack);
+        return (materialStorage == null) ? null : all.getItemOrNull(materialStorage);
     }
 }
