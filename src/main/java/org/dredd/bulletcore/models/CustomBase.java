@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
@@ -89,11 +90,23 @@ public abstract class CustomBase {
      */
     public abstract @NotNull ItemStack createItemStack();
 
-    /*public abstract boolean onRMB(Player player, ItemStack item);
+    /**
+     * Called when the player right-clicks the with custom item in hand.
+     * @param player The player who right-clicked
+     * @param usedItem The item that was right-clicked
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public abstract boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem);
 
-    public abstract boolean onLMB(Player player, ItemStack item);
+    /**
+     * Called when the player left-clicks the with custom item in hand.
+     * @param player The player who left-clicked
+     * @param usedItem The item that was left-clicked
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public abstract boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem);
 
-    public abstract boolean onSwapTo(Player player, ItemStack item);
+    /*public abstract boolean onSwapTo(Player player, ItemStack item);
 
     public abstract boolean onSwapAway(Player player, ItemStack item);*/
 
