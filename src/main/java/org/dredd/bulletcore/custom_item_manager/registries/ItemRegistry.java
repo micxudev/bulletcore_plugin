@@ -35,7 +35,7 @@ abstract class ItemRegistry<T extends CustomBase> {
      * @param storage the material storage key associated with the item
      * @return the item if found, or {@code null} if not registered
      */
-    public @Nullable T getItemOrNull(MaterialStorage storage) {
+    public @Nullable T getItemOrNull(@NotNull MaterialStorage storage) {
         return items.get(storage);
     }
 
@@ -45,7 +45,7 @@ abstract class ItemRegistry<T extends CustomBase> {
      * @param name the name associated with the item
      * @return the item if found, or {@code null} if not registered
      */
-    public @Nullable T getItemOrNull(String name) {
+    public @Nullable T getItemOrNull(@NotNull String name) {
         return itemsByName.get(name);
     }
 
@@ -101,7 +101,7 @@ abstract class ItemRegistry<T extends CustomBase> {
      * @param name the name of the item
      * @return {@code true} if an item with the given name exists, {@code false} otherwise
      */
-    boolean exists(String name) {
+    boolean exists(@NotNull String name) {
         return itemsByName.containsKey(name);
     }
 }
