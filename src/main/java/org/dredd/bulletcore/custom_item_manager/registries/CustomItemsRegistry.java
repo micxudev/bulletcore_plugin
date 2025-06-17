@@ -96,7 +96,7 @@ public final class CustomItemsRegistry {
     }
 
     /**
-     * Returns the {@link CustomBase} item associated with the given {@link ItemStack},
+     * Returns the {@link CustomBase} item associated with the given {@link ItemStack}.
      * @param stack the item stack to check
      * @return the item if found, or {@code null} if not registered or the item stack is null
      */

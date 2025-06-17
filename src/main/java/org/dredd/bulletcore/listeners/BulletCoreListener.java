@@ -9,8 +9,24 @@ import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 
+/**
+ * The main listener for the plugin.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
+@SuppressWarnings("unused")
 public class BulletCoreListener implements Listener {
+    /* Don't remove commented debug statements; they might become handy any time */
 
+    /**
+     * Handles player interactions with items and determines actions to take based on
+     * the type of custom item and the click action.
+     *
+     * @param event The {@link PlayerInteractEvent} triggered when a player interacts with
+     *              an object or environment, providing details about the interaction,
+     *              such as the player, the item used, and the type of action performed.
+     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(final PlayerInteractEvent event) {
         /* (Called once for each hand) */
