@@ -81,7 +81,7 @@ public class MessageManager {
             }
         }
 
-        plugin.getLogger().info("-Loaded " + messages.size() + " language files");
+        plugin.getLogger().info("-Loaded " + messages.size() + " language files: " + messages.keySet());
     }
 
     /**

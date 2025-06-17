@@ -25,6 +25,11 @@ public final class BulletCore extends JavaPlugin {
     private static BulletCore plugin;
 
     /**
+     * The plugin version.
+     */
+    private final String version;
+
+    /**
      * Gets the singleton instance of the plugin.
      *
      * @return the {@code BulletCore} instance
@@ -41,6 +46,7 @@ public final class BulletCore extends JavaPlugin {
      */
     public BulletCore() {
         plugin = this;
+        version = this.getPluginMeta().getVersion();
     }
 
     /**
@@ -49,10 +55,15 @@ public final class BulletCore extends JavaPlugin {
      */
     @Override
     public void onEnable() {
+        plugin.getLogger().info("==========================< BulletCore >==========================");
+
         MessageManager.reload(this);
         ConfigManager.reload(this);
         YMLLModelLoader.loadAllItems(this);
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
+
+        plugin.getLogger().info("Version: " + version + " - Plugin Enabled");
+        plugin.getLogger().info("==================================================================");
     }
 
     /**
@@ -61,8 +72,13 @@ public final class BulletCore extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        plugin = null;
+        plugin.getLogger().info("==========================< BulletCore >==========================");
+
         CustomItemsRegistry.clearAll();
+
+        plugin.getLogger().info("Version: " + version + " - Plugin Disabled");
+        plugin.getLogger().info("==================================================================");
+        plugin = null;
     }
 
     /**
