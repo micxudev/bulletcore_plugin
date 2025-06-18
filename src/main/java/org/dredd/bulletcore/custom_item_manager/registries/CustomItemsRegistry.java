@@ -97,11 +97,106 @@ public final class CustomItemsRegistry {
 
     /**
      * Returns the {@link CustomBase} item associated with the given {@link ItemStack}.
-     * @param stack the item stack to check
-     * @return the item if found, or {@code null} if not registered or the item stack is null
+     *
+     * @param stack the item stack to check, may be null
+     * @return the item if {@code stack} represents a custom item, or {@code null} otherwise
      */
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
         MaterialStorage materialStorage = MaterialStorage.getFromItem(stack);
         return (materialStorage == null) ? null : all.getItemOrNull(materialStorage);
+    }
+
+    /**
+     * Checks if the given {@link ItemStack} corresponds to a {@link CustomBase} item.
+     *
+     * @param stack the item stack to check, may be null
+     * @return {@code true} if {@code stack} represents a custom item, {@code false} otherwise
+     */
+    public static boolean isCustomItem(@Nullable ItemStack stack) {
+        return getItemOrNull(stack) != null;
+    }
+
+    /**
+     * Returns the {@link Ammo} item associated with the given {@link ItemStack}.
+     *
+     * @param stack the item stack to check, may be null
+     * @return the item if {@code stack} represents ammo, or {@code null} otherwise
+     */
+    public static @Nullable Ammo getAmmoOrNull(@Nullable ItemStack stack) {
+        if (getItemOrNull(stack) instanceof Ammo ammoItem) return ammoItem;
+        return null;
+    }
+
+    /**
+     * Checks if the given {@link ItemStack} corresponds to an {@link Ammo} item.
+     *
+     * @param stack the item stack to check, may be null
+     * @return {@code true} if {@code stack} represents ammo, {@code false} otherwise
+     */
+    public static boolean isAmmo(@Nullable ItemStack stack) {
+        return getAmmoOrNull(stack) != null;
+    }
+
+    /**
+     * Returns the {@link Armor} item associated with the given {@link ItemStack}.
+     *
+     * @param stack the item stack to check, may be null
+     * @return the item if {@code stack} represents armor, or {@code null} otherwise
+     */
+    public static @Nullable Armor getArmorOrNull(@Nullable ItemStack stack) {
+        if (getItemOrNull(stack) instanceof Armor armorItem) return armorItem;
+        return null;
+    }
+
+    /**
+     * Checks if the given {@link ItemStack} corresponds to an {@link Armor} item.
+     *
+     * @param stack the item stack to check, may be null
+     * @return {@code true} if {@code stack} represents armor, {@code false} otherwise
+     */
+    public static boolean isArmor(@Nullable ItemStack stack) {
+        return getArmorOrNull(stack) != null;
+    }
+
+    /**
+     * Returns the {@link Grenade} item associated with the given {@link ItemStack}.
+     *
+     * @param stack the item stack to check, may be null
+     * @return the item if {@code stack} represents a grenade, or {@code null} otherwise
+     */
+    public static @Nullable Grenade getGrenadeOrNull(@Nullable ItemStack stack) {
+        if (getItemOrNull(stack) instanceof Grenade grenadeItem) return grenadeItem;
+        return null;
+    }
+
+    /**
+     * Checks if the given {@link ItemStack} corresponds to a {@link Grenade} item.
+     *
+     * @param stack the item stack to check, may be null
+     * @return {@code true} if {@code stack} represents a grenade, {@code false} otherwise
+     */
+    public static boolean isGrenade(@Nullable ItemStack stack) {
+        return getGrenadeOrNull(stack) != null;
+    }
+
+    /**
+     * Returns the {@link Weapon} item associated with the given {@link ItemStack}.
+     *
+     * @param stack the item stack to check, may be null
+     * @return the item if {@code stack} represents a weapon, or {@code null} otherwise
+     */
+    public static @Nullable Weapon getWeaponOrNull(@Nullable ItemStack stack) {
+        if (getItemOrNull(stack) instanceof Weapon weaponItem) return weaponItem;
+        return null;
+    }
+
+    /**
+     * Checks if the given {@link ItemStack} corresponds to a {@link Weapon} item.
+     *
+     * @param stack the item stack to check, may be null
+     * @return {@code true} if {@code stack} represents a weapon, {@code false} otherwise
+     */
+    public static boolean isWeapon(@Nullable ItemStack stack) {
+        return getWeaponOrNull(stack) != null;
     }
 }
