@@ -17,7 +17,6 @@ import java.util.List;
  */
 public abstract class CustomBase {
 
-    // ----- Fields -----
     /**
      * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).<br>
      * It's recommended to keep this lowercase and without space.
@@ -25,8 +24,8 @@ public abstract class CustomBase {
     public final String name;
 
     /**
-     * This is the value used by resource packs to apply the correct model.<p>
-     * Used by the plugin to uniquely identify the in-game item associated with this custom object.<br>
+     * This is the value used by resource packs to apply the correct model.<br>
+     * Used by the plugin to uniquely identify the in-game item associated with this custom object.
      */
     public final int customModelData;
 
@@ -54,7 +53,6 @@ public abstract class CustomBase {
     public final int maxStackSize;
 
 
-    // ----- Constructor -----
     /**
      * Constructs a new {@link CustomBase} instance.
      *
@@ -70,7 +68,6 @@ public abstract class CustomBase {
     }
 
 
-    // ----- Methods -----
     /**
      * Creates a new {@link ItemStack} with all the {@link BaseAttributes} already set.
      *
@@ -120,7 +117,6 @@ public abstract class CustomBase {
     public abstract boolean onSwapAway(Player player, ItemStack item);*/
 
 
-    // ----- Additional Classes -----
     /**
      * A compact, immutable holder for base-level properties shared by all custom items.
      * <p>
