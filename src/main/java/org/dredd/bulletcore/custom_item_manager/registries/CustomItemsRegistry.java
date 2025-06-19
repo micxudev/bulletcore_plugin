@@ -1,7 +1,7 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
 import org.bukkit.inventory.ItemStack;
-import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
@@ -82,7 +82,16 @@ public final class CustomItemsRegistry {
         armor.clearAll();
         grenade.clearAll();
         weapon.clearAll();
-        MaterialStorage.clearAll();
+    }
+
+    /**
+     * Checks whether a given custom model data is valid and not already used by any registered item.
+     *
+     * @param customModelData the custom model data to check
+     * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
+     */
+    public static boolean canModelDataBeUsed(int customModelData) {
+        return customModelData != 0 && !all.exists(customModelData);
     }
 
     /**
@@ -102,8 +111,10 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a custom item, or {@code null} otherwise
      */
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
-        MaterialStorage materialStorage = MaterialStorage.getFromItem(stack);
-        return (materialStorage == null) ? null : all.getItemOrNull(materialStorage);
+        if (stack == null || !stack.hasItemMeta()) return null;
+        final ItemMeta meta = stack.getItemMeta();
+        if (meta == null || !meta.hasCustomModelData()) return null;
+        return all.getItemOrNull(meta.getCustomModelData());
     }
 
     /**

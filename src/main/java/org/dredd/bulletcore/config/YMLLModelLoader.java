@@ -2,9 +2,11 @@ package org.dredd.bulletcore.config;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
@@ -18,6 +20,7 @@ import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.dredd.bulletcore.utils.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -143,9 +146,11 @@ public final class YMLLModelLoader {
         if (!CustomItemsRegistry.canNameBeUsed(name))
             throw new ItemLoadException("Name: '" + name + "' is already in use or is empty");
 
-        String materialName = config.getString("material");
         int customModelData = config.getInt("customModelData");
-        MaterialStorage materialStorage = MaterialStorage.create(materialName, customModelData);
+        if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))
+            throw new ItemLoadException("CustomModelData: " + customModelData + " is already in use or is 0");
+
+        Material material = getMetaCapableMaterial(config.getString("material"));
 
         Component displayName = config.getRichMessage("displayName", ComponentUtils.noItalic(name, WHITE));
 
@@ -154,11 +159,39 @@ public final class YMLLModelLoader {
             .collect(Collectors.toList());
 
         int maxStackSize = MathUtils.clamp(
-            config.getInt("maxStackSize", materialStorage.material.getMaxStackSize()),
+            config.getInt("maxStackSize", material.getMaxStackSize()),
             1, 99
         );
 
-        return new BaseAttributes(name, materialStorage, displayName, lore, maxStackSize);
+        return new BaseAttributes(name, customModelData, material, displayName, lore, maxStackSize);
+    }
+
+    /**
+     * Parses the given material name and returns the Material if it supports {@link ItemMeta}.
+     *
+     * @param materialName The name of the Material (e.g., "DIAMOND_SWORD")
+     * @return Material that supports ItemMeta
+     * @throws ItemLoadException if the material is invalid or does not support ItemMeta
+     */
+    private static @NotNull Material getMetaCapableMaterial(@Nullable String materialName)
+        throws ItemLoadException {
+        if (materialName == null || materialName.isBlank())
+            throw new ItemLoadException("Material name cannot be null or blank");
+
+        Material material;
+        try {
+            material = Material.valueOf(materialName.toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            throw new ItemLoadException("Invalid material name: " + materialName);
+        }
+
+        if (!material.isItem())
+            throw new ItemLoadException("Material is not an item: " + material);
+
+        if (new ItemStack(material).getItemMeta() == null)
+            throw new ItemLoadException("Material does not support ItemMeta: " + material);
+
+        return material;
     }
 
     /**
