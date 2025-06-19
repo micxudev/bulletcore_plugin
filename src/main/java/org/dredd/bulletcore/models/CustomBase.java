@@ -1,10 +1,10 @@
 package org.dredd.bulletcore.models;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -25,10 +25,16 @@ public abstract class CustomBase {
     public final String name;
 
     /**
-     * Uniquely identifies the in-game item associated with this custom object.<br>
-     * Used for item recognition, registration, and matching during runtime.
+     * This is the value used by resource packs to apply the correct model.<p>
+     * Used by the plugin to uniquely identify the in-game item associated with this custom object.<br>
      */
-    public final MaterialStorage materialStorage;
+    public final int customModelData;
+
+    /**
+     * The base Minecraft {@link Material} used for the custom item.<br>
+     * This affects the item's appearance if no resource pack is used.
+     */
+    public final Material material;
 
     /**
      * The name shown on the item in-game. Supports
@@ -56,7 +62,8 @@ public abstract class CustomBase {
      */
     protected CustomBase(BaseAttributes attrs) {
         this.name = attrs.name;
-        this.materialStorage = attrs.materialStorage;
+        this.customModelData = attrs.customModelData;
+        this.material = attrs.material;
         this.displayName = attrs.displayName;
         this.lore = attrs.lore;
         this.maxStackSize = attrs.maxStackSize;
@@ -70,13 +77,13 @@ public abstract class CustomBase {
      * @return A new {@link ItemStack} with the base attributes applied
      */
     protected @NotNull ItemStack createBaseItemStack() {
-        ItemStack itemStack = new ItemStack(this.materialStorage.material);
+        ItemStack itemStack = new ItemStack(material);
         ItemMeta meta = itemStack.getItemMeta();
 
-        meta.setCustomModelData(this.materialStorage.customModelData);
-        meta.displayName(this.displayName);
-        meta.lore(this.lore);
-        meta.setMaxStackSize(this.maxStackSize);
+        meta.setCustomModelData(customModelData);
+        meta.displayName(displayName);
+        meta.lore(lore);
+        meta.setMaxStackSize(maxStackSize);
 
         itemStack.setItemMeta(meta);
         return itemStack;
@@ -92,7 +99,8 @@ public abstract class CustomBase {
 
     /**
      * Called when the player right-clicks the with custom item in hand.
-     * @param player The player who right-clicked
+     *
+     * @param player   The player who right-clicked
      * @param usedItem The item that was right-clicked
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
@@ -100,7 +108,8 @@ public abstract class CustomBase {
 
     /**
      * Called when the player left-clicks the with custom item in hand.
-     * @param player The player who left-clicked
+     *
+     * @param player   The player who left-clicked
      * @param usedItem The item that was left-clicked
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
@@ -129,7 +138,8 @@ public abstract class CustomBase {
      */
     public record BaseAttributes(
         String name,
-        MaterialStorage materialStorage,
+        int customModelData,
+        Material material,
         Component displayName,
         List<Component> lore,
         int maxStackSize
