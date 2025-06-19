@@ -1,13 +1,17 @@
 package org.dredd.bulletcore.listeners;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.InventoryView;
@@ -15,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
+import org.dredd.bulletcore.models.weapons.Weapon;
 
 /**
  * The main listener for the plugin.
@@ -22,7 +27,6 @@ import org.dredd.bulletcore.models.CustomBase;
  * @author dredd
  * @since 1.0.0
  */
-@SuppressWarnings("unused")
 public class BulletCoreListener implements Listener {
     /* Don't remove commented debug statements; they might become handy any time */
 
@@ -113,7 +117,7 @@ public class BulletCoreListener implements Listener {
         if (CustomItemsRegistry.isWeapon(event.getCursor())) {
             //System.err.println("6. Cursor item is a Weapon. Canceled event.");
             event.setCancelled(true);
-            event.getView().setCursor(event.getCursor());
+            event.getView().setCursor(event.getCursor()); // cursor item disappear glitch fix
             return;
         }
 
@@ -179,6 +183,58 @@ public class BulletCoreListener implements Listener {
         //System.err.println("3. Dragged item into off-hand slot: " + draggedItem.getType());
         if (CustomItemsRegistry.isWeapon(draggedItem)) {
             //System.err.println("4. Off-hand slot item is a Weapon. Canceled event.");
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Handles entity damage events to intercept direct player attacks with custom weapons.
+     * <p>
+     * If a player damages another entity using a weapon registered in the {@link CustomItemsRegistry},
+     * this method cancels the default damage event and instead invokes the weapon's left-click behavior
+     * via {@link Weapon#onLMB(Player, ItemStack)}.
+     *
+     * @param event the {@link EntityDamageByEntityEvent} triggered when an entity is damaged by another entity
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. EntityDamageByEntityEvent.");
+
+        if (!(event.getDamager() instanceof Player damager)) return;
+        //System.err.println("1. Damager is a Player.");
+
+        final EntityDamageEvent.DamageCause cause = event.getCause();
+        //System.err.println("2. Damage cause: " + cause);
+
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
+            return;
+
+        //System.err.println("3. MainHand item: " + damager.getInventory().getItemInMainHand().getType());
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(damager.getInventory().getItemInMainHand());
+        if (weapon != null) {
+            //System.err.println("4. MainHand item is a Weapon. Cancel event. Call onLMB.");
+            event.setCancelled(true);
+            weapon.onLMB(damager, damager.getInventory().getItemInMainHand());
+        }
+    }
+
+    /**
+     * Handles player animation events (e.g., arm swinging) to suppress animation when holding a custom weapon.
+     * <p>
+     * This is used to prevent visual feedback (like swing animations) when using weapons that override
+     * default behavior, ensuring consistent interaction logic and visuals.
+     *
+     * @param event the {@link PlayerAnimationEvent} triggered when a player performs an animation
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onAnimation(PlayerAnimationEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerAnimationEvent.");
+
+        //System.err.println("1. MainHand item: " + event.getPlayer().getInventory().getItemInMainHand().getType());
+        if (CustomItemsRegistry.isWeapon(event.getPlayer().getInventory().getItemInMainHand())) {
+            //System.err.println("2. MainHand item is a Weapon. Cancel event.");
             event.setCancelled(true);
         }
     }
