@@ -22,7 +22,6 @@ import org.dredd.bulletcore.models.CustomBase;
  * @author dredd
  * @since 1.0.0
  */
-@SuppressWarnings("unused")
 public class BulletCoreListener implements Listener {
     /* Don't remove commented debug statements; they might become handy any time */
 
@@ -113,7 +112,7 @@ public class BulletCoreListener implements Listener {
         if (CustomItemsRegistry.isWeapon(event.getCursor())) {
             //System.err.println("6. Cursor item is a Weapon. Canceled event.");
             event.setCancelled(true);
-            event.getView().setCursor(event.getCursor());
+            event.getView().setCursor(event.getCursor()); // cursor item disappear glitch fix
             return;
         }
 
