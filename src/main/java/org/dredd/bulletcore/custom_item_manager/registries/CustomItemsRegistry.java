@@ -85,7 +85,7 @@ public final class CustomItemsRegistry {
     }
 
     /**
-     * Checks whether a given custom modela data is valid and not already used by any registered item.
+     * Checks whether a given custom model data is valid and not already used by any registered item.
      *
      * @param customModelData the custom model data to check
      * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
