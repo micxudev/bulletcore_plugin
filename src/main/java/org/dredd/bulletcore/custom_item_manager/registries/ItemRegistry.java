@@ -1,13 +1,15 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Abstract registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
@@ -21,12 +23,12 @@ abstract class ItemRegistry<T extends CustomBase> {
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Map<Integer, T> items = new ConcurrentHashMap<>();
+    private final Int2ObjectMap<T> items = new Int2ObjectArrayMap<>(16);
 
     /**
      * A mapping of item names to their corresponding custom item instances.
      */
-    private final Map<String, T> itemsByName = new ConcurrentHashMap<>();
+    private final Map<String, T> itemsByName = new HashMap<>();
 
     /**
      * Retrieves an item by its {@link CustomBase#customModelData} key.
