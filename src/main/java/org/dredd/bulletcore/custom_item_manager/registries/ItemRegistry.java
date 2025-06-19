@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
-import org.dredd.bulletcore.custom_item_manager.MaterialStorage;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 abstract class ItemRegistry<T extends CustomBase> {
 
     /**
-     * A mapping of {@link MaterialStorage} keys to their corresponding custom item instances.
+     * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Map<MaterialStorage, T> items = new ConcurrentHashMap<>();
+    private final Map<Integer, T> items = new ConcurrentHashMap<>();
 
     /**
      * A mapping of item names to their corresponding custom item instances.
@@ -30,13 +29,13 @@ abstract class ItemRegistry<T extends CustomBase> {
     private final Map<String, T> itemsByName = new ConcurrentHashMap<>();
 
     /**
-     * Retrieves an item by its {@link MaterialStorage} key.
+     * Retrieves an item by its {@link CustomBase#customModelData} key.
      *
-     * @param storage the material storage key associated with the item
+     * @param customModelData custom model data key associated with the item
      * @return the item if found, or {@code null} if not registered
      */
-    public @Nullable T getItemOrNull(@NotNull MaterialStorage storage) {
-        return items.get(storage);
+    public @Nullable T getItemOrNull(int customModelData) {
+        return items.get(customModelData);
     }
 
     /**
@@ -73,12 +72,12 @@ abstract class ItemRegistry<T extends CustomBase> {
      * @param item the item to register
      */
     void register(@NotNull T item) throws ItemRegisterException {
-        MaterialStorage key1 = item.materialStorage;
+        int key1 = item.customModelData;
         String key2 = item.name;
 
-        T existingByStorage = items.putIfAbsent(key1, item);
-        if (existingByStorage != null)
-            throw new ItemRegisterException("Item already registered: " + key1);
+        T existingByModelData = items.putIfAbsent(key1, item);
+        if (existingByModelData != null)
+            throw new ItemRegisterException("Item with customModelData " + key1 + " already registered");
 
         T existingByName = itemsByName.putIfAbsent(key2, item);
         if (existingByName != null) {
@@ -93,6 +92,16 @@ abstract class ItemRegistry<T extends CustomBase> {
     void clearAll() {
         items.clear();
         itemsByName.clear();
+    }
+
+    /**
+     * Checks if an item exists in the registry by its customModelData.
+     *
+     * @param customModelData the custom model data of the item
+     * @return {@code true} if an item with the given custom model data exists, {@code false} otherwise
+     */
+    boolean exists(int customModelData) {
+        return items.containsKey(customModelData);
     }
 
     /**
