@@ -17,6 +17,17 @@ public class Weapon extends CustomBase {
         super(attrs);
     }
 
+    /**
+     * Triggered when a player attempts to drop a weapon.
+     * This method is invoked specifically when the drop action is initiated manually with the drop key (Q).
+     *
+     * @param player   the player who attempts to drop the weapon
+     * @param usedItem the item being dropped, which is this weapon object
+     */
+    public void onDrop(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Weapon drop attempt on key (Q)");
+    }
+
     @Override
     public @NotNull ItemStack createItemStack() {
         // Add only weapon-specific attributes
