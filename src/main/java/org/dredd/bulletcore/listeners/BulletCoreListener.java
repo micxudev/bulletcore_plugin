@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.listeners;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,17 +12,19 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.weapons.Weapon;
+
+import java.util.Collections;
+
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.*;
 
 /**
  * The main listener for the plugin.
@@ -76,7 +79,7 @@ public class BulletCoreListener implements Listener {
         if (usedItem == null) return;
         //System.err.println("1. Interact item is not null");
 
-        final CustomBase usedCustomItem = CustomItemsRegistry.getItemOrNull(usedItem);
+        final CustomBase usedCustomItem = getItemOrNull(usedItem);
         if (usedCustomItem == null) return;
         //System.err.println("2. Custom item found. Name: " + usedCustomItem.name);
 
@@ -105,12 +108,11 @@ public class BulletCoreListener implements Listener {
      *
      * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryClick(final InventoryClickEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. InventoryClickEvent.");
 
-        if (event.isCancelled()) return;
         //System.err.println("1. Event is not canceled.");
 
         if (!(event.getClickedInventory() instanceof PlayerInventory playerInventory)) return;
@@ -118,7 +120,7 @@ public class BulletCoreListener implements Listener {
 
         if (event.getClick() == ClickType.SWAP_OFFHAND) {
             //System.err.println("3.1. Current item during Swap: " + (event.getCurrentItem() != null ? event.getCurrentItem().getType() : "null"));
-            if (CustomItemsRegistry.isWeapon(event.getCurrentItem())) {
+            if (isWeapon(event.getCurrentItem())) {
                 //System.err.println("4. Current item during Swap is a Weapon. Canceled event.");
                 event.setCancelled(true);
                 return;
@@ -130,7 +132,7 @@ public class BulletCoreListener implements Listener {
         //System.err.println("4. Slot is off-hand: " + event.getSlot());
 
         //System.err.println("5. Cursor item: " + event.getCursor().getType());
-        if (CustomItemsRegistry.isWeapon(event.getCursor())) {
+        if (isWeapon(event.getCursor())) {
             //System.err.println("6. Cursor item is a Weapon. Canceled event.");
             event.setCancelled(true);
             event.getView().setCursor(event.getCursor()); // cursor item disappear glitch fix
@@ -140,7 +142,7 @@ public class BulletCoreListener implements Listener {
         if (event.getClick() == ClickType.NUMBER_KEY) {
             final ItemStack hotbarItem = playerInventory.getItem(event.getHotbarButton());
             //System.err.println("6. Hotbar item: " + (hotbarItem != null ? hotbarItem.getType() : "null"));
-            if (CustomItemsRegistry.isWeapon(hotbarItem)) {
+            if (isWeapon(hotbarItem)) {
                 //System.err.println("7. Hotbar item is a Weapon. Canceled event.");
                 event.setCancelled(true);
                 return;
@@ -148,7 +150,7 @@ public class BulletCoreListener implements Listener {
         }
 
         //System.err.println("7. Current item: " + (event.getCurrentItem() != null ? event.getCurrentItem().getType() : "null"));
-        if (CustomItemsRegistry.isWeapon(event.getCurrentItem())) {
+        if (isWeapon(event.getCurrentItem())) {
             //System.err.println("8. Current item is a Weapon. Canceled event.");
             event.setCancelled(true);
         }
@@ -166,14 +168,14 @@ public class BulletCoreListener implements Listener {
         //System.err.println("0. PlayerSwapHandItemsEvent.");
 
         //System.err.println("1. OffHand item: " + event.getOffHandItem().getType());
-        if (CustomItemsRegistry.isWeapon(event.getOffHandItem())) {
+        if (isWeapon(event.getOffHandItem())) {
             //System.err.println("2. OffHand item is a Weapon. Canceled event.");
             event.setCancelled(true);
             return;
         }
 
         //System.err.println("2. MainHand item: " + event.getMainHandItem().getType());
-        if (CustomItemsRegistry.isWeapon(event.getMainHandItem())) {
+        if (isWeapon(event.getMainHandItem())) {
             //System.err.println("3. MainHand item is a Weapon. Canceled event.");
             event.setCancelled(true);
         }
@@ -197,7 +199,7 @@ public class BulletCoreListener implements Listener {
 
         final ItemStack draggedItem = event.getNewItems().get(RAW_OFFHAND_SLOT);
         //System.err.println("3. Dragged item into off-hand slot: " + draggedItem.getType());
-        if (CustomItemsRegistry.isWeapon(draggedItem)) {
+        if (isWeapon(draggedItem)) {
             //System.err.println("4. Off-hand slot item is a Weapon. Canceled event.");
             event.setCancelled(true);
         }
@@ -227,7 +229,7 @@ public class BulletCoreListener implements Listener {
             return;
 
         //System.err.println("3. MainHand item: " + damager.getInventory().getItemInMainHand().getType());
-        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(damager.getInventory().getItemInMainHand());
+        final Weapon weapon = getWeaponOrNull(damager.getInventory().getItemInMainHand());
         if (weapon != null) {
             //System.err.println("4. MainHand item is a Weapon. Cancel event. Call onLMB.");
             event.setCancelled(true);
@@ -249,7 +251,7 @@ public class BulletCoreListener implements Listener {
         //System.err.println("0. PlayerAnimationEvent.");
 
         //System.err.println("1. MainHand item: " + event.getPlayer().getInventory().getItemInMainHand().getType());
-        if (CustomItemsRegistry.isWeapon(event.getPlayer().getInventory().getItemInMainHand())) {
+        if (isWeapon(event.getPlayer().getInventory().getItemInMainHand())) {
             //System.err.println("2. MainHand item is a Weapon. Cancel event.");
             event.setCancelled(true);
         }
@@ -266,7 +268,7 @@ public class BulletCoreListener implements Listener {
         //System.err.println("0. PlayerDropItemEvent.");
 
         final ItemStack droppedItem = event.getItemDrop().getItemStack();
-        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(droppedItem);
+        final Weapon weapon = getWeaponOrNull(droppedItem);
         if (weapon == null) return;
         //System.err.println("1. Dropped item is a Weapon.");
 
@@ -284,5 +286,93 @@ public class BulletCoreListener implements Listener {
         //System.err.println("2. Used key (Q) to drop item. Cancel drop.");
         event.setCancelled(true);
         weapon.onDrop(player, droppedItem);
+    }
+
+    /**
+     * Handles player sneaking to simulate charging and discharging a custom crossbow weapon.
+     * <p>
+     * When a player begins sneaking while holding a valid custom crossbow weapon,
+     * an arrow is visually charged into it. When the player stops sneaking,
+     * the crossbow is visually discharged.
+     *
+     * @param event the {@link PlayerToggleSneakEvent} triggered when a player toggles sneaking.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onShift(PlayerToggleSneakEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerToggleSneakEvent.");
+
+        final ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
+        if (!(mainHandItem.getItemMeta() instanceof CrossbowMeta meta) || !isWeapon(mainHandItem)) return;
+        //System.err.println("1. Player has Crossbow Weapon in MainHand.");
+
+        if (event.isSneaking()) {
+            //System.err.println("2. Player is now sneaking. Charge Crossbow.");
+            meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
+        } else {
+            //System.err.println("2. Player is NO MORE sneaking. Discharge Crossbow.");
+            meta.setChargedProjectiles(null);
+        }
+        mainHandItem.setItemMeta(meta);
+    }
+
+    /**
+     * Handles item slot changes to simulate charging and discharging a custom crossbow weapon
+     * when the player is sneaking.
+     * <p>
+     * If the player is sneaking and swaps away from a crossbow weapon, it is visually discharged.<br>
+     * If the player swaps to a crossbow weapon, it is visually charged.
+     *
+     * @param event the {@link PlayerItemHeldEvent} triggered when a player changes their selected hotbar slot.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onWeaponSwap(PlayerItemHeldEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerItemHeldEvent.");
+
+        if (!event.getPlayer().isSneaking()) return;
+        //System.err.println("1. Player is sneaking.");
+
+        final PlayerInventory inventory = event.getPlayer().getInventory();
+
+        final ItemStack prevItem = inventory.getItem(event.getPreviousSlot());
+        if (prevItem != null && (prevItem.getItemMeta() instanceof CrossbowMeta meta) && isWeapon(prevItem)) {
+            //System.err.println("2.1. Player swapped FROM Crossbow Weapon. Discharge Crossbow.");
+            meta.setChargedProjectiles(null);
+            prevItem.setItemMeta(meta);
+        }
+
+        final ItemStack newItem = inventory.getItem(event.getNewSlot());
+        if (newItem != null && (newItem.getItemMeta() instanceof CrossbowMeta meta) && isWeapon(newItem)) {
+            //System.err.println("2.2. Player swapped TO Crossbow Weapon. Charge Crossbow.");
+            meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
+            newItem.setItemMeta(meta);
+        }
+    }
+
+    /**
+     * Cancels right-click charging of a custom crossbow weapon to override default Minecraft behavior.
+     * <p>
+     * If the player right-clicks with a crossbow identified as a custom weapon,
+     * the interaction is canceled to prevent Minecraft from charging the crossbow normally.
+     *
+     * @param event the {@link PlayerInteractEvent} triggered when a player interacts (e.g., right-clicks).
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onCrossbowCharge(PlayerInteractEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerInteractEvent (CROSSBOW Charge).");
+
+        final ItemStack usedItem = event.getItem();
+        if (usedItem == null || !event.getAction().isRightClick()) return;
+        //System.err.println("1. Player Right-Clicked with non-null item.");
+
+        if (usedItem.getType() != Material.CROSSBOW) return;
+        //System.err.println("2. UsedItem is CROSSBOW.");
+
+        if (isWeapon(usedItem)) {
+            //System.err.println("2. UsedItem is Crossbow Weapon. Stop charging it. Cancel event.");
+            event.setCancelled(true);
+        }
     }
 }
