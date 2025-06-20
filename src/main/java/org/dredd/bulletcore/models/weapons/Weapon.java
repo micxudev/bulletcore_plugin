@@ -2,8 +2,12 @@ package org.dredd.bulletcore.models.weapons;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
+
+import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
+import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 
 /**
  * Represents weapon items.
@@ -30,8 +34,15 @@ public class Weapon extends CustomBase {
 
     @Override
     public @NotNull ItemStack createItemStack() {
+        ItemStack stack = createBaseItemStack();
+        ItemMeta meta = stack.getItemMeta();
+
         // Add only weapon-specific attributes
-        return createBaseItemStack();
+        meta.setUnbreakable(true);
+        meta.addItemFlags(HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
+
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     @Override
