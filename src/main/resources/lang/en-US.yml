@@ -3,6 +3,11 @@
 # 2. Messages are to be written in Minimessage format (https://docs.advntr.dev/minimessage/index.html)
 
 
+# · Used when: A player/console executes a command that is not defined.
+# · Placeholders: %commandline% – the command that was sent.
+unknown-command: "<red>Unknown command: <white>%commandline%</white>"
+
+
 # · Used when: The command is run with no arguments.
 # · Placeholders: %command% – the main command name.
 no-subcommand-provided: "<red>Usage: <white>/%command% <subcommand></white>"

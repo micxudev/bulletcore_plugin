@@ -3,6 +3,11 @@
 # 2. Сообщения должны быть написаны в формате Minimessage (https://docs.advntr.dev/minimessage/index.html)
 
 
+# · Используется когда: Игрок или консоль вводит неизвестную команду.
+# · Плейсхолдеры: %commandline% – введённая команда.
+unknown-command: "<red>Неизвестная команда: <white>%commandline%</white>"
+
+
 # · Используется когда: Команда введена без аргументов.
 # · Плейсхолдеры: %command% — основное имя команды.
 no-subcommand-provided: "<red>Использование: <white>/%command% <subcommand></white>"
