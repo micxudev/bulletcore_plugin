@@ -3,6 +3,11 @@
 # 2. Повідомлення слід писати у форматі Minimessage (https://docs.advntr.dev/minimessage/index.html)
 
 
+# · Використовується коли: Гравець або консоль уводить невизначену команду.
+# · Плейсхолдери: %commandline% – уведена команда.
+unknown-command: "<red>Невідома команда: <white>%commandline%</white>"
+
+
 # · Використовується коли: Команду введено без аргументів.
 # · Плейсхолдери: %command% — основна назва команди.
 no-subcommand-provided: "<red>Використання: <white>/%command% <subcommand></white>"

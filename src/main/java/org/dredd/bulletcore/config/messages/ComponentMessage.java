@@ -18,6 +18,15 @@ package org.dredd.bulletcore.config.messages;
 public enum ComponentMessage {
 
     /**
+     * Shown when a player/console executes a command that is not defined.<br>
+     * {@code %commandline%} – The command that was sent.
+     */
+    UNKNOWN_COMMAND(
+        "unknown-command",
+        "<red>Unknown command: <white>%commandline%</white>"
+    ),
+
+    /**
      * Shown when a command is executed without a subcommand.<br>
      * {@code %command%} – The main command name.
      */

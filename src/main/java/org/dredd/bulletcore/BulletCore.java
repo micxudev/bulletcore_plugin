@@ -12,6 +12,7 @@ import org.dredd.bulletcore.config.messages.MessageManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.BulletCoreListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
+import org.dredd.bulletcore.listeners.UnknownCommandListener;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
@@ -70,6 +71,7 @@ public final class BulletCore extends JavaPlugin {
         PlayerActionTracker tracker = new PlayerActionTracker();
         registerListener(new BulletCoreListener(tracker));
         registerListener(new PlayerActionsListener(tracker));
+        registerListener(new UnknownCommandListener());
 
         plugin.getLogger().info("Version: " + version + " - Plugin Enabled");
         plugin.getLogger().info("==================================================================");
