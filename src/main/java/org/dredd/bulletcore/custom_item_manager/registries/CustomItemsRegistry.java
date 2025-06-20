@@ -105,16 +105,30 @@ public final class CustomItemsRegistry {
     }
 
     /**
+     * Retrieves the custom model data from the given {@link ItemStack}.
+     * <p>
+     * If the stack is {@code null}, lacks item meta, or does not have custom model data set,
+     * this method returns {@code 0}.
+     *
+     * @param stack the item stack to inspect, may be {@code null}
+     * @return the custom model data if present and valid, or {@code 0} otherwise
+     */
+    private static int getModelDataOrZero(@Nullable ItemStack stack) {
+        if (stack == null || !stack.hasItemMeta()) return 0;
+        ItemMeta meta = stack.getItemMeta();
+        if (meta == null || !meta.hasCustomModelData()) return 0;
+        return meta.getCustomModelData();
+    }
+
+    /**
      * Returns the {@link CustomBase} item associated with the given {@link ItemStack}.
      *
      * @param stack the item stack to check, may be null
      * @return the item if {@code stack} represents a custom item, or {@code null} otherwise
      */
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
-        if (stack == null || !stack.hasItemMeta()) return null;
-        final ItemMeta meta = stack.getItemMeta();
-        if (meta == null || !meta.hasCustomModelData()) return null;
-        return all.getItemOrNull(meta.getCustomModelData());
+        int modelData = getModelDataOrZero(stack);
+        return (modelData == 0) ? null : all.getItemOrNull(modelData);
     }
 
     /**
@@ -134,8 +148,8 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents ammo, or {@code null} otherwise
      */
     public static @Nullable Ammo getAmmoOrNull(@Nullable ItemStack stack) {
-        if (getItemOrNull(stack) instanceof Ammo ammoItem) return ammoItem;
-        return null;
+        int modelData = getModelDataOrZero(stack);
+        return (modelData == 0) ? null : ammo.getItemOrNull(modelData);
     }
 
     /**
@@ -155,8 +169,8 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents armor, or {@code null} otherwise
      */
     public static @Nullable Armor getArmorOrNull(@Nullable ItemStack stack) {
-        if (getItemOrNull(stack) instanceof Armor armorItem) return armorItem;
-        return null;
+        int modelData = getModelDataOrZero(stack);
+        return (modelData == 0) ? null : armor.getItemOrNull(modelData);
     }
 
     /**
@@ -176,8 +190,8 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a grenade, or {@code null} otherwise
      */
     public static @Nullable Grenade getGrenadeOrNull(@Nullable ItemStack stack) {
-        if (getItemOrNull(stack) instanceof Grenade grenadeItem) return grenadeItem;
-        return null;
+        int modelData = getModelDataOrZero(stack);
+        return (modelData == 0) ? null : grenade.getItemOrNull(modelData);
     }
 
     /**
@@ -197,8 +211,8 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a weapon, or {@code null} otherwise
      */
     public static @Nullable Weapon getWeaponOrNull(@Nullable ItemStack stack) {
-        if (getItemOrNull(stack) instanceof Weapon weaponItem) return weaponItem;
-        return null;
+        int modelData = getModelDataOrZero(stack);
+        return (modelData == 0) ? null : weapon.getItemOrNull(modelData);
     }
 
     /**
