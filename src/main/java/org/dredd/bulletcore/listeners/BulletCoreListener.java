@@ -12,12 +12,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.weapons.Weapon;
 
@@ -41,6 +43,20 @@ public class BulletCoreListener implements Listener {
      * @see InventoryView#convertSlot(int)
      */
     private static final int CONVERTED_OFFHAND_SLOT = 40;
+
+    /**
+     * The {@link PlayerActionTracker} instance used to track player interactions.
+     */
+    private final PlayerActionTracker tracker;
+
+    /**
+     * Constructs a new listener using the provided tracker instance.
+     *
+     * @param tracker the {@link PlayerActionTracker} used to track player interactions
+     */
+    public BulletCoreListener(PlayerActionTracker tracker) {
+        this.tracker = tracker;
+    }
 
     /**
      * Handles player interaction events to detect and respond to clicks involving custom items.
@@ -237,5 +253,36 @@ public class BulletCoreListener implements Listener {
             //System.err.println("2. MainHand item is a Weapon. Cancel event.");
             event.setCancelled(true);
         }
+    }
+
+    /**
+     * Handles item drop events to prevent players from dropping weapons using key (Q)
+     *
+     * @param event the {@link PlayerDropItemEvent} triggered when a player drops an item
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemDrop(PlayerDropItemEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerDropItemEvent.");
+
+        final ItemStack droppedItem = event.getItemDrop().getItemStack();
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(droppedItem);
+        if (weapon == null) return;
+        //System.err.println("1. Dropped item is a Weapon.");
+
+        final Player player = event.getPlayer();
+
+        long now = System.currentTimeMillis();
+        long last = tracker.getLastInventoryInteraction(player.getUniqueId());
+
+        // If less than 50 ms passed since the last inventory interaction, assume it came from GUI
+        if (now - last < 50) {
+            //System.err.println("2. Used GUI to drop item. Allow drop.");
+            return;
+        }
+
+        //System.err.println("2. Used key (Q) to drop item. Cancel drop.");
+        event.setCancelled(true);
+        weapon.onDrop(player, droppedItem);
     }
 }
