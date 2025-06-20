@@ -1,0 +1,62 @@
+package org.dredd.bulletcore.listeners;
+
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
+
+/**
+ * Listens for player actions and records them using {@link PlayerActionTracker}.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
+public class PlayerActionsListener implements Listener {
+
+    private final PlayerActionTracker tracker;
+
+    /**
+     * Constructs a new listener using the provided tracker instance.
+     *
+     * @param tracker the {@link PlayerActionTracker} used to store inventory interaction timestamps
+     */
+    public PlayerActionsListener(PlayerActionTracker tracker) {
+        this.tracker = tracker;
+    }
+
+    /**
+     * Called when a player clicks in an inventory.<br>
+     * Updates the player's last inventory interaction time.
+     *
+     * @param event the {@link InventoryClickEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryInteract(InventoryClickEvent event) {
+        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+    }
+
+    /**
+     * Called when a player drags items in an inventory.<br>
+     * Updates the player's last inventory interaction time.
+     *
+     * @param event the {@link InventoryDragEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent event) {
+        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+    }
+
+    /**
+     * Called when a player quits the server.<br>
+     * Clears tracking information for the player.
+     *
+     * @param event the {@link PlayerQuitEvent} triggered
+     */
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        tracker.clear(event.getPlayer().getUniqueId());
+    }
+}
