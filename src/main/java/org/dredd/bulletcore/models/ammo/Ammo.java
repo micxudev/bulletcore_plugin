@@ -34,4 +34,16 @@ public class Ammo extends CustomBase {
         //System.out.println("Left-click with Ammo");
         return false;
     }
+
+    @Override
+    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped to Ammo");
+        return false;
+    }
+
+    @Override
+    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped away from Ammo");
+        return false;
+    }
 }
