@@ -112,10 +112,23 @@ public abstract class CustomBase {
      */
     public abstract boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem);
 
-    /*public abstract boolean onSwapTo(Player player, ItemStack item);
+    /**
+     * Called when the player swaps to the custom item.
+     *
+     * @param player   The player who swapped to the item
+     * @param usedItem The item that was swapped to
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public abstract boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem);
 
-    public abstract boolean onSwapAway(Player player, ItemStack item);*/
-
+    /**
+     * Called when the player swaps away from the custom item.
+     *
+     * @param player   The player who swapped away from the item
+     * @param usedItem The item that was swapped away
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public abstract boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem);
 
     /**
      * A compact, immutable holder for base-level properties shared by all custom items.
