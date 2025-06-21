@@ -61,6 +61,9 @@ public class BulletCoreListener implements Listener {
         this.tracker = tracker;
     }
 
+
+    /* ========== All Custom Items Listeners ========== */
+
     /**
      * Handles player interaction events to detect and respond to clicks involving custom items.
      * <p>
@@ -98,6 +101,36 @@ public class BulletCoreListener implements Listener {
             }
         }
     }
+
+    /**
+     * Handles item slot changes for custom items.
+     *
+     * @param event the {@link PlayerItemHeldEvent} triggered when a player changes their selected hotbar slot.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemSwap(PlayerItemHeldEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerItemHeldEvent.");
+
+        final PlayerInventory inventory = event.getPlayer().getInventory();
+
+        final ItemStack prevItem = inventory.getItem(event.getPreviousSlot());
+        if (prevItem != null) {
+            final CustomBase prevCustomItem = getItemOrNull(prevItem);
+            if (prevCustomItem != null && prevCustomItem.onSwapAway(event.getPlayer(), prevItem))
+                event.setCancelled(true);
+        }
+
+        final ItemStack newItem = inventory.getItem(event.getNewSlot());
+        if (newItem != null) {
+            final CustomBase newCustomItem = getItemOrNull(newItem);
+            if (newCustomItem != null && newCustomItem.onSwapTo(event.getPlayer(), newItem))
+                event.setCancelled(true);
+        }
+    }
+
+
+    /* ========== Weapon-Specific Listeners ========== */
 
     /**
      * Handles inventory click events to prevent custom weapons from being placed into the off-hand slot.
@@ -315,32 +348,5 @@ public class BulletCoreListener implements Listener {
             meta.setChargedProjectiles(null);
         }
         mainHandItem.setItemMeta(meta);
-    }
-
-    /**
-     * Handles item slot changes for custom items.
-     *
-     * @param event the {@link PlayerItemHeldEvent} triggered when a player changes their selected hotbar slot.
-     */
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemSwap(PlayerItemHeldEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerItemHeldEvent.");
-
-        final PlayerInventory inventory = event.getPlayer().getInventory();
-
-        final ItemStack prevItem = inventory.getItem(event.getPreviousSlot());
-        if (prevItem != null) {
-            final CustomBase prevCustomItem = getItemOrNull(prevItem);
-            if (prevCustomItem != null && prevCustomItem.onSwapAway(event.getPlayer(), prevItem))
-                event.setCancelled(true);
-        }
-
-        final ItemStack newItem = inventory.getItem(event.getNewSlot());
-        if (newItem != null) {
-            final CustomBase newCustomItem = getItemOrNull(newItem);
-            if (newCustomItem != null && newCustomItem.onSwapTo(event.getPlayer(), newItem))
-                event.setCancelled(true);
-        }
     }
 }
