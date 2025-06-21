@@ -225,7 +225,8 @@ public class BulletCoreListener implements Listener {
         final EntityDamageEvent.DamageCause cause = event.getCause();
         //System.err.println("2. Damage cause: " + cause);
 
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK &&
+            cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
             return;
 
         //System.err.println("3. MainHand item: " + damager.getInventory().getItemInMainHand().getType());
@@ -330,49 +331,20 @@ public class BulletCoreListener implements Listener {
         //System.err.println("===============================");
         //System.err.println("0. PlayerItemHeldEvent.");
 
-        if (!event.getPlayer().isSneaking()) return;
-        //System.err.println("1. Player is sneaking.");
-
         final PlayerInventory inventory = event.getPlayer().getInventory();
 
         final ItemStack prevItem = inventory.getItem(event.getPreviousSlot());
-        if (prevItem != null && (prevItem.getItemMeta() instanceof CrossbowMeta meta) && isWeapon(prevItem)) {
-            //System.err.println("2.1. Player swapped FROM Crossbow Weapon. Discharge Crossbow.");
-            meta.setChargedProjectiles(null);
-            prevItem.setItemMeta(meta);
+        if (prevItem != null) {
+            final CustomBase prevCustomItem = getItemOrNull(prevItem);
+            if (prevCustomItem != null && prevCustomItem.onSwapAway(event.getPlayer(), prevItem))
+                event.setCancelled(true);
         }
 
         final ItemStack newItem = inventory.getItem(event.getNewSlot());
-        if (newItem != null && (newItem.getItemMeta() instanceof CrossbowMeta meta) && isWeapon(newItem)) {
-            //System.err.println("2.2. Player swapped TO Crossbow Weapon. Charge Crossbow.");
-            meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
-            newItem.setItemMeta(meta);
-        }
-    }
-
-    /**
-     * Cancels right-click charging of a custom crossbow weapon to override default Minecraft behavior.
-     * <p>
-     * If the player right-clicks with a crossbow identified as a custom weapon,
-     * the interaction is canceled to prevent Minecraft from charging the crossbow normally.
-     *
-     * @param event the {@link PlayerInteractEvent} triggered when a player interacts (e.g., right-clicks).
-     */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onCrossbowCharge(PlayerInteractEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerInteractEvent (CROSSBOW Charge).");
-
-        final ItemStack usedItem = event.getItem();
-        if (usedItem == null || !event.getAction().isRightClick()) return;
-        //System.err.println("1. Player Right-Clicked with non-null item.");
-
-        if (usedItem.getType() != Material.CROSSBOW) return;
-        //System.err.println("2. UsedItem is CROSSBOW.");
-
-        if (isWeapon(usedItem)) {
-            //System.err.println("2. UsedItem is Crossbow Weapon. Stop charging it. Cancel event.");
-            event.setCancelled(true);
+        if (newItem != null) {
+            final CustomBase newCustomItem = getItemOrNull(newItem);
+            if (newCustomItem != null && newCustomItem.onSwapTo(event.getPlayer(), newItem))
+                event.setCancelled(true);
         }
     }
 }
