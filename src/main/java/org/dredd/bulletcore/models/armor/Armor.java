@@ -34,4 +34,16 @@ public class Armor extends CustomBase {
         //System.out.println("Left-click with Armor");
         return false;
     }
+
+    @Override
+    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped to Armor");
+        return false;
+    }
+
+    @Override
+    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped away from Armor");
+        return false;
+    }
 }

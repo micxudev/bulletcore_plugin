@@ -34,4 +34,16 @@ public class Grenade extends CustomBase {
         //System.out.println("Left-click with Grenade");
         return false;
     }
+
+    @Override
+    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped to Grenade");
+        return false;
+    }
+
+    @Override
+    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped away from Grenade");
+        return false;
+    }
 }

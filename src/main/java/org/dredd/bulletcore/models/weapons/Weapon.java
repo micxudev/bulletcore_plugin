@@ -1,10 +1,14 @@
 package org.dredd.bulletcore.models.weapons;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
@@ -48,12 +52,44 @@ public class Weapon extends CustomBase {
     @Override
     public boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem) {
         //System.out.println("Right-click with Weapon");
-        return false;
+        return material == Material.CROSSBOW; // Cancel charging the crossbow
     }
 
     @Override
     public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
         //System.out.println("Left-click with Weapon");
+        return false;
+    }
+
+    @Override
+    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped to Weapon");
+
+        if (!player.isSneaking()) return false;
+        //System.err.println("1. Player is sneaking.");
+
+        if (usedItem.getItemMeta() instanceof CrossbowMeta meta) {
+            //System.err.println("2.2. Player swapped TO Crossbow Weapon. Charge Crossbow.");
+            meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
+            usedItem.setItemMeta(meta);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
+        //System.out.println("Swapped away from Weapon");
+
+        if (!player.isSneaking()) return false;
+        //System.err.println("1. Player is sneaking.");
+
+        if (usedItem.getItemMeta() instanceof CrossbowMeta meta) {
+            //System.err.println("2.1. Player swapped FROM Crossbow Weapon. Discharge Crossbow.");
+            meta.setChargedProjectiles(null);
+            usedItem.setItemMeta(meta);
+        }
+
         return false;
     }
 }
