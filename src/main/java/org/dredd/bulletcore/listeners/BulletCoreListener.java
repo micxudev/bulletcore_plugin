@@ -318,16 +318,12 @@ public class BulletCoreListener implements Listener {
     }
 
     /**
-     * Handles item slot changes to simulate charging and discharging a custom crossbow weapon
-     * when the player is sneaking.
-     * <p>
-     * If the player is sneaking and swaps away from a crossbow weapon, it is visually discharged.<br>
-     * If the player swaps to a crossbow weapon, it is visually charged.
+     * Handles item slot changes for custom items.
      *
      * @param event the {@link PlayerItemHeldEvent} triggered when a player changes their selected hotbar slot.
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onWeaponSwap(PlayerItemHeldEvent event) {
+    public void onItemSwap(PlayerItemHeldEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. PlayerItemHeldEvent.");
 
