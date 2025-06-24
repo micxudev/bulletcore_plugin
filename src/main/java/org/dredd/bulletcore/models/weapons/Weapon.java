@@ -34,8 +34,11 @@ public class Weapon extends CustomBase {
      */
     private static final Map<UUID, Long> lastShots = new HashMap<>();
 
-    public Weapon(BaseAttributes attrs) {
+    public final double damage;
+
+    public Weapon(BaseAttributes attrs, double damage) {
         super(attrs);
+        this.damage = damage;
     }
 
     /**
@@ -118,7 +121,7 @@ public class Weapon extends CustomBase {
 
                 if (nearby instanceof LivingEntity victim && !skipHit(victim)) {
 
-                    applyCustomDamage(victim, player, 10 /* gun base damage */, point);
+                    applyCustomDamage(victim, player, damage, point);
 
                     // Entity hit particle, sound
                     world.spawnParticle(Particle.DAMAGE_INDICATOR, victim.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.1);

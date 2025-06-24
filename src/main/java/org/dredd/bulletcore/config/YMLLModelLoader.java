@@ -247,6 +247,8 @@ public final class YMLLModelLoader {
         var baseAttributes = loadBaseAttributes(config);
         // Load only weapon-specific attributes
 
-        return new Weapon(baseAttributes);
+        double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
+
+        return new Weapon(baseAttributes, damage);
     }
 }
