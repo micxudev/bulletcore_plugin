@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.weapons.Weapon;
@@ -264,10 +267,15 @@ public class BulletCoreListener implements Listener {
 
         //System.err.println("3. MainHand item: " + damager.getInventory().getItemInMainHand().getType());
         final Weapon weapon = getWeaponOrNull(damager.getInventory().getItemInMainHand());
-        if (weapon != null) {
+        if (weapon != null && !CurrentHitTracker.isAlreadyHit(damager.getUniqueId(), event.getEntity().getUniqueId())) {
             //System.err.println("4. MainHand item is a Weapon. Cancel event. Call onLMB.");
             event.setCancelled(true);
-            weapon.onLMB(damager, damager.getInventory().getItemInMainHand());
+
+            // Runs on the next tick to prevent PlayerDeathEvent being called twice
+            // since onLMB may also trigger EntityDamageByEntityEvent
+            Bukkit.getScheduler().runTask(BulletCore.getInstance(), () ->
+                weapon.onLMB(damager, damager.getInventory().getItemInMainHand())
+            );
         }
     }
 
