@@ -1,8 +1,13 @@
 package org.dredd.bulletcore.config;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.utils.MathUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.*;
 
 /**
  * Class for loading and managing the plugin's configuration.
@@ -49,13 +54,10 @@ public final class ConfigManager {
 
     public final boolean enableLoreGunInfoMessages;
 
-    public final boolean blockBulletsDoor;
-    public final boolean blockBulletsLeaves;
-    public final boolean blockBulletsWater;
-    public final boolean blockBulletsGlass;
-
     public final boolean enableExplosions;
     public final boolean enableMuzzleFlashes;
+
+    public final @Unmodifiable Set<Material> ignoredMaterials;
 
     /**
      * Initializes the {@code ConfigManager} by loading and parsing configuration values
@@ -81,12 +83,26 @@ public final class ConfigManager {
 
         enableLoreGunInfoMessages = cfg.getBoolean("enable-lore-gun-info-messages", true);
 
-        blockBulletsDoor = cfg.getBoolean("block-bullets.door", false);
-        blockBulletsLeaves = cfg.getBoolean("block-bullets.leaves", false);
-        blockBulletsWater = cfg.getBoolean("block-bullets.water", false);
-        blockBulletsGlass = cfg.getBoolean("block-bullets.glass", false);
-
         enableExplosions = cfg.getBoolean("enable-explosions", false);
         enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
+
+        ignoredMaterials = parseIgnoredMaterials(cfg.getStringList("ignored-materials"), plugin);
+    }
+
+    public static @NotNull @Unmodifiable Set<Material> parseIgnoredMaterials(List<String> materialNames, BulletCore plugin) {
+        Set<Material> ignoredMaterials = HashSet.newHashSet(materialNames.size());
+
+        for (String name : materialNames) {
+            try {
+                Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
+                ignoredMaterials.add(material);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Skipping invalid material in ignored-materials: " + name);
+            }
+        }
+
+        plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
+
+        return Collections.unmodifiableSet(ignoredMaterials);
     }
 }

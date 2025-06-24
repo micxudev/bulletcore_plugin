@@ -20,7 +20,6 @@ import java.util.*;
 
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
-import static org.dredd.bulletcore.models.weapons.temp.IgnoredBlocks.IGNORED_BLOCKS;
 
 /**
  * Represents weapon items.
@@ -96,12 +95,13 @@ public class Weapon extends CustomBase {
 
         double maxDistanceBlocks = 64;
         double step = config.bulletDetectionStep;
+        final Set<Material> ignoredMaterials = config.ignoredMaterials;
 
         for (double d = 0; d <= maxDistanceBlocks; d += step) {
             final Location point = eyeLocation.clone().add(direction.clone().multiply(d));
 
             // Block collision check
-            if (!IGNORED_BLOCKS.contains(point.getBlock().getType())) {
+            if (!ignoredMaterials.contains(point.getBlock().getType())) {
                 RayTraceResult blockHit = point.getBlock().rayTrace(point, direction, step, FluidCollisionMode.NEVER);
                 if (blockHit != null) {
                     world.spawnParticle(Particle.CRIT, blockHit.getHitPosition().toLocation(world), 1, 0.1, 0.1, 0.1, 1);
