@@ -112,7 +112,7 @@ public class Weapon extends CustomBase {
         lastShots.put(player.getUniqueId(), currentTime);
 
         // Set Item cooldown (only visual for a player)
-        int ticksDelay = (int) (delayBetweenShots / 50);
+        int ticksDelay = (int) Math.ceil(delayBetweenShots / 50.0);
         player.setCooldown(usedItem.getType(), ticksDelay);
 
         // Fetch config (it is already loaded)
@@ -133,7 +133,7 @@ public class Weapon extends CustomBase {
             direction,
             maxDistance,
             FluidCollisionMode.NEVER,   // skips water/lava
-            false,                      // ignoredMaterials will handle it
+            true,                       // ignoredMaterials will handle it
             0.01,                       // expands ray a little bit
             entityFilter,
             canCollide

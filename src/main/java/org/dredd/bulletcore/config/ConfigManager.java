@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.config;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
@@ -75,10 +76,11 @@ public final class ConfigManager {
         enableHotbarReload = cfg.getBoolean("enable-hotbar-messages.reload", true);
         enableLoreGunInfoMessages = cfg.getBoolean("enable-lore-gun-info-messages", true);
 
-        ignoredMaterials = parseIgnoredMaterials(cfg.getStringList("ignored-materials"), plugin);
+        ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
+        plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
     }
 
-    public static @NotNull @Unmodifiable Set<Material> parseIgnoredMaterials(List<String> materialNames, BulletCore plugin) {
+    public static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
         Set<Material> ignoredMaterials = HashSet.newHashSet(materialNames.size());
 
         for (String name : materialNames) {
@@ -86,11 +88,9 @@ public final class ConfigManager {
                 Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
                 ignoredMaterials.add(material);
             } catch (IllegalArgumentException e) {
-                plugin.getLogger().warning("Skipping invalid material in ignored-materials: " + name);
+                Bukkit.getLogger().warning("Skipping invalid material in ignored-materials: " + name);
             }
         }
-
-        plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
 
         return Collections.unmodifiableSet(ignoredMaterials);
     }
