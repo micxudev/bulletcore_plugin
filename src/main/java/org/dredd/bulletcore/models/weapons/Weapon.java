@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models.weapons;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -16,7 +17,11 @@ import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
@@ -30,16 +35,40 @@ import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 public class Weapon extends CustomBase {
 
     /**
-     * Stores last shot timestamps for each player.
+     * Base weapon damage value.
      */
-    private static final Map<UUID, Long> lastShots = new HashMap<>();
-
     public final double damage;
 
-    public Weapon(BaseAttributes attrs, double damage) {
+    /**
+     * Maximum distance a bullet can travel before it is discarded.
+     */
+    public final double maxDistance;
+
+    /**
+     * This number of milliseconds must elapse before the next shot is available.
+     */
+    public final long delayBetweenShots;
+
+    /**
+     * Stores per-weapon last shot timestamps for each player.<br>
+     * Used with {@link #delayBetweenShots} to prevent multiple shots in a short period of time.
+     */
+    private final Map<UUID, Long> lastShots;
+
+
+    /**
+     * Constructs a new {@link Weapon} instance.
+     * <p>
+     * All parameters must be already validated.
+     */
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots) {
         super(attrs);
         this.damage = damage;
+        this.maxDistance = maxDistance;
+        this.delayBetweenShots = delayBetweenShots;
+        this.lastShots = new HashMap<>();
     }
+
 
     /**
      * Triggered when a player attempts to drop a weapon.
@@ -73,70 +102,84 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        // Delay between shots
-        long millisBetweenShots = 500L;
-        long currentTimeMillis = System.currentTimeMillis();
 
-        Long lastPlayerShot = lastShots.get(player.getUniqueId());
-        if (lastPlayerShot != null && (currentTimeMillis - lastPlayerShot) < millisBetweenShots) return true;
-        lastShots.put(player.getUniqueId(), currentTimeMillis);
+        // Check delay between shots
+        long currentTime = System.currentTimeMillis();
+        Long lastShot = lastShots.get(player.getUniqueId());
+        if (lastShot != null && (currentTime - lastShot) < delayBetweenShots) return true;
 
-        // Item cooldown (this is only visual for a player)
-        int ticksDelay = (int) (millisBetweenShots / 50);
+        // Save new shot time
+        lastShots.put(player.getUniqueId(), currentTime);
+
+        // Set Item cooldown (only visual for a player)
+        int ticksDelay = (int) (delayBetweenShots / 50);
         player.setCooldown(usedItem.getType(), ticksDelay);
 
-        // Start the shot process
-        final World world = player.getWorld();
-        final Location eyeLocation = player.getEyeLocation();
-        final Vector direction = eyeLocation.getDirection().normalize();
-
-        // Shot sound
-        world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.2f, 2f);
-
-        // Params
+        // Fetch config (it is already loaded)
         ConfigManager config = ConfigManager.getOrLoad(BulletCore.getInstance());
 
-        double maxDistanceBlocks = 64;
-        double step = config.bulletDetectionStep;
-        final Set<Material> ignoredMaterials = config.ignoredMaterials;
+        // Set rayTrace settings
+        Predicate<Entity> entityFilter = entity ->
+            entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
 
-        for (double d = 0; d <= maxDistanceBlocks; d += step) {
-            final Location point = eyeLocation.clone().add(direction.clone().multiply(d));
+        Predicate<Block> canCollide = block -> !config.ignoredMaterials.contains(block.getType());
 
-            // Block collision check
-            if (!ignoredMaterials.contains(point.getBlock().getType())) {
-                RayTraceResult blockHit = point.getBlock().rayTrace(point, direction, step, FluidCollisionMode.NEVER);
-                if (blockHit != null) {
-                    world.spawnParticle(Particle.CRIT, blockHit.getHitPosition().toLocation(world), 1, 0.1, 0.1, 0.1, 1);
-                    world.playSound(blockHit.getHitPosition().toLocation(world), Sound.BLOCK_METAL_HIT, 1f, 1f);
-                    return true;
-                }
+        World world = player.getWorld();
+        Location eyeLocation = player.getEyeLocation();
+        Vector direction = eyeLocation.getDirection().normalize();
+
+        RayTraceResult result = world.rayTrace(
+            eyeLocation,
+            direction,
+            maxDistance,
+            FluidCollisionMode.NEVER,   // skips water/lava
+            false,                      // ignoredMaterials will handle it
+            0.01,                       // expands ray a little bit
+            entityFilter,
+            canCollide
+        );
+
+        // Play shot sound
+        world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE /* weapon sound */, 0.2f, 2f);
+
+        // Spawn particles
+        double bulletTrailStep = config.bulletTrailStep;
+        if (bulletTrailStep > 0) {
+            Location start = player.getLocation()
+                .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2);
+            Vector rayTo = direction.clone().multiply(
+                (result == null) ? maxDistance : result.getHitPosition().distance(start.toVector())
+            );
+            Location end = start.clone().add(rayTo);
+
+            double distance = start.distance(end);
+            Vector step = direction.clone().multiply(bulletTrailStep);
+
+            Location particleLoc = start.clone();
+            for (double d = 0; d <= distance; d += bulletTrailStep) {
+                world.spawnParticle(Particle.ASH, particleLoc, 1);
+                particleLoc.add(step);
             }
+        }
+        if (config.enableMuzzleFlashes) {
+            world.spawnParticle(Particle.LAVA, player.getLocation()
+                .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2), 1);
+        }
 
-            // Entity hit check
-            double boxHalfSize = 0.025; // A bullet is like a small box
-            Collection<Entity> nearbyEntities = world.getNearbyEntities(point, boxHalfSize, boxHalfSize, boxHalfSize);
-            for (Entity nearby : nearbyEntities) {
-                if (nearby.equals(player)) continue; // Do not hit the shooter himself
+        // Handle result
+        if (result == null) return true;
 
-                if (nearby instanceof LivingEntity victim && !skipHit(victim)) {
+        final Location hitLocation = result.getHitPosition().toLocation(world);
 
-                    applyCustomDamage(victim, player, damage, point);
-
-                    // Entity hit particle, sound
-                    world.spawnParticle(Particle.DAMAGE_INDICATOR, victim.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.1);
-                    world.playSound(point, Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1f);
-
-                    return true; // The victim consumed the shot
-                }
-            }
-
-            // Spawn particles a bit from the player's eye location (so that they can see better)
-            if (d > 2) {
-                Location particleLoc = point.clone();
-                particleLoc.setY(particleLoc.getY() - 0.1);
-                world.spawnParticle(Particle.CRIT, particleLoc, 1, 0, 0, 0, 0);
-            }
+        if (result.getHitEntity() instanceof LivingEntity victim) {
+            // Entity hit
+            applyCustomDamage(victim, player, damage, hitLocation);
+            world.spawnParticle(Particle.DAMAGE_INDICATOR, hitLocation, 4);
+            world.playSound(hitLocation, Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1f);
+        } else if (result.getHitBlock() != null) {
+            // Block hit
+            world.spawnParticle(Particle.CRIT, hitLocation, 4);
+            world.playSound(hitLocation, Sound.BLOCK_METAL_HIT, 1f, 1f);
         }
 
         return true;
