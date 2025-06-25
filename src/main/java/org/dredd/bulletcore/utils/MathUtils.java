@@ -33,4 +33,11 @@ public final class MathUtils {
 
         return Math.min(max, Math.max(value, min));
     }
+
+    public static long clamp(long value, long min, long max) {
+        if (min > max)
+            throw new IllegalArgumentException("min must be ≤ max");
+
+        return Math.min(max, Math.max(value, min));
+    }
 }

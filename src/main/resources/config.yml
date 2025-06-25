@@ -1,23 +1,19 @@
 # Allows friendly fire (damage between allies).
 # True = allowed, false = disabled.
-friendly-fire-enabled: false
-
-# Bullet detection settings.
-# step: Distance step (in blocks) for collision checking. Lower is more accurate but slower.
-bullet-detection-step: 0.1
+enable-friendly-fire: false
 
 # Distance between bullet trail points (in blocks).
 # Lower values make trails denser.
 # Use a negative value to disable.
-bullet-trail-step: 1
+bullet-trail-step: 1.0
+
+# Enables muzzle flashes when shooting.
+# True = visible, false = disabled.
+enable-muzzle-flashes: true
 
 # Enables a recoil effect when shooting.
 # True = enabled, false = disabled.
 enable-recoil: true
-
-# Sound effect played on headshot.
-# Must be a valid Minecraft sound (e.g., entity.experience_orb.pickup).
-headshot-sound: entity.experience_orb.pickup
 
 # Disables specific hotbar messages.
 # out-of-ammo: Show "No ammo" message.
@@ -31,14 +27,6 @@ enable-hotbar-messages:
 # Enables informational messages in weapon lore.
 # True = shown, false = hidden.
 enable-lore-gun-info-messages: true
-
-# Enables explosion effects from weapons or grenades.
-# True = enabled, false = disabled.
-enable-explosions: false
-
-# Enables muzzle flashes when shooting.
-# True = visible, false = disabled.
-enable-muzzle-flashes: false
 
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.

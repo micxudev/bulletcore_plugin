@@ -3,7 +3,6 @@ package org.dredd.bulletcore.config;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -42,20 +41,15 @@ public final class ConfigManager {
         config = new ConfigManager(plugin);
     }
 
-    public final boolean friendlyFireEnabled;
-    public final double bulletDetectionStep;
+    public final boolean enableFriendlyFire;
     public final double bulletTrailStep;
+    public final boolean enableMuzzleFlashes;
     public final boolean enableRecoil;
-    public final String headshotSound;
 
     public final boolean enableHotbarOutOfAmmo;
     public final boolean enableHotbarShoot;
     public final boolean enableHotbarReload;
-
     public final boolean enableLoreGunInfoMessages;
-
-    public final boolean enableExplosions;
-    public final boolean enableMuzzleFlashes;
 
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
@@ -71,20 +65,15 @@ public final class ConfigManager {
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();
 
-        friendlyFireEnabled = cfg.getBoolean("friendly-fire-enabled", false);
-        bulletDetectionStep = MathUtils.clamp(cfg.getDouble("bullet-detection-step", 0.1), 0.05, 1.0);
+        enableFriendlyFire = cfg.getBoolean("enable-friendly-fire", false);
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
+        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", true);
         enableRecoil = cfg.getBoolean("enable-recoil", true);
-        headshotSound = cfg.getString("headshot-sound", "entity.experience_orb.pickup");
 
         enableHotbarOutOfAmmo = cfg.getBoolean("enable-hotbar-messages.out-of-ammo", true);
         enableHotbarShoot = cfg.getBoolean("enable-hotbar-messages.shoot", true);
         enableHotbarReload = cfg.getBoolean("enable-hotbar-messages.reload", true);
-
         enableLoreGunInfoMessages = cfg.getBoolean("enable-lore-gun-info-messages", true);
-
-        enableExplosions = cfg.getBoolean("enable-explosions", false);
-        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
 
         ignoredMaterials = parseIgnoredMaterials(cfg.getStringList("ignored-materials"), plugin);
     }

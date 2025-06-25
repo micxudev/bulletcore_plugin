@@ -249,6 +249,10 @@ public final class YMLLModelLoader {
 
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
-        return new Weapon(baseAttributes, damage);
+        double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
+
+        long delayBetweenShots = MathUtils.clamp(config.getLong("delayBetweenShots", 500L), 50, Long.MAX_VALUE);
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots);
     }
 }
