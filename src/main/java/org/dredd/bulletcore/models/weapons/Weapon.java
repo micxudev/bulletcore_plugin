@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.models.weapons;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -13,18 +15,21 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
+import static org.bukkit.persistence.PersistentDataType.INTEGER;
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
+import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
+import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Represents weapon items.
@@ -33,6 +38,11 @@ import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
  * @since 1.0.0
  */
 public class Weapon extends CustomBase {
+
+    /**
+     * Identifier for ammo count on a Weapon ItemStack
+     */
+    private static final NamespacedKey AMMO_KEY = new NamespacedKey("bulletcore", "ammo");
 
     /**
      * Base weapon damage value.
@@ -55,18 +65,24 @@ public class Weapon extends CustomBase {
      */
     private final Map<UUID, Long> lastShots;
 
+    /**
+     * The maximum number of bullets the weapon can hold in its magazine/chamber.
+     */
+    public final int maxBullets;
+
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
         this.delayBetweenShots = delayBetweenShots;
         this.lastShots = new HashMap<>();
+        this.maxBullets = maxBullets;
     }
 
 
@@ -91,6 +107,7 @@ public class Weapon extends CustomBase {
         meta.addItemFlags(HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
 
         stack.setItemMeta(meta);
+        setAmmoCount(stack, maxBullets);
         return stack;
     }
 
@@ -108,15 +125,26 @@ public class Weapon extends CustomBase {
         Long lastShot = lastShots.get(player.getUniqueId());
         if (lastShot != null && (currentTime - lastShot) < delayBetweenShots) return true;
 
-        // Save new shot time
-        lastShots.put(player.getUniqueId(), currentTime);
-
-        // Set Item cooldown (only visual for a player)
-        int ticksDelay = (int) Math.ceil(delayBetweenShots / 50.0);
-        player.setCooldown(usedItem.getType(), ticksDelay);
-
         // Fetch config (it is already loaded)
         ConfigManager config = ConfigManager.getOrLoad(BulletCore.getInstance());
+
+        // Check ammo count
+        int ammoCount = getAmmoCount(usedItem);
+        if (ammoCount <= 0) {
+            player.getWorld().playSound(player.getLocation(),
+                Sound.BLOCK_LEVER_CLICK /* empty magazine sound */, 1f, 1.5f
+            );
+            if (config.enableHotbarOutOfAmmo)
+                player.sendActionBar(noItalic("[out of ammo]", WHITE));
+            return true;
+        }
+
+        // Update ammo count
+        ammoCount--;
+        setAmmoCount(usedItem, ammoCount);
+
+        // Save new shot time
+        lastShots.put(player.getUniqueId(), currentTime);
 
         // Set rayTrace settings
         Predicate<Entity> entityFilter = entity ->
@@ -255,5 +283,39 @@ public class Weapon extends CustomBase {
         }
 
         return false;
+    }
+
+    /**
+     * Retrieves the current ammo count stored in the given {@link ItemStack}'s metadata.
+     *
+     * @param stack The {@link ItemStack} representing {@link Weapon} to retrieve the ammo count from.
+     * @return The number of bullets currently stored in the weapon.<br>
+     * Returns {@code 0} if the item is not a weapon or null.
+     */
+    public static int getAmmoCount(@Nullable ItemStack stack) {
+        if (!isWeapon(stack)) return 0;
+        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(AMMO_KEY, INTEGER, 0);
+    }
+
+    /**
+     * Sets the ammo count for the given {@link ItemStack}, updating both persistent data and lore display.
+     * <p>
+     * If the item is not a registered weapon, no changes will be made.</p>
+     *
+     * @param stack The {@link ItemStack} to modify.
+     * @param count The number of bullets to set for this weapon.
+     */
+    public static void setAmmoCount(@Nullable ItemStack stack, int count) {
+        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(stack);
+        if (weapon == null) return;
+
+        ItemMeta meta = stack.getItemMeta();
+        meta.getPersistentDataContainer().set(AMMO_KEY, INTEGER, count);
+
+        List<Component> lore = meta.lore();
+        TextComponent bullets = noItalic("Bullets: " + count + "/" + weapon.maxBullets, WHITE);
+        lore.set(0, bullets);
+        meta.lore(lore);
+        stack.setItemMeta(meta);
     }
 }
