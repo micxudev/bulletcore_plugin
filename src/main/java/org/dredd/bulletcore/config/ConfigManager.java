@@ -50,7 +50,6 @@ public final class ConfigManager {
     public final boolean enableHotbarOutOfAmmo;
     public final boolean enableHotbarShoot;
     public final boolean enableHotbarReload;
-    public final boolean enableLoreGunInfoMessages;
 
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
@@ -74,7 +73,6 @@ public final class ConfigManager {
         enableHotbarOutOfAmmo = cfg.getBoolean("enable-hotbar-messages.out-of-ammo", true);
         enableHotbarShoot = cfg.getBoolean("enable-hotbar-messages.shoot", true);
         enableHotbarReload = cfg.getBoolean("enable-hotbar-messages.reload", true);
-        enableLoreGunInfoMessages = cfg.getBoolean("enable-lore-gun-info-messages", true);
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
