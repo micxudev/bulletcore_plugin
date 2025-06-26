@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
+import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Utility class for loading all custom item models from YML files.
@@ -247,12 +248,17 @@ public final class YMLLModelLoader {
         var baseAttributes = loadBaseAttributes(config);
         // Load only weapon-specific attributes
 
+        List<Component> lore = baseAttributes.lore();
+        lore.add(0, noItalic("Bullets count will be here", WHITE));
+
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
         double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
 
         long delayBetweenShots = MathUtils.clamp(config.getLong("delayBetweenShots", 500L), 50, Long.MAX_VALUE);
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots);
+        int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets);
     }
 }
