@@ -18,28 +18,27 @@ import java.util.*;
 public final class ConfigManager {
 
     /**
-     * Singleton instance of the {@link ConfigManager}.
+     * The singleton instance of the {@link ConfigManager}.
      */
-    private static ConfigManager config;
+    private static ConfigManager instance;
 
     /**
-     * Returns the singleton instance of {@link ConfigManager} or reloads config it if it doesn't exist.
+     * Gets the singleton instance of the {@link ConfigManager}
      *
      * @param plugin the plugin instance
-     * @return the singleton instance
+     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
-    public static ConfigManager getOrLoad(BulletCore plugin) {
-        if (config == null) config = new ConfigManager(plugin);
-        return config;
+    public static ConfigManager get() {
+        return instance;
     }
 
     /**
-     * Reloads the singleton instance of {@link ConfigManager}.
+     * Initializes or reloads the config.
      *
      * @param plugin the plugin instance
      */
     public static void reload(BulletCore plugin) {
-        config = new ConfigManager(plugin);
+        instance = new ConfigManager(plugin);
     }
 
     public final boolean enableFriendlyFire;
@@ -54,11 +53,11 @@ public final class ConfigManager {
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
     /**
-     * Initializes the {@code ConfigManager} by loading and parsing configuration values
+     * Initializes the {@link ConfigManager} instance by loading and parsing configuration values
      * from the plugin's {@code config.yml} file. This constructor ensures that default
      * configuration values are saved and reloaded before using them.
      *
-     * @param plugin the main plugin instance used to access the configuration API
+     * @param plugin the {@link BulletCore} instance
      */
     private ConfigManager(BulletCore plugin) {
         plugin.saveDefaultConfig();

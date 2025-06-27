@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
@@ -133,7 +132,7 @@ public class Weapon extends CustomBase {
         if (lastShot != null && (currentTime - lastShot) < delayBetweenShots) return true;
 
         // Fetch config (it is already loaded)
-        ConfigManager config = ConfigManager.getOrLoad(BulletCore.getInstance());
+        ConfigManager config = ConfigManager.get();
 
         // Check ammo count
         int ammoCount = getAmmoCount(usedItem);

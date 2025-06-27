@@ -37,9 +37,28 @@ import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 public class MessageManager {
 
     /**
-     * The shared instance of the message manager.
+     * The singleton instance of the {@link MessageManager}
      */
-    private static MessageManager messageManager;
+    private static MessageManager instance;
+
+    /**
+     * Gets the singleton instance of the {@link MessageManager}
+     *
+     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
+     */
+    private static MessageManager get() {
+        return instance;
+    }
+
+    /**
+     * Reloads the message manager with the given plugin instance and re-loads all locale messages.
+     *
+     * @param plugin the plugin instance
+     */
+    public static void reload(BulletCore plugin) {
+        instance = new MessageManager(plugin);
+        instance.loadLocales();
+    }
 
     private final BulletCore plugin;
     private final File langFolder;
@@ -105,27 +124,6 @@ public class MessageManager {
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to copy default lang files: " + e.getMessage());
         }
-    }
-
-    /**
-     * Returns the singleton instance of the {@code MessageManager}, initializing it if necessary.
-     *
-     * @return the shared message manager instance
-     */
-    private static @NotNull MessageManager get() {
-        if (messageManager == null)
-            reload(BulletCore.getInstance());
-        return messageManager;
-    }
-
-    /**
-     * Reloads the message manager with the given plugin instance and re-loads all locale messages.
-     *
-     * @param plugin the plugin instance
-     */
-    public static void reload(BulletCore plugin) {
-        messageManager = new MessageManager(plugin);
-        messageManager.loadLocales();
     }
 
     /**

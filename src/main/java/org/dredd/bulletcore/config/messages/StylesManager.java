@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Class for managing style definitions for translatable components.
+ * Class for managing style definitions for translatable client side components.
  *
  * @author dredd
  * @since 1.0.0
@@ -17,28 +17,17 @@ import java.util.Map;
 public class StylesManager {
 
     /**
-     * The singleton instance of the style manager.
+     * The singleton instance of the {@link StylesManager}
      */
     private static StylesManager instance;
 
     /**
-     * The style definitions.<br>
-     * LinkedHashMap preserves insertion order, which is crucial in this case.
-     */
-    private final Map<String, LinkedHashMap<String, String>> styles;
-
-    /**
-     * Constructs a new {@link StylesManager} instance.
+     * Gets the singleton instance of the {@link StylesManager}
      *
-     * @param plugin the {@link BulletCore} instance
+     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
-    private StylesManager(BulletCore plugin) {
-        File stylesFile = new File(plugin.getDataFolder(), "styles.yml");
-
-        if (!stylesFile.exists())
-            plugin.saveResource("styles.yml", false);
-
-        this.styles = YMLLoader.loadStyles(stylesFile);
+    public static StylesManager get() {
+        return instance;
     }
 
     /**
@@ -49,12 +38,23 @@ public class StylesManager {
     }
 
     /**
-     * Gets the singleton instance of the style manager.
-     *
-     * @return the singleton instance of the style manager, or {@code null} if called before {@link #reload(BulletCore)}}
+     * The style definitions.<br>
+     * LinkedHashMap preserves insertion order, which is crucial in this case.
      */
-    public static StylesManager get() {
-        return instance;
+    private final Map<String, LinkedHashMap<String, String>> styles;
+
+    /**
+     * Initializes the {@link StylesManager} instance and loads the styles.
+     *
+     * @param plugin the {@link BulletCore} instance
+     */
+    private StylesManager(BulletCore plugin) {
+        File stylesFile = new File(plugin.getDataFolder(), "styles.yml");
+
+        if (!stylesFile.exists())
+            plugin.saveResource("styles.yml", false);
+
+        this.styles = YMLLoader.loadStyles(stylesFile);
     }
 
     /**
