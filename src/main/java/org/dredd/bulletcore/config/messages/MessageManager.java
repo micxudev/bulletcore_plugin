@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.config.messages;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
@@ -16,6 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+
+import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
 /**
  * Manages localization and message resolution.
@@ -43,7 +44,6 @@ public class MessageManager {
     private final BulletCore plugin;
     private final File langFolder;
     private final Map<Locale, Map<String, String>> messages;
-    private final MiniMessage miniMessage;
 
     /**
      * Constructs a new {@code MessageManager} and initializes required fields.
@@ -55,7 +55,6 @@ public class MessageManager {
         this.plugin = plugin;
         this.langFolder = new File(plugin.getDataFolder(), "lang");
         this.messages = new HashMap<>();
-        this.miniMessage = MiniMessage.miniMessage();
     }
 
     /**
@@ -186,7 +185,7 @@ public class MessageManager {
                                          @Nullable Map<String, String> placeholders) {
         String resolved = resolveMessage(sender, message);
         String formatted = resolvePlaceholders(resolved, placeholders);
-        return miniMessage.deserialize(formatted);
+        return MINI.deserialize(formatted);
     }
 
     /**

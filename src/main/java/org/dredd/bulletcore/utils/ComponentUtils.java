@@ -2,6 +2,7 @@ package org.dredd.bulletcore.utils;
 
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +18,11 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
  * @since 1.0.0
  */
 public final class ComponentUtils {
+
+    /**
+     * Pre-configured instance of {@link MiniMessage} for parsing MiniMessage formatted strings.
+     */
+    public static final MiniMessage MINI = MiniMessage.miniMessage();
 
     /**
      * Private constructor to prevent instantiation.

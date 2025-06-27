@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.config;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -27,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
+import static org.dredd.bulletcore.utils.ComponentUtils.*;
 
 /**
  * Utility class for loading all custom item models from YML files.
@@ -156,7 +154,7 @@ public final class YMLLModelLoader {
         Component displayName = config.getRichMessage("displayName", ComponentUtils.noItalic(name, WHITE));
 
         List<Component> lore = config.getStringList("lore").stream()
-            .map(line -> MiniMessage.miniMessage().deserialize(line))
+            .map(MINI::deserialize)
             .collect(Collectors.toList());
 
         int maxStackSize = MathUtils.clamp(
