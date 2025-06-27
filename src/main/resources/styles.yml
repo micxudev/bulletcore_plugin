@@ -1,0 +1,27 @@
+# Style definitions for translatable components (e.g., item lore).
+#
+# Format:
+# key_name:       # Unique identifier for this style group (do not change it).
+#   key: "..."    # MiniMessage format for the main (static) part of the message.
+#   arg0: "..."   # Style for the first dynamic argument in the message.
+#   arg1: "..."   # Style for the second dynamic argument.
+#   ...           # And so on with other arguments.
+
+# Example:
+# Message to style: "Bullets: 5/8"
+# - "Bullets:" is the main text → styled using `key`
+# - "5" is the first value (arg0) → styled using `count`
+# - "8" is the second value (arg1) → styled using `max`
+
+lore_weapon_bullets:
+  key: "<!i><white>"
+  count: "<green>"
+  max: "<blue>"
+
+lore_weapon_damage:
+  key: "<!i><white>"
+  damage: "<red>"
+
+lore_weapon_ammo:
+  key: "<!i><white>"
+  ammo: "<yellow>"
