@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -15,6 +14,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.config.messages.TranslatableMessages;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
@@ -313,8 +313,7 @@ public class Weapon extends CustomBase {
         meta.getPersistentDataContainer().set(AMMO_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        TextComponent bullets = noItalic("Bullets: " + count + "/" + weapon.maxBullets, WHITE);
-        lore.set(0, bullets);
+        lore.set(0, TranslatableMessages.LORE_WEAPON_BULLETS.of(count, weapon.maxBullets));
         meta.lore(lore);
         stack.setItemMeta(meta);
     }
