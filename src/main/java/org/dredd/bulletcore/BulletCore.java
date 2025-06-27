@@ -9,6 +9,7 @@ import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
 import org.dredd.bulletcore.config.messages.MessageManager;
+import org.dredd.bulletcore.config.messages.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.BulletCoreListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
@@ -31,41 +32,24 @@ public final class BulletCore extends JavaPlugin {
     private static BulletCore plugin;
 
     /**
-     * The plugin version.
-     */
-    private final String version;
-
-    /**
      * Gets the singleton instance of the plugin.
      *
      * @return the {@code BulletCore} instance
      */
     public static BulletCore getInstance() {
-        if (plugin == null)
-            throw new IllegalStateException("Attempted to use getInstance() while the plugin is null.");
-
         return plugin;
     }
 
-    /**
-     * Constructs a new {@code BulletCore} instance.
-     */
-    public BulletCore() {
+    @Override
+    public void onLoad() {
         plugin = this;
-        version = this.getPluginMeta().getVersion();
     }
 
-    /**
-     * Called by Bukkit when the plugin is enabled.
-     * <p>Performs initialization and registers commands.
-     */
     @Override
     public void onEnable() {
         plugin.getLogger().info("==========================< BulletCore >==========================");
 
-        MessageManager.reload(this);
-        ConfigManager.reload(this);
-        YMLLModelLoader.loadAllItems(this);
+        initAll();
         registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
 
         PlayerActionTracker tracker = new PlayerActionTracker();
@@ -73,21 +57,29 @@ public final class BulletCore extends JavaPlugin {
         registerListener(new PlayerActionsListener(tracker));
         registerListener(new UnknownCommandListener());
 
-        plugin.getLogger().info("Version: " + version + " - Plugin Enabled");
+        plugin.getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Enabled");
         plugin.getLogger().info("==================================================================");
     }
 
     /**
-     * Called by Bukkit when the plugin is disabled.
-     * <p>Performs cleanup and unregisters commands.
+     * Initializes and loads all the necessary parts of the plugin.<br>
+     * This method is also used to reload the plugin.
      */
+    public static void initAll() {
+        MessageManager.reload(plugin);
+        StylesManager.reload(plugin);
+        ConfigManager.reload(plugin);
+        CustomItemsRegistry.clearAll();
+        YMLLModelLoader.loadAllItems(plugin);
+    }
+
     @Override
     public void onDisable() {
         plugin.getLogger().info("==========================< BulletCore >==========================");
 
         CustomItemsRegistry.clearAll();
 
-        plugin.getLogger().info("Version: " + version + " - Plugin Disabled");
+        plugin.getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Disabled");
         plugin.getLogger().info("==================================================================");
         plugin = null;
     }
