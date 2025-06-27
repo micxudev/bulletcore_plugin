@@ -27,7 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.dredd.bulletcore.utils.ComponentUtils.*;
+import static net.kyori.adventure.text.Component.text;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_AMMO;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_DAMAGE;
+import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
+import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
  * Utility class for loading all custom item models from YML files.
@@ -252,11 +256,6 @@ public final class YMLLModelLoader {
         if (ammo == null)
             throw new ItemLoadException("Invalid ammo name: " + ammoName);
 
-        List<Component> lore = baseAttributes.lore();
-        lore.add(0, noItalic("Bullets", WHITE));
-        lore.add(1, noItalic("Damage", WHITE));
-        lore.add(2, noItalic("Ammo", WHITE));
-
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
         double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
@@ -264,6 +263,11 @@ public final class YMLLModelLoader {
         long delayBetweenShots = MathUtils.clamp(config.getLong("delayBetweenShots", 500L), 50, Long.MAX_VALUE);
 
         int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
+
+        List<Component> lore = baseAttributes.lore();
+        lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
+        lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
+        lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
         return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo);
     }

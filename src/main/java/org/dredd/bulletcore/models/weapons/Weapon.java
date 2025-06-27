@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
-import static org.dredd.bulletcore.config.messages.TranslatableMessages.*;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_BULLETS;
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
@@ -112,11 +112,6 @@ public class Weapon extends CustomBase {
         // Add only weapon-specific attributes
         meta.setUnbreakable(true);
         meta.addItemFlags(HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
-
-        List<Component> lore = meta.lore();
-        lore.set(1, LORE_WEAPON_DAMAGE.of(damage));
-        lore.set(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
-        meta.lore(lore);
 
         stack.setItemMeta(meta);
         setAmmoCount(stack, maxBullets);
