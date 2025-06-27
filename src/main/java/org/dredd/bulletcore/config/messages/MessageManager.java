@@ -75,7 +75,7 @@ public class MessageManager {
             String localeKey = file.getName().replace(".yml", "");
             Locale locale = Locale.forLanguageTag(localeKey);
             try {
-                messages.put(locale, MessageLoader.load(file));
+                messages.put(locale, YMLLoader.load(file));
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to load language file: " + file.getName() + ": " + e.getMessage());
             }
