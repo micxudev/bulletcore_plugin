@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.config.messages;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
@@ -16,6 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+
+import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
 /**
  * Manages localization and message resolution.
@@ -36,14 +37,32 @@ import java.util.jar.JarInputStream;
 public class MessageManager {
 
     /**
-     * The shared instance of the message manager.
+     * The singleton instance of the {@link MessageManager}
      */
-    private static MessageManager messageManager;
+    private static MessageManager instance;
+
+    /**
+     * Gets the singleton instance of the {@link MessageManager}
+     *
+     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
+     */
+    private static MessageManager get() {
+        return instance;
+    }
+
+    /**
+     * Reloads the message manager with the given plugin instance and re-loads all locale messages.
+     *
+     * @param plugin the plugin instance
+     */
+    public static void reload(BulletCore plugin) {
+        instance = new MessageManager(plugin);
+        instance.loadLocales();
+    }
 
     private final BulletCore plugin;
     private final File langFolder;
     private final Map<Locale, Map<String, String>> messages;
-    private final MiniMessage miniMessage;
 
     /**
      * Constructs a new {@code MessageManager} and initializes required fields.
@@ -55,7 +74,6 @@ public class MessageManager {
         this.plugin = plugin;
         this.langFolder = new File(plugin.getDataFolder(), "lang");
         this.messages = new HashMap<>();
-        this.miniMessage = MiniMessage.miniMessage();
     }
 
     /**
@@ -75,7 +93,7 @@ public class MessageManager {
             String localeKey = file.getName().replace(".yml", "");
             Locale locale = Locale.forLanguageTag(localeKey);
             try {
-                messages.put(locale, MessageLoader.load(file));
+                messages.put(locale, YMLLoader.load(file));
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to load language file: " + file.getName() + ": " + e.getMessage());
             }
@@ -106,27 +124,6 @@ public class MessageManager {
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to copy default lang files: " + e.getMessage());
         }
-    }
-
-    /**
-     * Returns the singleton instance of the {@code MessageManager}, initializing it if necessary.
-     *
-     * @return the shared message manager instance
-     */
-    private static @NotNull MessageManager get() {
-        if (messageManager == null)
-            reload(BulletCore.getInstance());
-        return messageManager;
-    }
-
-    /**
-     * Reloads the message manager with the given plugin instance and re-loads all locale messages.
-     *
-     * @param plugin the plugin instance
-     */
-    public static void reload(BulletCore plugin) {
-        messageManager = new MessageManager(plugin);
-        messageManager.loadLocales();
     }
 
     /**
@@ -186,7 +183,7 @@ public class MessageManager {
                                          @Nullable Map<String, String> placeholders) {
         String resolved = resolveMessage(sender, message);
         String formatted = resolvePlaceholders(resolved, placeholders);
-        return miniMessage.deserialize(formatted);
+        return MINI.deserialize(formatted);
     }
 
     /**

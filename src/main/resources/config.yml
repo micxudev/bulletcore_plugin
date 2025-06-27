@@ -24,10 +24,6 @@ enable-hotbar-messages:
   shoot: true
   reload: true
 
-# Enables informational messages in weapon lore.
-# True = shown, false = hidden.
-enable-lore-gun-info-messages: true
-
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.
 ignored-materials:

@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.config;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -23,10 +22,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static net.kyori.adventure.text.Component.text;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_AMMO;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_DAMAGE;
+import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
@@ -74,12 +78,12 @@ public final class YMLLModelLoader {
     public static void loadAllItems(BulletCore plugin) {
         YMLLModelLoader.plugin = plugin;
 
-        Map<CustomItemType, ItemLoader<?>> loaders = Map.of(
-            CustomItemType.AMMO, YMLLModelLoader::loadAmmo,
-            CustomItemType.ARMOR, YMLLModelLoader::loadArmor,
-            CustomItemType.GRENADE, YMLLModelLoader::loadGrenade,
-            CustomItemType.WEAPON, YMLLModelLoader::loadWeapon
-        );
+        Map<CustomItemType, ItemLoader<?>> loaders = new LinkedHashMap<>() {{
+            put(CustomItemType.AMMO, YMLLModelLoader::loadAmmo);
+            put(CustomItemType.ARMOR, YMLLModelLoader::loadArmor);
+            put(CustomItemType.GRENADE, YMLLModelLoader::loadGrenade);
+            put(CustomItemType.WEAPON, YMLLModelLoader::loadWeapon);
+        }};
 
         loaders.forEach((type, loader) ->
             loadFolder(type, config -> {
@@ -155,7 +159,7 @@ public final class YMLLModelLoader {
         Component displayName = config.getRichMessage("displayName", ComponentUtils.noItalic(name, WHITE));
 
         List<Component> lore = config.getStringList("lore").stream()
-            .map(line -> MiniMessage.miniMessage().deserialize(line))
+            .map(MINI::deserialize)
             .collect(Collectors.toList());
 
         int maxStackSize = MathUtils.clamp(
@@ -247,12 +251,24 @@ public final class YMLLModelLoader {
         var baseAttributes = loadBaseAttributes(config);
         // Load only weapon-specific attributes
 
+        String ammoName = config.getString("ammo", "");
+        Ammo ammo = CustomItemsRegistry.ammo.getItemOrNull(ammoName);
+        if (ammo == null)
+            throw new ItemLoadException("Invalid ammo name: " + ammoName);
+
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
         double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
 
         long delayBetweenShots = MathUtils.clamp(config.getLong("delayBetweenShots", 500L), 50, Long.MAX_VALUE);
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots);
+        int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
+
+        List<Component> lore = baseAttributes.lore();
+        lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
+        lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
+        lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo);
     }
 }

@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +43,11 @@ public abstract class CustomBase {
     public final Component displayName;
 
     /**
+     * A string representation of the {@link #displayName} field with all styles being removed.
+     */
+    public final String displayNameString;
+
+    /**
      * A list of {@link Component} that will appear as the item's lore (description below the name).
      */
     public final List<Component> lore;
@@ -63,6 +69,7 @@ public abstract class CustomBase {
         this.customModelData = attrs.customModelData;
         this.material = attrs.material;
         this.displayName = attrs.displayName;
+        this.displayNameString = PlainTextComponentSerializer.plainText().serialize(displayName);
         this.lore = attrs.lore;
         this.maxStackSize = attrs.maxStackSize;
     }
