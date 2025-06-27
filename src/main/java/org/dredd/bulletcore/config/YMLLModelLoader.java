@@ -207,9 +207,13 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Ammo loadAmmo(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only ammo-specific attributes
 
-        return new Ammo(baseAttributes);
+        int maxAmmo = MathUtils.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
+
+        List<Component> lore = baseAttributes.lore();
+        lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
+
+        return new Ammo(baseAttributes, maxAmmo);
     }
 
     /**
@@ -249,7 +253,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Weapon loadWeapon(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only weapon-specific attributes
 
         String ammoName = config.getString("ammo", "");
         Ammo ammo = CustomItemsRegistry.ammo.getItemOrNull(ammoName);

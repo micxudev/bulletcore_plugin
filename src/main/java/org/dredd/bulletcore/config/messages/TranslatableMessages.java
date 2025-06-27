@@ -56,6 +56,18 @@ public enum TranslatableMessages {
             put("key", "<!i><white>");
             put("ammo", "<yellow>");
         }}
+    ),
+
+    /**
+     * Represent ammo count; used on ammo item lore
+     */
+    LORE_AMMO_COUNT(
+        "lore_ammo_count",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("count", "<green>");
+            put("max", "<blue>");
+        }}
     );
 
     /**

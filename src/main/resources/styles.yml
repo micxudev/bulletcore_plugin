@@ -25,3 +25,8 @@ lore_weapon_damage:
 lore_weapon_ammo:
   key: "<!i><white>"
   ammo: "<yellow>"
+
+lore_ammo_count:
+  key: "<!i><white>"
+  count: "<green>"
+  max: "<blue>"
