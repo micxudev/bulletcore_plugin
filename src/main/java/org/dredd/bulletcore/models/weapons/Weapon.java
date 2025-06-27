@@ -14,10 +14,10 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.config.messages.TranslatableMessages;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
+import org.dredd.bulletcore.models.ammo.Ammo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.*;
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
@@ -70,19 +71,25 @@ public class Weapon extends CustomBase {
      */
     public final int maxBullets;
 
+    /**
+     * The ammo used by this weapon.
+     */
+    public final Ammo ammo;
+
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
         this.delayBetweenShots = delayBetweenShots;
         this.lastShots = new HashMap<>();
         this.maxBullets = maxBullets;
+        this.ammo = ammo;
     }
 
 
@@ -105,6 +112,11 @@ public class Weapon extends CustomBase {
         // Add only weapon-specific attributes
         meta.setUnbreakable(true);
         meta.addItemFlags(HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
+
+        List<Component> lore = meta.lore();
+        lore.set(1, LORE_WEAPON_DAMAGE.of(damage));
+        lore.set(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
+        meta.lore(lore);
 
         stack.setItemMeta(meta);
         setAmmoCount(stack, maxBullets);
@@ -313,7 +325,7 @@ public class Weapon extends CustomBase {
         meta.getPersistentDataContainer().set(AMMO_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        lore.set(0, TranslatableMessages.LORE_WEAPON_BULLETS.of(count, weapon.maxBullets));
+        lore.set(0, LORE_WEAPON_BULLETS.of(count, weapon.maxBullets));
         meta.lore(lore);
         stack.setItemMeta(meta);
     }

@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,12 +74,12 @@ public final class YMLLModelLoader {
     public static void loadAllItems(BulletCore plugin) {
         YMLLModelLoader.plugin = plugin;
 
-        Map<CustomItemType, ItemLoader<?>> loaders = Map.of(
-            CustomItemType.AMMO, YMLLModelLoader::loadAmmo,
-            CustomItemType.ARMOR, YMLLModelLoader::loadArmor,
-            CustomItemType.GRENADE, YMLLModelLoader::loadGrenade,
-            CustomItemType.WEAPON, YMLLModelLoader::loadWeapon
-        );
+        Map<CustomItemType, ItemLoader<?>> loaders = new LinkedHashMap<>() {{
+            put(CustomItemType.AMMO, YMLLModelLoader::loadAmmo);
+            put(CustomItemType.ARMOR, YMLLModelLoader::loadArmor);
+            put(CustomItemType.GRENADE, YMLLModelLoader::loadGrenade);
+            put(CustomItemType.WEAPON, YMLLModelLoader::loadWeapon);
+        }};
 
         loaders.forEach((type, loader) ->
             loadFolder(type, config -> {
@@ -246,8 +247,15 @@ public final class YMLLModelLoader {
         var baseAttributes = loadBaseAttributes(config);
         // Load only weapon-specific attributes
 
+        String ammoName = config.getString("ammo", "");
+        Ammo ammo = CustomItemsRegistry.ammo.getItemOrNull(ammoName);
+        if (ammo == null)
+            throw new ItemLoadException("Invalid ammo name: " + ammoName);
+
         List<Component> lore = baseAttributes.lore();
-        lore.add(0, noItalic("Bullets count will be here", WHITE));
+        lore.add(0, noItalic("Bullets", WHITE));
+        lore.add(1, noItalic("Damage", WHITE));
+        lore.add(2, noItalic("Ammo", WHITE));
 
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
@@ -257,6 +265,6 @@ public final class YMLLModelLoader {
 
         int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets);
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo);
     }
 }
