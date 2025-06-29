@@ -4,17 +4,18 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_AMMO_COUNT;
-import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isAmmo;
 
 /**
  * Represents ammo items.
@@ -83,10 +84,9 @@ public class Ammo extends CustomBase {
      *
      * @param stack The {@link ItemStack} representing {@link Ammo} to retrieve the ammo count from.
      * @return The number of ammo units currently stored in the ammo.<br>
-     * Returns {@code 0} if the item is not ammo or null.
+     * Returns {@code 0} if the item is not ammo.
      */
-    public static int getAmmoCount(@Nullable ItemStack stack) {
-        if (!isAmmo(stack)) return 0;
+    public int getAmmoCount(@NotNull ItemStack stack) {
         return stack.getItemMeta().getPersistentDataContainer().getOrDefault(AMMO_COUNT_KEY, INTEGER, 0);
     }
 
@@ -98,7 +98,7 @@ public class Ammo extends CustomBase {
      * @param stack The {@link ItemStack} to modify.
      * @param count The number of ammo units to set for this ammo.
      */
-    public static void setAmmoCount(@Nullable ItemStack stack, int count) {
+    public void setAmmoCount(@Nullable ItemStack stack, int count) {
         Ammo ammo = CustomItemsRegistry.getAmmoOrNull(stack);
         if (ammo == null) return;
 
@@ -109,5 +109,62 @@ public class Ammo extends CustomBase {
         lore.set(0, LORE_AMMO_COUNT.of(count, ammo.maxAmmo));
         meta.lore(lore);
         stack.setItemMeta(meta);
+    }
+
+    /**
+     * Retrieves the current ammo count stored in the given {@link Player}'s inventory.
+     *
+     * @param player The {@link Player} to retrieve the ammo count from.
+     * @return The number of ammo units currently stored in the player's inventory.
+     */
+    public int getAmmoCount(@NotNull Player player) {
+        return Arrays.stream(player.getInventory().getContents())
+            .filter(stack -> CustomItemsRegistry.getAmmoOrNull(stack) == this)
+            .mapToInt(this::getAmmoCount)
+            .sum();
+    }
+
+    /**
+     * Try to remove the given amount of ammo from the given {@link Player}'s inventory.
+     *
+     * @param player       The {@link Player} to remove the ammo from.
+     * @param removeAmount The number of ammo units to remove from the player's inventory.
+     * @return The number of ammo units successfully removed from the player's inventory.
+     */
+    public int removeAmmo(@NotNull Player player, int removeAmount) {
+        if (removeAmount <= 0) return 0;
+
+        int leftToRemove = removeAmount;
+        int removed = 0;
+
+        final PlayerInventory inventory = player.getInventory();
+        final ItemStack[] contents = inventory.getContents();
+
+        for (int i = 0; i < contents.length; i++) {
+            final ItemStack stack = contents[i];
+            if (CustomItemsRegistry.getAmmoOrNull(stack) != this) continue;
+
+            int stackAmmoCount = getAmmoCount(stack);
+
+            // Case 1: stackAmmoCount has enough ammo
+            if (stackAmmoCount >= leftToRemove) {
+                int leftInStack = stackAmmoCount - leftToRemove;
+
+                if (leftInStack <= 0) {
+                    inventory.setItem(i, null);
+                } else {
+                    setAmmoCount(stack, leftInStack);
+                }
+
+                return removeAmount;
+            }
+
+            // Case 2: stackAmmoCount has not enough ammo
+            removed += stackAmmoCount;
+            leftToRemove -= stackAmmoCount;
+            inventory.setItem(i, null);
+        }
+
+        return removed;
     }
 }
