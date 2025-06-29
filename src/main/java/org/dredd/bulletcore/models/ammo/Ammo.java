@@ -9,7 +9,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -92,21 +91,16 @@ public class Ammo extends CustomBase {
 
     /**
      * Sets the ammo count for the given {@link ItemStack}, updating both persistent data and lore display.
-     * <p>
-     * If the item is not registered ammo, no changes will be made.</p>
      *
-     * @param stack The {@link ItemStack} to modify.
+     * @param stack The ammo {@link ItemStack} to modify.
      * @param count The number of ammo units to set for this ammo.
      */
-    public void setAmmoCount(@Nullable ItemStack stack, int count) {
-        Ammo ammo = CustomItemsRegistry.getAmmoOrNull(stack);
-        if (ammo == null) return;
-
+    public void setAmmoCount(@NotNull ItemStack stack, int count) {
         ItemMeta meta = stack.getItemMeta();
         meta.getPersistentDataContainer().set(AMMO_COUNT_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        lore.set(0, LORE_AMMO_COUNT.of(count, ammo.maxAmmo));
+        lore.set(0, LORE_AMMO_COUNT.of(count, maxAmmo));
         meta.lore(lore);
         stack.setItemMeta(meta);
     }
