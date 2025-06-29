@@ -15,6 +15,7 @@ import org.dredd.bulletcore.listeners.BulletCoreListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
 import org.dredd.bulletcore.listeners.UnknownCommandListener;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 
 import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
 
@@ -70,6 +71,7 @@ public final class BulletCore extends JavaPlugin {
         StylesManager.reload(plugin);
         ConfigManager.reload(plugin);
         CustomItemsRegistry.clearAll();
+        ReloadManager.initAll();
         YMLLModelLoader.loadAllItems(plugin);
     }
 

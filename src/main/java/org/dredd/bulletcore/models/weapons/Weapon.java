@@ -16,6 +16,7 @@ import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -77,13 +78,18 @@ public class Weapon extends CustomBase {
      */
     public final long reloadTime;
 
+    /**
+     * Manages weapon reloading behavior.
+     */
+    public final ReloadHandler reloadHandler;
+
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -92,6 +98,7 @@ public class Weapon extends CustomBase {
         this.maxBullets = maxBullets;
         this.ammo = ammo;
         this.reloadTime = reloadTime;
+        this.reloadHandler = reloadHandler;
     }
 
 
