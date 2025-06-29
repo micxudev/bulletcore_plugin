@@ -207,9 +207,13 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Ammo loadAmmo(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only ammo-specific attributes
 
-        return new Ammo(baseAttributes);
+        int maxAmmo = MathUtils.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
+
+        List<Component> lore = baseAttributes.lore();
+        lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
+
+        return new Ammo(baseAttributes, maxAmmo);
     }
 
     /**
@@ -249,7 +253,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Weapon loadWeapon(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only weapon-specific attributes
 
         String ammoName = config.getString("ammo", "");
         Ammo ammo = CustomItemsRegistry.ammo.getItemOrNull(ammoName);
@@ -264,11 +267,13 @@ public final class YMLLModelLoader {
 
         int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
 
+        long reloadTime = MathUtils.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
+
         List<Component> lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
         lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
         lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo);
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime);
     }
 }

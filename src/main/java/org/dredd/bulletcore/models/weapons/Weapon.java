@@ -13,12 +13,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -27,7 +25,6 @@ import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_BULLETS;
-import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
@@ -40,9 +37,9 @@ import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 public class Weapon extends CustomBase {
 
     /**
-     * Identifier for ammo count on a Weapon ItemStack
+     * Identifier for bullet count on a Weapon ItemStack
      */
-    private static final NamespacedKey AMMO_KEY = new NamespacedKey("bulletcore", "ammo");
+    private static final NamespacedKey BULLETS_KEY = new NamespacedKey("bulletcore", "bullets");
 
     /**
      * Base weapon damage value.
@@ -75,13 +72,18 @@ public class Weapon extends CustomBase {
      */
     public final Ammo ammo;
 
+    /**
+     * This number of milliseconds must elapse before the weapon is reloaded.
+     */
+    public final long reloadTime;
+
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -89,6 +91,7 @@ public class Weapon extends CustomBase {
         this.lastShots = new HashMap<>();
         this.maxBullets = maxBullets;
         this.ammo = ammo;
+        this.reloadTime = reloadTime;
     }
 
 
@@ -113,14 +116,38 @@ public class Weapon extends CustomBase {
         meta.addItemFlags(HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
 
         stack.setItemMeta(meta);
-        setAmmoCount(stack, maxBullets);
+        setBulletCount(stack, maxBullets);
         return stack;
     }
 
     @Override
     public boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Right-click with Weapon");
-        return material == Material.CROSSBOW; // Cancel charging the crossbow
+        boolean isCrossbow = material == Material.CROSSBOW; // Condition to cancel charging the crossbow
+        ConfigManager config = ConfigManager.get();
+
+        // check if the usedItem is not already reloading
+        // if (!reloadHandler.allowReload(player, this)) return isCrossbow;
+
+        // check bullet count on Weapon
+        int bulletCount = getBulletCount(usedItem);
+        if (bulletCount >= maxBullets) {
+            if (config.enableHotbarReload)
+                player.sendActionBar(noItalic("[ammo is full]", WHITE));
+            return isCrossbow;
+        }
+
+        // check ammo count in a player's inventory
+        int playerAmmoCount = ammo.getAmmoCount(player);
+        if (playerAmmoCount <= 0) {
+            if (config.enableHotbarReload)
+                player.sendActionBar(noItalic("[no ammo found]", WHITE));
+            return isCrossbow;
+        }
+
+        // we can start reloading the weapon
+        //reloadHandler.reload(player, this);
+
+        return isCrossbow;
     }
 
     @Override
@@ -134,9 +161,9 @@ public class Weapon extends CustomBase {
         // Fetch config (it is already loaded)
         ConfigManager config = ConfigManager.get();
 
-        // Check ammo count
-        int ammoCount = getAmmoCount(usedItem);
-        if (ammoCount <= 0) {
+        // Check bullet count
+        int bulletCount = getBulletCount(usedItem);
+        if (bulletCount <= 0) {
             player.getWorld().playSound(player.getLocation(),
                 Sound.BLOCK_LEVER_CLICK /* empty magazine sound */, 1f, 1.5f
             );
@@ -145,9 +172,11 @@ public class Weapon extends CustomBase {
             return true;
         }
 
-        // Update ammo count
-        ammoCount--;
-        setAmmoCount(usedItem, ammoCount);
+        // Update bullet count
+        bulletCount--;
+        setBulletCount(usedItem, bulletCount);
+        if (config.enableHotbarShoot)
+            player.sendActionBar(noItalic(bulletCount + " / " + maxBullets, WHITE));
 
         // Save new shot time
         lastShots.put(player.getUniqueId(), currentTime);
@@ -292,34 +321,28 @@ public class Weapon extends CustomBase {
     }
 
     /**
-     * Retrieves the current ammo count stored in the given {@link ItemStack}'s metadata.
+     * Retrieves the current bullet count stored in the given {@link ItemStack}'s metadata.
      *
-     * @param stack The {@link ItemStack} representing {@link Weapon} to retrieve the ammo count from.
-     * @return The number of bullets currently stored in the weapon.<br>
-     * Returns {@code 0} if the item is not a weapon or null.
+     * @param stack The {@link ItemStack} representing {@link Weapon} to retrieve the bullet count from.
+     * @return The number of bullets currently stored in the weapon stack.<br>
+     * Returns {@code 0} if the stack did not store bullet count metadata.
      */
-    public static int getAmmoCount(@Nullable ItemStack stack) {
-        if (!isWeapon(stack)) return 0;
-        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(AMMO_KEY, INTEGER, 0);
+    public int getBulletCount(@NotNull ItemStack stack) {
+        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(BULLETS_KEY, INTEGER, 0);
     }
 
     /**
-     * Sets the ammo count for the given {@link ItemStack}, updating both persistent data and lore display.
-     * <p>
-     * If the item is not a registered weapon, no changes will be made.</p>
+     * Sets the bullet count for the given {@link ItemStack}, updating both persistent data and lore display.
      *
-     * @param stack The {@link ItemStack} to modify.
-     * @param count The number of bullets to set for this weapon.
+     * @param stack The weapon {@link ItemStack} to modify.
+     * @param count The number of bullets to set for this weapon stack.
      */
-    public static void setAmmoCount(@Nullable ItemStack stack, int count) {
-        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(stack);
-        if (weapon == null) return;
-
+    public void setBulletCount(@NotNull ItemStack stack, int count) {
         ItemMeta meta = stack.getItemMeta();
-        meta.getPersistentDataContainer().set(AMMO_KEY, INTEGER, count);
+        meta.getPersistentDataContainer().set(BULLETS_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        lore.set(0, LORE_WEAPON_BULLETS.of(count, weapon.maxBullets));
+        lore.set(0, LORE_WEAPON_BULLETS.of(count, maxBullets));
         meta.lore(lore);
         stack.setItemMeta(meta);
     }
