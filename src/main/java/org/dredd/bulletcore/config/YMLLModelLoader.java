@@ -267,11 +267,13 @@ public final class YMLLModelLoader {
 
         int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
 
+        long reloadTime = MathUtils.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
+
         List<Component> lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
         lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
         lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo);
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime);
     }
 }
