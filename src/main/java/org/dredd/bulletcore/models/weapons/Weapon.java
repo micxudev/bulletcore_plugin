@@ -324,8 +324,8 @@ public class Weapon extends CustomBase {
      * Retrieves the current bullet count stored in the given {@link ItemStack}'s metadata.
      *
      * @param stack The {@link ItemStack} representing {@link Weapon} to retrieve the bullet count from.
-     * @return The number of bullets currently stored in the weapon.<br>
-     * Returns {@code 0} if the item is not a weapon.
+     * @return The number of bullets currently stored in the weapon stack.<br>
+     * Returns {@code 0} if the stack did not store bullet count metadata.
      */
     public int getBulletCount(@NotNull ItemStack stack) {
         return stack.getItemMeta().getPersistentDataContainer().getOrDefault(BULLETS_KEY, INTEGER, 0);
@@ -335,7 +335,7 @@ public class Weapon extends CustomBase {
      * Sets the bullet count for the given {@link ItemStack}, updating both persistent data and lore display.
      *
      * @param stack The weapon {@link ItemStack} to modify.
-     * @param count The number of bullets to set for this weapon.
+     * @param count The number of bullets to set for this weapon stack.
      */
     public void setBulletCount(@NotNull ItemStack stack, int count) {
         ItemMeta meta = stack.getItemMeta();

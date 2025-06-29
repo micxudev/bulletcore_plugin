@@ -82,8 +82,8 @@ public class Ammo extends CustomBase {
      * Retrieves the current ammo count stored in the given {@link ItemStack}'s metadata.
      *
      * @param stack The {@link ItemStack} representing {@link Ammo} to retrieve the ammo count from.
-     * @return The number of ammo units currently stored in the ammo.<br>
-     * Returns {@code 0} if the item is not ammo.
+     * @return The number of ammo units currently stored in the ammo stack.<br>
+     * Returns {@code 0} if the stack did not store ammo count metadata.
      */
     public int getAmmoCount(@NotNull ItemStack stack) {
         return stack.getItemMeta().getPersistentDataContainer().getOrDefault(AMMO_COUNT_KEY, INTEGER, 0);
@@ -93,7 +93,7 @@ public class Ammo extends CustomBase {
      * Sets the ammo count for the given {@link ItemStack}, updating both persistent data and lore display.
      *
      * @param stack The ammo {@link ItemStack} to modify.
-     * @param count The number of ammo units to set for this ammo.
+     * @param count The number of ammo units to set for this ammo stack.
      */
     public void setAmmoCount(@NotNull ItemStack stack, int count) {
         ItemMeta meta = stack.getItemMeta();
