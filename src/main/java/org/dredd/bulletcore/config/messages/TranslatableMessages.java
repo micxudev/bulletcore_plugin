@@ -59,7 +59,7 @@ public enum TranslatableMessages {
     ),
 
     /**
-     * Represent ammo count; used on ammo item lore
+     * Represents ammo count; used on ammo item lore
      */
     LORE_AMMO_COUNT(
         "lore_ammo_count",
