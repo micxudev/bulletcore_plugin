@@ -1,12 +1,16 @@
 package org.dredd.bulletcore.listeners;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 
 /**
  * Listens for player actions and records them using {@link PlayerActionTracker}.
@@ -55,8 +59,32 @@ public class PlayerActionsListener implements Listener {
      *
      * @param event the {@link PlayerQuitEvent} triggered
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
-        tracker.clear(event.getPlayer().getUniqueId());
+        final Player player = event.getPlayer();
+        tracker.clear(player.getUniqueId());
+        ReloadHandler.cancelReload(player, false);
+    }
+
+    /**
+     * Called when a player dies.<br>
+     * Stops the player's current reload if it is in progress.
+     *
+     * @param event the {@link PlayerDeathEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        ReloadHandler.cancelReload(event.getEntity(), false);
+    }
+
+    /**
+     * Called when a player drops an item.<br>
+     * Updates the player's last drop time.
+     *
+     * @param event the {@link PlayerDropItemEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDrop(PlayerDropItemEvent event) {
+        tracker.markDrop(event.getPlayer().getUniqueId());
     }
 }
