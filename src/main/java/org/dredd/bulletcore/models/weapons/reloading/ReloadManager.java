@@ -28,6 +28,7 @@ public final class ReloadManager {
      * Initializes all reload handler implementations.
      */
     public static void initAll() {
+        ReloadHandler.clearAllReloadTasks();
         handlers.clear();
         register(new DefaultReloadHandler());
         register(new RevolverReloadHandler());
