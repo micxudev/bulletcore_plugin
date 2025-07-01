@@ -30,8 +30,8 @@ public final class ReloadManager {
     public static void initAll() {
         ReloadHandler.clearAllReloadTasks();
         handlers.clear();
-        register(new DefaultReloadHandler());
-        register(new RevolverReloadHandler());
+        register(DefaultReloadHandler.INSTANCE);
+        register(SingleReloadHandler.INSTANCE);
     }
 
     /**
