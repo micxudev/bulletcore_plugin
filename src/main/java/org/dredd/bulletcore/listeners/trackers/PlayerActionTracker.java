@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tracks the most recent interactions (e.g., inventory clicks) for each player.
+ * Tracks the most recent interactions (e.g., inventory clicks, item drops) for each player.
  *
  * @author dredd
  * @since 1.0.0
@@ -16,6 +16,11 @@ public class PlayerActionTracker {
      * Stores last inventory interaction time for each player.
      */
     private final Map<UUID, Long> lastInventoryInteraction = new HashMap<>();
+
+    /**
+     * Stores last item drop time for each player.
+     */
+    private final Map<UUID, Long> lastDrop = new HashMap<>();
 
     /**
      * Marks the current time as the player's last inventory interaction.
@@ -38,11 +43,32 @@ public class PlayerActionTracker {
     }
 
     /**
-     * Clears the recorded inventory interaction time for the given player.
+     * Marks the current time as the player's last item drop.
+     *
+     * @param uuid the unique ID of the player
+     */
+    public void markDrop(UUID uuid) {
+        lastDrop.put(uuid, System.currentTimeMillis());
+    }
+
+    /**
+     * Returns the timestamp (in milliseconds) of the player's last item drop.
+     * If no drop has been recorded, returns {@code 0}.
+     *
+     * @param uuid the unique ID of the player
+     * @return the last drop time in milliseconds, or {@code 0} if none recorded
+     */
+    public long getLastDrop(UUID uuid) {
+        return lastDrop.getOrDefault(uuid, 0L);
+    }
+
+    /**
+     * Clears the recorded data for the given player.
      *
      * @param uuid the unique ID of the player
      */
     public void clear(UUID uuid) {
         lastInventoryInteraction.remove(uuid);
+        lastDrop.remove(uuid);
     }
 }
