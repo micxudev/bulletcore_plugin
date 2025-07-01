@@ -16,6 +16,7 @@ import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -77,13 +78,18 @@ public class Weapon extends CustomBase {
      */
     public final long reloadTime;
 
+    /**
+     * Manages weapon reloading behavior.
+     */
+    public final ReloadHandler reloadHandler;
+
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -92,6 +98,7 @@ public class Weapon extends CustomBase {
         this.maxBullets = maxBullets;
         this.ammo = ammo;
         this.reloadTime = reloadTime;
+        this.reloadHandler = reloadHandler;
     }
 
 
@@ -122,41 +129,21 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        boolean isCrossbow = material == Material.CROSSBOW; // Condition to cancel charging the crossbow
-        ConfigManager config = ConfigManager.get();
-
-        // check if the usedItem is not already reloading
-        // if (!reloadHandler.allowReload(player, this)) return isCrossbow;
-
-        // check bullet count on Weapon
-        int bulletCount = getBulletCount(usedItem);
-        if (bulletCount >= maxBullets) {
-            if (config.enableHotbarReload)
-                player.sendActionBar(noItalic("[ammo is full]", WHITE));
-            return isCrossbow;
-        }
-
-        // check ammo count in a player's inventory
-        int playerAmmoCount = ammo.getAmmoCount(player);
-        if (playerAmmoCount <= 0) {
-            if (config.enableHotbarReload)
-                player.sendActionBar(noItalic("[no ammo found]", WHITE));
-            return isCrossbow;
-        }
-
-        // we can start reloading the weapon
-        //reloadHandler.reload(player, this);
-
-        return isCrossbow;
+        reloadHandler.tryReload(player, this, usedItem);
+        return material == Material.CROSSBOW; // Condition to cancel charging the crossbow
     }
 
     @Override
     public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
+        if (!reloadHandler.isShootingAllowed(player)) return true;
 
         // Check delay between shots
         long currentTime = System.currentTimeMillis();
         Long lastShot = lastShots.get(player.getUniqueId());
         if (lastShot != null && (currentTime - lastShot) < delayBetweenShots) return true;
+
+        // Save new shot time
+        lastShots.put(player.getUniqueId(), currentTime);
 
         // Fetch config (it is already loaded)
         ConfigManager config = ConfigManager.get();
@@ -177,9 +164,6 @@ public class Weapon extends CustomBase {
         setBulletCount(usedItem, bulletCount);
         if (config.enableHotbarShoot)
             player.sendActionBar(noItalic(bulletCount + " / " + maxBullets, WHITE));
-
-        // Save new shot time
-        lastShots.put(player.getUniqueId(), currentTime);
 
         // Set rayTrace settings
         Predicate<Entity> entityFilter = entity ->
@@ -290,8 +274,6 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Swapped to Weapon");
-
         if (!player.isSneaking()) return false;
         //System.err.println("1. Player is sneaking.");
 
@@ -306,7 +288,7 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Swapped away from Weapon");
+        ReloadHandler.cancelReload(player, false);
 
         if (!player.isSneaking()) return false;
         //System.err.println("1. Player is sneaking.");

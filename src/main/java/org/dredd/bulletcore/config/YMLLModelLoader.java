@@ -15,6 +15,8 @@ import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.dredd.bulletcore.utils.ThrowingFunction;
@@ -259,6 +261,11 @@ public final class YMLLModelLoader {
         if (ammo == null)
             throw new ItemLoadException("Invalid ammo name: " + ammoName);
 
+        String reloadHandlerName = config.getString("reloadHandler", "default");
+        ReloadHandler reloadHandler = ReloadManager.getHandlerOrNull(reloadHandlerName);
+        if (reloadHandler == null)
+            throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
+
         double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
 
         double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
@@ -274,6 +281,6 @@ public final class YMLLModelLoader {
         lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
         lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime);
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler);
     }
 }
