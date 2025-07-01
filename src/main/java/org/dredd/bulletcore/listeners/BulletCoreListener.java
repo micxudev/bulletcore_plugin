@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -24,6 +25,7 @@ import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 
 import java.util.Collections;
 
@@ -80,6 +82,14 @@ public class BulletCoreListener implements Listener {
         /* (Called once for each hand) */
         //System.err.println("===============================");
         //System.err.println("0. PlayerInteractEvent.");
+
+        long now = System.currentTimeMillis();
+        long lastDrop = tracker.getLastDrop(event.getPlayer().getUniqueId());
+
+        if (now - lastDrop < 25) {
+            //System.err.println("1. Interact is right after the drop (most probably using key (Q)). Do not process.");
+            return;
+        }
 
         final ItemStack usedItem = event.getItem();
         if (usedItem == null) return;
@@ -189,6 +199,38 @@ public class BulletCoreListener implements Listener {
         if (isWeapon(event.getCurrentItem())) {
             //System.err.println("8. Current item is a Weapon. Canceled event.");
             event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Handles inventory click events to cancel a weapon reload if the player interacts
+     * with the inventory slot currently holding the reloading weapon.
+     *
+     * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
+     */
+    @EventHandler(priority = EventPriority.LOW)
+    public void cancelReloadOnWeaponInteract(InventoryClickEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. InventoryClickEvent.");
+
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        //System.err.println("1. Player clicked.");
+
+        if (!ReloadHandler.isReloading(player)) return;
+        //System.err.println("2. Player is reloading.");
+
+        // Check if the click is in the player's inventory
+        Inventory clickedInventory = event.getClickedInventory();
+        if (clickedInventory == null || !clickedInventory.equals(player.getInventory())) return;
+        //System.err.println("3. Click inside player inventory.");
+
+        int heldWeaponSlot = player.getInventory().getHeldItemSlot();
+        //System.err.println("4. Held weapon slot: " + heldWeaponSlot);
+
+        if (event.getSlot() == heldWeaponSlot || event.getHotbarButton() == heldWeaponSlot) {
+            //System.err.println("5. Click slot: " + event.getSlot() + ". hotbar slot: " + event.getHotbarButton());
+            //System.err.println("6. Player used held weapon slot. Cancel reload.");
+            ReloadHandler.cancelReload(player, false);
         }
     }
 
@@ -327,6 +369,10 @@ public class BulletCoreListener implements Listener {
         // If less than 50 ms passed since the last inventory interaction, assume it came from GUI
         if (now - last < 50) {
             //System.err.println("2. Used GUI to drop item. Allow drop.");
+            if (droppedItem == player.getInventory().getItemInMainHand()) {
+                //System.err.println("3. If the player is reloading, this must be the dropped item. Cancel reload.");
+                ReloadHandler.cancelReload(player, false);
+            }
             return;
         }
 
