@@ -59,7 +59,7 @@ public class SingleReloadHandler extends ReloadHandler {
 
                 // try to consume 1 ammo
                 if (weapon.ammo.removeAmmo(player, 1) <= 0) {
-                    finishReload(weaponBulletsCount);
+                    ReloadHandler.finishReload(weapon, player, weaponBulletsCount);
                     return;
                 }
 
@@ -71,21 +71,10 @@ public class SingleReloadHandler extends ReloadHandler {
                     Sound.BLOCK_TRIPWIRE_ATTACH /* add bullet sound */, 1f, 1.5f
                 );
 
-                // stop reload if (out_of_ammo or fully_loaded)
-                if (weapon.ammo.getAmmoCount(player) <= 0 || newWeaponBulletsCount >= weapon.maxBullets) {
-                    finishReload(newWeaponBulletsCount);
+                // stop reload if (fully_loaded or out_of_ammo)
+                if (newWeaponBulletsCount >= weapon.maxBullets || weapon.ammo.getAmmoCount(player) <= 0) {
+                    ReloadHandler.finishReload(weapon, player, newWeaponBulletsCount);
                 }
-            }
-
-            private void finishReload(int bulletCountToShow) {
-                if (config.enableHotbarMessages)
-                    weapon.sendActionbar(player, bulletCountToShow);
-
-                player.getWorld().playSound(player.getLocation(),
-                    Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
-                );
-
-                ReloadHandler.cancelReload(player, true);
             }
         };
     }

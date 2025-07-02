@@ -64,6 +64,24 @@ public abstract class ReloadHandler {
             player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
     }
 
+    /**
+     * Completes the reload process for the specified weapon and player.
+     *
+     * @param weapon        the weapon being reloaded; must not be null
+     * @param player        the player reloading the weapon; must not be null
+     * @param loadedBullets the new number of bullets loaded in the weapon
+     */
+    static void finishReload(@NotNull Weapon weapon, @NotNull Player player, int loadedBullets) {
+        if (ConfigManager.get().enableHotbarMessages)
+            weapon.sendActionbar(player, loadedBullets);
+
+        player.getWorld().playSound(player.getLocation(),
+            Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
+        );
+
+        ReloadHandler.cancelReload(player, true);
+    }
+
     // -----< Non-Static >-----
 
     /**

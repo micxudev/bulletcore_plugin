@@ -58,18 +58,11 @@ public class DefaultReloadHandler extends ReloadHandler {
                 int reloadCount = weapon.maxBullets - weaponBulletsCount;
                 int removedCount = weapon.ammo.removeAmmo(player, reloadCount);
 
-                // update weapon ammo count
+                // add bullets to the weapon
                 int newWeaponBulletsCount = weaponBulletsCount + removedCount;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
-                if (config.enableHotbarMessages)
-                    weapon.sendActionbar(player, newWeaponBulletsCount);
-
-                player.getWorld().playSound(player.getLocation(),
-                    Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
-                );
-
-                ReloadHandler.cancelReload(player, true);
+                ReloadHandler.finishReload(weapon, player, newWeaponBulletsCount);
             }
         };
     }
