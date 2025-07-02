@@ -59,7 +59,7 @@ public class SingleReloadHandler extends ReloadHandler {
 
                 // try to consume 1 ammo
                 if (weapon.ammo.removeAmmo(player, 1) <= 0) {
-                    ReloadHandler.finishReload(weapon, player, weaponBulletsCount);
+                    ReloadHandler.finishReload(player, weapon, weaponBulletsCount);
                     return;
                 }
 
@@ -73,7 +73,7 @@ public class SingleReloadHandler extends ReloadHandler {
 
                 // stop reload if (fully_loaded or out_of_ammo)
                 if (newWeaponBulletsCount >= weapon.maxBullets || weapon.ammo.getAmmoCount(player) <= 0) {
-                    ReloadHandler.finishReload(weapon, player, newWeaponBulletsCount);
+                    ReloadHandler.finishReload(player, weapon, newWeaponBulletsCount);
                 }
             }
         };

@@ -65,13 +65,13 @@ public abstract class ReloadHandler {
     }
 
     /**
-     * Completes the reload process for the specified weapon and player.
+     * Completes the reload process for the specified player and weapon.
      *
-     * @param weapon        the weapon being reloaded; must not be null
      * @param player        the player reloading the weapon; must not be null
+     * @param weapon        the weapon being reloaded; must not be null
      * @param loadedBullets the new number of bullets loaded in the weapon
      */
-    static void finishReload(@NotNull Weapon weapon, @NotNull Player player, int loadedBullets) {
+    static void finishReload(@NotNull Player player, @NotNull Weapon weapon, int loadedBullets) {
         if (ConfigManager.get().enableHotbarMessages)
             weapon.sendActionbar(player, loadedBullets);
 

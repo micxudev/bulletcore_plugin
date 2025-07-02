@@ -62,7 +62,7 @@ public class DefaultReloadHandler extends ReloadHandler {
                 int newWeaponBulletsCount = weaponBulletsCount + removedCount;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
-                ReloadHandler.finishReload(weapon, player, newWeaponBulletsCount);
+                ReloadHandler.finishReload(player, weapon, newWeaponBulletsCount);
             }
         };
     }
