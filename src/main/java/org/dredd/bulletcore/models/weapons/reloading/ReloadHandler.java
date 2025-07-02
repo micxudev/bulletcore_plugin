@@ -90,7 +90,7 @@ public abstract class ReloadHandler {
         int playerAmmoCount = weapon.ammo.getAmmoCount(player);
         if (playerAmmoCount <= 0) {
             if (config.enableHotbarMessages)
-                player.sendActionBar(noItalic("[no ammo found]", WHITE));
+                weapon.sendActionbar(player, bulletCount);
             return;
         }
 

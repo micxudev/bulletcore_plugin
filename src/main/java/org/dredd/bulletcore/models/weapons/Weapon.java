@@ -158,7 +158,7 @@ public class Weapon extends CustomBase {
                 Sound.BLOCK_LEVER_CLICK /* empty magazine sound */, 1f, 1.5f
             );
             if (config.enableHotbarMessages)
-                player.sendActionBar(noItalic("[out of ammo]", WHITE));
+                sendActionbar(player, bulletCount);
             return true;
         }
 
