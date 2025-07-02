@@ -46,7 +46,8 @@ public class SingleReloadHandler extends ReloadHandler {
             public void run() {
                 if (currentBulletMillisLeft > 0) {
                     double secs = currentBulletMillisLeft / 1000D;
-                    player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
+                    if (config.enableHotbarMessages)
+                        player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
                     currentBulletMillisLeft -= 100L;
                     return;
                 }
@@ -72,7 +73,7 @@ public class SingleReloadHandler extends ReloadHandler {
 
                 if (newWeaponBulletsCount >= weapon.maxBullets) {
                     // this was the last bullet; the weapon is now fully loaded
-                    if (config.enableHotbarReload)
+                    if (config.enableHotbarMessages)
                         player.sendActionBar(noItalic("Reloaded " + newWeaponBulletsCount + " / " + weapon.maxBullets, WHITE));
 
                     player.getWorld().playSound(player.getLocation(),

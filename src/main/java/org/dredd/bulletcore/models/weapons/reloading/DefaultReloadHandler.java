@@ -39,12 +39,14 @@ public class DefaultReloadHandler extends ReloadHandler {
     @NotNull BukkitRunnable create(@NotNull Player player, @NotNull Weapon weapon) {
         return new BukkitRunnable() {
             long millisLeft = weapon.reloadTime;
+            final ConfigManager config = ConfigManager.get();
 
             @Override
             public void run() {
                 if (millisLeft > 0) {
                     double secs = millisLeft / 1000D;
-                    player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
+                    if (config.enableHotbarMessages)
+                        player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
                     millisLeft -= 100L;
                     return;
                 }
@@ -60,7 +62,7 @@ public class DefaultReloadHandler extends ReloadHandler {
                 int newWeaponBulletsCount = weaponBulletsCount + removedCount;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
-                if (ConfigManager.get().enableHotbarReload)
+                if (config.enableHotbarMessages)
                     player.sendActionBar(noItalic("Reloaded " + newWeaponBulletsCount + " / " + weapon.maxBullets, WHITE));
 
                 player.getWorld().playSound(player.getLocation(),

@@ -15,14 +15,8 @@ enable-muzzle-flashes: true
 # True = enabled, false = disabled.
 enable-recoil: true
 
-# Disables specific hotbar messages.
-# out-of-ammo: Show "No ammo" message.
-# shoot: Show message when shooting.
-# reload: Show message when reloading.
-enable-hotbar-messages:
-  out-of-ammo: true
-  shoot: true
-  reload: true
+# Enables hotbar messages during shooting, reloading.
+enable-hotbar-messages: true
 
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.

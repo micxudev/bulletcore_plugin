@@ -154,7 +154,7 @@ public class Weapon extends CustomBase {
             player.getWorld().playSound(player.getLocation(),
                 Sound.BLOCK_LEVER_CLICK /* empty magazine sound */, 1f, 1.5f
             );
-            if (config.enableHotbarOutOfAmmo)
+            if (config.enableHotbarMessages)
                 player.sendActionBar(noItalic("[out of ammo]", WHITE));
             return true;
         }
@@ -162,7 +162,7 @@ public class Weapon extends CustomBase {
         // Update bullet count
         bulletCount--;
         setBulletCount(usedItem, bulletCount);
-        if (config.enableHotbarShoot)
+        if (config.enableHotbarMessages)
             player.sendActionBar(noItalic(bulletCount + " / " + maxBullets, WHITE));
 
         // Set rayTrace settings

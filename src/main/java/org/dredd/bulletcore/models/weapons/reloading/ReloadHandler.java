@@ -60,7 +60,7 @@ public abstract class ReloadHandler {
         if (task == null) return;
         task.cancel();
 
-        if (!success && ConfigManager.get().enableHotbarReload)
+        if (!success && ConfigManager.get().enableHotbarMessages)
             player.sendActionBar(noItalic("Reload canceled", WHITE));
     }
 
@@ -81,7 +81,7 @@ public abstract class ReloadHandler {
         // check bullet count on Weapon
         int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount >= weapon.maxBullets) {
-            if (config.enableHotbarReload)
+            if (config.enableHotbarMessages)
                 player.sendActionBar(noItalic("[ammo is full]", WHITE));
             return;
         }
@@ -89,7 +89,7 @@ public abstract class ReloadHandler {
         // check ammo count in a player's inventory
         int playerAmmoCount = weapon.ammo.getAmmoCount(player);
         if (playerAmmoCount <= 0) {
-            if (config.enableHotbarReload)
+            if (config.enableHotbarMessages)
                 player.sendActionBar(noItalic("[no ammo found]", WHITE));
             return;
         }
