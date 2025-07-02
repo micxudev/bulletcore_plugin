@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.
@@ -61,7 +61,7 @@ public abstract class ReloadHandler {
         task.cancel();
 
         if (!success && ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(noItalic("Reload canceled", WHITE));
+            player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
     }
 
     // -----< Non-Static >-----

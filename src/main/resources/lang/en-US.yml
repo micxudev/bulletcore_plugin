@@ -59,3 +59,8 @@ item-given: "<green>Gave <white>%item%</white> to <white>%player%</white>"
 #     %maxbullets% – max weapon's bullet capacity
 #     %total% – total ammo count for this weapon inside player's inventory
 weapon-actionbar: "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
+
+
+# · Used when: Weapon reload is canceled
+# · Placeholders: no placeholders
+weapon-reload-cancel: "<red>Reload canceled"

@@ -102,7 +102,7 @@ public enum ComponentMessage {
     ),
 
     /**
-     * Shown on actionbar during some interactions with a weapon (e.g., shooting, successful reload)<br>
+     * Shown on the actionbar during some interactions with a weapon (e.g., shooting, successful reload)<br>
      * {@code %displayname%} – Weapon's raw display name text (without styles).<br>
      * {@code %bullets%} – Current weapon's bullet count.<br>
      * {@code %maxbullets%} – Max weapon's bullet capacity.<br>
@@ -111,6 +111,15 @@ public enum ComponentMessage {
     WEAPON_ACTIONBAR(
         "weapon-actionbar",
         "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
+    ),
+
+    /**
+     * Shown on the actionbar when weapon reload is canceled<br>
+     * No placeholders.
+     */
+    WEAPON_RELOAD_CANCEL(
+        "weapon-reload-cancel",
+        "<red>Reload canceled"
     );
 
     /**

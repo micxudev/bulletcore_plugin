@@ -51,3 +51,8 @@ player-not-found: "<red>Игрок не найден: <white>%player%</white>"
 #     %item% — имя выданного предмета
 #     %player% — имя игрока получившего предмет
 item-given: "<green>Выдан предмет <white>%item%</white> игроку <white>%player%</white>"
+
+
+# · Используется когда: Перезарядка оружия отменена
+# · Плейсхолдеры: нет
+weapon-reload-cancel: "<red>Перезарядка отменена"
