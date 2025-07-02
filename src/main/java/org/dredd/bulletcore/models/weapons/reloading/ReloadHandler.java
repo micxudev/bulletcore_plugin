@@ -14,10 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.
@@ -93,17 +92,16 @@ public abstract class ReloadHandler {
      * @return the number of milliseconds remaining for the next countdown tick
      */
     static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, long millisLeft) {
-        if (ConfigManager.get().enableHotbarMessages) {
-            double secs = millisLeft / 1000D;
-            ItemStack weaponItem = player.getInventory().getItemInMainHand();
-            int bulletCount = weapon.getBulletCount(weaponItem);
-            int ammoCount = weapon.ammo.getAmmoCount(player);
+        if (ConfigManager.get().enableHotbarMessages)
+            player.sendActionBar(of(player, WEAPON_RELOAD,
+                Map.of(
+                    "bullets", Integer.toString(weapon.getBulletCount(player.getInventory().getItemInMainHand())),
+                    "maxbullets", Integer.toString(weapon.maxBullets),
+                    "total", Integer.toString(weapon.ammo.getAmmoCount(player)),
+                    "time", Double.toString(millisLeft / 1000D)
+                )
+            ));
 
-            String message = "Reloading = " + bulletCount + " / " + weapon.maxBullets +
-                " [" + ammoCount + "]" + " | " + secs + "sec";
-
-            player.sendActionBar(noItalic(message, WHITE));
-        }
         return millisLeft - 100L;
     }
 

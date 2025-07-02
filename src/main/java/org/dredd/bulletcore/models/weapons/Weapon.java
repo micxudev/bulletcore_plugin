@@ -29,8 +29,6 @@ import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_ACTIONBAR;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_BULLETS;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Represents weapon items.

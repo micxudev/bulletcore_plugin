@@ -120,6 +120,18 @@ public enum ComponentMessage {
     WEAPON_RELOAD_CANCEL(
         "weapon-reload-cancel",
         "<red>Reload canceled"
+    ),
+
+    /**
+     * Shown on the actionbar when a weapon is reloading<br>
+     * {@code %bullets%} – Current weapon's bullet count.<br>
+     * {@code %maxbullets%} – Max weapon's bullet capacity.<br>
+     * {@code %total%} – Total ammo count for this weapon inside player's inventory.<br>
+     * {@code %time%} – Time in seconds remaining for reload to complete its current iteration.
+     */
+    WEAPON_RELOAD(
+        "weapon-reload",
+        "<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"
     );
 
     /**
