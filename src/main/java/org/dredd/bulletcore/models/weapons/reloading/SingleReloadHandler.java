@@ -74,7 +74,7 @@ public class SingleReloadHandler extends ReloadHandler {
                 if (newWeaponBulletsCount >= weapon.maxBullets) {
                     // this was the last bullet; the weapon is now fully loaded
                     if (config.enableHotbarMessages)
-                        player.sendActionBar(noItalic("Reloaded " + newWeaponBulletsCount + " / " + weapon.maxBullets, WHITE));
+                        weapon.sendActionbar(player, newWeaponBulletsCount);
 
                     player.getWorld().playSound(player.getLocation(),
                         Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f

@@ -82,7 +82,7 @@ public abstract class ReloadHandler {
         int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount >= weapon.maxBullets) {
             if (config.enableHotbarMessages)
-                player.sendActionBar(noItalic("[ammo is full]", WHITE));
+                weapon.sendActionbar(player, bulletCount);
             return;
         }
 

@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.config.messages.ComponentMessage;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
@@ -25,6 +26,8 @@ import java.util.function.Predicate;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_ACTIONBAR;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_BULLETS;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
@@ -163,7 +166,7 @@ public class Weapon extends CustomBase {
         bulletCount--;
         setBulletCount(usedItem, bulletCount);
         if (config.enableHotbarMessages)
-            player.sendActionBar(noItalic(bulletCount + " / " + maxBullets, WHITE));
+            sendActionbar(player, bulletCount);
 
         // Set rayTrace settings
         Predicate<Entity> entityFilter = entity ->
@@ -327,5 +330,22 @@ public class Weapon extends CustomBase {
         lore.set(0, LORE_WEAPON_BULLETS.of(count, maxBullets));
         meta.lore(lore);
         stack.setItemMeta(meta);
+    }
+
+    /**
+     * Sends the {@link ComponentMessage#WEAPON_ACTIONBAR} message to a specified player.
+     *
+     * @param player  the player to whom the actionbar message will be sent; must not be null
+     * @param current the current bullet count in the weapon
+     */
+    public void sendActionbar(@NotNull Player player, int current) {
+        player.sendActionBar(of(player, WEAPON_ACTIONBAR,
+            Map.of(
+                "displayname", displayNameString,
+                "bullets", Integer.toString(current),
+                "maxbullets", Integer.toString(maxBullets),
+                "total", Integer.toString(ammo.getAmmoCount(player))
+            )
+        ));
     }
 }

@@ -99,6 +99,18 @@ public enum ComponentMessage {
     ITEM_GIVEN(
         "item-given",
         "<green>Gave <white>%item%</white> to <white>%player%</white>"
+    ),
+
+    /**
+     * Shown on actionbar during some interactions with a weapon (e.g., shooting, successful reload)<br>
+     * {@code %displayname%} – Weapon's raw display name text (without styles).<br>
+     * {@code %bullets%} – Current weapon's bullet count.<br>
+     * {@code %maxbullets%} – Max weapon's bullet capacity.<br>
+     * {@code %total%} – Total ammo count for this weapon inside player's inventory.
+     */
+    WEAPON_ACTIONBAR(
+        "weapon-actionbar",
+        "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
     );
 
     /**
