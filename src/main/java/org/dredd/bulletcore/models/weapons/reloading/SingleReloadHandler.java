@@ -54,16 +54,16 @@ public class SingleReloadHandler extends ReloadHandler {
 
                 currentBulletMillisLeft = singleBulletReloadTime; // reset reload time for the next bullet
 
-                if (weapon.ammo.removeAmmo(player, 1) <= 0) {
-                    // no ammo found in player's inventory
-                    ReloadHandler.cancelReload(player, false);
-                    return;
-                }
-
-                // update weapon ammo count
                 ItemStack weaponItem = player.getInventory().getItemInMainHand();
                 int weaponBulletsCount = weapon.getBulletCount(weaponItem);
 
+                // try to consume 1 ammo
+                if (weapon.ammo.removeAmmo(player, 1) <= 0) {
+                    finishReload(weaponBulletsCount);
+                    return;
+                }
+
+                // add 1 bullet to the weapon
                 int newWeaponBulletsCount = weaponBulletsCount + 1;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
@@ -71,26 +71,30 @@ public class SingleReloadHandler extends ReloadHandler {
                     Sound.BLOCK_TRIPWIRE_ATTACH /* add bullet sound */, 1f, 1.5f
                 );
 
-                if (newWeaponBulletsCount >= weapon.maxBullets) {
-                    // this was the last bullet; the weapon is now fully loaded
-                    if (config.enableHotbarMessages)
-                        weapon.sendActionbar(player, newWeaponBulletsCount);
-
-                    player.getWorld().playSound(player.getLocation(),
-                        Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
-                    );
-
-                    ReloadHandler.cancelReload(player, true);
+                // stop reload if (out_of_ammo or fully_loaded)
+                if (weapon.ammo.getAmmoCount(player) <= 0 || newWeaponBulletsCount >= weapon.maxBullets) {
+                    finishReload(newWeaponBulletsCount);
                 }
+            }
+
+            private void finishReload(int bulletCountToShow) {
+                if (config.enableHotbarMessages)
+                    weapon.sendActionbar(player, bulletCountToShow);
+
+                player.getWorld().playSound(player.getLocation(),
+                    Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
+                );
+
+                ReloadHandler.cancelReload(player, true);
             }
         };
     }
 
     @Override
     public boolean isShootingAllowed(@NotNull Player player) {
-        // The single bullet reload implementation allows shooting during reload
+        // the single bullet reload implementation allows shooting during reload
         // but should cancel the reload before that
-        cancelReload(player, false);
+        ReloadHandler.cancelReload(player, false);
         return true;
     }
 }
