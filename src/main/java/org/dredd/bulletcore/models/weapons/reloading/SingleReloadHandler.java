@@ -4,12 +4,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
-
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Single reload handler implementation.
@@ -40,15 +36,11 @@ public class SingleReloadHandler extends ReloadHandler {
         return new BukkitRunnable() {
             final long singleBulletReloadTime = weapon.reloadTime / weapon.maxBullets;
             long currentBulletMillisLeft = singleBulletReloadTime;
-            final ConfigManager config = ConfigManager.get();
 
             @Override
             public void run() {
                 if (currentBulletMillisLeft > 0) {
-                    double secs = currentBulletMillisLeft / 1000D;
-                    if (config.enableHotbarMessages)
-                        player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
-                    currentBulletMillisLeft -= 100L;
+                    currentBulletMillisLeft = showReloadCountdown(player, weapon, currentBulletMillisLeft);
                     return;
                 }
 

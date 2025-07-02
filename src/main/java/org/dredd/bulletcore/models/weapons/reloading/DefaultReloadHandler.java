@@ -1,15 +1,10 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
-
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Default reload handler implementation.
@@ -39,15 +34,11 @@ public class DefaultReloadHandler extends ReloadHandler {
     @NotNull BukkitRunnable create(@NotNull Player player, @NotNull Weapon weapon) {
         return new BukkitRunnable() {
             long millisLeft = weapon.reloadTime;
-            final ConfigManager config = ConfigManager.get();
 
             @Override
             public void run() {
                 if (millisLeft > 0) {
-                    double secs = millisLeft / 1000D;
-                    if (config.enableHotbarMessages)
-                        player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
-                    millisLeft -= 100L;
+                    millisLeft = showReloadCountdown(player, weapon, millisLeft);
                     return;
                 }
 
