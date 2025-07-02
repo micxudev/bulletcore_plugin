@@ -14,8 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.
@@ -60,8 +61,48 @@ public abstract class ReloadHandler {
         if (task == null) return;
         task.cancel();
 
-        if (!success && ConfigManager.get().enableHotbarReload)
-            player.sendActionBar(noItalic("Reload canceled", WHITE));
+        if (!success && ConfigManager.get().enableHotbarMessages)
+            player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
+    }
+
+    /**
+     * Completes the reload process for the specified player and weapon.
+     *
+     * @param player        the player reloading the weapon; must not be null
+     * @param weapon        the weapon being reloaded; must not be null
+     * @param loadedBullets the new number of bullets loaded in the weapon
+     */
+    static void finishReload(@NotNull Player player, @NotNull Weapon weapon, int loadedBullets) {
+        if (ConfigManager.get().enableHotbarMessages)
+            weapon.sendActionbar(player, loadedBullets);
+
+        player.getWorld().playSound(player.getLocation(),
+            Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
+        );
+
+        ReloadHandler.cancelReload(player, true);
+    }
+
+    /**
+     * Shows a reload countdown message to the specified player.
+     *
+     * @param player     the player reloading the weapon; must not be null
+     * @param weapon     the weapon being reloaded; must not be null
+     * @param millisLeft the number of milliseconds remaining in the reload countdown; must be greater than 0
+     * @return the number of milliseconds remaining for the next countdown tick
+     */
+    static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, long millisLeft) {
+        if (ConfigManager.get().enableHotbarMessages)
+            player.sendActionBar(of(player, WEAPON_RELOAD,
+                Map.of(
+                    "bullets", Integer.toString(weapon.getBulletCount(player.getInventory().getItemInMainHand())),
+                    "maxbullets", Integer.toString(weapon.maxBullets),
+                    "total", Integer.toString(weapon.ammo.getAmmoCount(player)),
+                    "time", Double.toString(millisLeft / 1000D)
+                )
+            ));
+
+        return millisLeft - 100L;
     }
 
     // -----< Non-Static >-----
@@ -81,16 +122,16 @@ public abstract class ReloadHandler {
         // check bullet count on Weapon
         int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount >= weapon.maxBullets) {
-            if (config.enableHotbarReload)
-                player.sendActionBar(noItalic("[ammo is full]", WHITE));
+            if (config.enableHotbarMessages)
+                weapon.sendActionbar(player, bulletCount);
             return;
         }
 
         // check ammo count in a player's inventory
         int playerAmmoCount = weapon.ammo.getAmmoCount(player);
         if (playerAmmoCount <= 0) {
-            if (config.enableHotbarReload)
-                player.sendActionBar(noItalic("[no ammo found]", WHITE));
+            if (config.enableHotbarMessages)
+                weapon.sendActionbar(player, bulletCount);
             return;
         }
 

@@ -46,9 +46,7 @@ public final class ConfigManager {
     public final boolean enableMuzzleFlashes;
     public final boolean enableRecoil;
 
-    public final boolean enableHotbarOutOfAmmo;
-    public final boolean enableHotbarShoot;
-    public final boolean enableHotbarReload;
+    public final boolean enableHotbarMessages;
 
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
@@ -69,9 +67,7 @@ public final class ConfigManager {
         enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", true);
         enableRecoil = cfg.getBoolean("enable-recoil", true);
 
-        enableHotbarOutOfAmmo = cfg.getBoolean("enable-hotbar-messages.out-of-ammo", true);
-        enableHotbarShoot = cfg.getBoolean("enable-hotbar-messages.shoot", true);
-        enableHotbarReload = cfg.getBoolean("enable-hotbar-messages.reload", true);
+        enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");

@@ -1,15 +1,10 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
-
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
 
 /**
  * Default reload handler implementation.
@@ -43,9 +38,7 @@ public class DefaultReloadHandler extends ReloadHandler {
             @Override
             public void run() {
                 if (millisLeft > 0) {
-                    double secs = millisLeft / 1000D;
-                    player.sendActionBar(noItalic("Reloading " + secs + "sec", WHITE));
-                    millisLeft -= 100L;
+                    millisLeft = showReloadCountdown(player, weapon, millisLeft);
                     return;
                 }
 
@@ -56,18 +49,11 @@ public class DefaultReloadHandler extends ReloadHandler {
                 int reloadCount = weapon.maxBullets - weaponBulletsCount;
                 int removedCount = weapon.ammo.removeAmmo(player, reloadCount);
 
-                // update weapon ammo count
+                // add bullets to the weapon
                 int newWeaponBulletsCount = weaponBulletsCount + removedCount;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
-                if (ConfigManager.get().enableHotbarReload)
-                    player.sendActionBar(noItalic("Reloaded " + newWeaponBulletsCount + " / " + weapon.maxBullets, WHITE));
-
-                player.getWorld().playSound(player.getLocation(),
-                    Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
-                );
-
-                ReloadHandler.cancelReload(player, true);
+                ReloadHandler.finishReload(player, weapon, newWeaponBulletsCount);
             }
         };
     }
