@@ -18,6 +18,53 @@ enable-recoil: true
 # Enables hotbar messages during shooting, reloading.
 enable-hotbar-messages: true
 
+# Each sound is composed of the following properties:
+# sound - The sound identifier to play.
+#     This can be a built-in Minecraft sound (e.g., 'entity.arrow.hit_player'),
+#     or a custom sound defined by a resource pack (e.g., 'custom.ui.click').
+#
+# category - Controls which volume slider in the client's settings affects the sound.
+#     Available categories:
+#       - MASTER
+#       - MUSIC
+#       - RECORDS
+#       - WEATHER
+#       - BLOCKS
+#       - HOSTILE
+#       - NEUTRAL
+#       - PLAYERS
+#       - AMBIENT
+#       - VOICE
+#
+# volume - Controls both loudness and how far the sound can be heard.
+#     - Minimum: 0.0 — silent
+#     - Default: 1.0 — normal volume and 16-block range
+#     - Technically unlimited, but:
+#         · If volume ≤ 1.0 → audible within 16 blocks
+#         · If volume > 1.0 → audible within (16 × volume) blocks
+#         · Example: 2.0 = 32 blocks, 10.0 = 160 blocks
+#
+# pitch - Affects how high or low the sound is perceived.
+#     - Minimum: 0.5 — one octave lower
+#     - Default: 1.0 — standard pitch
+#     - Maximum: 2.0 — one octave higher
+#
+# Defaults (if not specified):
+#     category: MASTER
+#     volume: 1.0
+#     pitch: 1.0
+sounds:
+  entity_hit:
+    sound: entity.arrow.hit_player
+    category: MASTER
+    volume: 1.0
+    pitch: 1.0
+  block_hit:
+    sound: block.metal.hit
+    category: MASTER
+    volume: 1.0
+    pitch: 1.0
+
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.
 ignored-materials:
