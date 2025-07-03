@@ -4,10 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
+
+import static org.bukkit.SoundCategory.MASTER;
+import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
 
 /**
  * Class for loading and managing the plugin's configuration.
@@ -47,6 +51,9 @@ public final class ConfigManager {
 
     public final boolean enableHotbarMessages;
 
+    public final ConfiguredSound entityHit;
+    public final ConfiguredSound blockHit;
+
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
     /**
@@ -67,6 +74,9 @@ public final class ConfigManager {
         enableRecoil = cfg.getBoolean("enable-recoil", true);
 
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
+
+        entityHit = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
+        blockHit = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");

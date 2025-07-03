@@ -14,6 +14,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.messages.ComponentMessage;
+import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
@@ -223,11 +224,11 @@ public class Weapon extends CustomBase {
             // Entity hit
             applyCustomDamage(victim, player, damage, hitLocation);
             world.spawnParticle(Particle.DAMAGE_INDICATOR, hitLocation, 4);
-            world.playSound(hitLocation, Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1f);
+            SoundManager.playSound(world, hitLocation, config.entityHit);
         } else if (result.getHitBlock() != null) {
             // Block hit
             world.spawnParticle(Particle.CRIT, hitLocation, 4);
-            world.playSound(hitLocation, Sound.BLOCK_METAL_HIT, 1f, 1f);
+            SoundManager.playSound(world, hitLocation, config.blockHit);
         }
 
         return true;
