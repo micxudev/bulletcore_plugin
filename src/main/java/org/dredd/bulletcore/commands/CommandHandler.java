@@ -116,10 +116,19 @@ public final class CommandHandler implements TabExecutor {
             : Collections.emptyList();
     }
 
+    /**
+     * Returns a list of subcommand names that the sender has permission to use.
+     *
+     * @param sender the command sender (player or console)
+     * @return a list of subcommand names that the sender has permission to use
+     */
     private List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return subCommands.entrySet().stream()
             .filter(
-                entry -> entry.getValue().getPermission() == null || sender.hasPermission(entry.getValue().getPermission())
+                entry -> {
+                    String subcommandPermission = entry.getValue().getPermission();
+                    return subcommandPermission == null || sender.hasPermission(subcommandPermission);
+                }
             )
             .map(Map.Entry::getKey)
             .toList();

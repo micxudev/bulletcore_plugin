@@ -25,7 +25,6 @@ public final class ConfigManager {
     /**
      * Gets the singleton instance of the {@link ConfigManager}
      *
-     * @param plugin the plugin instance
      * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
     public static ConfigManager get() {
@@ -73,18 +72,24 @@ public final class ConfigManager {
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
     }
 
+    /**
+     * Parses a list of material names into a set of {@link Material} instances.
+     *
+     * @param materialNames the list of material names to parse; must not be null
+     * @return a set of {@link Material} instances parsed from the given list of material names
+     */
     public static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        Set<Material> ignoredMaterials = HashSet.newHashSet(materialNames.size());
+        Set<Material> parsedMaterials = HashSet.newHashSet(materialNames.size());
 
         for (String name : materialNames) {
             try {
                 Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
-                ignoredMaterials.add(material);
+                parsedMaterials.add(material);
             } catch (IllegalArgumentException e) {
                 Bukkit.getLogger().warning("Skipping invalid material in ignored-materials: " + name);
             }
         }
 
-        return Collections.unmodifiableSet(ignoredMaterials);
+        return Collections.unmodifiableSet(parsedMaterials);
     }
 }
