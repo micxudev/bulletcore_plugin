@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -76,9 +75,7 @@ public abstract class ReloadHandler {
         if (ConfigManager.get().enableHotbarMessages)
             weapon.sendActionbar(player, loadedBullets);
 
-        player.getWorld().playSound(player.getLocation(),
-            Sound.BLOCK_PISTON_CONTRACT /* reload end sound */, 1f, 1.5f
-        );
+        weapon.sounds.play(player, weapon.sounds.reloadEnd);
 
         ReloadHandler.cancelReload(player, true);
     }
@@ -135,9 +132,7 @@ public abstract class ReloadHandler {
             return;
         }
 
-        player.getWorld().playSound(player.getLocation(),
-            Sound.BLOCK_PISTON_EXTEND /* reload start sound */, 1f, 1.5f
-        );
+        weapon.sounds.play(player, weapon.sounds.reloadStart);
 
         BukkitRunnable runnable = create(player, weapon);
 

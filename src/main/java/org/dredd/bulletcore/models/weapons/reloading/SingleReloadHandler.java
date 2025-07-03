@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -59,9 +58,7 @@ public class SingleReloadHandler extends ReloadHandler {
                 int newWeaponBulletsCount = weaponBulletsCount + 1;
                 weapon.setBulletCount(weaponItem, newWeaponBulletsCount);
 
-                player.getWorld().playSound(player.getLocation(),
-                    Sound.BLOCK_TRIPWIRE_ATTACH /* add bullet sound */, 1f, 1.5f
-                );
+                weapon.sounds.play(player, weapon.sounds.addBullet);
 
                 // stop reload if (fully_loaded or out_of_ammo)
                 if (newWeaponBulletsCount >= weapon.maxBullets || weapon.ammo.getAmmoCount(player) <= 0) {
