@@ -50,6 +50,8 @@ public final class ConfigManager {
 
     public final boolean enableHotbarMessages;
 
+    public final double raySize;
+
     public final ConfiguredSound entityHit;
     public final ConfiguredSound blockHit;
 
@@ -72,6 +74,8 @@ public final class ConfigManager {
         enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
 
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
+
+        raySize = cfg.getDouble("ray-size", 0.01);
 
         entityHit = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
         blockHit = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));

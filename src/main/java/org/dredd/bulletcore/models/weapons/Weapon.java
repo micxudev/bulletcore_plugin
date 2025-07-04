@@ -188,7 +188,7 @@ public class Weapon extends CustomBase {
             maxDistance,
             FluidCollisionMode.NEVER,   // skips water/lava
             true,                       // ignoredMaterials will handle it
-            0.01,                       // expands ray a little bit
+            config.raySize,             // expands ray a little bit
             entityFilter,
             canCollide
         );

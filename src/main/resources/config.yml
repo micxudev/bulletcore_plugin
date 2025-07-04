@@ -14,6 +14,13 @@ enable-muzzle-flashes: false
 # Enables hotbar messages during shooting, reloading.
 enable-hotbar-messages: true
 
+# Entity bounding boxes will be uniformly expanded
+# (or shrunk) by this value before doing collision checks.
+# 0 → precise hitbox detection
+# 0.01 → slightly easier to hit
+# -0.01 → slightly harder to hit
+ray-size: 0.01
+
 # Each sound is composed of the following properties:
 # sound - The sound identifier to play.
 #     This can be a built-in Minecraft sound (e.g., 'entity.arrow.hit_player'),
