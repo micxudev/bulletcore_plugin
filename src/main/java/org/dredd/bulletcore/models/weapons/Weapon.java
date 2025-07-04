@@ -18,6 +18,7 @@ import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
+import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,7 @@ import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_ACTIONBAR;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_BULLETS;
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.getDamagePoint;
 
 /**
  * Represents weapon items.
@@ -45,9 +47,9 @@ public class Weapon extends CustomBase {
     private static final NamespacedKey BULLETS_KEY = new NamespacedKey("bulletcore", "bullets");
 
     /**
-     * Base weapon damage value.
+     * Weapon damage values for each body part.
      */
-    public final double damage;
+    public final WeaponDamage damage;
 
     /**
      * Maximum distance a bullet can travel before it is discarded.
@@ -95,7 +97,7 @@ public class Weapon extends CustomBase {
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds) {
+    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -224,7 +226,7 @@ public class Weapon extends CustomBase {
 
         if (result.getHitEntity() instanceof LivingEntity victim) {
             // Entity hit
-            applyCustomDamage(victim, player, damage, hitLocation);
+            applyCustomDamage(victim, player, hitLocation);
             world.spawnParticle(Particle.DAMAGE_INDICATOR, hitLocation, 4);
             SoundManager.playSound(world, hitLocation, config.entityHit);
         } else if (result.getHitBlock() != null) {
@@ -258,21 +260,32 @@ public class Weapon extends CustomBase {
     /**
      * Applies custom damage to a living entity.
      *
-     * @param victim     the entity receiving damage; must not be null
-     * @param damager    the player who caused the damage using Weapon; must not be null
-     * @param baseDamage initial Weapon damage value; must be greater than 0
-     * @param hitPoint   the location where the damage occurred; must not be null
+     * @param victim   the entity receiving damage; must not be null
+     * @param damager  the player who caused the damage using Weapon; must not be null
+     * @param hitPoint the location where the damage occurred; must not be null
      */
-    private void applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager, double baseDamage, @NotNull Location hitPoint) {
+    private void applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager, @NotNull Location hitPoint) {
         // TODO:
-        //  - Handle body parts (e.g. headshot multiplier)
         //  - Consider armor
         //  - Shield position
         //  - Armor/shield damage
 
+        double finalDamage;
+        if (victim instanceof Player victimPlayer) {
+            finalDamage = switch (getDamagePoint(victimPlayer, hitPoint)) {
+                case HEAD -> damage.head(); // TODO: apply helmet reduction
+                case BODY -> damage.body(); // TODO: apply chestplate reduction
+                case LEGS -> damage.legs();
+                case FEET -> damage.feet();
+            };
+        } else {
+            // For now, all non-player entities always get body damage
+            finalDamage = damage.body();
+        }
+
         // Prevents recursion for the same hit
         CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId());
-        victim.damage(baseDamage, damager); // fires EntityDamageByEntityEvent
+        victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
         CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
     }
 

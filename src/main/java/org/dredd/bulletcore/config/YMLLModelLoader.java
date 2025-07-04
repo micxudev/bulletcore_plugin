@@ -16,6 +16,7 @@ import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.WeaponSounds;
+import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.utils.ComponentUtils;
@@ -267,7 +268,7 @@ public final class YMLLModelLoader {
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
 
-        double damage = MathUtils.clamp(config.getDouble("damage", 1), 1, Double.MAX_VALUE);
+        WeaponDamage damage = WeaponDamage.load(config);
 
         double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
 
