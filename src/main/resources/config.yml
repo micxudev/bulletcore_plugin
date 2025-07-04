@@ -57,12 +57,12 @@ sounds:
   entity_hit:
     sound: entity.arrow.hit_player
     category: MASTER
-    volume: 1.0
+    volume: 0.5
     pitch: 1.0
   block_hit:
     sound: block.metal.hit
     category: MASTER
-    volume: 1.0
+    volume: 2.0
     pitch: 1.0
 
 # List of materials to ignore during ray trace collision checks.
