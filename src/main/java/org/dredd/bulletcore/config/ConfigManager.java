@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
+import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -47,9 +48,12 @@ public final class ConfigManager {
     public final boolean enableFriendlyFire;
     public final double bulletTrailStep;
     public final boolean enableMuzzleFlashes;
-    public final boolean enableRecoil;
 
     public final boolean enableHotbarMessages;
+
+    public final double raySize;
+
+    public final DamageThresholds damageThresholds;
 
     public final ConfiguredSound entityHit;
     public final ConfiguredSound blockHit;
@@ -70,10 +74,12 @@ public final class ConfigManager {
 
         enableFriendlyFire = cfg.getBoolean("enable-friendly-fire", false);
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
-        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", true);
-        enableRecoil = cfg.getBoolean("enable-recoil", true);
+        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
 
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
+
+        raySize = cfg.getDouble("ray-size", 0.01);
+        damageThresholds = DamageThresholds.load(cfg);
 
         entityHit = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
         blockHit = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
