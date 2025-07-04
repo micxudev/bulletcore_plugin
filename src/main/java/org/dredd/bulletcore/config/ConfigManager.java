@@ -47,7 +47,6 @@ public final class ConfigManager {
     public final boolean enableFriendlyFire;
     public final double bulletTrailStep;
     public final boolean enableMuzzleFlashes;
-    public final boolean enableRecoil;
 
     public final boolean enableHotbarMessages;
 
@@ -70,8 +69,7 @@ public final class ConfigManager {
 
         enableFriendlyFire = cfg.getBoolean("enable-friendly-fire", false);
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
-        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", true);
-        enableRecoil = cfg.getBoolean("enable-recoil", true);
+        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
 
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 

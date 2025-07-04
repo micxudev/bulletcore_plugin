@@ -9,11 +9,7 @@ bullet-trail-step: 1.0
 
 # Enables muzzle flashes when shooting.
 # True = visible, false = disabled.
-enable-muzzle-flashes: true
-
-# Enables a recoil effect when shooting.
-# True = enabled, false = disabled.
-enable-recoil: true
+enable-muzzle-flashes: false
 
 # Enables hotbar messages during shooting, reloading.
 enable-hotbar-messages: true
