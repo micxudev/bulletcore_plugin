@@ -3,6 +3,8 @@ package org.dredd.bulletcore.models.weapons.damage;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.config.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -62,10 +64,11 @@ public enum DamagePoint {
 
         BoundingBox bb = victim.getBoundingBox();
         double normalizedY = (hitPoint.getY() - bb.getMinY()) / bb.getHeight();
+        DamageThresholds thr = ConfigManager.get().damageThresholds;
 
-        if (normalizedY > 0.78) return HEAD;
-        if (normalizedY > 0.4) return BODY;
-        if (normalizedY > 0.08) return LEGS;
+        if (normalizedY > thr.head()) return HEAD;
+        if (normalizedY > thr.body()) return BODY;
+        if (normalizedY > thr.legs()) return LEGS;
         return FEET;
     }
 }

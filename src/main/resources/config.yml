@@ -21,6 +21,20 @@ enable-hotbar-messages: true
 # -0.01 → slightly harder to hit
 ray-size: 0.01
 
+# Damage region thresholds based on hit height.
+# Each value represents the **minimum normalized Y** required to count as a hit on that body part.
+# The values must be in **descending order** (from HEAD to FEET).
+#
+# Example:
+#   If normalizedY > 0.78 → HEAD
+#   If normalizedY > 0.40 → BODY
+#   If normalizedY > 0.08 → LEGS
+#   Else → FEET
+damage-thresholds:
+  head: 0.78
+  body: 0.40
+  legs: 0.08
+
 # Each sound is composed of the following properties:
 # sound - The sound identifier to play.
 #     This can be a built-in Minecraft sound (e.g., 'entity.arrow.hit_player'),
