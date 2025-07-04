@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
+import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 

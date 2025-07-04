@@ -1,7 +1,6 @@
-package org.dredd.bulletcore.config;
+package org.dredd.bulletcore.models.weapons.damage;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
