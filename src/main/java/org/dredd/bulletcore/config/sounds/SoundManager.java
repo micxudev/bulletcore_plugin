@@ -10,6 +10,7 @@ import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 /**
  * Utility class for loading and playing configured sounds defined in YAML.<br>
@@ -37,7 +38,7 @@ public final class SoundManager {
         String fullKey = "sounds." + key;
         ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
-            throw new IllegalArgumentException("Missing sound configuration for key: " + fullKey);
+            throw new NoSuchElementException("Missing sound configuration for key: " + fullKey);
 
         String sound = section.getString("sound");
         if (sound == null || sound.isBlank())
@@ -69,6 +70,8 @@ public final class SoundManager {
     public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg, @NotNull String key, @NotNull ConfiguredSound def) {
         try {
             return parseSound(cfg, key);
+        } catch (NoSuchElementException ignored) {
+            // Ignored, the sound configuration is optional
         } catch (IllegalArgumentException e) {
             Bukkit.getLogger().severe(e.getMessage() + "; Falling back to default sound");
         }
