@@ -14,6 +14,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.messages.ComponentMessage;
+import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
@@ -84,13 +85,17 @@ public class Weapon extends CustomBase {
      */
     public final ReloadHandler reloadHandler;
 
+    /**
+     * Manages weapon sounds.
+     */
+    public final WeaponSounds sounds;
 
     /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler) {
+    public Weapon(BaseAttributes attrs, double damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -100,6 +105,7 @@ public class Weapon extends CustomBase {
         this.ammo = ammo;
         this.reloadTime = reloadTime;
         this.reloadHandler = reloadHandler;
+        this.sounds = sounds;
     }
 
 
@@ -152,9 +158,7 @@ public class Weapon extends CustomBase {
         // Check bullet count
         int bulletCount = getBulletCount(usedItem);
         if (bulletCount <= 0) {
-            player.getWorld().playSound(player.getLocation(),
-                Sound.BLOCK_LEVER_CLICK /* empty magazine sound */, 1f, 1.5f
-            );
+            sounds.play(player, sounds.empty);
             if (config.enableHotbarMessages)
                 sendActionbar(player, bulletCount);
             return true;
@@ -187,8 +191,7 @@ public class Weapon extends CustomBase {
             canCollide
         );
 
-        // Play shot sound
-        world.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE /* weapon sound */, 0.2f, 2f);
+        sounds.play(player, sounds.fire);
 
         // Spawn particles
         double bulletTrailStep = config.bulletTrailStep;
@@ -223,11 +226,11 @@ public class Weapon extends CustomBase {
             // Entity hit
             applyCustomDamage(victim, player, damage, hitLocation);
             world.spawnParticle(Particle.DAMAGE_INDICATOR, hitLocation, 4);
-            world.playSound(hitLocation, Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1f);
+            SoundManager.playSound(world, hitLocation, config.entityHit);
         } else if (result.getHitBlock() != null) {
             // Block hit
             world.spawnParticle(Particle.CRIT, hitLocation, 4);
-            world.playSound(hitLocation, Sound.BLOCK_METAL_HIT, 1f, 1f);
+            SoundManager.playSound(world, hitLocation, config.blockHit);
         }
 
         return true;
