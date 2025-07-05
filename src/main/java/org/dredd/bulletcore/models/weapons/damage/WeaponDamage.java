@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
  * @param body damage value when hitting the body (torso)
  * @param legs damage value when hitting the legs (thighs, knees)
  * @param feet damage value when hitting the feet or lower legs
+ * @author dredd
+ * @since 1.0.0
  */
 public record WeaponDamage(
     double head,

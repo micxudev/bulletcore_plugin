@@ -18,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
  *     <li>{@link #LEGS} - Hits to the upper legs or thighs</li>
  *     <li>{@link #FEET} - Hits to the lower legs or feet</li>
  * </ul>
+ *
+ * @author dredd
+ * @since 1.0.0
  */
 public enum DamagePoint {
     /**

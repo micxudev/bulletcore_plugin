@@ -18,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
  *   <li>Else → FEET</li>
  * </ul>
  * </p>
+ *
+ * @author dredd
+ * @since 1.0.0
  */
 public record DamageThresholds(
     double head,
