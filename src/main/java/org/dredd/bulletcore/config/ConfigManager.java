@@ -2,8 +2,10 @@ package org.dredd.bulletcore.config;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.particles.ConfiguredParticle;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.*;
 
 import static org.bukkit.SoundCategory.MASTER;
+import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;
 import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
 
 /**
@@ -54,8 +57,13 @@ public final class ConfigManager {
 
     public final DamageThresholds damageThresholds;
 
-    public final ConfiguredSound entityHit;
-    public final ConfiguredSound blockHit;
+    public final ConfiguredSound entityHitSound;
+    public final ConfiguredSound blockHitSound;
+
+    public final ConfiguredParticle entityHitParticle;
+    public final ConfiguredParticle blockHitParticle;
+    public final ConfiguredParticle bulletTrailParticle;
+    public final ConfiguredParticle muzzleFlashParticle;
 
     public final @Unmodifiable Set<Material> ignoredMaterials;
 
@@ -79,8 +87,13 @@ public final class ConfigManager {
         raySize = cfg.getDouble("ray-size", 0.01);
         damageThresholds = DamageThresholds.load(cfg);
 
-        entityHit = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
-        blockHit = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
+        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
+        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
+
+        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));
+        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4));
+        bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1));
+        muzzleFlashParticle = loadParticle(cfg, "muzzle_flash", new ConfiguredParticle(Particle.LAVA, 1));
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");

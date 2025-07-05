@@ -49,7 +49,7 @@ public final class SoundManager {
         try {
             category = SoundCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: sounds." + key);
+            throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: " + fullKey);
         }
 
         float volume = MathUtils.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);

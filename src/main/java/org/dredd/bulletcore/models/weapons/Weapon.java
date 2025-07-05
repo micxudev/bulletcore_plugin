@@ -14,6 +14,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.messages.ComponentMessage;
+import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.CustomBase;
@@ -210,13 +211,15 @@ public class Weapon extends CustomBase {
 
             Location particleLoc = start.clone();
             for (double d = 0; d <= distance; d += bulletTrailStep) {
-                world.spawnParticle(Particle.ASH, particleLoc, 1);
+                ParticleManager.spawnParticle(world, particleLoc, config.bulletTrailParticle);
                 particleLoc.add(step);
             }
         }
         if (config.enableMuzzleFlashes) {
-            world.spawnParticle(Particle.LAVA, player.getLocation()
-                .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2), 1);
+            ParticleManager.spawnParticle(world, player.getLocation()
+                    .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2),
+                config.muzzleFlashParticle
+            );
         }
 
         // Handle result
@@ -227,12 +230,12 @@ public class Weapon extends CustomBase {
         if (result.getHitEntity() instanceof LivingEntity victim) {
             // Entity hit
             applyCustomDamage(victim, player, hitLocation);
-            world.spawnParticle(Particle.DAMAGE_INDICATOR, hitLocation, 4);
-            SoundManager.playSound(world, hitLocation, config.entityHit);
+            ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
+            SoundManager.playSound(world, hitLocation, config.entityHitSound);
         } else if (result.getHitBlock() != null) {
             // Block hit
-            world.spawnParticle(Particle.CRIT, hitLocation, 4);
-            SoundManager.playSound(world, hitLocation, config.blockHit);
+            ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
+            SoundManager.playSound(world, hitLocation, config.blockHitSound);
         }
 
         return true;
