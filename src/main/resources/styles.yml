@@ -20,7 +20,10 @@ lore_weapon_bullets:
 
 lore_weapon_damage:
   key: "<!i><white>"
-  damage: "<red>"
+  damage_head: "<red>"
+  damage_body: "<red>"
+  damage_legs: "<red>"
+  damage_feet: "<red>"
 
 lore_weapon_ammo:
   key: "<!i><white>"

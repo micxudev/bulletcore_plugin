@@ -43,7 +43,10 @@ public enum TranslatableMessages {
         "lore_weapon_damage",
         new LinkedHashMap<>() {{
             put("key", "<!i><white>");
-            put("damage", "<red>");
+            put("damage_head", "<red>");
+            put("damage_body", "<red>");
+            put("damage_legs", "<red>");
+            put("damage_feet", "<red>");
         }}
     ),
 

@@ -280,7 +280,7 @@ public final class YMLLModelLoader {
 
         List<Component> lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_WEAPON_DAMAGE.of(damage));
+        lore.add(1, LORE_WEAPON_DAMAGE.of(damage.head(), damage.body(), damage.legs(), damage.feet()));
         lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
         WeaponSounds sounds = WeaponSounds.load(config);
