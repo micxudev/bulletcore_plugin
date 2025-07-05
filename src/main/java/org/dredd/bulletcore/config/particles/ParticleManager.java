@@ -32,7 +32,8 @@ public class ParticleManager {
      * @param cfg the YAML configuration to parse from
      * @param key the key under {@code particles.<key>} to look up
      * @return a validated {@link ConfiguredParticle} instance
-     * @throws IllegalArgumentException if the configuration is missing or invalid
+     * @throws NoSuchElementException   if the configuration is missing
+     * @throws IllegalArgumentException if the configuration is invalid
      */
     private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg, @NotNull String key) {
         String fullKey = "particles." + key;
@@ -70,7 +71,7 @@ public class ParticleManager {
         } catch (NoSuchElementException ignored) {
             // Ignored, the particle configuration is optional
         } catch (IllegalArgumentException e) {
-            Bukkit.getLogger().severe(e.getMessage() + "; Falling back to default sound");
+            Bukkit.getLogger().severe(e.getMessage() + "; Falling back to default particle");
         }
         return def;
     }
