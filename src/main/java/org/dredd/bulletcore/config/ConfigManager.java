@@ -45,7 +45,6 @@ public final class ConfigManager {
         instance = new ConfigManager(plugin);
     }
 
-    public final boolean enableFriendlyFire;
     public final double bulletTrailStep;
     public final boolean enableMuzzleFlashes;
 
@@ -72,7 +71,6 @@ public final class ConfigManager {
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();
 
-        enableFriendlyFire = cfg.getBoolean("enable-friendly-fire", false);
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
         enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
 

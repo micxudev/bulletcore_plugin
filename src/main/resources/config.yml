@@ -1,7 +1,3 @@
-# Allows friendly fire (damage between allies).
-# True = allowed, false = disabled.
-enable-friendly-fire: false
-
 # Distance between bullet trail points (in blocks).
 # Lower values make trails denser.
 # Use a negative value to disable.
