@@ -32,7 +32,8 @@ public final class SoundManager {
      * @param cfg the YAML configuration to parse from
      * @param key the key under {@code sounds.<key>} to look up
      * @return a validated {@link ConfiguredSound} instance
-     * @throws IllegalArgumentException if the configuration is missing or invalid
+     * @throws NoSuchElementException   if the configuration is missing
+     * @throws IllegalArgumentException if the configuration is invalid
      */
     private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg, @NotNull String key) {
         String fullKey = "sounds." + key;
@@ -49,7 +50,7 @@ public final class SoundManager {
         try {
             category = SoundCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: sounds." + key);
+            throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: " + fullKey);
         }
 
         float volume = MathUtils.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
