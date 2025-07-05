@@ -78,6 +78,24 @@ sounds:
     volume: 2.0
     pitch: 1.0
 
+# Defines particles to spawn for various events.
+# Each entry supports the following fields:
+# - particle: A valid Minecraft particle ID (see: https://minecraft.wiki/w/Particles_(Java_Edition))
+# - count: Number of particles to spawn (0 disables, default is 1, high values may cause lag)
+particles:
+  entity_hit:
+    particle: damage_indicator
+    count: 4
+  block_hit:
+    particle: crit
+    count: 4
+  bullet_trail:
+    particle: ash
+    count: 1
+  muzzle_flash:
+    particle: lava
+    count: 1
+
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.
 ignored-materials:
