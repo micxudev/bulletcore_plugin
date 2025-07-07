@@ -19,6 +19,7 @@ import org.dredd.bulletcore.models.weapons.WeaponSounds;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
+import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.dredd.bulletcore.utils.ThrowingFunction;
@@ -156,7 +157,7 @@ public final class YMLLModelLoader {
 
         int customModelData = config.getInt("customModelData");
         if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))
-            throw new ItemLoadException("CustomModelData: " + customModelData + " is already in use or is 0");
+            throw new ItemLoadException("CustomModelData: " + customModelData + " is already in use or does not end with 2 zeroes");
 
         Material material = getMetaCapableMaterial(config.getString("material"));
 
@@ -285,6 +286,8 @@ public final class YMLLModelLoader {
 
         WeaponSounds sounds = WeaponSounds.load(config);
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds);
+        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins);
     }
 }
