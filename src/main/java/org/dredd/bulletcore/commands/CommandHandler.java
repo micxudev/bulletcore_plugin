@@ -4,9 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
-import org.dredd.bulletcore.commands.subcommands.Subcommand;
-import org.dredd.bulletcore.commands.subcommands.SubcommandGive;
-import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
+import org.dredd.bulletcore.commands.subcommands.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,6 +42,8 @@ public final class CommandHandler implements TabExecutor {
     public CommandHandler() {
         registerSubcommand(new SubcommandGive());
         registerSubcommand(new SubcommandReload());
+        registerSubcommand(new SubcommandSkin());
+        registerSubcommand(new SubcommandSkinManage());
     }
 
     /**
