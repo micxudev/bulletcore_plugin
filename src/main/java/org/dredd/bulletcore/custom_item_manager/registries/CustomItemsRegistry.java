@@ -85,13 +85,13 @@ public final class CustomItemsRegistry {
     }
 
     /**
-     * Checks whether a given custom model data is valid and not already used by any registered item.
+     * Checks whether given custom model data is valid and not already used by any registered item.
      *
      * @param customModelData the custom model data to check
      * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
      */
     public static boolean canModelDataBeUsed(int customModelData) {
-        return customModelData != 0 && !all.exists(customModelData);
+        return customModelData != 0 && customModelData % 100 == 0 && !all.exists(customModelData);
     }
 
     /**
@@ -105,19 +105,23 @@ public final class CustomItemsRegistry {
     }
 
     /**
-     * Retrieves the custom model data from the given {@link ItemStack}.
+     * Retrieves the base custom model data from the given {@link ItemStack}.
      * <p>
-     * If the stack is {@code null}, lacks item meta, or does not have custom model data set,
+     * The "base" is defined as the largest multiple of 100 less than or equal to the item's
+     * custom model data (i.e., {@code customModelData - (customModelData % 100)}).
+     * <p>
+     * If the stack is {@code null}, lacks item meta, or does not have a custom model data set,
      * this method returns {@code 0}.
      *
      * @param stack the item stack to inspect, may be {@code null}
-     * @return the custom model data if present and valid, or {@code 0} otherwise
+     * @return the base custom model data if present, or {@code 0} otherwise
      */
-    private static int getModelDataOrZero(@Nullable ItemStack stack) {
+    private static int getBaseModelDataOrZero(@Nullable ItemStack stack) {
         if (stack == null || !stack.hasItemMeta()) return 0;
         ItemMeta meta = stack.getItemMeta();
         if (meta == null || !meta.hasCustomModelData()) return 0;
-        return meta.getCustomModelData();
+        int customModelData = meta.getCustomModelData();
+        return customModelData - (customModelData % 100);
     }
 
     /**
@@ -127,7 +131,7 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a custom item, or {@code null} otherwise
      */
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
-        int modelData = getModelDataOrZero(stack);
+        int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : all.getItemOrNull(modelData);
     }
 
@@ -148,7 +152,7 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents ammo, or {@code null} otherwise
      */
     public static @Nullable Ammo getAmmoOrNull(@Nullable ItemStack stack) {
-        int modelData = getModelDataOrZero(stack);
+        int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : ammo.getItemOrNull(modelData);
     }
 
@@ -169,7 +173,7 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents armor, or {@code null} otherwise
      */
     public static @Nullable Armor getArmorOrNull(@Nullable ItemStack stack) {
-        int modelData = getModelDataOrZero(stack);
+        int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : armor.getItemOrNull(modelData);
     }
 
@@ -190,7 +194,7 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a grenade, or {@code null} otherwise
      */
     public static @Nullable Grenade getGrenadeOrNull(@Nullable ItemStack stack) {
-        int modelData = getModelDataOrZero(stack);
+        int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : grenade.getItemOrNull(modelData);
     }
 
@@ -211,7 +215,7 @@ public final class CustomItemsRegistry {
      * @return the item if {@code stack} represents a weapon, or {@code null} otherwise
      */
     public static @Nullable Weapon getWeaponOrNull(@Nullable ItemStack stack) {
-        int modelData = getModelDataOrZero(stack);
+        int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : weapon.getItemOrNull(modelData);
     }
 
