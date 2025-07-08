@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +101,13 @@ public class WeaponSkins {
 
         for (String key : skinsSection.getKeys(false)) {
             skinModelData++;
-            Component skinDisplayName = skinsSection.getConfigurationSection(key).getRichMessage("displayName", displayName);
+            ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
+            if (skinSection == null) {
+                Bukkit.getLogger().severe("Invalid skin definition for skin name '" + key + "'");
+                continue;
+            }
+
+            Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
 
             WeaponSkin skin = new WeaponSkin(skinModelData, skinDisplayName);
             weaponSkins.addSkin(key, skin);
