@@ -1,11 +1,15 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
 import org.bukkit.entity.Player;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -48,6 +52,27 @@ public class SkinsManager {
     private static final Map<UUID, Map<String, List<String>>> playerSkinsStorage = new HashMap<>();
 
     /**
+     * The file where the player skin storage is stored.
+     */
+    private static final File playerSkinsStorageFile = new File(
+        BulletCore.getInstance().getDataFolder(), CustomItemType.WEAPON.getFolderPath() + "/data/skins.json");
+
+    /**
+     * Loads the player skin storage from disk.
+     */
+    public static void load() {
+        playerSkinsStorage.clear();
+        playerSkinsStorage.putAll(JsonUtils.loadPlayerWeaponSkins(playerSkinsStorageFile));
+    }
+
+    /**
+     * Saves the in-memory player skin storage to disk.
+     */
+    private static void save() {
+        JsonUtils.savePlayerWeaponSkins(playerSkinsStorage, playerSkinsStorageFile);
+    }
+
+    /**
      * Retrieves a specific skin from a given weapon by skin name.
      *
      * @param weapon   the weapon containing available skins
@@ -81,8 +106,8 @@ public class SkinsManager {
     public static boolean playerHasSkin(@NotNull Player player, @NotNull Weapon weapon, @NotNull String skinName) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
-        var playerWeaponSkins = playerSkins.get(weapon.name);
-        return playerWeaponSkins != null && playerWeaponSkins.contains(skinName);
+        var weaponSkins = playerSkins.get(weapon.name);
+        return weaponSkins != null && weaponSkins.contains(skinName);
     }
 
     /**
@@ -95,8 +120,8 @@ public class SkinsManager {
     public static @NotNull List<String> getPlayerWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return EMPTY;
-        var playerWeaponSkins = playerSkins.get(weapon.name);
-        return (playerWeaponSkins == null) ? EMPTY : Collections.unmodifiableList(playerWeaponSkins);
+        var weaponSkins = playerSkins.get(weapon.name);
+        return (weaponSkins == null) ? EMPTY : Collections.unmodifiableList(weaponSkins);
     }
 
     /**
@@ -108,9 +133,9 @@ public class SkinsManager {
      */
     public static @NotNull List<String> getMissingWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
         if (!weapon.skins.hasSkins()) return EMPTY;
-        var playerWeaponSkinNames = getPlayerWeaponSkins(player, weapon);
+        var weaponSkinNames = getPlayerWeaponSkins(player, weapon);
         return weapon.skins.getSkinNames().stream()
-            .filter(skin -> !playerWeaponSkinNames.contains(skin))
+            .filter(skin -> !weaponSkinNames.contains(skin))
             .toList();
     }
 
@@ -130,8 +155,10 @@ public class SkinsManager {
         if (playerHasSkin(player, weapon, skinName)) return false;
 
         var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
-        var playerWeaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
-        return playerWeaponSkins.add(skinName);
+        var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
+        weaponSkins.add(skinName);
+        save();
+        return true;
     }
 
     /**
@@ -146,8 +173,9 @@ public class SkinsManager {
         if (missingWeaponSkins.isEmpty()) return 0;
 
         var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
-        var playerWeaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
-        playerWeaponSkins.addAll(missingWeaponSkins);
+        var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
+        weaponSkins.addAll(missingWeaponSkins);
+        save();
 
         return missingWeaponSkins.size();
     }
@@ -166,10 +194,21 @@ public class SkinsManager {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
 
-        var playerWeaponSkins = playerSkins.get(weapon.name);
-        if (playerWeaponSkins == null) return false;
+        var weaponSkins = playerSkins.get(weapon.name);
+        if (weaponSkins == null) return false;
 
-        return playerWeaponSkins.remove(skinName);
+        boolean remove = weaponSkins.remove(skinName);
+        if (!remove) return false;
+
+        // Clean up empty lists and maps
+        if (weaponSkins.isEmpty()) {
+            playerSkins.remove(weapon.name);
+            if (playerSkins.isEmpty())
+                playerSkinsStorage.remove(player.getUniqueId());
+        }
+
+        save();
+        return true;
     }
 
     /**
@@ -183,12 +222,12 @@ public class SkinsManager {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return 0;
 
-        var playerWeaponSkins = playerSkins.get(weapon.name);
-        if (playerWeaponSkins == null) return 0;
+        var weaponSkins = playerSkins.remove(weapon.name);
+        if (weaponSkins == null) return 0;
+        if (playerSkins.isEmpty())
+            playerSkinsStorage.remove(player.getUniqueId());
 
-        int size = playerWeaponSkins.size();
-        playerWeaponSkins.clear();
-
-        return size;
+        save();
+        return weaponSkins.size();
     }
 }
