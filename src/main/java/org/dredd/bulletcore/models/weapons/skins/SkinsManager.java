@@ -135,6 +135,24 @@ public class SkinsManager {
     }
 
     /**
+     * Grants all the missing skins to the specified player for the given weapon.
+     *
+     * @param player the player to grant the skins to.
+     * @param weapon the weapon the skins belong to.
+     * @return the number of skins successfully added to the player, or 0 if none were added.
+     */
+    public static int addAllWeaponSkinsToPlayer(@NotNull Player player, @NotNull Weapon weapon) {
+        var missingWeaponSkins = getMissingWeaponSkins(player, weapon);
+        if (missingWeaponSkins.isEmpty()) return 0;
+
+        var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
+        var playerWeaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
+        playerWeaponSkins.addAll(missingWeaponSkins);
+
+        return missingWeaponSkins.size();
+    }
+
+    /**
      * Removes a skin from the specified player for the given weapon.
      * <p>
      * If the player does not have the skin, the operation has no effect.
@@ -147,8 +165,30 @@ public class SkinsManager {
     public static boolean removeSkinFromPlayer(@NotNull Player player, @NotNull Weapon weapon, @NotNull String skinName) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
+
         var playerWeaponSkins = playerSkins.get(weapon.name);
         if (playerWeaponSkins == null) return false;
+
         return playerWeaponSkins.remove(skinName);
+    }
+
+    /**
+     * Removes all the owned skins from the specified player for the given weapon.
+     *
+     * @param player the player to remove the skins from.
+     * @param weapon the weapon the skins belong to.
+     * @return the number of skins successfully removed from the player, or 0 if none were removed.
+     */
+    public static int removeAllWeaponSkinsToPlayer(@NotNull Player player, @NotNull Weapon weapon) {
+        var playerSkins = playerSkinsStorage.get(player.getUniqueId());
+        if (playerSkins == null) return 0;
+
+        var playerWeaponSkins = playerSkins.get(weapon.name);
+        if (playerWeaponSkins == null) return 0;
+
+        int size = playerWeaponSkins.size();
+        playerWeaponSkins.clear();
+
+        return size;
     }
 }

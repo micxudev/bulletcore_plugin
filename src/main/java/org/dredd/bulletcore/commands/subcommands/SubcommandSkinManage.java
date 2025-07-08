@@ -25,6 +25,7 @@ public class SubcommandSkinManage implements Subcommand {
 
     private static final List<String> EMPTY = Collections.emptyList();
     private static final List<String> OPERATIONS = List.of("add", "remove");
+    private static final String ALL_OPTION = "--all";
 
     @Override
     public @NotNull String getName() {
@@ -69,6 +70,20 @@ public class SubcommandSkinManage implements Subcommand {
         }
 
         String skinName = args[4];
+        if (skinName.equals(ALL_OPTION)) {
+            switch (operation) {
+                case "add" -> {
+                    int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
+                    sender.sendMessage("Added " + skinsAdded + " skins to player.");
+                }
+                case "remove" -> {
+                    int skinsRemoved = SkinsManager.removeAllWeaponSkinsToPlayer(player, weapon);
+                    sender.sendMessage("Removed " + skinsRemoved + " skins from player.");
+                }
+            }
+            return;
+        }
+
         WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
         if (weaponSkin == null) {
             sender.sendMessage("Skin not found: " + skinName);
@@ -112,10 +127,20 @@ public class SubcommandSkinManage implements Subcommand {
 
         if (args.length == 5) {
             return switch (operation) {
-                case "add" ->
-                    StringUtil.copyPartialMatches(args[4], SkinsManager.getMissingWeaponSkins(player, weapon), new ArrayList<>());
-                case "remove" ->
-                    StringUtil.copyPartialMatches(args[4], SkinsManager.getPlayerWeaponSkins(player, weapon), new ArrayList<>());
+                case "add" -> {
+                    List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
+                    List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
+                    skinOptions.add(ALL_OPTION);
+                    skinOptions.addAll(missingWeaponSkins);
+                    yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));
+                }
+                case "remove" -> {
+                    List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+                    List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+                    skinOptions.add(ALL_OPTION);
+                    skinOptions.addAll(playerWeaponSkins);
+                    yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));
+                }
                 default -> EMPTY;
             };
         }
