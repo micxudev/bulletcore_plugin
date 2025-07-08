@@ -40,11 +40,11 @@ public final class JsonUtils {
      * @return a map of player UUIDs to weapon skin mappings
      * @since 1.0.0
      */
-    public static Map<UUID, Map<String, List<String>>> loadPlayerWeaponSkins(@NotNull File file) {
+    public static @NotNull Map<UUID, Map<String, List<String>>> loadPlayerWeaponSkins(@NotNull File file) {
         if (!file.exists()) return new HashMap<>();
         try {
             return mapper.readValue(file, new TypeReference<>() {});
-        } catch (IOException e) {
+        } catch (Exception e) {
             Bukkit.getLogger().severe("Failed to load playerSkins from file: " + e.getMessage());
             return new HashMap<>();
         }
@@ -79,7 +79,8 @@ public final class JsonUtils {
      */
     private static void attemptCreateFileWithDirs(File file) throws IOException {
         File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) parent.mkdirs();
+        if (parent != null && !parent.exists() && !parent.mkdirs())
+            throw new IOException("Failed to create parent directories for file: " + file.getPath());
         if (!file.exists()) file.createNewFile();
     }
 }

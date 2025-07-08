@@ -218,7 +218,7 @@ public class SkinsManager {
      * @param weapon the weapon the skins belong to.
      * @return the number of skins successfully removed from the player, or 0 if none were removed.
      */
-    public static int removeAllWeaponSkinsToPlayer(@NotNull Player player, @NotNull Weapon weapon) {
+    public static int removeAllWeaponSkinsFromPlayer(@NotNull Player player, @NotNull Weapon weapon) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return 0;
 

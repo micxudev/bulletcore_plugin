@@ -81,7 +81,7 @@ public class SubcommandSkinManage implements Subcommand {
                     sender.sendMessage(of(sender, SKINS_ADDED, Map.of("count", Integer.toString(skinsAdded))));
                 }
                 case "remove" -> {
-                    int skinsRemoved = SkinsManager.removeAllWeaponSkinsToPlayer(player, weapon);
+                    int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
                     sender.sendMessage(of(sender, SKINS_REMOVED, Map.of("count", Integer.toString(skinsRemoved))));
                 }
             }

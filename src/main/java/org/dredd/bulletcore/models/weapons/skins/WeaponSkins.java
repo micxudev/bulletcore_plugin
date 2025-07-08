@@ -72,7 +72,7 @@ public class WeaponSkins {
      * @return a set containing the names of all registered skins
      */
     public @NotNull Set<String> getSkinNames() {
-        return skins.keySet();
+        return Set.copyOf(skins.keySet());
     }
 
 
