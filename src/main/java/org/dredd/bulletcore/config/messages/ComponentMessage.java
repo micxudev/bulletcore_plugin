@@ -65,6 +65,15 @@ public enum ComponentMessage {
     ),
 
     /**
+     * Shown when a non-player (e.g., console) attempts to use a subcommand that requires a player.<br>
+     * No placeholders.
+     */
+    ONLY_PLAYERS(
+        "only-players",
+        "<red>This subcommand can only be used by players."
+    ),
+
+    /**
      * Shown after successfully reloading the configuration.<br>
      * {@code %time%} – Reload time in milliseconds.
      */
@@ -132,6 +141,33 @@ public enum ComponentMessage {
     WEAPON_RELOAD(
         "weapon-reload",
         "<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"
+    ),
+
+    /**
+     * Shown when a subcommand requires a weapon in the main hand.<br>
+     * No placeholders.
+     */
+    NO_WEAPON_IN_MAINHAND(
+        "no-weapon-in-mainhand",
+        "<red>You must hold a weapon in your main hand to use this subcommand."
+    ),
+
+    /**
+     * Shown when a player attempts to use a skin they don't have.<br>
+     * {@code %skin%} - The name of the skin that was requested.
+     */
+    NO_SKIN(
+        "no-skin",
+        "<red>You do not have the skin: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when a player attempts to use the skin they own that was not loaded during server start.<br>
+     * {@code %skin%} - The name of the skin that was requested.
+     */
+    ERROR_LOADING_SKIN(
+        "error-loading-skin",
+        "<red>An error occurred while loading the skin: <white>%skin%</white>"
     );
 
     /**

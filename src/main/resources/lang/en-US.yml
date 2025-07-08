@@ -31,6 +31,11 @@ no-subcommand-permission: "<red>You do not have permission to use this subcomman
 not-enough-args: "<red>Usage: <white>/%command% %subcommand% %args%</white>"
 
 
+# · Used when: The non-player (e.g., console) attempts to use a subcommand that requires a player.
+# · Placeholders: no placeholders
+only-players: "<red>This subcommand can only be used by players."
+
+
 # · Used when: Config is reloaded.
 # · Placeholders: %time% - reload time in milliseconds.
 config-reloaded: "<green>Reloaded in <white>%time%</white> ms."
@@ -53,7 +58,7 @@ player-not-found: "<red>Player not found: <white>%player%</white>"
 item-given: "<green>Gave <white>%item%</white> to <white>%player%</white>"
 
 
-# · Used when: The player interacts with a weapon (e.g., shooting, successful reload)
+# · Used when: The player interacts with a weapon (e.g., shooting, successful reload).
 # · Placeholders:
 #     %displayname% – weapon's raw display name text (without styles)
 #     %bullets% – current weapon's bullet count
@@ -62,15 +67,32 @@ item-given: "<green>Gave <white>%item%</white> to <white>%player%</white>"
 weapon-actionbar: "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
 
 
-# · Used when: Weapon reload is canceled
+# · Used when: Weapon reload is canceled.
 # · Placeholders: no placeholders
 weapon-reload-cancel: "<red>Reload canceled"
 
 
-# · Used when: The player is reloading a weapon
+# · Used when: The player is reloading a weapon.
 # · Placeholders:
 #     %bullets% – current weapon's bullet count
 #     %maxbullets% – max weapon's bullet capacity
 #     %total% – total ammo count for this weapon inside player's inventory
 #     %time% – time in seconds remaining for reload to complete its current iteration
 weapon-reload: "<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"
+
+
+# · Used when: The subcommand requires a weapon in the main hand.
+# · Placeholders: no placeholders
+no-weapon-in-mainhand: "<red>You must hold a weapon in your main hand to use this subcommand."
+
+
+# · Used when: The player attempts to use a skin they don't have.
+# · Placeholders:
+#     %skin% – the name of the skin that was requested
+no-skin: "<red>You do not have the skin: <white>%skin%</white>"
+
+
+# · Used when: The player attempts to use the skin they own that was not loaded during server start.
+# · Placeholders:
+#     %skin% – the name of the skin that was requested
+error-loading-skin: "<red>An error occurred while loading the skin: <white>%skin%</white>"

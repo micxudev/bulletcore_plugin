@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Implements the {@code /bulletcore skin} subcommand.
@@ -49,14 +53,14 @@ public class SubcommandSkin implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("You must be a player to use this command!");
+            sender.sendMessage(of(sender, ONLY_PLAYERS, null));
             return;
         }
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) {
-            sender.sendMessage("You must hold a Weapon in your main hand to use this command.");
+            sender.sendMessage(of(player, NO_WEAPON_IN_MAINHAND, null));
             return;
         }
 
@@ -66,12 +70,12 @@ public class SubcommandSkin implements Subcommand {
             weaponSkin = weapon.skins.defaultSkin;
         } else {
             if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
-                sender.sendMessage("You do not have the skin " + skinName);
+                sender.sendMessage(of(player, NO_SKIN, Map.of("skin", skinName)));
                 return;
             }
             weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
             if (weaponSkin == null) {
-                sender.sendMessage("There was an error fetching the skin " + skinName);
+                sender.sendMessage(of(player, ERROR_LOADING_SKIN, Map.of("skin", skinName)));
                 return;
             }
         }
