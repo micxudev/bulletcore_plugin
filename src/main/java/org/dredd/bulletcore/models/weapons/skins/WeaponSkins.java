@@ -24,11 +24,17 @@ public class WeaponSkins {
     private final Map<String, WeaponSkin> skins;
 
     /**
-     * Constructs an empty {@link WeaponSkins} instance.<br>
+     * The default weapon skin used to reset/clear the skin on the weapon.
+     */
+    public final WeaponSkin defaultSkin;
+
+    /**
+     * Constructs an empty {@link WeaponSkins} instance with the default skin already set.<br>
      * Use {@link #load(YamlConfiguration, int, Component)} to create an instance.
      */
-    private WeaponSkins() {
+    private WeaponSkins(int modelData, @NotNull Component displayName) {
         this.skins = new HashMap<>();
+        this.defaultSkin = new WeaponSkin(modelData, displayName);
     }
 
     /**
@@ -84,7 +90,7 @@ public class WeaponSkins {
      * @return a new {@code WeaponSkins} instance populated from configuration
      */
     public static @NotNull WeaponSkins load(@NotNull YamlConfiguration config, int modelData, @NotNull Component displayName) {
-        WeaponSkins weaponSkins = new WeaponSkins();
+        WeaponSkins weaponSkins = new WeaponSkins(modelData, displayName);
 
         ConfigurationSection skinsSection = config.getConfigurationSection("skins");
         if (skinsSection == null)

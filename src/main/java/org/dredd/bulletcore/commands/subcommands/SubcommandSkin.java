@@ -23,6 +23,9 @@ import java.util.List;
  */
 public class SubcommandSkin implements Subcommand {
 
+    private static final List<String> EMPTY = Collections.emptyList();
+    private final static String DEFAULT_SKIN_NAME = "--default";
+
     @Override
     public @NotNull String getName() {
         return "skin";
@@ -58,15 +61,19 @@ public class SubcommandSkin implements Subcommand {
         }
 
         String skinName = args[1];
-        if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
-            sender.sendMessage("You do not have the skin " + skinName);
-            return;
-        }
-
-        WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
-        if (weaponSkin == null) {
-            sender.sendMessage("There was an error fetching the skin " + skinName);
-            return;
+        WeaponSkin weaponSkin;
+        if (skinName.equals(DEFAULT_SKIN_NAME)) {
+            weaponSkin = weapon.skins.defaultSkin;
+        } else {
+            if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
+                sender.sendMessage("You do not have the skin " + skinName);
+                return;
+            }
+            weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
+            if (weaponSkin == null) {
+                sender.sendMessage("There was an error fetching the skin " + skinName);
+                return;
+            }
         }
 
         ItemMeta meta = mainHandItem.getItemMeta();
@@ -77,12 +84,21 @@ public class SubcommandSkin implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) return Collections.emptyList();
+        if (!(sender instanceof Player player)) return EMPTY;
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
-        if (weapon == null) return Collections.emptyList();
+        if (weapon == null) return EMPTY;
 
-        return StringUtil.copyPartialMatches(args[1], SkinsManager.getPlayerWeaponSkins(player, weapon), new ArrayList<>());
+        if (args.length == 2) {
+            List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+            List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+            skinOptions.add(DEFAULT_SKIN_NAME);
+            skinOptions.addAll(playerWeaponSkins);
+
+            return StringUtil.copyPartialMatches(args[1], skinOptions, new ArrayList<>(skinOptions.size()));
+        }
+
+        return EMPTY;
     }
 }
