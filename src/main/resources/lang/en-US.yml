@@ -96,3 +96,53 @@ no-skin: "<red>You do not have the skin: <white>%skin%</white>"
 # · Placeholders:
 #     %skin% – the name of the skin that was requested
 error-loading-skin: "<red>An error occurred while loading the skin: <white>%skin%</white>"
+
+
+# · Used when: An invalid operation is specified.
+# · Placeholders:
+#     %operation% – the name of the invalid operation
+invalid-operation: "<red>Invalid operation: <white>%operation%</white>"
+
+
+# · Used when: An invalid weapon is specified.
+# · Placeholders:
+#     %weapon% – the name of the invalid weapon
+invalid-weapon: "<red>Invalid weapon: <white>%weapon%</white>"
+
+
+# · Used when: All skins have been successfully added to the player.
+# · Placeholders:
+#     %count% – the number of skins added
+skins-added: "<green>Successfully added <white>%count%</white> skin(s) to the player."
+
+
+# · Used when: All skins have been successfully removed from the player.
+# · Placeholders:
+#     %count% – the number of skins removed
+skins-removed: "<yellow>Successfully removed <white>%count%</white> skin(s) from the player."
+
+
+# · Used when: The specified skin is not found for the weapon.
+# · Placeholders:
+#     %skin% – the name of the missing skin
+skin-not-found: "<red>Skin not found: <white>%skin%</white>"
+
+
+# · Used when: A skin was successfully added to the player.
+# · Placeholders: none
+skin-added: "<green>Skin was successfully added to the player."
+
+
+# · Used when: The player already has the specified skin.
+# · Placeholders: none
+skin-already-owned: "<yellow>The player already has this skin."
+
+
+# · Used when: A skin was successfully removed from the player.
+# · Placeholders: none
+skin-removed: "<yellow>Skin was successfully removed from the player."
+
+
+# · Used when: The player does not have the specified skin.
+# · Placeholders: none
+skin-not-owned: "<red>The player does not have this skin."

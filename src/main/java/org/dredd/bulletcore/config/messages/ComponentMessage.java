@@ -168,6 +168,87 @@ public enum ComponentMessage {
     ERROR_LOADING_SKIN(
         "error-loading-skin",
         "<red>An error occurred while loading the skin: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when an invalid operation is specified.<br>
+     * {@code %operation%} – The name of the invalid operation.
+     */
+    INVALID_OPERATION(
+        "invalid-operation",
+        "<red>Invalid operation: <white>%operation%</white>"
+    ),
+
+    /**
+     * Shown when an invalid weapon is specified.<br>
+     * {@code %weapon%} – The name of the invalid weapon.
+     */
+    INVALID_WEAPON(
+        "invalid-weapon",
+        "<red>Invalid weapon: <white>%weapon%</white>"
+    ),
+
+    /**
+     * Shown when all skins have been successfully added to the player.<br>
+     * {@code %count%} – The number of skins added.
+     */
+    SKINS_ADDED(
+        "skins-added",
+        "<green>Successfully added <white>%count%</white> skin(s) to the player."
+    ),
+
+    /**
+     * Shown when all skins have been successfully removed from the player.<br>
+     * {@code %count%} – The number of skins removed.
+     */
+    SKINS_REMOVED(
+        "skins-removed",
+        "<yellow>Successfully removed <white>%count%</white> skin(s) from the player."
+    ),
+
+    /**
+     * Shown when the specified skin is not found for the weapon.<br>
+     * {@code %skin%} – The name of the missing skin.
+     */
+    SKIN_NOT_FOUND(
+        "skin-not-found",
+        "<red>Skin not found: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when a skin was successfully added to the player.<br>
+     * No placeholders.
+     */
+    SKIN_ADDED(
+        "skin-added",
+        "<green>Skin was successfully added to the player."
+    ),
+
+    /**
+     * Shown when the player already has the specified skin.<br>
+     * No placeholders.
+     */
+    SKIN_ALREADY_OWNED(
+        "skin-already-owned",
+        "<yellow>The player already has this skin."
+    ),
+
+    /**
+     * Shown when a skin was successfully removed from the player.<br>
+     * No placeholders.
+     */
+    SKIN_REMOVED(
+        "skin-removed",
+        "<yellow>Skin was successfully removed from the player."
+    ),
+
+    /**
+     * Shown when the player does not have the specified skin.<br>
+     * No placeholders.
+     */
+    SKIN_NOT_OWNED(
+        "skin-not-owned",
+        "<red>The player does not have this skin."
     );
 
     /**

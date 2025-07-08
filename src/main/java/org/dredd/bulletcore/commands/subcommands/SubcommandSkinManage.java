@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Implements the {@code /bulletcore skin_manage} subcommand.
@@ -51,21 +55,21 @@ public class SubcommandSkinManage implements Subcommand {
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
-            sender.sendMessage("Invalid operation: " + operation);
+            sender.sendMessage(of(sender, INVALID_OPERATION, Map.of("operation", operation)));
             return;
         }
 
         String playerName = args[2];
         Player player = Bukkit.getPlayer(playerName);
         if (player == null) {
-            sender.sendMessage("Player not found: " + playerName);
+            sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", playerName)));
             return;
         }
 
         String weaponName = args[3];
         Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
         if (weapon == null) {
-            sender.sendMessage("Weapon not found: " + weaponName);
+            sender.sendMessage(of(sender, INVALID_WEAPON, Map.of("weapon", weaponName)));
             return;
         }
 
@@ -74,11 +78,11 @@ public class SubcommandSkinManage implements Subcommand {
             switch (operation) {
                 case "add" -> {
                     int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
-                    sender.sendMessage("Added " + skinsAdded + " skins to player.");
+                    sender.sendMessage(of(sender, SKINS_ADDED, Map.of("count", Integer.toString(skinsAdded))));
                 }
                 case "remove" -> {
                     int skinsRemoved = SkinsManager.removeAllWeaponSkinsToPlayer(player, weapon);
-                    sender.sendMessage("Removed " + skinsRemoved + " skins from player.");
+                    sender.sendMessage(of(sender, SKINS_REMOVED, Map.of("count", Integer.toString(skinsRemoved))));
                 }
             }
             return;
@@ -86,22 +90,22 @@ public class SubcommandSkinManage implements Subcommand {
 
         WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
         if (weaponSkin == null) {
-            sender.sendMessage("Skin not found: " + skinName);
+            sender.sendMessage(of(sender, SKIN_NOT_FOUND, Map.of("skin", skinName)));
             return;
         }
 
         switch (operation) {
             case "add" -> {
                 if (SkinsManager.addSkinToPlayer(player, weapon, skinName))
-                    sender.sendMessage("Skin added to player.");
+                    sender.sendMessage(of(sender, SKIN_ADDED, null));
                 else
-                    sender.sendMessage("Player already has this skin.");
+                    sender.sendMessage(of(sender, SKIN_ALREADY_OWNED, null));
             }
             case "remove" -> {
                 if (SkinsManager.removeSkinFromPlayer(player, weapon, skinName))
-                    sender.sendMessage("Skin removed from the player.");
+                    sender.sendMessage(of(sender, SKIN_REMOVED, null));
                 else
-                    sender.sendMessage("Player does not have this skin.");
+                    sender.sendMessage(of(sender, SKIN_NOT_OWNED, null));
             }
         }
     }
