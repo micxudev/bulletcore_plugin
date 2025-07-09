@@ -65,6 +65,15 @@ public enum ComponentMessage {
     ),
 
     /**
+     * Shown when a non-player (e.g., console) attempts to use a subcommand that requires a player.<br>
+     * No placeholders.
+     */
+    ONLY_PLAYERS(
+        "only-players",
+        "<red>This subcommand can only be used by players."
+    ),
+
+    /**
      * Shown after successfully reloading the configuration.<br>
      * {@code %time%} – Reload time in milliseconds.
      */
@@ -132,6 +141,114 @@ public enum ComponentMessage {
     WEAPON_RELOAD(
         "weapon-reload",
         "<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"
+    ),
+
+    /**
+     * Shown when a subcommand requires a weapon in the main hand.<br>
+     * No placeholders.
+     */
+    NO_WEAPON_IN_MAINHAND(
+        "no-weapon-in-mainhand",
+        "<red>You must hold a weapon in your main hand to use this subcommand."
+    ),
+
+    /**
+     * Shown when a player attempts to use a skin they don't have.<br>
+     * {@code %skin%} - The name of the skin that was requested.
+     */
+    NO_SKIN(
+        "no-skin",
+        "<red>You do not have the skin: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when a player attempts to use the skin they own that was not loaded during server start.<br>
+     * {@code %skin%} - The name of the skin that was requested.
+     */
+    ERROR_LOADING_SKIN(
+        "error-loading-skin",
+        "<red>An error occurred while loading the skin: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when an invalid operation is specified.<br>
+     * {@code %operation%} – The name of the invalid operation.
+     */
+    INVALID_OPERATION(
+        "invalid-operation",
+        "<red>Invalid operation: <white>%operation%</white>"
+    ),
+
+    /**
+     * Shown when an invalid weapon is specified.<br>
+     * {@code %weapon%} – The name of the invalid weapon.
+     */
+    INVALID_WEAPON(
+        "invalid-weapon",
+        "<red>Invalid weapon: <white>%weapon%</white>"
+    ),
+
+    /**
+     * Shown when all skins have been successfully added to the player.<br>
+     * {@code %count%} – The number of skins added.
+     */
+    SKINS_ADDED(
+        "skins-added",
+        "<green>Successfully added <white>%count%</white> skin(s) to the player."
+    ),
+
+    /**
+     * Shown when all skins have been successfully removed from the player.<br>
+     * {@code %count%} – The number of skins removed.
+     */
+    SKINS_REMOVED(
+        "skins-removed",
+        "<yellow>Successfully removed <white>%count%</white> skin(s) from the player."
+    ),
+
+    /**
+     * Shown when the specified skin is not found for the weapon.<br>
+     * {@code %skin%} – The name of the missing skin.
+     */
+    SKIN_NOT_FOUND(
+        "skin-not-found",
+        "<red>Skin not found: <white>%skin%</white>"
+    ),
+
+    /**
+     * Shown when a skin was successfully added to the player.<br>
+     * No placeholders.
+     */
+    SKIN_ADDED(
+        "skin-added",
+        "<green>Skin was successfully added to the player."
+    ),
+
+    /**
+     * Shown when the player already has the specified skin.<br>
+     * No placeholders.
+     */
+    SKIN_ALREADY_OWNED(
+        "skin-already-owned",
+        "<yellow>The player already has this skin."
+    ),
+
+    /**
+     * Shown when a skin was successfully removed from the player.<br>
+     * No placeholders.
+     */
+    SKIN_REMOVED(
+        "skin-removed",
+        "<yellow>Skin was successfully removed from the player."
+    ),
+
+    /**
+     * Shown when the player does not have the specified skin.<br>
+     * No placeholders.
+     */
+    SKIN_NOT_OWNED(
+        "skin-not-owned",
+        "<red>The player does not have this skin."
     );
 
     /**

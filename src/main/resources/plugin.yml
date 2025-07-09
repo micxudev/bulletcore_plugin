@@ -37,6 +37,8 @@ permissions:
       bulletcore.command.view: true     # Allows using /bulletcore and seeing it in help
       bulletcore.command.give: true     # Allows using /bulletcore give
       bulletcore.command.reload: true   # Allows using /bulletcore reload
+      bulletcore.command.skin: true     # Allows using /bulletcore skin
+      bulletcore.command.skin_manage: true # Allows using /bulletcore skin_manage
 
   # Individual permissions
   bulletcore.command.view:
@@ -47,3 +49,9 @@ permissions:
 
   bulletcore.command.reload:
     description: Allows use of /bulletcore reload to reload plugin data.
+
+  bulletcore.command.skin:
+    description: Allows use of /bulletcore skin to change weapon skin.
+
+  bulletcore.command.skin_manage:
+    description: Allows use of /bulletcore skin_manage to manage weapon skins.

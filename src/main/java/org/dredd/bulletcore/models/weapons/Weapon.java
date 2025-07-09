@@ -21,6 +21,7 @@ import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
+import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -94,11 +95,16 @@ public class Weapon extends CustomBase {
     public final WeaponSounds sounds;
 
     /**
+     * Stores weapon skins.
+     */
+    public final WeaponSkins skins;
+
+    /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds) {
+    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds, WeaponSkins skins) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -109,6 +115,7 @@ public class Weapon extends CustomBase {
         this.reloadTime = reloadTime;
         this.reloadHandler = reloadHandler;
         this.sounds = sounds;
+        this.skins = skins;
     }
 
 
