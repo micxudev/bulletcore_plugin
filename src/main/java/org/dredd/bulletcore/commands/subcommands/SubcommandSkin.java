@@ -12,12 +12,12 @@ import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
  * Implements the {@code /bulletcore skin} subcommand.
@@ -27,7 +27,6 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
  */
 public class SubcommandSkin implements Subcommand {
 
-    private static final List<String> EMPTY = Collections.emptyList();
     private final static String DEFAULT_SKIN_NAME = "--default";
 
     @Override
@@ -88,11 +87,11 @@ public class SubcommandSkin implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) return EMPTY;
+        if (!(sender instanceof Player player)) return EMPTY_LIST;
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
-        if (weapon == null) return EMPTY;
+        if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 2) {
             List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
@@ -103,6 +102,6 @@ public class SubcommandSkin implements Subcommand {
             return StringUtil.copyPartialMatches(args[1], skinOptions, new ArrayList<>(skinOptions.size()));
         }
 
-        return EMPTY;
+        return EMPTY_LIST;
     }
 }

@@ -4,12 +4,12 @@ import org.bukkit.command.CommandSender;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.CONFIG_RELOADED;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
  * Implements the {@code /bulletcore reload} subcommand.
@@ -48,6 +48,6 @@ public final class SubcommandReload implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        return Collections.emptyList();
+        return EMPTY_LIST;
     }
 }

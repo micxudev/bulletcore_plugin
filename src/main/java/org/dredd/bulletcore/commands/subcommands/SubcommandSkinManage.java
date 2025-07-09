@@ -12,12 +12,12 @@ import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
  * Implements the {@code /bulletcore skin_manage} subcommand.
@@ -27,7 +27,6 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
  */
 public class SubcommandSkinManage implements Subcommand {
 
-    private static final List<String> EMPTY = Collections.emptyList();
     private static final List<String> OPERATIONS = List.of("add", "remove");
     private static final String ALL_OPTION = "--all";
 
@@ -115,19 +114,19 @@ public class SubcommandSkinManage implements Subcommand {
         String operation = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(operation, OPERATIONS, new ArrayList<>());
-        if (!OPERATIONS.contains(operation)) return EMPTY;
+        if (!OPERATIONS.contains(operation)) return EMPTY_LIST;
 
         String playerName = args[2];
         if (args.length == 3)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
         Player player = Bukkit.getPlayer(playerName);
-        if (player == null) return EMPTY;
+        if (player == null) return EMPTY_LIST;
 
         String weaponName = args[3];
         if (args.length == 4)
             return StringUtil.copyPartialMatches(weaponName, SkinsManager.getWeaponNamesWithSkins(), new ArrayList<>());
         Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
-        if (weapon == null) return EMPTY;
+        if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 5) {
             return switch (operation) {
@@ -145,10 +144,10 @@ public class SubcommandSkinManage implements Subcommand {
                     skinOptions.addAll(playerWeaponSkins);
                     yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));
                 }
-                default -> EMPTY;
+                default -> EMPTY_LIST;
             };
         }
 
-        return EMPTY;
+        return EMPTY_LIST;
     }
 }

@@ -10,12 +10,12 @@ import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
  * Implements the {@code /bulletcore give} subcommand.
@@ -31,7 +31,7 @@ public final class SubcommandGive implements Subcommand {
 
     @Override
     public @NotNull String getUsageArgs() {
-        return "<item> <player>";
+        return "<player> <item>";
     }
 
     @Override
@@ -46,16 +46,17 @@ public final class SubcommandGive implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        String itemName = args[1];
-        CustomBase item = CustomItemsRegistry.all.getItemOrNull(itemName);
-        if (item == null) {
-            sender.sendMessage(of(sender, INVALID_ITEM, Map.of("item", itemName)));
+        String playerName = args[1];
+        Player player = Bukkit.getPlayer(playerName);
+        if (player == null) {
+            sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", playerName)));
             return;
         }
 
-        Player player = Bukkit.getPlayer(args[2]);
-        if (player == null) {
-            sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", args[2])));
+        String itemName = args[2];
+        CustomBase item = CustomItemsRegistry.all.getItemOrNull(itemName);
+        if (item == null) {
+            sender.sendMessage(of(sender, INVALID_ITEM, Map.of("item", itemName)));
             return;
         }
 
@@ -65,12 +66,14 @@ public final class SubcommandGive implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
+        String playerName = args[1];
         if (args.length == 2)
-            return StringUtil.copyPartialMatches(args[1], CustomItemsRegistry.all.getAllNames(), new ArrayList<>());
+            return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
+        if (Bukkit.getPlayer(playerName) == null) return EMPTY_LIST;
 
         if (args.length == 3)
-            return StringUtil.copyPartialMatches(args[2], ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
+            return StringUtil.copyPartialMatches(args[2], CustomItemsRegistry.all.getAllNames(), new ArrayList<>());
 
-        return Collections.emptyList();
+        return EMPTY_LIST;
     }
 }

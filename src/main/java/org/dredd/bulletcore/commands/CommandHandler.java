@@ -11,6 +11,7 @@ import java.util.*;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
  * Handles the execution and tab completion of the {@value #MAIN_COMMAND_NAME } command.
@@ -113,7 +114,7 @@ public final class CommandHandler implements TabExecutor {
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         return (sub != null && (sub.getPermission() == null || sender.hasPermission(sub.getPermission())))
             ? sub.tabComplete(sender, args)
-            : Collections.emptyList();
+            : EMPTY_LIST;
     }
 
     /**

@@ -12,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 
+import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
+
 /**
  * A static utility class for managing weapon skins assigned to players.
  * <p>
@@ -30,11 +32,6 @@ public class SkinsManager {
      * Private constructor to prevent instantiation.
      */
     private SkinsManager() {}
-
-    /**
-     * An unmodifiable shared empty list returned by fallback methods.
-     */
-    private static final List<String> EMPTY = Collections.emptyList();
 
     /**
      * In-memory storage of skins owned by players.
@@ -119,9 +116,9 @@ public class SkinsManager {
      */
     public static @NotNull List<String> getPlayerWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
-        if (playerSkins == null) return EMPTY;
+        if (playerSkins == null) return EMPTY_LIST;
         var weaponSkins = playerSkins.get(weapon.name);
-        return (weaponSkins == null) ? EMPTY : Collections.unmodifiableList(weaponSkins);
+        return (weaponSkins == null) ? EMPTY_LIST : Collections.unmodifiableList(weaponSkins);
     }
 
     /**
@@ -132,7 +129,7 @@ public class SkinsManager {
      * @return a list of missing skin names, or an empty list if all skins are owned or none exist
      */
     public static @NotNull List<String> getMissingWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
-        if (!weapon.skins.hasSkins()) return EMPTY;
+        if (!weapon.skins.hasSkins()) return EMPTY_LIST;
         var weaponSkinNames = getPlayerWeaponSkins(player, weapon);
         return weapon.skins.getSkinNames().stream()
             .filter(skin -> !weaponSkinNames.contains(skin))
