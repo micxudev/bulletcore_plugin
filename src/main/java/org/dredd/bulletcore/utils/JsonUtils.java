@@ -1,16 +1,18 @@
 package org.dredd.bulletcore.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bukkit.Bukkit;
+import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Utility class for JSON serialization helper methods.
@@ -30,6 +32,14 @@ public final class JsonUtils {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     /**
+     * A single-threaded executor to serialize save operations and preserve ordering.
+     * This prevents race conditions where older data might overwrite newer data.
+     *
+     * @since 1.0.0
+     */
+    private static final ExecutorService SAVE_EXECUTOR = Executors.newSingleThreadExecutor();
+
+    /**
      * Loads player weapon skins from a JSON file.
      * <p>
      * The file is expected to contain a JSON object where each key is a player UUID,
@@ -45,7 +55,7 @@ public final class JsonUtils {
         try {
             return mapper.readValue(file, new TypeReference<>() {});
         } catch (Exception e) {
-            Bukkit.getLogger().severe("Failed to load playerSkins from file: " + e.getMessage());
+            BulletCore.getInstance().getLogger().severe("Failed to load playerSkins from file: " + e.getMessage());
             return new HashMap<>();
         }
     }
@@ -62,12 +72,29 @@ public final class JsonUtils {
      * @since 1.0.0
      */
     public static void savePlayerWeaponSkins(@NotNull Map<UUID, Map<String, List<String>>> skins, @NotNull File file) {
+        byte[] jsonBytes;
         try {
-            attemptCreateFileWithDirs(file);
-            mapper.writerWithDefaultPrettyPrinter().writeValue(file, skins);
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("Failed to save playerSkins to file: " + e.getMessage());
+            jsonBytes = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(skins);
+        } catch (JsonProcessingException e) {
+            BulletCore.getInstance().getLogger().severe("Failed to serialize playerSkins: " + e.getMessage());
+            return;
         }
+
+        SAVE_EXECUTOR.submit(() -> {
+            try {
+                attemptCreateFileWithDirs(file);
+                File tempFile = new File(
+                    Optional.ofNullable(file.getParentFile()).orElse(new File(".")),
+                    file.getName() + ".tmp"
+                );
+
+                Files.write(tempFile.toPath(), jsonBytes);
+
+                Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                BulletCore.getInstance().getLogger().severe("Failed to save playerSkins to file: " + e.getMessage());
+            }
+        });
     }
 
     /**
@@ -77,10 +104,18 @@ public final class JsonUtils {
      * @throws IOException if an I/O error occurs during file or directory creation
      * @since 1.0.0
      */
-    private static void attemptCreateFileWithDirs(File file) throws IOException {
+    private static void attemptCreateFileWithDirs(@NotNull File file) throws IOException {
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs())
             throw new IOException("Failed to create parent directories for file: " + file.getPath());
-        if (!file.exists()) file.createNewFile();
+        if (!file.exists() && !file.createNewFile())
+            throw new IOException("Failed to create file: " + file.getPath());
+    }
+
+    /**
+     * Shuts down the {@link #SAVE_EXECUTOR} and waits for it to terminate.
+     */
+    public static void shutdownSaveExecutor() {
+        SAVE_EXECUTOR.shutdown();
     }
 }
