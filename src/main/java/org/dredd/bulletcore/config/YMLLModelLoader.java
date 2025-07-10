@@ -153,7 +153,7 @@ public final class YMLLModelLoader {
         throws ItemLoadException {
         String name = config.getString("name");
         if (!CustomItemsRegistry.canNameBeUsed(name))
-            throw new ItemLoadException("Name: '" + name + "' is already in use or is empty");
+            throw new ItemLoadException("Name: '" + name + "' does not match [a-z0-9/._-] or is already in use");
 
         int customModelData = config.getInt("customModelData");
         if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))

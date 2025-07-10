@@ -1,11 +1,11 @@
 package org.dredd.bulletcore.config.sounds;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +74,7 @@ public final class SoundManager {
         } catch (NoSuchElementException ignored) {
             // Ignored, the sound configuration is optional
         } catch (IllegalArgumentException e) {
-            Bukkit.getLogger().severe(e.getMessage() + "; Falling back to default sound");
+            BulletCore.getInstance().getLogger().severe(e.getMessage() + "; Falling back to default sound");
         }
         return def;
     }

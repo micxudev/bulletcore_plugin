@@ -1,9 +1,10 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,9 +102,15 @@ public class WeaponSkins {
 
         for (String key : skinsSection.getKeys(false)) {
             skinModelData++;
+
+            if (!CustomItemsRegistry.isValidFormat(key)) {
+                BulletCore.getInstance().getLogger().severe("Invalid skin name '" + key + "'. Must match [a-z0-9/._-]");
+                continue;
+            }
+
             ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
             if (skinSection == null) {
-                Bukkit.getLogger().severe("Invalid skin definition for skin name '" + key + "'");
+                BulletCore.getInstance().getLogger().severe("Invalid skin definition for skin name '" + key + "'");
                 continue;
             }
 

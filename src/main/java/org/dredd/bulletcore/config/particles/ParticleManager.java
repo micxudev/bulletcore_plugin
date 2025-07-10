@@ -1,11 +1,11 @@
 package org.dredd.bulletcore.config.particles;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,7 +71,7 @@ public class ParticleManager {
         } catch (NoSuchElementException ignored) {
             // Ignored, the particle configuration is optional
         } catch (IllegalArgumentException e) {
-            Bukkit.getLogger().severe(e.getMessage() + "; Falling back to default particle");
+            BulletCore.getInstance().getLogger().severe(e.getMessage() + "; Falling back to default particle");
         }
         return def;
     }

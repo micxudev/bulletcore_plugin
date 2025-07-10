@@ -8,6 +8,7 @@ import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -101,7 +102,17 @@ public final class CustomItemsRegistry {
      * @return {@code true} if the name is non-null, non-blank, and not used; {@code false} otherwise
      */
     public static boolean canNameBeUsed(@Nullable String name) {
-        return name != null && !name.isBlank() && !all.exists(name);
+        return name != null && isValidFormat(name) && !all.exists(name);
+    }
+
+    /**
+     * Checks whether a given input is valid and can be used for custom item names.
+     *
+     * @param input the input to check
+     * @return {@code true} if the input matches the format; {@code false} otherwise
+     */
+    public static boolean isValidFormat(@NotNull String input) {
+        return input.matches("[a-z0-9/._-]+");
     }
 
     /**

@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.config;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -113,7 +112,7 @@ public final class ConfigManager {
                 Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
                 parsedMaterials.add(material);
             } catch (IllegalArgumentException e) {
-                Bukkit.getLogger().warning("Skipping invalid material in ignored-materials: " + name);
+                BulletCore.getInstance().getLogger().warning("Skipping invalid material in ignored-materials: " + name);
             }
         }
 
