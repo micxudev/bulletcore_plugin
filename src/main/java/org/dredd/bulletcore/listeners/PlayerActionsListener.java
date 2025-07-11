@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
+import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 
 /**
  * Listens for player actions and records them using {@link PlayerActionTracker}.
@@ -64,17 +65,21 @@ public class PlayerActionsListener implements Listener {
         final Player player = event.getPlayer();
         tracker.clear(player.getUniqueId());
         ReloadHandler.cancelReload(player, false);
+        ShootingHandler.cancelAutoShooting(player);
     }
 
     /**
      * Called when a player dies.<br>
-     * Stops the player's current reload if it is in progress.
+     * Stops the player's current reload if it is in progress.<br>
+     * Stops automatic shooting if the player was shooting.
      *
      * @param event the {@link PlayerDeathEvent} triggered
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        ReloadHandler.cancelReload(event.getEntity(), false);
+        Player entity = event.getEntity();
+        ReloadHandler.cancelReload(entity, false);
+        ShootingHandler.cancelAutoShooting(entity);
     }
 
     /**
