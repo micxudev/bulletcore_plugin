@@ -10,9 +10,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.SoundManager;
@@ -27,30 +29,57 @@ import java.util.function.Predicate;
 
 import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.getDamagePoint;
 
+/**
+ * Handles weapon shooting (e.g., single, automatic).
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public abstract class ShootingHandler {
 
     /**
      * Stores currently running automatic shooting tasks for each player.
      */
-    public static final Map<UUID, BukkitTask> activeShooters = new HashMap<>();
+    private static final Map<UUID, BukkitTask> activeShooters = new HashMap<>();
 
+    /**
+     * Checks whether the specified player is currently shooting in automatic mode.
+     *
+     * @param player the player to check; must not be {@code null}
+     * @return {@code true} if the player is currently shooting in automatic mode, {@code false} otherwise
+     */
     public static boolean isAutoShooting(@NotNull Player player) {
         return activeShooters.containsKey(player.getUniqueId());
     }
 
+    /**
+     * Clears all shooting tasks. Called when the plugin is reloaded or disabled.
+     */
     public static void clearAllAutoShootingTasks() {
         activeShooters.values().forEach(BukkitTask::cancel);
         activeShooters.clear();
     }
 
+    /**
+     * Cancels the automatic shooting task for the specified player.
+     *
+     * @param player the player whose shooting task should be canceled; must not be {@code null}
+     */
     public static void cancelAutoShooting(@NotNull Player player) {
         BukkitTask task = activeShooters.remove(player.getUniqueId());
         if (task == null) return;
         task.cancel();
     }
 
-    public static void tryShoot(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponStack) {
+    /**
+     * Attempts to shoot in response to the shooting trigger (e.g., LMB).
+     *
+     * @param player the player who is trying to shoot
+     * @param weapon the weapon used
+     */
+    public static void tryShoot(@NotNull Player player, @NotNull Weapon weapon) {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
+        if (weapon.isAutomatic && isAutoShooting(player)) return;
 
         // Check delay between shots
         long currentTime = System.currentTimeMillis();
@@ -60,8 +89,34 @@ public abstract class ShootingHandler {
         // Save new shot time
         weapon.lastShots.put(player.getUniqueId(), currentTime);
 
-        // Fetch config (it is already loaded)
+        if (weapon.isAutomatic && player.isSneaking()) {
+            // Start an automatic shooting task
+            BukkitTask shootingTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!shoot(player, weapon)) cancelAutoShooting(player);
+                }
+            }.runTaskTimer(BulletCore.getInstance(), 0L, weapon.delayBetweenShots / 50);
+            activeShooters.put(player.getUniqueId(), shootingTask);
+        } else {
+            // Do a single shot
+            shoot(player, weapon);
+        }
+    }
+
+    /**
+     * Does a single fire cycle. For most of the weapons this is a single bullet shot.<br>
+     * For some weapons (e.g., shotguns), this may be multiple bullet shots.
+     *
+     * @param player the player who is shooting
+     * @param weapon the weapon used
+     * @return {@code true} if the shot was successful, {@code false} otherwise.
+     */
+    private static boolean shoot(@NotNull Player player, @NotNull Weapon weapon) {
         ConfigManager config = ConfigManager.get();
+
+        // Always get actual reference from the hand
+        ItemStack weaponStack = player.getInventory().getItemInMainHand();
 
         // Check bullet count
         int bulletCount = weapon.getBulletCount(weaponStack);
@@ -69,7 +124,7 @@ public abstract class ShootingHandler {
             weapon.sounds.play(player, weapon.sounds.empty);
             if (config.enableHotbarMessages)
                 weapon.sendActionbar(player, bulletCount);
-            return;
+            return false;
         }
 
         // Update bullet count
@@ -128,7 +183,7 @@ public abstract class ShootingHandler {
         }
 
         // Handle result
-        if (result == null) return;
+        if (result == null) return true;
 
         final Location hitLocation = result.getHitPosition().toLocation(world);
 
@@ -142,6 +197,8 @@ public abstract class ShootingHandler {
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
             SoundManager.playSound(world, hitLocation, config.blockHitSound);
         }
+
+        return true;
     }
 
     /**
@@ -193,6 +250,7 @@ public abstract class ShootingHandler {
         // Prevents recursion for the same hit
         CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId());
         victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
+        victim.setNoDamageTicks(0); // allow constant hits
         CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
     }
 }

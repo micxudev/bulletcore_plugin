@@ -148,7 +148,7 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        ShootingHandler.tryShoot(player, this, usedItem);
+        ShootingHandler.tryShoot(player, this);
         return true;
     }
 
