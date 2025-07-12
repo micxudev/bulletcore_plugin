@@ -17,6 +17,7 @@ import org.dredd.bulletcore.listeners.UnknownCommandListener;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
+import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.utils.JsonUtils;
 
@@ -76,6 +77,7 @@ public final class BulletCore extends JavaPlugin {
         ConfigManager.reload(plugin);
         CustomItemsRegistry.clearAll();
         ReloadManager.initAll();
+        ShootingHandler.clearAllAutoShootingTasks();
         YMLLModelLoader.loadAllItems(plugin);
     }
 
@@ -85,6 +87,7 @@ public final class BulletCore extends JavaPlugin {
 
         JsonUtils.shutdownSaveExecutor();
         ReloadHandler.clearAllReloadTasks();
+        ShootingHandler.clearAllAutoShootingTasks();
         CustomItemsRegistry.clearAll();
 
         plugin.getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Disabled");

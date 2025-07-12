@@ -26,6 +26,7 @@ import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
+import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 
 import java.util.Collections;
 
@@ -235,6 +236,17 @@ public class BulletCoreListener implements Listener {
     }
 
     /**
+     * Handles inventory click events to cancel automatic shooting.
+     *
+     * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
+     */
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void cancelAutoShootingOnInventoryClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player player)
+            ShootingHandler.cancelAutoShooting(player);
+    }
+
+    /**
      * Handles hand-swap events (F key by default) to prevent players from swapping weapons
      * between the main hand and off-hand.
      *
@@ -382,7 +394,8 @@ public class BulletCoreListener implements Listener {
     }
 
     /**
-     * Handles player sneaking to simulate charging and discharging a custom crossbow weapon.
+     * Handles player sneaking to simulate charging and discharging a custom crossbow weapon.<br>
+     * As well as cancel automatic shooting when the player stops sneaking.
      * <p>
      * When a player begins sneaking while holding a valid custom crossbow weapon,
      * an arrow is visually charged into it. When the player stops sneaking,
@@ -396,14 +409,23 @@ public class BulletCoreListener implements Listener {
         //System.err.println("0. PlayerToggleSneakEvent.");
 
         final ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
-        if (!(mainHandItem.getItemMeta() instanceof CrossbowMeta meta) || !isWeapon(mainHandItem)) return;
-        //System.err.println("1. Player has Crossbow Weapon in MainHand.");
+        if (!isWeapon(mainHandItem)) return;
+        //System.err.println("1. Player has Weapon in MainHand.");
 
-        if (event.isSneaking()) {
-            //System.err.println("2. Player is now sneaking. Charge Crossbow.");
+        boolean isNowSneaking = event.isSneaking();
+        if (!isNowSneaking) {
+            //System.err.println("2.1. Player is NO MORE sneaking. Cancel auto shooting.");
+            ShootingHandler.cancelAutoShooting(event.getPlayer());
+        }
+
+        if (!(mainHandItem.getItemMeta() instanceof CrossbowMeta meta)) return;
+        //System.err.println("2.2. Player has Crossbow Weapon in MainHand.");
+
+        if (isNowSneaking) {
+            //System.err.println("3. Player is now sneaking. Charge Crossbow.");
             meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
         } else {
-            //System.err.println("2. Player is NO MORE sneaking. Discharge Crossbow.");
+            //System.err.println("3. Player is NO MORE sneaking. Discharge Crossbow.");
             meta.setChargedProjectiles(null);
         }
         mainHandItem.setItemMeta(meta);

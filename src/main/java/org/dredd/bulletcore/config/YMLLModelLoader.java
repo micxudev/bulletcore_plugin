@@ -288,6 +288,8 @@ public final class YMLLModelLoader {
 
         WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins);
+        boolean isAutomatic = config.getBoolean("isAutomatic", false);
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins, isAutomatic);
     }
 }

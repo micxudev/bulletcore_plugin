@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -114,6 +115,7 @@ public abstract class ReloadHandler {
     public void tryReload(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponStack) {
         if (isReloading(player)) return;
 
+        if (weapon.isAutomatic) ShootingHandler.cancelAutoShooting(player);
         ConfigManager config = ConfigManager.get();
 
         // check bullet count on Weapon
