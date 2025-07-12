@@ -10,6 +10,10 @@ main: org.dredd.bulletcore.BulletCore
 # Target Bukkit/Spigot API version, taken from pom.xml properties
 api-version: ${api.version}
 
+# This tells Paper to automatically download and load the specified
+# external libraries at runtime from Maven Central.
+libraries:
+  - com.fasterxml.jackson.core:jackson-databind:2.19.1
 
 # Command definitions
 commands:
