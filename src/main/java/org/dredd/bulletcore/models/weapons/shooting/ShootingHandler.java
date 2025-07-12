@@ -35,7 +35,12 @@ import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.getDamagePo
  * @author dredd
  * @since 1.0.0
  */
-public abstract class ShootingHandler {
+public final class ShootingHandler {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private ShootingHandler() {}
 
     /**
      * Stores currently running automatic shooting tasks for each player.
@@ -83,11 +88,11 @@ public abstract class ShootingHandler {
 
         // Check delay between shots
         long currentTime = System.currentTimeMillis();
-        Long lastShot = weapon.lastShots.get(player.getUniqueId());
+        Long lastShot = weapon.getLastShotTime(player);
         if (lastShot != null && (currentTime - lastShot) < weapon.delayBetweenShots) return;
 
         // Save new shot time
-        weapon.lastShots.put(player.getUniqueId(), currentTime);
+        weapon.setLastShotTime(player, currentTime);
 
         if (weapon.isAutomatic && player.isSneaking()) {
             // Start an automatic shooting task

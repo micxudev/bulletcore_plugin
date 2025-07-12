@@ -15,6 +15,7 @@ import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -57,7 +58,7 @@ public class Weapon extends CustomBase {
      * Stores per-weapon last shot timestamps for each player.<br>
      * Used with {@link #delayBetweenShots} to prevent multiple shots in a short period of time.
      */
-    public final Map<UUID, Long> lastShots;
+    private final Map<UUID, Long> lastShots;
 
     /**
      * The maximum number of bullets the weapon can hold in its magazine/chamber.
@@ -225,5 +226,25 @@ public class Weapon extends CustomBase {
                 "total", Integer.toString(ammo.getAmmoCount(player))
             )
         ));
+    }
+
+    /**
+     * Retrieves the last shot time for the given player for this weapon.
+     *
+     * @param player the player to retrieve the last shot time for; must not be null
+     * @return last shot time; or {@code null} if none recorded yet
+     */
+    public @Nullable Long getLastShotTime(@NotNull Player player) {
+        return lastShots.get(player.getUniqueId());
+    }
+
+    /**
+     * Saves new last shot time for the given player.
+     *
+     * @param player the player to save the last shot time for; must not be null
+     * @param time   the new last shot time; must not be null
+     */
+    public void setLastShotTime(@NotNull Player player, long time) {
+        lastShots.put(player.getUniqueId(), time);
     }
 }
