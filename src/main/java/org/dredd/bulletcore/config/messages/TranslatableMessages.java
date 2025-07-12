@@ -51,6 +51,17 @@ public enum TranslatableMessages {
     ),
 
     /**
+     * Represents the distance; used on weapon item lore
+     */
+    LORE_WEAPON_DISTANCE(
+        "lore_weapon_distance",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("distance", "<red>");
+        }}
+    ),
+
+    /**
      * Represents the ammo used by the weapon; used on weapon item lore
      */
     LORE_WEAPON_AMMO(

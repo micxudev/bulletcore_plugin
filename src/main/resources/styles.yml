@@ -25,6 +25,10 @@ lore_weapon_damage:
   damage_legs: "<red>"
   damage_feet: "<red>"
 
+lore_weapon_distance:
+  key: "<!i><white>"
+  distance: "<red>"
+
 lore_weapon_ammo:
   key: "<!i><white>"
   ammo: "<yellow>"

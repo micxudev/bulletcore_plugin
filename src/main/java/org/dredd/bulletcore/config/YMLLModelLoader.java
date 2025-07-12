@@ -33,8 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.text;
-import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_AMMO;
-import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_WEAPON_DAMAGE;
+import static org.dredd.bulletcore.config.messages.TranslatableMessages.*;
 import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
@@ -282,7 +281,8 @@ public final class YMLLModelLoader {
         List<Component> lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
         lore.add(1, LORE_WEAPON_DAMAGE.of(damage.head(), damage.body(), damage.legs(), damage.feet()));
-        lore.add(2, LORE_WEAPON_AMMO.of(ammo.displayNameString));
+        lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
+        lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
         WeaponSounds sounds = WeaponSounds.load(config);
 
