@@ -58,6 +58,15 @@ player-not-found: "<red>Игрок не найден: <white>%player%</white>"
 item-given: "<green>Выдан предмет <white>%item%</white> игроку <white>%player%</white>"
 
 
+# · Используется когда: Игрок взаимодействует с оружием (например, стрельба, успешная перезарядка).
+# · Плейсхолдеры:
+#     %displayname% – названия оружия (без стилей)
+#     %bullets% – текущее количество пуль в оружии
+#     %maxbullets% – максимальная емкость патронов оружия
+#     %total% – общее количество боеприпасов для этого оружия в инвентаре игрока
+weapon-actionbar: "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
+
+
 # · Используется когда: Перезарядка оружия отменена.
 # · Плейсхолдеры: нет
 weapon-reload-cancel: "<red>Перезарядка отменена"

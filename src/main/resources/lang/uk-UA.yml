@@ -58,6 +58,15 @@ player-not-found: "<red>Гравця не знайдено: <white>%player%</whi
 item-given: "<green>Видано предмет <white>%item%</white> гравцю <white>%player%</white>"
 
 
+# · Використовується коли: Гравець взаємодіє зі зброєю (наприклад, стрілянина, успішна перезарядка).
+# · Плейсхолдери:
+#     %displayname% – назви зброї (без стилів)
+#     %bullets% – поточна кількість куль у зброї
+#     %maxbullets% – максимальна місткість патронів зброї
+#     %total% – загальна кількість боєприпасів для цієї зброї в інвентарі гравця
+weapon-actionbar: "<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"
+
+
 # · Використовується коли: Перезаряджання зброї скасовано.
 # · Плейсхолдери: немає
 weapon-reload-cancel: "<red>Перезаряджання скасовано"
