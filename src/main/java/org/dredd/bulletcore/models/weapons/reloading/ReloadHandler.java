@@ -60,6 +60,7 @@ public abstract class ReloadHandler {
         BukkitTask task = reloadTasks.remove(player.getUniqueId());
         if (task == null) return;
         task.cancel();
+        player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
 
         if (!success && ConfigManager.get().enableHotbarMessages)
             player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
@@ -135,6 +136,10 @@ public abstract class ReloadHandler {
         }
 
         weapon.sounds.play(player, weapon.sounds.reloadStart);
+        long actualReloadTime = weapon.reloadHandler instanceof SingleReloadHandler
+            ? (weapon.reloadTime / weapon.maxBullets) * (weapon.maxBullets - bulletCount)
+            : weapon.reloadTime;
+        player.setCooldown(weapon.material, (int) (actualReloadTime / 50L));
 
         BukkitRunnable runnable = create(player, weapon);
 
