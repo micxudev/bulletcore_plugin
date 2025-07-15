@@ -1,14 +1,14 @@
 # Plugin Name
 name: BulletCore
 
-# Version follows a Maven project version during build
-version: ${project.version}
+# Plugin Version
+version: 1.0.0
 
 # Main plugin class that extends JavaPlugin
 main: org.dredd.bulletcore.BulletCore
 
-# Target Bukkit/Spigot API version, taken from pom.xml properties
-api-version: ${api.version}
+# Target Paper API version
+api-version: 1.20.6
 
 # This tells Paper to automatically download and load the specified
 # external libraries at runtime from Maven Central.
