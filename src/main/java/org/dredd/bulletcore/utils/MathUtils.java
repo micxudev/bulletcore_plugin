@@ -15,11 +15,6 @@ public final class MathUtils {
     private MathUtils() {}
 
     /**
-     * A small value used to compare floating point numbers.
-     */
-    private static final float EPSILON = 1e-6f;
-
-    /**
      * Clamps a given value between a minimum and maximum bound.
      *
      * @param value the value to clamp
@@ -82,42 +77,13 @@ public final class MathUtils {
     }
 
     /**
-     * Checks if two floating point numbers are approximately equal using a custom epsilon.
+     * Determines whether a floating-point value is effectively zero within a specified tolerance.
      *
-     * @param a       The first number
-     * @param b       The second number
-     * @param epsilon The tolerance value
-     * @return True if the numbers are approximately equal
+     * @param a       The number to evaluate.
+     * @param epsilon The threshold under which the number is considered to be approximately zero.
+     * @return True if the absolute value of {@code a} is less than {@code epsilon}; false otherwise.
      */
-    public static boolean approximately(float a, float b, float epsilon) {
-        return Math.abs(a - b) < epsilon;
-    }
-
-    /**
-     * Checks if two floating point numbers are approximately equal using default epsilon.
-     *
-     * @param a The first number
-     * @param b The second number
-     * @return True if the numbers are approximately equal
-     */
-    public static boolean approximately(float a, float b) {
-        return approximately(a, b, EPSILON);
-    }
-
-    /**
-     * Moves a value {@code current} towards {@code target}.
-     *
-     * @param current  The current value
-     * @param target   The target value
-     * @param maxDelta The maximum change that should be applied
-     * @return The new value
-     * @throws IllegalArgumentException if maxDelta is negative or zero
-     */
-    public static float moveTowards(float current, float target, float maxDelta) {
-        if (maxDelta <= 0.0f)
-            throw new IllegalArgumentException("maxDelta must be positive");
-
-        if (Math.abs(target - current) <= maxDelta) return target;
-        return current + Math.signum(target - current) * maxDelta;
+    public static boolean approximatelyZero(float a, float epsilon) {
+        return Math.abs(a) < epsilon;
     }
 }

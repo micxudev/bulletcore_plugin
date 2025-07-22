@@ -20,6 +20,7 @@ import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -160,6 +161,7 @@ public final class ShootingHandler {
         );
 
         weapon.sounds.play(player, weapon.sounds.fire);
+        RecoilHandler.handleShot(player, weapon.recoil);
 
         // Spawn particles
         double bulletTrailStep = config.bulletTrailStep;

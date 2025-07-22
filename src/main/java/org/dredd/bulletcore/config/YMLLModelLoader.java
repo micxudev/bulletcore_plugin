@@ -19,6 +19,7 @@ import org.dredd.bulletcore.models.weapons.WeaponSounds;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
+import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.MathUtils;
@@ -290,6 +291,8 @@ public final class YMLLModelLoader {
 
         boolean isAutomatic = config.getBoolean("isAutomatic", false);
 
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins, isAutomatic);
+        WeaponRecoil recoil = WeaponRecoil.load(config);
+
+        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins, isAutomatic, recoil);
     }
 }

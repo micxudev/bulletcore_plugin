@@ -13,6 +13,7 @@ import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,11 +97,16 @@ public class Weapon extends CustomBase {
     public final boolean isAutomatic;
 
     /**
+     * Controls weapon recoil.
+     */
+    public final WeaponRecoil recoil;
+
+    /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds, WeaponSkins skins, boolean isAutomatic) {
+    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds, WeaponSkins skins, boolean isAutomatic, WeaponRecoil recoil) {
         super(attrs);
         this.damage = damage;
         this.maxDistance = maxDistance;
@@ -113,6 +119,7 @@ public class Weapon extends CustomBase {
         this.sounds = sounds;
         this.skins = skins;
         this.isAutomatic = isAutomatic;
+        this.recoil = recoil;
     }
 
 
