@@ -132,6 +132,7 @@ public class SubcommandSkinManage implements Subcommand {
             return switch (operation) {
                 case "add" -> {
                     List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
+                    if (missingWeaponSkins.isEmpty()) yield EMPTY_LIST;
                     List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(missingWeaponSkins);
@@ -139,6 +140,7 @@ public class SubcommandSkinManage implements Subcommand {
                 }
                 case "remove" -> {
                     List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+                    if (playerWeaponSkins.isEmpty()) yield EMPTY_LIST;
                     List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(playerWeaponSkins);
