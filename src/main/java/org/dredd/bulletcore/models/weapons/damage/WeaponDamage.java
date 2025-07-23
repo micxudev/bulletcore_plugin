@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons.damage;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -66,6 +65,6 @@ public record WeaponDamage(
      * @return the clamped damage value from the config
      */
     private static double getOrDefault(@NotNull YamlConfiguration cfg, @NotNull String key, double def) {
-        return MathUtils.clamp(cfg.getDouble("damage." + key, def), 1, Double.MAX_VALUE);
+        return Math.clamp(cfg.getDouble("damage." + key, def), 1.0D, Double.MAX_VALUE);
     }
 }

@@ -60,7 +60,9 @@ public final class SubcommandGive implements Subcommand {
             return;
         }
 
-        player.getInventory().addItem(item.createItemStack());
+        var inv = player.getInventory();
+        var leftover = inv.addItem(item.createItemStack());
+        leftover.forEach((i, stack) -> player.getWorld().dropItem(player.getLocation(), stack));
         sender.sendMessage(of(sender, ITEM_GIVEN, Map.of("item", itemName, "player", player.getName())));
     }
 

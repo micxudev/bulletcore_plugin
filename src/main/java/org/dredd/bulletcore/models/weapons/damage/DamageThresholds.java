@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons.damage;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -62,6 +61,6 @@ public record DamageThresholds(
      * @return the clamped damage threshold value
      */
     private static double getOrDefault(@NotNull FileConfiguration cfg, @NotNull String key, double def) {
-        return MathUtils.clamp(cfg.getDouble("damage-thresholds." + key, def), 0.0, 1.0);
+        return Math.clamp(cfg.getDouble("damage-thresholds." + key, def), 0.0D, 1.0D);
     }
 }

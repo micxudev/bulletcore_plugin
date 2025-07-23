@@ -6,7 +6,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -52,7 +51,7 @@ public class ParticleManager {
             throw new IllegalArgumentException("Invalid particle '" + particleName + "' for key: " + fullKey);
         }
 
-        int count = MathUtils.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
+        int count = Math.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
 
         return new ConfiguredParticle(particle, count);
     }

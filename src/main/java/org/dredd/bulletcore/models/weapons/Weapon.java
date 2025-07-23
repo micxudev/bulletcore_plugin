@@ -41,9 +41,14 @@ public class Weapon extends CustomBase {
     private static final NamespacedKey BULLETS_KEY = new NamespacedKey("bulletcore", "bullets");
 
     /**
-     * Weapon damage values for each body part.
+     * The ammo used by this weapon.
      */
-    public final WeaponDamage damage;
+    public final Ammo ammo;
+
+    /**
+     * Manages weapon reloading behavior.
+     */
+    public final ReloadHandler reloadHandler;
 
     /**
      * Maximum distance a bullet can travel before it is discarded.
@@ -67,19 +72,24 @@ public class Weapon extends CustomBase {
     public final int maxBullets;
 
     /**
-     * The ammo used by this weapon.
-     */
-    public final Ammo ammo;
-
-    /**
      * This number of milliseconds must elapse before the weapon is reloaded.
      */
     public final long reloadTime;
 
     /**
-     * Manages weapon reloading behavior.
+     * Controls whether this weapon has automatic shooting.
      */
-    public final ReloadHandler reloadHandler;
+    public final boolean isAutomatic;
+
+    /**
+     * Weapon damage values for each body part.
+     */
+    public final WeaponDamage damage;
+
+    /**
+     * Controls weapon recoil.
+     */
+    public final WeaponRecoil recoil;
 
     /**
      * Manages weapon sounds.
@@ -92,36 +102,25 @@ public class Weapon extends CustomBase {
     public final WeaponSkins skins;
 
     /**
-     * Controls whether this weapon has automatic shooting.
-     */
-    public final boolean isAutomatic;
-
-    /**
-     * Controls weapon recoil.
-     */
-    public final WeaponRecoil recoil;
-
-    /**
      * Constructs a new {@link Weapon} instance.
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, WeaponDamage damage, double maxDistance, long delayBetweenShots, int maxBullets, Ammo ammo, long reloadTime, ReloadHandler reloadHandler, WeaponSounds sounds, WeaponSkins skins, boolean isAutomatic, WeaponRecoil recoil) {
+    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, WeaponDamage damage, WeaponRecoil recoil, WeaponSounds sounds, WeaponSkins skins) {
         super(attrs);
-        this.damage = damage;
+        this.ammo = ammo;
+        this.reloadHandler = reloadHandler;
         this.maxDistance = maxDistance;
         this.delayBetweenShots = delayBetweenShots;
         this.lastShots = new HashMap<>();
         this.maxBullets = maxBullets;
-        this.ammo = ammo;
         this.reloadTime = reloadTime;
-        this.reloadHandler = reloadHandler;
+        this.isAutomatic = isAutomatic;
+        this.damage = damage;
+        this.recoil = recoil;
         this.sounds = sounds;
         this.skins = skins;
-        this.isAutomatic = isAutomatic;
-        this.recoil = recoil;
     }
-
 
     /**
      * Triggered when a player attempts to drop a weapon.

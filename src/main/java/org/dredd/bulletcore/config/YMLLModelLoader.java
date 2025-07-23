@@ -22,7 +22,6 @@ import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.dredd.bulletcore.utils.ComponentUtils;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.dredd.bulletcore.utils.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,8 +148,7 @@ public final class YMLLModelLoader {
      * @return the populated {@link CustomBase.BaseAttributes} object
      * @throws ItemLoadException if any required attribute is missing or failed validation
      */
-    private static @NotNull BaseAttributes loadBaseAttributes(YamlConfiguration config)
-        throws ItemLoadException {
+    private static @NotNull BaseAttributes loadBaseAttributes(YamlConfiguration config) throws ItemLoadException {
         String name = config.getString("name");
         if (!CustomItemsRegistry.canNameBeUsed(name))
             throw new ItemLoadException("Name: '" + name + "' does not match [a-z0-9/._-] or is already in use");
@@ -167,10 +165,7 @@ public final class YMLLModelLoader {
             .map(MINI::deserialize)
             .collect(Collectors.toList());
 
-        int maxStackSize = MathUtils.clamp(
-            config.getInt("maxStackSize", material.getMaxStackSize()),
-            1, 99
-        );
+        int maxStackSize = Math.clamp(config.getInt("maxStackSize", material.getMaxStackSize()), 1, 99);
 
         return new BaseAttributes(name, customModelData, material, displayName, lore, maxStackSize);
     }
@@ -213,9 +208,9 @@ public final class YMLLModelLoader {
     private static @NotNull Ammo loadAmmo(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
-        int maxAmmo = MathUtils.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
+        int maxAmmo = Math.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
 
-        List<Component> lore = baseAttributes.lore();
+        var lore = baseAttributes.lore();
         lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
 
         return new Ammo(baseAttributes, maxAmmo);
@@ -230,7 +225,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Armor loadArmor(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only armor-specific attributes
 
         return new Armor(baseAttributes);
     }
@@ -244,7 +238,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Grenade loadGrenade(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only grenade-specific attributes
 
         return new Grenade(baseAttributes);
     }
@@ -269,30 +262,23 @@ public final class YMLLModelLoader {
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
 
+        double maxDistance = Math.clamp(config.getDouble("maxDistance", 64), 1.0D, 300.0D);
+        long delayBetweenShots = Math.clamp(config.getLong("delayBetweenShots", 500L), 50L, Long.MAX_VALUE);
+        int maxBullets = Math.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
+        long reloadTime = Math.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
+        boolean isAutomatic = config.getBoolean("isAutomatic", false);
+
         WeaponDamage damage = WeaponDamage.load(config);
+        WeaponRecoil recoil = WeaponRecoil.load(config);
+        WeaponSounds sounds = WeaponSounds.load(config);
+        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
 
-        double maxDistance = MathUtils.clamp(config.getDouble("maxDistance", 64), 1, 300);
-
-        long delayBetweenShots = MathUtils.clamp(config.getLong("delayBetweenShots", 500L), 50, Long.MAX_VALUE);
-
-        int maxBullets = MathUtils.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
-
-        long reloadTime = MathUtils.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
-
-        List<Component> lore = baseAttributes.lore();
+        var lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
         lore.add(1, LORE_WEAPON_DAMAGE.of(damage.head(), damage.body(), damage.legs(), damage.feet()));
         lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
         lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        WeaponSounds sounds = WeaponSounds.load(config);
-
-        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
-
-        boolean isAutomatic = config.getBoolean("isAutomatic", false);
-
-        WeaponRecoil recoil = WeaponRecoil.load(config);
-
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins, isAutomatic, recoil);
+        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, damage, recoil, sounds, skins);
     }
 }
