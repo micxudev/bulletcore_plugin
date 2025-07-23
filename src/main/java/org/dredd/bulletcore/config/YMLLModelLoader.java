@@ -225,7 +225,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Armor loadArmor(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only armor-specific attributes
 
         return new Armor(baseAttributes);
     }
@@ -239,7 +238,6 @@ public final class YMLLModelLoader {
      */
     private static @NotNull Grenade loadGrenade(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
-        // Load only grenade-specific attributes
 
         return new Grenade(baseAttributes);
     }
@@ -264,15 +262,16 @@ public final class YMLLModelLoader {
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
 
-        WeaponDamage damage = WeaponDamage.load(config);
-
         double maxDistance = Math.clamp(config.getDouble("maxDistance", 64), 1.0D, 300.0D);
-
         long delayBetweenShots = Math.clamp(config.getLong("delayBetweenShots", 500L), 50L, Long.MAX_VALUE);
-
         int maxBullets = Math.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
-
         long reloadTime = Math.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
+        boolean isAutomatic = config.getBoolean("isAutomatic", false);
+
+        WeaponDamage damage = WeaponDamage.load(config);
+        WeaponRecoil recoil = WeaponRecoil.load(config);
+        WeaponSounds sounds = WeaponSounds.load(config);
+        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
 
         var lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
@@ -280,14 +279,6 @@ public final class YMLLModelLoader {
         lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
         lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        WeaponSounds sounds = WeaponSounds.load(config);
-
-        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
-
-        boolean isAutomatic = config.getBoolean("isAutomatic", false);
-
-        WeaponRecoil recoil = WeaponRecoil.load(config);
-
-        return new Weapon(baseAttributes, damage, maxDistance, delayBetweenShots, maxBullets, ammo, reloadTime, reloadHandler, sounds, skins, isAutomatic, recoil);
+        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, damage, recoil, sounds, skins);
     }
 }
