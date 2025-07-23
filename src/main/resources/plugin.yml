@@ -13,7 +13,7 @@ api-version: 1.20.6
 # This tells Paper to automatically download and load the specified
 # external libraries at runtime from Maven Central.
 libraries:
-  - com.fasterxml.jackson.core:jackson-databind:2.19.1
+  - com.fasterxml.jackson.core:jackson-databind:2.19.2
 
 # Command definitions
 commands:

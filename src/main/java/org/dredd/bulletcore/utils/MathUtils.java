@@ -15,42 +15,6 @@ public final class MathUtils {
     private MathUtils() {}
 
     /**
-     * Clamps a given value between a minimum and maximum bound.
-     *
-     * @param value the value to clamp
-     * @param min   the lower bound
-     * @param max   the upper bound
-     * @return {@code value} if within range, otherwise {@code min} or {@code max}
-     */
-    public static int clamp(int value, int min, int max) {
-        if (min > max)
-            throw new IllegalArgumentException("min must be ≤ max");
-
-        return Math.min(max, Math.max(value, min));
-    }
-
-    public static double clamp(double value, double min, double max) {
-        if (min > max)
-            throw new IllegalArgumentException("min must be ≤ max");
-
-        return Math.min(max, Math.max(value, min));
-    }
-
-    public static long clamp(long value, long min, long max) {
-        if (min > max)
-            throw new IllegalArgumentException("min must be ≤ max");
-
-        return Math.min(max, Math.max(value, min));
-    }
-
-    public static float clamp(float value, float min, float max) {
-        if (min > max)
-            throw new IllegalArgumentException("min must be ≤ max");
-
-        return Math.min(max, Math.max(value, min));
-    }
-
-    /**
      * Returns a random number between the mean and the mean plus or minus the variance.
      *
      * @param mean     The mean value
@@ -73,7 +37,7 @@ public final class MathUtils {
      * @return The interpolated value
      */
     public static float lerp(float a, float b, float t) {
-        return a + (b - a) * clamp(t, 0.0f, 1.0f);
+        return a + (b - a) * Math.clamp(t, 0.0f, 1.0f);
     }
 
     /**

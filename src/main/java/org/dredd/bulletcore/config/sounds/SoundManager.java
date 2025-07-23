@@ -6,7 +6,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -53,9 +52,9 @@ public final class SoundManager {
             throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: " + fullKey);
         }
 
-        float volume = MathUtils.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
+        float volume = Math.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
 
-        float pitch = MathUtils.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
+        float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
         return new ConfiguredSound(sound, category, volume, pitch);
     }

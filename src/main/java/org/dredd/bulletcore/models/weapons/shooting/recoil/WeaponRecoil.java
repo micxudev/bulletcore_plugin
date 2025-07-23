@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons.shooting.recoil;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -114,9 +113,9 @@ public class WeaponRecoil {
         float MIN_ZERO = 0.0001f;
         float MAX_ONE = 0.9999f;
 
-        float safeDamping = MathUtils.clamp(damping, MIN_ZERO, MAX_ONE);
-        float safeLerp = MathUtils.clamp(lerpFactor, MIN_ZERO, MAX_ONE);
-        float safeRecoveryPercent = MathUtils.clamp(recoveryPercent, MIN_ZERO, MAX_ONE);
+        float safeDamping = Math.clamp(damping, MIN_ZERO, MAX_ONE);
+        float safeLerp = Math.clamp(lerpFactor, MIN_ZERO, MAX_ONE);
+        float safeRecoveryPercent = Math.clamp(recoveryPercent, MIN_ZERO, MAX_ONE);
 
         double dTicksToRecoverTarget = Math.log10(1.0f - safeRecoveryPercent) / Math.log10(1.0f - safeDamping);
         this.ticksToRecoverTarget = (int) Math.ceil(dTicksToRecoverTarget);
@@ -137,12 +136,12 @@ public class WeaponRecoil {
         return new WeaponRecoil(
             (float) cfg.getDouble(s + "meanX", 0.5),
             (float) cfg.getDouble(s + "meanY", 2.0),
-            MathUtils.clamp((float) cfg.getDouble(s + "varianceX", 0.0), 0.0f, Float.MAX_VALUE),
-            MathUtils.clamp((float) cfg.getDouble(s + "varianceY", 0.0), 0.0f, Float.MAX_VALUE),
+            Math.clamp((float) cfg.getDouble(s + "varianceX", 0.0), 0.0f, Float.MAX_VALUE),
+            Math.clamp((float) cfg.getDouble(s + "varianceY", 0.0), 0.0f, Float.MAX_VALUE),
             (float) cfg.getDouble(s + "speed", 1.0),
-            MathUtils.clamp((float) cfg.getDouble(s + "lerpFactor", 0.5), 0.0f, 1.0f),
-            MathUtils.clamp((float) cfg.getDouble(s + "damping", 0.125), 0.0f, 1.0f),
-            MathUtils.clamp((float) cfg.getDouble(s + "recoveryPercent", 0.75), 0.0f, 1.0f)
+            Math.clamp((float) cfg.getDouble(s + "lerpFactor", 0.5), 0.0f, 1.0f),
+            Math.clamp((float) cfg.getDouble(s + "damping", 0.125), 0.0f, 1.0f),
+            Math.clamp((float) cfg.getDouble(s + "recoveryPercent", 0.75), 0.0f, 1.0f)
         );
     }
 }
