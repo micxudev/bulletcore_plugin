@@ -40,7 +40,7 @@ public abstract class ArmorStandFeature {
      *
      * @param enabled   whether the feature is active
      * @param material  the material to use for the visual item
-     * @param modelData custom model data (0 = use vanilla material)
+     * @param modelData custom model data ({@value DEF_MODEL_DATA} = use vanilla material)
      */
     protected ArmorStandFeature(boolean enabled, @NotNull Material material, int modelData) {
         this.enabled = enabled;
@@ -51,10 +51,10 @@ public abstract class ArmorStandFeature {
      * Creates the visual item with optional custom model data.
      *
      * @param material  the base material
-     * @param modelData custom model data, or 0 for vanilla item
+     * @param modelData custom model data, or {@value DEF_MODEL_DATA} for vanilla item
      * @return the item stack to be used on the armor stand
      */
     private ItemStack createItem(@NotNull Material material, int modelData) {
-        return modelData == 0 ? new ItemStack(material) : ServerUtils.createCustomModelItem(material, modelData);
+        return modelData == DEF_MODEL_DATA ? new ItemStack(material) : ServerUtils.createCustomModelItem(material, modelData);
     }
 }

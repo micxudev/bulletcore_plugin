@@ -42,7 +42,7 @@ public class BulletHoleFeature extends ArmorStandFeature {
      * Constructs a new bullet hole feature with the given parameters.
      *
      * @param enabled          whether the feature is enabled
-     * @param modelData        custom model data (0 = use default material)
+     * @param modelData        custom model data ({@value DEF_MODEL_DATA} = use default material)
      * @param removeAfterTicks number of ticks after which the feature is removed
      */
     private BulletHoleFeature(boolean enabled, int modelData, long removeAfterTicks) {
