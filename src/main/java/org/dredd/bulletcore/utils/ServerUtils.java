@@ -1,7 +1,11 @@
 package org.dredd.bulletcore.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,5 +34,23 @@ public final class ServerUtils {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();
+    }
+
+    /**
+     * Creates an ItemStack with the specified material and CustomModelData.
+     *
+     * @param material        the item material (must support metadata)
+     * @param customModelData the custom model data value
+     * @return a new ItemStack with the given model data
+     * @throws IllegalStateException if the material doesn't support ItemMeta
+     */
+    public static @NotNull ItemStack createCustomModelItem(@NotNull Material material, int customModelData) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            throw new IllegalStateException("Material " + material + " does not support ItemMeta.");
+        meta.setCustomModelData(customModelData);
+        item.setItemMeta(meta);
+        return item;
     }
 }
