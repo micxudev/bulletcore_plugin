@@ -14,6 +14,7 @@ import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
+import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,6 +93,11 @@ public class Weapon extends CustomBase {
     public final WeaponRecoil recoil;
 
     /**
+     * Controls weapon spray/spread/sway
+     */
+    public final WeaponSpray spray;
+
+    /**
      * Manages weapon sounds.
      */
     public final WeaponSounds sounds;
@@ -106,7 +112,7 @@ public class Weapon extends CustomBase {
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, WeaponDamage damage, WeaponRecoil recoil, WeaponSounds sounds, WeaponSkins skins) {
+    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, WeaponSkins skins) {
         super(attrs);
         this.ammo = ammo;
         this.reloadHandler = reloadHandler;
@@ -118,6 +124,7 @@ public class Weapon extends CustomBase {
         this.isAutomatic = isAutomatic;
         this.damage = damage;
         this.recoil = recoil;
+        this.spray = spray;
         this.sounds = sounds;
         this.skins = skins;
     }
