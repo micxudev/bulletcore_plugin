@@ -33,7 +33,7 @@ public class WeaponSpray {
      * Default spray value applied when {@link MovementState}, {@link MovementModifier} is not defined in config.<br>
      * Also used as the lower bound when clamping the total spray.
      */
-    private static final double NO_SPRAY = 0.0D;
+    public static final double NO_SPRAY = 0.0D;
 
     /**
      * Weapon spray values associated with {@link MovementState}.

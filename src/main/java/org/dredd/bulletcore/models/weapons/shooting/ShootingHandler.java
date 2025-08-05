@@ -21,6 +21,7 @@ import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
+import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -147,7 +148,7 @@ public final class ShootingHandler {
 
         World world = player.getWorld();
         Location eyeLocation = player.getEyeLocation();
-        Vector direction = eyeLocation.getDirection().normalize();
+        Vector direction = SprayHandler.handleShot(player, weapon.spray, eyeLocation.getDirection().normalize());
 
         RayTraceResult result = world.rayTrace(
             eyeLocation,
