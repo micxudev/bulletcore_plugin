@@ -146,3 +146,13 @@ skin-removed: "<yellow>Skin was successfully removed from the player."
 # · Used when: The player does not have the specified skin.
 # · Placeholders: none
 skin-not-owned: "<red>The player does not have this skin."
+
+
+# · Used when: The player enables weapon spray debug info.
+# · Placeholders: none
+spray-info-on: "<white>Spray info is <green>ON</green>"
+
+
+# · Used when: The player disables weapon spray debug info.
+# · Placeholders: none
+spray-info-off: "<white>Spray info is <red>OFF</red>"

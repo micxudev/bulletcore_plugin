@@ -249,6 +249,24 @@ public enum ComponentMessage {
     SKIN_NOT_OWNED(
         "skin-not-owned",
         "<red>The player does not have this skin."
+    ),
+
+    /**
+     * Shown when weapon spray debug messages are enabled.<br>
+     * No placeholders.
+     */
+    SPRAY_INFO_ON(
+        "spray-info-on",
+        "<white>Spray info is <green>ON</green>"
+    ),
+
+    /**
+     * Shown when weapon spray debug messages are disabled.<br>
+     * No placeholders.
+     */
+    SPRAY_INFO_OFF(
+        "spray-info-off",
+        "<white>Spray info is <red>OFF</red>"
     );
 
     /**

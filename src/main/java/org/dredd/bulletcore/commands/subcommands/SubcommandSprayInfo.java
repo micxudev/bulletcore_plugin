@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.INVALID_OPERATION;
-import static org.dredd.bulletcore.config.messages.ComponentMessage.ONLY_PLAYERS;
+import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
@@ -59,13 +58,16 @@ public class SubcommandSprayInfo implements Subcommand {
             return;
         }
 
-        boolean send = switch (operation) {
-            case "on" -> true;
-            case "off" -> false;
-            default -> throw new IllegalStateException("Unexpected value: " + operation);
-        };
-
-        SprayHandler.getSprayContext(player).setSendMessage(send);
+        switch (operation) {
+            case "on" -> {
+                SprayHandler.getSprayContext(player).setSendMessage(true);
+                sender.sendMessage(of(sender, SPRAY_INFO_ON, null));
+            }
+            case "off" -> {
+                SprayHandler.getSprayContext(player).setSendMessage(false);
+                sender.sendMessage(of(sender, SPRAY_INFO_OFF, null));
+            }
+        }
     }
 
     @Override
