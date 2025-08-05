@@ -27,13 +27,13 @@ public class WeaponSpray {
      * Maximum total spray value allowed for {@link MovementState}, {@link MovementModifier}.<br>
      * This value is used to clamp both individual spray values loaded from config and the final total spray.
      */
-    public static final double MAX_SPRAY = 45.0D;
+    private static final double MAX_SPRAY = 45.0D;
 
     /**
      * Default spray value applied when {@link MovementState}, {@link MovementModifier} is not defined in config.<br>
-     * Also used as the lower bound when clamping the final total spray.
+     * Also used as the lower bound when clamping the total spray.
      */
-    public static final double NO_SPRAY = 0.0D;
+    private static final double NO_SPRAY = 0.0D;
 
     /**
      * Weapon spray values associated with {@link MovementState}.
@@ -63,7 +63,7 @@ public class WeaponSpray {
      * @param movementState the player movement state to query
      * @return the associated weapon spray value, or {@value NO_SPRAY} if not present
      */
-    public double getSprayState(@NotNull MovementState movementState) {
+    private double getStateValue(@NotNull MovementState movementState) {
         return stateSpray.getOrDefault(movementState, NO_SPRAY);
     }
 
@@ -74,10 +74,23 @@ public class WeaponSpray {
      * @param modifiers a list of active modifiers
      * @return the sum of spray values for all specified modifiers
      */
-    public double getSprayModifiers(@NotNull List<MovementModifier> modifiers) {
+    private double getModifiersValue(@NotNull List<MovementModifier> modifiers) {
         return modifiers.stream()
             .mapToDouble(m -> modifierSpray.getOrDefault(m, NO_SPRAY))
             .sum();
+    }
+
+    /**
+     * Calculates the total spray value based on the player's movement state and active modifiers.<br>
+     * The result is clamped between [{@value NO_SPRAY} and {@value MAX_SPRAY}] to ensure valid bounds.
+     *
+     * @param movementState the current {@link MovementState} of the player
+     * @param modifiers     a list of active {@link MovementModifier}s
+     * @return the clamped total spray value for the given state and modifiers
+     */
+    public double getFinalValue(@NotNull MovementState movementState, @NotNull List<MovementModifier> modifiers) {
+        double total = getStateValue(movementState) + getModifiersValue(modifiers);
+        return Math.clamp(total, NO_SPRAY, MAX_SPRAY);
     }
 
     /**
