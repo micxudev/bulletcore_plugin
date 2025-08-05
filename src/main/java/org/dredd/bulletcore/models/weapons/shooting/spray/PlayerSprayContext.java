@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,11 @@ import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
  * @since 1.0.0
  */
 public class PlayerSprayContext {
+
+    /**
+     * Decimal formatter for spray values.
+     */
+    private static final DecimalFormat df = new DecimalFormat("#.##");
 
     /**
      * The player this state context instance is associated with.
@@ -139,8 +145,8 @@ public class PlayerSprayContext {
         inWater = player.isInWater();
         underwater = player.isUnderWater();
         inVehicle = player.isInsideVehicle();
-        inFlight = player.isFlying();
-        inCrawlingPose = !inWater && player.getBoundingBox().getHeight() < 1.5D;
+        inFlight = player.isFlying() && !inVehicle; // do not trigger IN_FLIGHT when IN_VEHICLE
+        inCrawlingPose = !gliding && !inWater && player.getBoundingBox().getHeight() < 1.5D;
 
         // Jumping state
         {
@@ -175,7 +181,7 @@ public class PlayerSprayContext {
         shot++;
         player.sendMessage(Component.newline().append(noItalic(shot + ". State: " + state, WHITE)));
         if (!modifiers.isEmpty()) player.sendMessage(getModifiersMessage(shot, modifiers));
-        player.sendMessage(noItalic(String.format(". Spray: %.2f", spray), WHITE));
+        player.sendMessage(noItalic(shot + ". Spray: " + df.format(spray), WHITE));
     }
 
     private Component getModifiersMessage(int shot, @NotNull List<MovementModifier> modifiers) {
