@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
@@ -11,6 +12,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
+import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.*;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.*;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
@@ -176,22 +180,48 @@ public class PlayerSprayContext {
         walking = !inVehicle;
     }
 
-    // START TEST_MESSAGE
+    /**
+     * Sends a message to the player with the current state context.
+     *
+     * @param state     the movement state the player is currently in
+     * @param modifiers the list of movement modifiers the player currently has
+     * @param spray     the current spray value for the player
+     */
     public void sendMessage(@NotNull MovementState state, @NotNull List<MovementModifier> modifiers, double spray) {
         shot++;
-        player.sendMessage(Component.newline().append(noItalic(shot + ". State: " + state, WHITE)));
-        if (!modifiers.isEmpty()) player.sendMessage(getModifiersMessage(shot, modifiers));
-        player.sendMessage(noItalic(shot + ". Spray: " + df.format(spray), WHITE));
-    }
 
-    private Component getModifiersMessage(int shot, @NotNull List<MovementModifier> modifiers) {
-        TextComponent.Builder base = Component.text()
-            .content(shot + ". Modifiers: ")
-            .color(WHITE)
-            .decoration(TextDecoration.ITALIC, false);
+        // Line 1: State
+        Component stateLine = newline()
+            .append(noItalic(shot + ". State: ", WHITE))
+            .append(text(state.name(), GOLD));
 
-        modifiers.forEach(modifier -> base.append(noItalic(modifier + " ", modifier.color)));
-        return base.build();
+        // Line 2: Modifiers (optional)
+        Component modifiersLine = null;
+        if (!modifiers.isEmpty()) {
+            TextComponent.Builder base = text()
+                .content(shot + ". Modifiers: ")
+                .color(WHITE)
+                .decoration(TextDecoration.ITALIC, false);
+
+            var list = modifiers.stream()
+                .map(modifier -> text(modifier.name(), modifier.color))
+                .toList();
+
+            modifiersLine = base.append(join(JoinConfiguration.arrayLike(), list)).build();
+        }
+
+        // Line 3: Spray
+        Component sprayLine = noItalic(shot + ". Spray: ", WHITE)
+            .append(text(df.format(spray), AQUA));
+
+        // Combine all the lines into a single message
+        Component fullMessage = join(
+            JoinConfiguration.newlines(),
+            modifiersLine != null
+                ? List.of(stateLine, modifiersLine, sprayLine)
+                : List.of(stateLine, sprayLine)
+        );
+
+        player.sendMessage(fullMessage);
     }
-    // END TEST_MESSAGE
 }
