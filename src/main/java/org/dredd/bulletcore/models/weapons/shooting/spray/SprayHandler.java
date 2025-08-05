@@ -56,7 +56,6 @@ public final class SprayHandler {
         var modifiers = sprayContext.getModifiers();
         double finalSpray = weaponSpray.getFinalValue(state, modifiers);
 
-        // TODO: SEND THE MESSAGE ONLY IF TURNED ON
         sprayContext.sendMessage(state, modifiers, finalSpray);
 
         if (finalSpray <= WeaponSpray.NO_SPRAY)

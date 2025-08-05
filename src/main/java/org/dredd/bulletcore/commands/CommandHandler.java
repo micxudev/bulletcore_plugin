@@ -45,6 +45,7 @@ public final class CommandHandler implements TabExecutor {
         registerSubcommand(new SubcommandReload());
         registerSubcommand(new SubcommandSkin());
         registerSubcommand(new SubcommandSkinManage());
+        registerSubcommand(new SubcommandSprayInfo());
     }
 
     /**

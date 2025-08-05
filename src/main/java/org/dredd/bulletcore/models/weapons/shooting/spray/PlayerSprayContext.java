@@ -59,6 +59,11 @@ public class PlayerSprayContext {
      */
     private int shot;
 
+    /**
+     * Whether to send a spray info message to the player after the shot.
+     */
+    private boolean sendMessage;
+
     // States
     private boolean gliding;
     private boolean swimming;
@@ -188,6 +193,7 @@ public class PlayerSprayContext {
      * @param spray     the current spray value for the player
      */
     public void sendMessage(@NotNull MovementState state, @NotNull List<MovementModifier> modifiers, double spray) {
+        if (!sendMessage) return;
         shot++;
 
         // Line 1: State
@@ -223,5 +229,14 @@ public class PlayerSprayContext {
         );
 
         player.sendMessage(fullMessage);
+    }
+
+    /**
+     * Sets whether to send a spray info message to the player after the shot.
+     *
+     * @param sendMessage whether to send a spray info message to the player
+     */
+    public void setSendMessage(boolean sendMessage) {
+        this.sendMessage = sendMessage;
     }
 }
