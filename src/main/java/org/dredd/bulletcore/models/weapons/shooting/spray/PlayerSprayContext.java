@@ -148,14 +148,14 @@ public class PlayerSprayContext {
         swimming = player.isSwimming();
 
         // Modifiers
-        sprinting = player.isSprinting();
+        sprinting = player.isSprinting() && !swimming; // do not trigger SPRINTING when SWIMMING
         sneaking = player.isSneaking();
         onClimbable = player.isClimbing();
-        inWater = player.isInWater();
+        inWater = player.isInWater() && !swimming; // do not trigger IN_WATER when SWIMMING
         underwater = player.isUnderWater();
         inVehicle = player.isInsideVehicle();
         inFlight = player.isFlying() && !inVehicle; // do not trigger IN_FLIGHT when IN_VEHICLE
-        inCrawlingPose = !gliding && !inWater && player.getBoundingBox().getHeight() < 1.5D;
+        inCrawlingPose = !gliding && !swimming && player.getBoundingBox().getHeight() < 1.5D;
 
         // Jumping state
         {
