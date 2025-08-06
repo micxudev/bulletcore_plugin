@@ -183,6 +183,12 @@ public class PlayerSprayContext {
         flying = inFlight;
         climbing = onClimbable;
         walking = !inVehicle;
+
+        // Post modifications to remove dependencies
+        inCrawlingPose = inCrawlingPose && standing; // do not trigger IN_CRAWLING_POSE when CRAWLING
+        inVehicle = inVehicle && standing; // do not trigger IN_VEHICLE when RIDING
+        inFlight = inFlight && standing; // do not trigger IN_FLIGHT when FLYING
+        onClimbable = onClimbable && standing; // do not trigger ON_CLIMBABLE when CLIMBING
     }
 
     /**
