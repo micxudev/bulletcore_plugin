@@ -18,6 +18,7 @@ import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.SoundManager;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
@@ -97,13 +98,19 @@ public final class ShootingHandler {
         weapon.setLastShotTime(player, currentTime);
 
         if (weapon.isAutomatic && player.isSneaking()) {
-            // Start an automatic shooting task
+            // Fire the first shot immediately to omit waiting next tick
+            boolean shotSuccessful = shoot(player, weapon);
+
+            // Start an automatic shooting task if the shot was successful
+            if (!shotSuccessful) return;
+
+            long delayBetweenShotsInTicks = weapon.delayBetweenShots / 50;
             BukkitTask shootingTask = new BukkitRunnable() {
                 @Override
                 public void run() {
                     if (!shoot(player, weapon)) cancelAutoShooting(player);
                 }
-            }.runTaskTimer(BulletCore.getInstance(), 0L, weapon.delayBetweenShots / 50);
+            }.runTaskTimer(BulletCore.getInstance(), delayBetweenShotsInTicks, delayBetweenShotsInTicks);
             activeShooters.put(player.getUniqueId(), shootingTask);
         } else {
             // Do a single shot
@@ -122,8 +129,9 @@ public final class ShootingHandler {
     private static boolean shoot(@NotNull Player player, @NotNull Weapon weapon) {
         ConfigManager config = ConfigManager.get();
 
-        // Always get actual reference from the hand
+        // Always get actual reference from the hand and make sure it didn't change in the meantime
         ItemStack weaponStack = player.getInventory().getItemInMainHand();
+        if (CustomItemsRegistry.getWeaponOrNull(weaponStack) != weapon) return false;
 
         // Check bullet count
         int bulletCount = weapon.getBulletCount(weaponStack);

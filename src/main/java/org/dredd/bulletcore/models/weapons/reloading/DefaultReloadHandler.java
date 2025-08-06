@@ -3,6 +3,7 @@ package org.dredd.bulletcore.models.weapons.reloading;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,13 +38,19 @@ public class DefaultReloadHandler extends ReloadHandler {
 
             @Override
             public void run() {
+                // make sure the weapon stack didn't change in the meantime
+                ItemStack weaponItem = player.getInventory().getItemInMainHand();
+                if (CustomItemsRegistry.getWeaponOrNull(weaponItem) != weapon) {
+                    ReloadHandler.cancelReload(player, false);
+                    return;
+                }
+
                 if (millisLeft > 0) {
-                    millisLeft = showReloadCountdown(player, weapon, millisLeft);
+                    millisLeft = showReloadCountdown(player, weapon, weaponItem, millisLeft);
                     return;
                 }
 
                 // ammo calculations
-                ItemStack weaponItem = player.getInventory().getItemInMainHand();
                 int weaponBulletsCount = weapon.getBulletCount(weaponItem);
 
                 int reloadCount = weapon.maxBullets - weaponBulletsCount;

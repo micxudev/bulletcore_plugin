@@ -3,6 +3,7 @@ package org.dredd.bulletcore.models.weapons.reloading;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,14 +39,20 @@ public class SingleReloadHandler extends ReloadHandler {
 
             @Override
             public void run() {
+                // make sure the weapon stack didn't change in the meantime
+                ItemStack weaponItem = player.getInventory().getItemInMainHand();
+                if (CustomItemsRegistry.getWeaponOrNull(weaponItem) != weapon) {
+                    ReloadHandler.cancelReload(player, false);
+                    return;
+                }
+
                 if (currentBulletMillisLeft > 0) {
-                    currentBulletMillisLeft = showReloadCountdown(player, weapon, currentBulletMillisLeft);
+                    currentBulletMillisLeft = showReloadCountdown(player, weapon, weaponItem, currentBulletMillisLeft);
                     return;
                 }
 
                 currentBulletMillisLeft = singleBulletReloadTime; // reset reload time for the next bullet
 
-                ItemStack weaponItem = player.getInventory().getItemInMainHand();
                 int weaponBulletsCount = weapon.getBulletCount(weaponItem);
 
                 // try to consume 1 ammo

@@ -87,14 +87,15 @@ public abstract class ReloadHandler {
      *
      * @param player     the player reloading the weapon; must not be null
      * @param weapon     the weapon being reloaded; must not be null
+     * @param weaponItem the weapon stack; must not be null
      * @param millisLeft the number of milliseconds remaining in the reload countdown; must be greater than 0
      * @return the number of milliseconds remaining for the next countdown tick
      */
-    static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, long millisLeft) {
+    static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponItem, long millisLeft) {
         if (ConfigManager.get().enableHotbarMessages)
             player.sendActionBar(of(player, WEAPON_RELOAD,
                 Map.of(
-                    "bullets", Integer.toString(weapon.getBulletCount(player.getInventory().getItemInMainHand())),
+                    "bullets", Integer.toString(weapon.getBulletCount(weaponItem)),
                     "maxbullets", Integer.toString(weapon.maxBullets),
                     "total", Integer.toString(weapon.ammo.getAmmoCount(player)),
                     "time", Double.toString(millisLeft / 1000D)
