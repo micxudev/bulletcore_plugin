@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.listeners;
 
+import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -8,11 +9,14 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
+import org.dredd.bulletcore.models.weapons.shooting.spray.PlayerSprayContext;
+import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 
 /**
  * Listens for player actions and records them using {@link PlayerActionTracker}.
@@ -56,6 +60,17 @@ public class PlayerActionsListener implements Listener {
     }
 
     /**
+     * Called when a player joins the server.<br>
+     * Creates a new {@link PlayerSprayContext} instance for the player to track their state.
+     *
+     * @param event the {@link PlayerJoinEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoin(PlayerJoinEvent event) {
+        SprayHandler.getSprayContext(event.getPlayer());
+    }
+
+    /**
      * Called when a player quits the server.<br>
      * Clears tracking information for the player.
      *
@@ -68,6 +83,7 @@ public class PlayerActionsListener implements Listener {
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
         RecoilHandler.stopAndClearRecoil(player);
+        SprayHandler.clearSprayContext(player);
     }
 
     /**
@@ -95,5 +111,16 @@ public class PlayerActionsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDrop(PlayerDropItemEvent event) {
         tracker.markDrop(event.getPlayer().getUniqueId());
+    }
+
+    /**
+     * Called when the server has finished ticking the main loop.<br>
+     * Updates player states.
+     *
+     * @param event the {@link ServerTickEndEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onTickEnd(ServerTickEndEvent event) {
+        SprayHandler.tick();
     }
 }

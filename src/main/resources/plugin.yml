@@ -43,6 +43,7 @@ permissions:
       bulletcore.command.reload: true   # Allows using /bulletcore reload
       bulletcore.command.skin: true     # Allows using /bulletcore skin
       bulletcore.command.skin_manage: true # Allows using /bulletcore skin_manage
+      bulletcore.command.spray_info: true # Allows using /bulletcore spray_info
 
   # Individual permissions
   bulletcore.command.view:
@@ -59,3 +60,6 @@ permissions:
 
   bulletcore.command.skin_manage:
     description: Allows use of /bulletcore skin_manage to manage weapon skins.
+
+  bulletcore.command.spray_info:
+    description: Allows use of /bulletcore spray_info to view spray debug info.
