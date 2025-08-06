@@ -22,8 +22,8 @@ public enum MovementModifier {
     SPRINTING(color(0xFF0000)),
     SNEAKING(color(0x00FF00)),
     ON_CLIMBABLE(color(0xFFFF00)),
-    IN_WATER(color(0x00FFFF)),
     UNDERWATER(color(0x0000FF)),
+    IN_WATER(color(0x00FFFF)),
     IN_VEHICLE(color(0xFF00FF)),
     IN_FLIGHT(color(0xFFA500)),
     IN_CRAWLING_POSE(color(0xFF60FF));

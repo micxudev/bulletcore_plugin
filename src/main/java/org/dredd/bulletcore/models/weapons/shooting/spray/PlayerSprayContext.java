@@ -79,8 +79,8 @@ public class PlayerSprayContext {
     private boolean sprinting;
     private boolean sneaking;
     private boolean onClimbable;
-    private boolean inWater;
     private boolean underwater;
+    private boolean inWater;
     private boolean inVehicle;
     private boolean inFlight;
     private boolean inCrawlingPose;
@@ -120,8 +120,8 @@ public class PlayerSprayContext {
         if (sprinting) mods.add(SPRINTING);
         if (sneaking) mods.add(SNEAKING);
         if (onClimbable) mods.add(ON_CLIMBABLE);
-        if (inWater) mods.add(IN_WATER);
         if (underwater) mods.add(UNDERWATER);
+        if (inWater) mods.add(IN_WATER);
         if (inVehicle) mods.add(IN_VEHICLE);
         if (inFlight) mods.add(IN_FLIGHT);
         if (inCrawlingPose) mods.add(IN_CRAWLING_POSE);
@@ -151,8 +151,8 @@ public class PlayerSprayContext {
         sprinting = player.isSprinting() && !swimming; // do not trigger SPRINTING when SWIMMING
         sneaking = player.isSneaking();
         onClimbable = player.isClimbing();
-        inWater = player.isInWater() && !swimming; // do not trigger IN_WATER when SWIMMING
         underwater = player.isUnderWater();
+        inWater = player.isInWater() && !swimming && !underwater; // do not trigger IN_WATER when SWIMMING or UNDERWATER
         inVehicle = player.isInsideVehicle();
         inFlight = player.isFlying() && !inVehicle; // do not trigger IN_FLIGHT when IN_VEHICLE
         inCrawlingPose = !gliding && !swimming && player.getBoundingBox().getHeight() < 1.5D;
