@@ -78,12 +78,12 @@ public class PlayerSprayContext {
     // Modifiers
     private boolean sprinting;
     private boolean sneaking;
-    private boolean onClimbable;
     private boolean underwater;
     private boolean inWater;
     private boolean inVehicle;
     private boolean inFlight;
     private boolean inCrawlingPose;
+    private boolean onClimbable;
 
     public PlayerSprayContext(@NotNull Player player) {
         this.player = player;
@@ -119,12 +119,12 @@ public class PlayerSprayContext {
         List<MovementModifier> mods = new ArrayList<>(MovementModifier.values().length);
         if (sprinting) mods.add(SPRINTING);
         if (sneaking) mods.add(SNEAKING);
-        if (onClimbable) mods.add(ON_CLIMBABLE);
         if (underwater) mods.add(UNDERWATER);
         if (inWater) mods.add(IN_WATER);
         if (inVehicle) mods.add(IN_VEHICLE);
         if (inFlight) mods.add(IN_FLIGHT);
         if (inCrawlingPose) mods.add(IN_CRAWLING_POSE);
+        if (onClimbable) mods.add(ON_CLIMBABLE);
         return mods;
     }
 
@@ -150,12 +150,12 @@ public class PlayerSprayContext {
         // Modifiers
         sprinting = player.isSprinting() && !swimming; // do not trigger SPRINTING when SWIMMING
         sneaking = player.isSneaking();
-        onClimbable = player.isClimbing();
         underwater = player.isUnderWater();
         inWater = player.isInWater() && !swimming && !underwater; // do not trigger IN_WATER when SWIMMING or UNDERWATER
         inVehicle = player.isInsideVehicle();
         inFlight = player.isFlying() && !inVehicle; // do not trigger IN_FLIGHT when IN_VEHICLE
         inCrawlingPose = !gliding && !swimming && player.getBoundingBox().getHeight() < 1.5D;
+        onClimbable = player.isClimbing();
 
         // Jumping state
         {
@@ -185,9 +185,9 @@ public class PlayerSprayContext {
         walking = !inVehicle;
 
         // Post modifications to remove dependencies
-        inCrawlingPose = inCrawlingPose && standing; // do not trigger IN_CRAWLING_POSE when CRAWLING
         inVehicle = inVehicle && standing; // do not trigger IN_VEHICLE when RIDING
         inFlight = inFlight && standing; // do not trigger IN_FLIGHT when FLYING
+        inCrawlingPose = inCrawlingPose && standing; // do not trigger IN_CRAWLING_POSE when CRAWLING
         onClimbable = onClimbable && standing; // do not trigger ON_CLIMBABLE when CLIMBING
     }
 

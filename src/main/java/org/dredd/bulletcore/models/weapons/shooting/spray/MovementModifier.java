@@ -21,12 +21,12 @@ import static net.kyori.adventure.text.format.TextColor.color;
 public enum MovementModifier {
     SPRINTING(color(0xFF0000)),
     SNEAKING(color(0x00FF00)),
-    ON_CLIMBABLE(color(0xFFFF00)),
     UNDERWATER(color(0x0000FF)),
     IN_WATER(color(0x00FFFF)),
-    IN_VEHICLE(color(0xFF00FF)),
+    IN_VEHICLE(color(0xBA23F6)),
     IN_FLIGHT(color(0xFFA500)),
-    IN_CRAWLING_POSE(color(0xFF60FF));
+    IN_CRAWLING_POSE(color(0xFF60FF)),
+    ON_CLIMBABLE(color(0xFFFF00));
 
     /**
      * A display color used for this modifier in debug messages or UI.
