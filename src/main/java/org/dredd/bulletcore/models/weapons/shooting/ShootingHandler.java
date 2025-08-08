@@ -17,7 +17,9 @@ import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
+import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.config.sounds.SoundManager;
+import org.dredd.bulletcore.config.sounds.SoundPlaybackMode;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.weapons.Weapon;
@@ -206,7 +208,9 @@ public final class ShootingHandler {
             // Entity hit
             DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
             ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-            SoundManager.playSound(player, hitLocation, damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound);
+            ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
+            Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : player.getEyeLocation();
+            SoundManager.playSound(player, soundLocation, sound);
         } else if (result.getHitBlock() != null) {
             // Block hit
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
