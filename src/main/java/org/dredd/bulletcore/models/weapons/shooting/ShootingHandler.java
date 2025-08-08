@@ -209,7 +209,7 @@ public final class ShootingHandler {
             DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
             ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
             ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
-            Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : player.getEyeLocation();
+            Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
             SoundManager.playSound(player, soundLocation, sound);
         } else if (result.getHitBlock() != null) {
             // Block hit
@@ -245,7 +245,9 @@ public final class ShootingHandler {
      *
      * @param victim   the entity receiving damage; must not be null
      * @param damager  the player who caused the damage using Weapon; must not be null
+     * @param weapon   the weapon used; must not be null
      * @param hitPoint the location where the damage occurred; must not be null
+     * @return the damage point of the hit
      */
     private static DamagePoint applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
                                                  @NotNull Weapon weapon, @NotNull Location hitPoint) {
@@ -266,9 +268,12 @@ public final class ShootingHandler {
 
         // Prevents recursion for the same hit
         CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId());
-        victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
-        victim.setNoDamageTicks(0); // allow constant hits
-        CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
+        try {
+            victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
+            victim.setNoDamageTicks(0); // allow constant hits
+        } finally {
+            CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
+        }
 
         return damagePoint;
     }
