@@ -58,7 +58,15 @@ public final class SoundManager {
 
         long seed = Math.clamp(section.getLong("seed", 0L), 0L, Long.MAX_VALUE);
 
-        return new ConfiguredSound(sound, category, volume, pitch, seed);
+        String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
+        SoundPlaybackMode mode;
+        try {
+            mode = SoundPlaybackMode.valueOf(modeName);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid sound mode '" + modeName + "' for key: " + fullKey);
+        }
+
+        return new ConfiguredSound(sound, category, volume, pitch, seed, mode);
     }
 
     /**

@@ -16,6 +16,8 @@ import java.util.*;
 import static org.bukkit.SoundCategory.MASTER;
 import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;
 import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
+import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
+import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
 /**
  * Class for loading and managing the plugin's configuration.
@@ -89,8 +91,8 @@ public final class ConfigManager {
         raySize = cfg.getDouble("ray-size", 0.01);
         damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f, 0L));
-        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L));
+        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f, 0L, PLAYER));
+        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4));

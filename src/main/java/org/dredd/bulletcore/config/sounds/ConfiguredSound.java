@@ -17,6 +17,7 @@ import org.bukkit.SoundCategory;
  *   <li>{@code seed} – determines which variation plays for sounds with multiple variants;
  *   using the same seed ensures the same variant is selected consistently. Set to a fixed value
  *   for predictable results, or to a random value (e.g., {@code new Random().nextLong()}) for variation.</li>
+ *   <li>{@code mode} – specifies how the sound is played back.</li>
  * </ul>
  *
  * @param sound    the sound identifier (vanilla or resource-pack-defined)
@@ -24,6 +25,7 @@ import org.bukkit.SoundCategory;
  * @param volume   the volume (≥ 0.0)
  * @param pitch    the pitch (0.5–2.0)
  * @param seed     controls variation selection for sounds with multiple internal variants;
+ * @param mode     determines the way the sound is played back
  * @author dredd
  * @see SoundManager
  * @since 1.0.0
@@ -33,5 +35,6 @@ public record ConfiguredSound(
     SoundCategory category,
     float volume,
     float pitch,
-    long seed
+    long seed,
+    SoundPlaybackMode mode
 ) {}

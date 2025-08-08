@@ -64,11 +64,16 @@ damage-thresholds:
 #
 # seed - Determines which variation plays for sounds with multiple internal variants.
 #
+# mode - Controls how the sound is played back.
+#     - WORLD → Plays the sound at the location in the world so all nearby players can hear it
+#     - PLAYER → Plays the sound directly to a single player only
+#
 # Defaults (if not specified):
 #     category: MASTER
 #     volume: 1.0
 #     pitch: 1.0
 #     seed: 0
+#     mode: WORLD
 sounds:
   entity_hit:
     sound: entity.arrow.hit_player
@@ -76,12 +81,14 @@ sounds:
     volume: 0.5
     pitch: 1.0
     seed: 0
+    mode: PLAYER
   block_hit:
     sound: block.metal.hit
     category: MASTER
     volume: 2.0
     pitch: 1.0
     seed: 0
+    mode: WORLD
 
 # Defines particles to spawn for various events.
 # Each entry supports the following fields:
