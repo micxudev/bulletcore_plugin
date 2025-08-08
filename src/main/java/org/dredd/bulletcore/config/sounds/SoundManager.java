@@ -2,9 +2,9 @@ package org.dredd.bulletcore.config.sounds;
 
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,13 +89,16 @@ public final class SoundManager {
     }
 
     /**
-     * Plays the given {@link ConfiguredSound} at the specified location in the world.
+     * Plays the given {@link ConfiguredSound} at the specified location either in the world or for the player.
      *
-     * @param world    the world to play the sound in
+     * @param player   the source of the sound
      * @param location the location where the sound will be heard from
      * @param sound    the configured sound to play
      */
-    public static void playSound(@NotNull World world, @NotNull Location location, @NotNull ConfiguredSound sound) {
-        world.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+    public static void playSound(@NotNull Player player, @NotNull Location location, @NotNull ConfiguredSound sound) {
+        if (sound.mode() == SoundPlaybackMode.WORLD)
+            player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+        else if (sound.mode() == SoundPlaybackMode.PLAYER)
+            player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
     }
 }

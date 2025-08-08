@@ -207,11 +207,11 @@ public final class ShootingHandler {
             // Entity hit
             applyCustomDamage(victim, player, weapon, hitLocation);
             ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-            SoundManager.playSound(world, hitLocation, config.entityHitSound);
+            SoundManager.playSound(player, hitLocation, config.entityHitSound);
         } else if (result.getHitBlock() != null) {
             // Block hit
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-            SoundManager.playSound(world, hitLocation, config.blockHitSound);
+            SoundManager.playSound(player, hitLocation, config.blockHitSound);
             config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
         }
 
