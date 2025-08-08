@@ -59,7 +59,8 @@ public final class ConfigManager {
 
     public final DamageThresholds damageThresholds;
 
-    public final ConfiguredSound entityHitSound;
+    public final ConfiguredSound entityHitHeadSound;
+    public final ConfiguredSound entityHitBodySound;
     public final ConfiguredSound blockHitSound;
 
     public final ConfiguredParticle entityHitParticle;
@@ -91,7 +92,8 @@ public final class ConfigManager {
         raySize = cfg.getDouble("ray-size", 0.01);
         damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f, 0L, PLAYER));
+        entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
+        entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f, 0L, WORLD));
         blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));

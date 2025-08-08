@@ -75,13 +75,20 @@ damage-thresholds:
 #     seed: 0
 #     mode: WORLD
 sounds:
-  entity_hit:
-    sound: entity.arrow.hit_player
+  entity_hit_head:
+    sound: entity.experience_orb.pickup
     category: MASTER
     volume: 0.5
     pitch: 1.0
     seed: 0
     mode: PLAYER
+  entity_hit_body:
+    sound: entity.arrow.hit_player
+    category: MASTER
+    volume: 0.5
+    pitch: 1.0
+    seed: 0
+    mode: WORLD
   block_hit:
     sound: block.metal.hit
     category: MASTER
