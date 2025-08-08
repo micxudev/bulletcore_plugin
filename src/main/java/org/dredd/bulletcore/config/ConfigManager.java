@@ -89,13 +89,14 @@ public final class ConfigManager {
         raySize = cfg.getDouble("ray-size", 0.01);
         damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
-        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
+        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f, 0L));
+        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L));
 
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4));
         bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1));
         muzzleFlashParticle = loadParticle(cfg, "muzzle_flash", new ConfiguredParticle(Particle.LAVA, 1));
+
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));

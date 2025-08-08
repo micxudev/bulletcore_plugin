@@ -56,7 +56,9 @@ public final class SoundManager {
 
         float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
-        return new ConfiguredSound(sound, category, volume, pitch);
+        long seed = Math.clamp(section.getLong("seed", 0L), 0L, Long.MAX_VALUE);
+
+        return new ConfiguredSound(sound, category, volume, pitch, seed);
     }
 
     /**
@@ -86,6 +88,6 @@ public final class SoundManager {
      * @param sound    the configured sound to play
      */
     public static void playSound(@NotNull World world, @NotNull Location location, @NotNull ConfiguredSound sound) {
-        world.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+        world.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
     }
 }
