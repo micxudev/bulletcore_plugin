@@ -17,10 +17,13 @@ import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
+import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.config.sounds.SoundManager;
+import org.dredd.bulletcore.config.sounds.SoundPlaybackMode;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
-
-import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.getDamagePoint;
 
 /**
  * Handles weapon shooting (e.g., single, automatic).
@@ -205,13 +206,15 @@ public final class ShootingHandler {
 
         if (result.getHitEntity() instanceof LivingEntity victim) {
             // Entity hit
-            applyCustomDamage(victim, player, weapon, hitLocation);
+            DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
             ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-            SoundManager.playSound(world, hitLocation, config.entityHitSound);
+            ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
+            Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
+            SoundManager.playSound(player, soundLocation, sound);
         } else if (result.getHitBlock() != null) {
             // Block hit
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-            SoundManager.playSound(world, hitLocation, config.blockHitSound);
+            SoundManager.playSound(player, hitLocation, config.blockHitSound);
             config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
         }
 
@@ -242,32 +245,36 @@ public final class ShootingHandler {
      *
      * @param victim   the entity receiving damage; must not be null
      * @param damager  the player who caused the damage using Weapon; must not be null
+     * @param weapon   the weapon used; must not be null
      * @param hitPoint the location where the damage occurred; must not be null
+     * @return the damage point of the hit
      */
-    private static void applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
-                                          @NotNull Weapon weapon, @NotNull Location hitPoint) {
-        // TODO:
-        //  - Consider armor
-        //  - Shield position
-        //  - Armor/shield damage
-
+    private static DamagePoint applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
+                                                 @NotNull Weapon weapon, @NotNull Location hitPoint) {
+        DamagePoint damagePoint;
         double finalDamage;
         if (victim instanceof Player victimPlayer) {
-            finalDamage = switch (getDamagePoint(victimPlayer, hitPoint)) {
-                case HEAD -> weapon.damage.head(); // TODO: apply helmet reduction
-                case BODY -> weapon.damage.body(); // TODO: apply chestplate reduction
+            damagePoint = DamagePoint.getDamagePoint(victimPlayer, hitPoint);
+            finalDamage = switch (damagePoint) {
+                case HEAD -> weapon.damage.head();
+                case BODY -> weapon.damage.body();
                 case LEGS -> weapon.damage.legs();
                 case FEET -> weapon.damage.feet();
             };
         } else {
-            // For now, all non-player entities always get body damage
+            damagePoint = DamagePoint.BODY; // Non-player entities default to BODY
             finalDamage = weapon.damage.body();
         }
 
         // Prevents recursion for the same hit
         CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId());
-        victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
-        victim.setNoDamageTicks(0); // allow constant hits
-        CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
+        try {
+            victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
+            victim.setNoDamageTicks(0); // allow constant hits
+        } finally {
+            CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
+        }
+
+        return damagePoint;
     }
 }

@@ -62,21 +62,41 @@ damage-thresholds:
 #     - Default: 1.0 — standard pitch
 #     - Maximum: 2.0 — one octave higher
 #
+# seed - Determines which variation plays for sounds with multiple internal variants.
+#     To use a random seed, use -1.
+#
+# mode - Controls how the sound is played back.
+#     - WORLD → Plays the sound at the location in the world so all nearby players can hear it
+#     - PLAYER → Plays the sound directly to a single player only
+#
 # Defaults (if not specified):
 #     category: MASTER
 #     volume: 1.0
 #     pitch: 1.0
+#     seed: 0
+#     mode: WORLD
 sounds:
-  entity_hit:
-    sound: entity.arrow.hit_player
+  entity_hit_head:
+    sound: entity.experience_orb.pickup
     category: MASTER
     volume: 0.5
     pitch: 1.0
+    seed: 0
+    mode: PLAYER
+  entity_hit_body:
+    sound: block.beehive.drip
+    category: MASTER
+    volume: 5.0
+    pitch: 1.0
+    seed: 0
+    mode: WORLD
   block_hit:
     sound: block.metal.hit
     category: MASTER
     volume: 2.0
     pitch: 1.0
+    seed: 0
+    mode: WORLD
 
 # Defines particles to spawn for various events.
 # Each entry supports the following fields:

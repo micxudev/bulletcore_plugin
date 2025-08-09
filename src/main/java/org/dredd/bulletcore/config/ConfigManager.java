@@ -16,6 +16,8 @@ import java.util.*;
 import static org.bukkit.SoundCategory.MASTER;
 import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;
 import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
+import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
+import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
 /**
  * Class for loading and managing the plugin's configuration.
@@ -57,7 +59,8 @@ public final class ConfigManager {
 
     public final DamageThresholds damageThresholds;
 
-    public final ConfiguredSound entityHitSound;
+    public final ConfiguredSound entityHitHeadSound;
+    public final ConfiguredSound entityHitBodySound;
     public final ConfiguredSound blockHitSound;
 
     public final ConfiguredParticle entityHitParticle;
@@ -89,13 +92,15 @@ public final class ConfigManager {
         raySize = cfg.getDouble("ray-size", 0.01);
         damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitSound = loadSound(cfg, "entity_hit", new ConfiguredSound("entity.arrow.hit_player", MASTER, 0.5f, 1.0f));
-        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f));
+        entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
+        entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
+        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4));
         bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1));
         muzzleFlashParticle = loadParticle(cfg, "muzzle_flash", new ConfiguredParticle(Particle.LAVA, 1));
+
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));

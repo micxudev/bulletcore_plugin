@@ -2,9 +2,9 @@ package org.dredd.bulletcore.config.sounds;
 
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +19,11 @@ import java.util.NoSuchElementException;
  * @since 1.0.0
  */
 public final class SoundManager {
+
+    /**
+     * The value used to indicate that a sound should use a random seed.
+     */
+    private static final long RANDOM_SEED = -1L;
 
     /**
      * Private constructor to prevent instantiation.
@@ -56,7 +61,17 @@ public final class SoundManager {
 
         float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
-        return new ConfiguredSound(sound, category, volume, pitch);
+        long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
+
+        String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
+        SoundPlaybackMode mode;
+        try {
+            mode = SoundPlaybackMode.valueOf(modeName);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid sound mode '" + modeName + "' for key: " + fullKey);
+        }
+
+        return new ConfiguredSound(sound, category, volume, pitch, seed, mode);
     }
 
     /**
@@ -79,13 +94,25 @@ public final class SoundManager {
     }
 
     /**
-     * Plays the given {@link ConfiguredSound} at the specified location in the world.
+     * Plays the given {@link ConfiguredSound} at the specified location either in the world or for the player.
      *
-     * @param world    the world to play the sound in
+     * @param player   the source of the sound
      * @param location the location where the sound will be heard from
      * @param sound    the configured sound to play
      */
-    public static void playSound(@NotNull World world, @NotNull Location location, @NotNull ConfiguredSound sound) {
-        world.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+    public static void playSound(@NotNull Player player, @NotNull Location location, @NotNull ConfiguredSound sound) {
+        boolean hasSeed = sound.seed() != RANDOM_SEED;
+
+        if (sound.mode() == SoundPlaybackMode.WORLD) {
+            if (hasSeed)
+                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+            else
+                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+        } else {
+            if (hasSeed)
+                player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+            else
+                player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+        }
     }
 }

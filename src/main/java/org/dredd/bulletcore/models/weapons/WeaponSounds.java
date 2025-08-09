@@ -9,6 +9,7 @@ import org.dredd.bulletcore.models.weapons.reloading.SingleReloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 import static org.bukkit.SoundCategory.MASTER;
+import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
 /**
  * Holds and manages all weapon-related sounds.
@@ -26,27 +27,27 @@ public class WeaponSounds {
     /**
      * Default sound played when a player fires a shot.
      */
-    private static final ConfiguredSound FIRE = new ConfiguredSound("entity.generic.explode", MASTER, 0.2f, 2f);
+    private static final ConfiguredSound FIRE = new ConfiguredSound("entity.generic.explode", MASTER, 0.2f, 2f, 0L, WORLD);
 
     /**
      * Default sound played when a player starts reloading.
      */
-    private static final ConfiguredSound RELOAD_START = new ConfiguredSound("block.piston.extend", MASTER, 1.0f, 1.5f);
+    private static final ConfiguredSound RELOAD_START = new ConfiguredSound("block.piston.extend", MASTER, 1.0f, 1.5f, 0L, WORLD);
 
     /**
      * Default sound played when a reload finishes.
      */
-    private static final ConfiguredSound RELOAD_END = new ConfiguredSound("block.piston.contract", MASTER, 1.0f, 1.5f);
+    private static final ConfiguredSound RELOAD_END = new ConfiguredSound("block.piston.contract", MASTER, 1.0f, 1.5f, 0L, WORLD);
 
     /**
      * Default sound played when attempting to fire, but the magazine is empty.
      */
-    private static final ConfiguredSound EMPTY = new ConfiguredSound("block.lever.click", MASTER, 1.0f, 1.5f);
+    private static final ConfiguredSound EMPTY = new ConfiguredSound("block.lever.click", MASTER, 1.0f, 1.5f, 0L, WORLD);
 
     /**
      * Default sound played when a single bullet is inserted; used by {@link SingleReloadHandler}.
      */
-    private static final ConfiguredSound ADD_BULLET = new ConfiguredSound("block.tripwire.attach", MASTER, 1f, 1.5f);
+    private static final ConfiguredSound ADD_BULLET = new ConfiguredSound("block.tripwire.attach", MASTER, 1f, 1.5f, 0L, WORLD);
 
 
     // -----< Per weapon >-----
@@ -115,7 +116,7 @@ public class WeaponSounds {
      */
     public void play(@NotNull Player player, @NotNull ConfiguredSound sound) {
         Location location = player.getLocation();
-        location.add(0, player.getHeight() / 2, 0);
-        SoundManager.playSound(player.getWorld(), location, sound);
+        location.setY(location.getY() + player.getHeight() / 2);
+        SoundManager.playSound(player, location, sound);
     }
 }
