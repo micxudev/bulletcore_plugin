@@ -21,6 +21,11 @@ import java.util.NoSuchElementException;
 public final class SoundManager {
 
     /**
+     * The value used to indicate that a sound should use a random seed.
+     */
+    private static final long RANDOM_SEED = -1L;
+
+    /**
      * Private constructor to prevent instantiation.
      */
     private SoundManager() {}
@@ -56,7 +61,7 @@ public final class SoundManager {
 
         float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
-        long seed = Math.clamp(section.getLong("seed", 0L), 0L, Long.MAX_VALUE);
+        long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
 
         String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
         SoundPlaybackMode mode;
@@ -96,9 +101,18 @@ public final class SoundManager {
      * @param sound    the configured sound to play
      */
     public static void playSound(@NotNull Player player, @NotNull Location location, @NotNull ConfiguredSound sound) {
-        if (sound.mode() == SoundPlaybackMode.WORLD)
-            player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
-        else if (sound.mode() == SoundPlaybackMode.PLAYER)
-            player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+        boolean hasSeed = sound.seed() != RANDOM_SEED;
+
+        if (sound.mode() == SoundPlaybackMode.WORLD) {
+            if (hasSeed)
+                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+            else
+                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+        } else {
+            if (hasSeed)
+                player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+            else
+                player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+        }
     }
 }

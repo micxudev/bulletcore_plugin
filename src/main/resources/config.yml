@@ -63,6 +63,7 @@ damage-thresholds:
 #     - Maximum: 2.0 — one octave higher
 #
 # seed - Determines which variation plays for sounds with multiple internal variants.
+#     To use a random seed, use -1.
 #
 # mode - Controls how the sound is played back.
 #     - WORLD → Plays the sound at the location in the world so all nearby players can hear it

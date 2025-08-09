@@ -15,8 +15,7 @@ import org.bukkit.SoundCategory;
  *   <li>{@code volume} – the loudness and audible range (min 0.0, no hard max; 1.0 = normal)</li>
  *   <li>{@code pitch} – perceived pitch of the sound (clamped between 0.5 and 2.0; 1.0 = normal)</li>
  *   <li>{@code seed} – determines which variation plays for sounds with multiple variants;
- *   using the same seed ensures the same variant is selected consistently. Set to a fixed value
- *   for predictable results, or to a random value (e.g., {@code new Random().nextLong()}) for variation.</li>
+ *   using the same seed ensures the same variant is selected. To use a random seed, use -1.</li>
  *   <li>{@code mode} – specifies how the sound is played back.</li>
  * </ul>
  *
@@ -24,7 +23,7 @@ import org.bukkit.SoundCategory;
  * @param category the sound category
  * @param volume   the volume (≥ 0.0)
  * @param pitch    the pitch (0.5–2.0)
- * @param seed     controls variation selection for sounds with multiple internal variants;
+ * @param seed     controls variation selection for sounds with multiple internal variants or -1 for random
  * @param mode     determines the way the sound is played back
  * @author dredd
  * @see SoundManager
