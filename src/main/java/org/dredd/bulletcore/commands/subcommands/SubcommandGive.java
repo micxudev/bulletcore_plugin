@@ -47,7 +47,7 @@ public final class SubcommandGive implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         String playerName = args[1];
-        Player player = Bukkit.getPlayer(playerName);
+        Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) {
             sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", playerName)));
             return;
@@ -71,7 +71,7 @@ public final class SubcommandGive implements Subcommand {
         String playerName = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
-        if (Bukkit.getPlayer(playerName) == null) return EMPTY_LIST;
+        if (Bukkit.getPlayerExact(playerName) == null) return EMPTY_LIST;
 
         if (args.length == 3)
             return StringUtil.copyPartialMatches(args[2], CustomItemsRegistry.all.getAllNames(), new ArrayList<>());
