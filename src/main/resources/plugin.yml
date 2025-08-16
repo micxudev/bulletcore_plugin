@@ -8,7 +8,7 @@ version: 1.0.0
 main: org.dredd.bulletcore.BulletCore
 
 # Target Paper API version
-api-version: 1.20.6
+api-version: 1.21.1
 
 # This tells Paper to automatically download and load the specified
 # external libraries at runtime from Maven Central.

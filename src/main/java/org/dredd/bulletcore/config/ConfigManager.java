@@ -50,6 +50,8 @@ public final class ConfigManager {
         instance = new ConfigManager(plugin);
     }
 
+    public final Locale locale;
+
     public final double bulletTrailStep;
     public final boolean enableMuzzleFlashes;
 
@@ -83,6 +85,8 @@ public final class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();
+
+        locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
         enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);

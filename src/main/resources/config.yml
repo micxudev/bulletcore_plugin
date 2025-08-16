@@ -1,3 +1,7 @@
+# Default locale used for messages from the 'lang' folder.
+# Format: en-US, ru-RU, uk-UA
+locale: en-US
+
 # Distance between bullet trail points (in blocks).
 # Lower values make trails denser.
 # Use a negative value to disable.

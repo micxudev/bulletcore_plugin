@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.ConfigManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,15 +146,14 @@ public class MessageManager {
      * @return the resolved message string
      */
     private @NotNull String resolveMessage(@NotNull CommandSender sender, @NotNull ComponentMessage message) {
-        Locale locale = getLocale(sender);
-        if (locale == null)
-            return message.def;
+        @Nullable Locale senderLocale = getLocale(sender);
+        @NotNull Locale defaultLocale = ConfigManager.get().locale;
+        @NotNull Locale locale1 = senderLocale == null ? defaultLocale : senderLocale;
 
-        Map<String, String> localizedMessages = messages.get(locale);
-        if (localizedMessages == null)
-            return message.def;
+        var locale1Messages = messages.get(locale1);
+        var localizedMessages = locale1Messages == null ? messages.get(defaultLocale) : locale1Messages;
 
-        return localizedMessages.getOrDefault(message.key, message.def);
+        return localizedMessages == null ? message.def : localizedMessages.getOrDefault(message.key, message.def);
     }
 
     /**
