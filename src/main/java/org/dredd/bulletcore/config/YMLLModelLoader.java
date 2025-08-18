@@ -268,6 +268,7 @@ public final class YMLLModelLoader {
         int maxBullets = Math.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
         long reloadTime = Math.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
         boolean isAutomatic = config.getBoolean("isAutomatic", false);
+        double victimKnockbackResistance = Math.clamp(config.getDouble("victimKnockbackResistance", 0.0D), 0.0D, 1.0D);
 
         WeaponDamage damage = WeaponDamage.load(config);
         WeaponRecoil recoil = WeaponRecoil.load(config);
@@ -281,6 +282,6 @@ public final class YMLLModelLoader {
         lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
         lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, damage, recoil, spray, sounds, skins);
+        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, damage, recoil, spray, sounds, skins);
     }
 }

@@ -4,6 +4,8 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -253,7 +255,17 @@ public final class ShootingHandler {
                                                  @NotNull Weapon weapon, @NotNull Location hitPoint) {
         DamagePoint damagePoint;
         double finalDamage;
+
+        AttributeInstance victimKnockbackResistance = null;
+        double originalKnockbackValue = 0.0;
+
         if (victim instanceof Player victimPlayer) {
+            victimKnockbackResistance = victimPlayer.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+            if (victimKnockbackResistance != null) {
+                originalKnockbackValue = victimKnockbackResistance.getBaseValue();
+                victimKnockbackResistance.setBaseValue(weapon.victimKnockbackResistance);
+            }
+
             damagePoint = DamagePoint.getDamagePoint(victimPlayer, hitPoint);
             finalDamage = switch (damagePoint) {
                 case HEAD -> weapon.damage.head();
@@ -272,6 +284,7 @@ public final class ShootingHandler {
             victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
             victim.setNoDamageTicks(0); // allow constant hits
         } finally {
+            if (victimKnockbackResistance != null) victimKnockbackResistance.setBaseValue(originalKnockbackValue);
             CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
         }
 

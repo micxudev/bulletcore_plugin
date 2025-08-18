@@ -83,6 +83,12 @@ public class Weapon extends CustomBase {
     public final boolean isAutomatic;
 
     /**
+     * Defines the temporary knockback resistance applied to the victim
+     * while processing this weapon's damage.
+     */
+    public final double victimKnockbackResistance;
+
+    /**
      * Weapon damage values for each body part.
      */
     public final WeaponDamage damage;
@@ -112,7 +118,7 @@ public class Weapon extends CustomBase {
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, WeaponSkins skins) {
+    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, WeaponSkins skins) {
         super(attrs);
         this.ammo = ammo;
         this.reloadHandler = reloadHandler;
@@ -122,6 +128,7 @@ public class Weapon extends CustomBase {
         this.maxBullets = maxBullets;
         this.reloadTime = reloadTime;
         this.isAutomatic = isAutomatic;
+        this.victimKnockbackResistance = victimKnockbackResistance;
         this.damage = damage;
         this.recoil = recoil;
         this.spray = spray;
