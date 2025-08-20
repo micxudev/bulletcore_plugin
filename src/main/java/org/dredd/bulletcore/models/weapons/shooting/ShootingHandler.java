@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.RayTraceResult;
@@ -24,8 +25,10 @@ import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.config.sounds.SoundPlaybackMode;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
+import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
+import org.dredd.bulletcore.models.weapons.damage.HitResult;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
@@ -267,12 +270,7 @@ public final class ShootingHandler {
             }
 
             damagePoint = DamagePoint.getDamagePoint(victimPlayer, hitPoint);
-            finalDamage = switch (damagePoint) {
-                case HEAD -> weapon.damage.head();
-                case BODY -> weapon.damage.body();
-                case LEGS -> weapon.damage.legs();
-                case FEET -> weapon.damage.feet();
-            };
+            finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
         } else {
             damagePoint = DamagePoint.BODY; // Non-player entities default to BODY
             finalDamage = weapon.damage.body();
@@ -289,5 +287,45 @@ public final class ShootingHandler {
         }
 
         return damagePoint;
+    }
+
+    /**
+     * Calculates the final damage to be applied to the victim taking the worn {@link Armor} into account.
+     *
+     * @param victimPlayer the victim player receiving the damage
+     * @param damagePoint  the damage point of the hit
+     * @param weapon       the weapon used to cause the damage
+     * @return the final damage to be applied to the victim
+     */
+    private static double getFinalDamage(@NotNull Player victimPlayer,
+                                         @NotNull DamagePoint damagePoint,
+                                         @NotNull Weapon weapon) {
+        PlayerInventory inv = victimPlayer.getInventory();
+        HitResult result = switch (damagePoint) {
+            case HEAD -> new HitResult(weapon.damage.head(), inv.getHelmet());
+            case BODY -> new HitResult(weapon.damage.body(), inv.getChestplate());
+            case LEGS -> new HitResult(weapon.damage.legs(), inv.getLeggings());
+            case FEET -> new HitResult(weapon.damage.feet(), inv.getBoots());
+        };
+
+        Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
+        if (armor == null) return result.initialDamage();
+
+        double currentDurability = armor.getDurability(result.armorStack());
+        double newDurability = currentDurability - result.initialDamage();
+        if (newDurability > 0) {
+            // set new custom durability
+            armor.setDurability(result.armorStack(), newDurability);
+        } else {
+            // remove armor piece
+            switch (damagePoint) {
+                case HEAD -> inv.setHelmet(null);
+                case BODY -> inv.setChestplate(null);
+                case LEGS -> inv.setLeggings(null);
+                case FEET -> inv.setBoots(null);
+            }
+        }
+
+        return result.initialDamage() * (1 - armor.damageReduction);
     }
 }

@@ -227,7 +227,25 @@ public final class YMLLModelLoader {
     private static @NotNull Armor loadArmor(YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
-        return new Armor(baseAttributes);
+        double maxDurability = Math.clamp(config.getDouble("maxDurability", 100.0D), 1.0D, Double.MAX_VALUE);
+        double damageReduction = Math.clamp(config.getDouble("damageReduction", 0.5D), 0.0D, 1.0D);
+        boolean unbreakable = config.getBoolean("unbreakable", true);
+
+        int armorPoints = Math.clamp(config.getInt("armorPoints", 0), 0, 30);
+        int toughnessPoints = Math.clamp(config.getInt("toughnessPoints", 0), 0, 20);
+
+        double knockbackResistance = Math.clamp(config.getDouble("knockbackResistance", 0.0D), 0.0D, 1.0D);
+        double explosionKnockbackResistance = Math.clamp(config.getDouble("explosionKnockbackResistance", 0.0D), 0.0D, 1.0D);
+
+        var lore = baseAttributes.lore();
+        lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
+        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.of((int) (damageReduction * 100)));
+        lore.add(2, LORE_ARMOR_ARMOR_POINTS.of(armorPoints));
+        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.of(toughnessPoints));
+        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.of((int) (knockbackResistance * 100)));
+        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.of((int) (explosionKnockbackResistance * 100)));
+
+        return new Armor(baseAttributes, maxDurability, damageReduction, unbreakable, armorPoints, toughnessPoints, knockbackResistance, explosionKnockbackResistance);
     }
 
     /**
