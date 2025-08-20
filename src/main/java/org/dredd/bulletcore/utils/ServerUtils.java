@@ -61,7 +61,7 @@ public final class ServerUtils {
      *
      * @return a new {@link NamespacedKey} with a random UUID as its value.
      */
-    public static NamespacedKey rndNamespacedKey() {
+    public static @NotNull NamespacedKey rndNamespacedKey() {
         return new NamespacedKey("bulletcore", UUID.randomUUID().toString());
     }
 }
