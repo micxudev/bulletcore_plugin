@@ -82,6 +82,73 @@ public enum TranslatableMessages {
             put("count", "<green>");
             put("max", "<blue>");
         }}
+    ),
+
+    /**
+     * Represents durability (measured in damage that can absorb before an armor piece breaks); used on armor item lore
+     */
+    LORE_ARMOR_DURABILITY(
+        "lore_armor_durability",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("current", "<green>");
+            put("max", "<blue>");
+        }}
+    ),
+
+    /**
+     * Represents damage reduction from weapons (measured in percent); used on armor item lore
+     */
+    LORE_ARMOR_DAMAGE_REDUCTION(
+        "lore_armor_damage_reduction",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("reduction", "<red>");
+        }}
+    ),
+
+    /**
+     * Represents vanilla armor points (measured in points (0-30)); used on armor item lore
+     */
+    LORE_ARMOR_ARMOR_POINTS(
+        "lore_armor_armor_points",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("points", "<red>");
+        }}
+    ),
+
+    /**
+     * Represents vanilla toughness points (measured in points (0-20)); used on armor item lore
+     */
+    LORE_ARMOR_TOUGHNESS_POINTS(
+        "lore_armor_toughness_points",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("points", "<red>");
+        }}
+    ),
+
+    /**
+     * Represents knockback resistance (measured in percent); used on armor item lore
+     */
+    LORE_ARMOR_KNOCKBACK_RESISTANCE(
+        "lore_armor_knockback_resistance",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("resistance", "<red>");
+        }}
+    ),
+
+    /**
+     * Represents knockback resistance from explosions (measured in percent); used on armor item lore
+     */
+    LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE(
+        "lore_armor_explosion_knockback_resistance",
+        new LinkedHashMap<>() {{
+            put("key", "<!i><white>");
+            put("resistance", "<red>");
+        }}
     );
 
     /**

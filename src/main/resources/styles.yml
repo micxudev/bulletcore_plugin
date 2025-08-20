@@ -37,3 +37,28 @@ lore_ammo_count:
   key: "<!i><white>"
   count: "<green>"
   max: "<blue>"
+
+lore_armor_durability:
+  key: "<!i><white>"
+  current: "<green>"
+  max: "<blue>"
+
+lore_armor_damage_reduction:
+  key: "<!i><white>"
+  reduction: "<red>"
+
+lore_armor_armor_points:
+  key: "<!i><white>"
+  points: "<red>"
+
+lore_armor_toughness_points:
+  key: "<!i><white>"
+  points: "<red>"
+
+lore_armor_knockback_resistance:
+  key: "<!i><white>"
+  resistance: "<red>"
+
+lore_armor_explosion_knockback_resistance:
+  key: "<!i><white>"
+  resistance: "<red>"
