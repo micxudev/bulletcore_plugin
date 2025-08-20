@@ -2,6 +2,7 @@ package org.dredd.bulletcore.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Utility class for retrieving information about the current server state.
@@ -52,5 +54,14 @@ public final class ServerUtils {
         meta.setCustomModelData(customModelData);
         item.setItemMeta(meta);
         return item;
+    }
+
+    /**
+     * Generates a random {@code bulletcore} namespaced key.
+     *
+     * @return a new {@link NamespacedKey} with a random UUID as its value.
+     */
+    public static NamespacedKey rndNamespacedKey() {
+        return new NamespacedKey("bulletcore", UUID.randomUUID().toString());
     }
 }
