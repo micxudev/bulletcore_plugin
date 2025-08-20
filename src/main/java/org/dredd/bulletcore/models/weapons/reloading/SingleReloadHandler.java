@@ -56,7 +56,7 @@ public class SingleReloadHandler extends ReloadHandler {
                 int weaponBulletsCount = weapon.getBulletCount(weaponItem);
 
                 // try to consume 1 ammo
-                if (weapon.ammo.removeAmmo(player, 1) <= 0) {
+                if (weaponBulletsCount >= weapon.maxBullets || weapon.ammo.removeAmmo(player, 1) <= 0) {
                     ReloadHandler.finishReload(player, weapon, weaponBulletsCount);
                     return;
                 }
