@@ -7,9 +7,8 @@ locale: en-US
 # Use a negative value to disable.
 bullet-trail-step: 1.0
 
-# Enables muzzle flashes when shooting.
-# True = visible, false = disabled.
-enable-muzzle-flashes: false
+# Offset (in blocks) forward from player eyes to spawn bullet trails.
+start-trail-offset: 2.0
 
 # Enables hotbar messages during shooting, reloading.
 enable-hotbar-messages: true
