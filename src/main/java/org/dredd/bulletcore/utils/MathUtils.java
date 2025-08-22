@@ -50,4 +50,11 @@ public final class MathUtils {
     public static boolean approximatelyZero(float a, float epsilon) {
         return Math.abs(a) < epsilon;
     }
+
+    /**
+     * Same as {@link #approximatelyZero(float, float)} but for {@code double}.
+     */
+    public static boolean approximatelyZero(double a, double epsilon) {
+        return Math.abs(a) < epsilon;
+    }
 }
