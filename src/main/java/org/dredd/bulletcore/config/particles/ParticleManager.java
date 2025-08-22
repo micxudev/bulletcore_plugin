@@ -5,12 +5,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.models.weapons.Weapon;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -205,49 +200,5 @@ public class ParticleManager {
      */
     public static void spawnParticle(@NotNull World world, @NotNull Location location, @NotNull ConfiguredParticle particle) {
         world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
-    }
-
-    /**
-     * Spawns a particle trail along the path of a fired projectile.
-     * <p>
-     * The trail starts at the shooter's eye position plus a configurable offset<br>
-     * (so that the player can see better) and continues in the given direction.<br>
-     * Particles are spawned every {@code bulletTrailStep} units until one of the conditions is met:
-     * <ul>
-     *   <li>the projectile collides with a block or entity (from {@code result}), or</li>
-     *   <li>the weapon's maximum firing distance</li>
-     * </ul>
-     *
-     * @param eyeLocation the starting eye position of the shooter
-     * @param direction   the normalized firing direction
-     * @param result      the ray-trace result of the shot, or {@code null} if no collision occurred
-     * @param weapon      the weapon, used to determine maximum firing range
-     * @param world       the world in which to spawn particles
-     */
-    public static void spawnBulletTrail(@NotNull Location eyeLocation,
-                                        @NotNull Vector direction,
-                                        @Nullable RayTraceResult result,
-                                        @NotNull Weapon weapon,
-                                        @NotNull World world) {
-        ConfigManager config = ConfigManager.get();
-
-        double stepSize = config.bulletTrailStep;
-        if (MathUtils.approximatelyZero(stepSize, 0.01D)) return;
-
-        double startOffset = config.startTrailOffset;
-
-        double travelDistance = (result == null)
-            ? weapon.maxDistance - startOffset
-            : eyeLocation.toVector().distance(result.getHitPosition()) - startOffset;
-
-        if (travelDistance <= 0) return;
-
-        Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(startOffset));
-        Vector step = direction.clone().multiply(stepSize);
-
-        for (double traveled = 0; traveled < travelDistance; traveled += stepSize) {
-            spawnParticle(world, particleLoc, config.bulletTrailParticle);
-            particleLoc.add(step);
-        }
     }
 }

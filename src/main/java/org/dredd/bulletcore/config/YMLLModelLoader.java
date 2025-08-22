@@ -14,6 +14,7 @@ import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
+import org.dredd.bulletcore.models.weapons.BulletTrailParticle;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.WeaponSounds;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
@@ -292,6 +293,7 @@ public final class YMLLModelLoader {
         WeaponRecoil recoil = WeaponRecoil.load(config);
         WeaponSpray spray = WeaponSpray.load(config);
         WeaponSounds sounds = WeaponSounds.load(config);
+        BulletTrailParticle trailParticle = BulletTrailParticle.load(config);
         WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
 
         var lore = baseAttributes.lore();
@@ -300,6 +302,6 @@ public final class YMLLModelLoader {
         lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
         lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
 
-        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, damage, recoil, spray, sounds, skins);
+        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, damage, recoil, spray, sounds, trailParticle, skins);
     }
 }

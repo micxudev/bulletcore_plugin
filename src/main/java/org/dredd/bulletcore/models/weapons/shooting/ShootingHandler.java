@@ -178,7 +178,7 @@ public final class ShootingHandler {
         weapon.sounds.play(player, weapon.sounds.fire);
         RecoilHandler.handleShot(player, weapon.recoil);
 
-        ParticleManager.spawnBulletTrail(eyeLocation, direction, result, weapon, world);
+        weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
 
         // Handle result
         if (result == null) return true;
