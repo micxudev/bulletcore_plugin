@@ -116,7 +116,7 @@ sounds:
 # ▪ item: Non-empty material (see: https://minecraft.wiki/w/Materials for names)
 #
 # 3). Particle: BLOCK, FALLING_DUST, DUST_PILLAR, BLOCK_MARKER
-# ▪ block: Non-empty block material (see: https://minecraft.wiki/w/Block for names)
+# ▪ item: Non-empty block material (see: https://minecraft.wiki/w/Block for names)
 #
 # 4). Particle: DUST_COLOR_TRANSITION
 # ▪ from-color: Color in format '#RRGGBB'
