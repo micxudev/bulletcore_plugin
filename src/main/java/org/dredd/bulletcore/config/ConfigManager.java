@@ -52,9 +52,6 @@ public final class ConfigManager {
 
     public final Locale locale;
 
-    public final double bulletTrailStep;
-    public final boolean enableMuzzleFlashes;
-
     public final boolean enableHotbarMessages;
 
     public final double raySize;
@@ -67,8 +64,6 @@ public final class ConfigManager {
 
     public final ConfiguredParticle entityHitParticle;
     public final ConfiguredParticle blockHitParticle;
-    public final ConfiguredParticle bulletTrailParticle;
-    public final ConfiguredParticle muzzleFlashParticle;
 
     public final ASFeatureManager asFeatureManager;
 
@@ -88,9 +83,6 @@ public final class ConfigManager {
 
         locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
-        bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
-        enableMuzzleFlashes = cfg.getBoolean("enable-muzzle-flashes", false);
-
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
         raySize = cfg.getDouble("ray-size", 0.01);
@@ -100,10 +92,8 @@ public final class ConfigManager {
         entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
         blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
-        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4));
-        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4));
-        bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1));
-        muzzleFlashParticle = loadParticle(cfg, "muzzle_flash", new ConfiguredParticle(Particle.LAVA, 1));
+        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
+        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
 
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
 

@@ -178,31 +178,7 @@ public final class ShootingHandler {
         weapon.sounds.play(player, weapon.sounds.fire);
         RecoilHandler.handleShot(player, weapon.recoil);
 
-        // Spawn particles
-        double bulletTrailStep = config.bulletTrailStep;
-        if (bulletTrailStep > 0) {
-            Location start = player.getLocation()
-                .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2);
-            Vector rayTo = direction.clone().multiply(
-                (result == null) ? weapon.maxDistance : result.getHitPosition().distance(start.toVector())
-            );
-            Location end = start.clone().add(rayTo);
-
-            double distance = start.distance(end);
-            Vector step = direction.clone().multiply(bulletTrailStep);
-
-            Location particleLoc = start.clone();
-            for (double d = 0; d <= distance; d += bulletTrailStep) {
-                ParticleManager.spawnParticle(world, particleLoc, config.bulletTrailParticle);
-                particleLoc.add(step);
-            }
-        }
-        if (config.enableMuzzleFlashes) {
-            ParticleManager.spawnParticle(world, player.getLocation()
-                    .add(direction.getX() * 2, player.getHeight() / 2, direction.getZ() * 2),
-                config.muzzleFlashParticle
-            );
-        }
+        weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
 
         // Handle result
         if (result == null) return true;

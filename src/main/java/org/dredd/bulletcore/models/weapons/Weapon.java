@@ -109,6 +109,11 @@ public class Weapon extends CustomBase {
     public final WeaponSounds sounds;
 
     /**
+     * Manages weapon bullet trial particle.
+     */
+    public final BulletTrailParticle trailParticle;
+
+    /**
      * Stores weapon skins.
      */
     public final WeaponSkins skins;
@@ -118,7 +123,7 @@ public class Weapon extends CustomBase {
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, WeaponSkins skins) {
+    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, BulletTrailParticle trailParticle, WeaponSkins skins) {
         super(attrs);
         this.ammo = ammo;
         this.reloadHandler = reloadHandler;
@@ -133,6 +138,7 @@ public class Weapon extends CustomBase {
         this.recoil = recoil;
         this.spray = spray;
         this.sounds = sounds;
+        this.trailParticle = trailParticle;
         this.skins = skins;
     }
 
