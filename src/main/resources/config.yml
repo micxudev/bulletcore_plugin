@@ -137,10 +137,10 @@ sounds:
 particles:
   entity_hit:
     particle: damage_indicator
-    count: 4
+    count: 1
   block_hit:
     particle: crit
-    count: 4
+    count: 2
   bullet_trail:
     particle: ash
     count: 1

@@ -99,8 +99,8 @@ public final class ConfigManager {
         entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
         blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
-        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4, null));
-        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4, null));
+        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
+        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
         bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1, null));
 
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
