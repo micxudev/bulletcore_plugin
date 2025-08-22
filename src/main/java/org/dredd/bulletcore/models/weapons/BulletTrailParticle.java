@@ -9,7 +9,6 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
 import org.dredd.bulletcore.config.particles.ParticleManager;
-import org.dredd.bulletcore.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,20 +87,20 @@ public class BulletTrailParticle {
                       @NotNull Weapon weapon,
                       @NotNull World world) {
 
-        if (MathUtils.approximatelyZero(step, 0.01D)) return;
+        if (step < 0.01D) return;
 
         double travelDistance = (result == null)
             ? weapon.maxDistance - offset
             : eyeLocation.toVector().distance(result.getHitPosition()) - offset;
 
-        if (travelDistance <= 0) return;
+        if (travelDistance <= 0.0D) return;
 
         Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(offset));
-        Vector step = direction.clone().multiply(this.step);
+        Vector stepVec = direction.clone().multiply(step);
 
-        for (double traveled = 0; traveled < travelDistance; traveled += this.step) {
+        for (double traveled = 0.0D; traveled < travelDistance; traveled += step) {
             ParticleManager.spawnParticle(world, particleLoc, particle);
-            particleLoc.add(step);
+            particleLoc.add(stepVec);
         }
     }
 }
