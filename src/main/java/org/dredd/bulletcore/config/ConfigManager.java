@@ -52,9 +52,6 @@ public final class ConfigManager {
 
     public final Locale locale;
 
-    public final double bulletTrailStep;
-    public final double startTrailOffset;
-
     public final boolean enableHotbarMessages;
 
     public final double raySize;
@@ -67,7 +64,6 @@ public final class ConfigManager {
 
     public final ConfiguredParticle entityHitParticle;
     public final ConfiguredParticle blockHitParticle;
-    public final ConfiguredParticle bulletTrailParticle;
 
     public final ASFeatureManager asFeatureManager;
 
@@ -87,9 +83,6 @@ public final class ConfigManager {
 
         locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
-        bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
-        startTrailOffset = Math.clamp(cfg.getDouble("start-trail-offset", 2.0), 0.0, 50.0);
-
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
         raySize = cfg.getDouble("ray-size", 0.01);
@@ -101,7 +94,6 @@ public final class ConfigManager {
 
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
-        bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1, null));
 
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
 

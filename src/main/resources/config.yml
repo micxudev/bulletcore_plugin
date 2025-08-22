@@ -2,14 +2,6 @@
 # Format: en-US, ru-RU, uk-UA
 locale: en-US
 
-# Distance between bullet trail points (in blocks).
-# Lower values make trails denser.
-# Use a negative value to disable.
-bullet-trail-step: 1.0
-
-# Offset (in blocks) forward from player eyes to spawn bullet trails.
-start-trail-offset: 2.0
-
 # Enables hotbar messages during shooting, reloading.
 enable-hotbar-messages: true
 
@@ -141,9 +133,6 @@ particles:
   block_hit:
     particle: crit
     count: 2
-  bullet_trail:
-    particle: ash
-    count: 1
 
 # Adds visual effect features built using invisible armor stands.
 # Each feature supports:
