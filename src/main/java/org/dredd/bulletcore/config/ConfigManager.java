@@ -68,7 +68,6 @@ public final class ConfigManager {
     public final ConfiguredParticle entityHitParticle;
     public final ConfiguredParticle blockHitParticle;
     public final ConfiguredParticle bulletTrailParticle;
-    public final ConfiguredParticle muzzleFlashParticle;
 
     public final ASFeatureManager asFeatureManager;
 
@@ -103,7 +102,6 @@ public final class ConfigManager {
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 4, null));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 4, null));
         bulletTrailParticle = loadParticle(cfg, "bullet_trail", new ConfiguredParticle(Particle.ASH, 1, null));
-        muzzleFlashParticle = loadParticle(cfg, "muzzle_flash", new ConfiguredParticle(Particle.LAVA, 1, null));
 
         asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
 
