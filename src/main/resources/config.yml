@@ -105,6 +105,35 @@ sounds:
 # Each entry supports the following fields:
 # - particle: A valid Minecraft particle ID (see: https://minecraft.wiki/w/Particles_(Java_Edition))
 # - count: Number of particles to spawn (0 disables, default is 1, high values may cause lag)
+#
+# Some particles require additional data:
+#
+# 1). Particle: DUST
+# ▪ color: Color in format '#RRGGBB'
+# ▪ size: Size of the particle [0.01-4.0], default is 1.0
+#
+# 2). Particle: ITEM
+# ▪ item: Non-empty material (see: https://minecraft.wiki/w/Materials for names)
+#
+# 3). Particle: BLOCK, FALLING_DUST, DUST_PILLAR, BLOCK_MARKER
+# ▪ block: Non-empty block material (see: https://minecraft.wiki/w/Block for names)
+#
+# 4). Particle: DUST_COLOR_TRANSITION
+# ▪ from-color: Color in format '#RRGGBB'
+# ▪ to-color: Color in format '#RRGGBB'
+# ▪ size: Size of the particle [0.01-4.0], default is 1.0
+#
+# 5). Particle: VIBRATION - UNSUPPORTED
+#
+# 6). Particle: SCULK_CHARGE
+# ▪ roll: Some float value, default is 1.0
+#
+# 7). Particle: SHRIEK
+# ▪ delay: Number of ticks before the particle is spawned, default is 0
+#
+# 8). Particle: ENTITY_EFFECT
+# ▪ color: Color in format '#RRGGBB'
+#
 particles:
   entity_hit:
     particle: damage_indicator
