@@ -88,7 +88,7 @@ public final class ConfigManager {
         locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
         bulletTrailStep = cfg.getDouble("bullet-trail-step", 1.0);
-        startTrailOffset = cfg.getDouble("start-trail-offset", 2.0);
+        startTrailOffset = Math.clamp(cfg.getDouble("start-trail-offset", 2.0), 0.0, 50.0);
 
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
