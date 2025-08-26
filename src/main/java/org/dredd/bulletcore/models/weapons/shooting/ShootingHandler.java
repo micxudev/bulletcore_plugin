@@ -26,6 +26,7 @@ import org.dredd.bulletcore.config.sounds.SoundPlaybackMode;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.armor.Armor;
+import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.models.weapons.damage.HitResult;
@@ -230,8 +231,8 @@ public final class ShootingHandler {
      * @param hitPoint the location where the damage occurred; must not be null
      * @return the damage point of the hit
      */
-    private static DamagePoint applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
-                                                 @NotNull Weapon weapon, @NotNull Location hitPoint) {
+    private static @NotNull DamagePoint applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
+                                                          @NotNull Weapon weapon, @NotNull Location hitPoint) {
         DamagePoint damagePoint;
         double finalDamage;
 
@@ -260,6 +261,7 @@ public final class ShootingHandler {
         } finally {
             if (victimKnockbackResistance != null) victimKnockbackResistance.setBaseValue(originalKnockbackValue);
             CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
+            CurrentHitTracker.removeArmorHit(victim.getUniqueId());
         }
 
         return damagePoint;
@@ -287,20 +289,8 @@ public final class ShootingHandler {
         Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
         if (armor == null) return result.initialDamage();
 
-        double currentDurability = armor.getDurability(result.armorStack());
-        double newDurability = currentDurability - result.initialDamage();
-        if (newDurability > 0) {
-            // set new custom durability
-            armor.setDurability(result.armorStack(), newDurability);
-        } else {
-            // remove armor piece
-            switch (damagePoint) {
-                case HEAD -> inv.setHelmet(null);
-                case BODY -> inv.setChestplate(null);
-                case LEGS -> inv.setLeggings(null);
-                case FEET -> inv.setBoots(null);
-            }
-        }
+        ArmorHit armorHit = new ArmorHit(armor, result.initialDamage(), damagePoint, victimPlayer);
+        CurrentHitTracker.addArmorHit(victimPlayer.getUniqueId(), armorHit);
 
         return result.initialDamage() * (1 - armor.damageReduction);
     }

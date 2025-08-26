@@ -55,7 +55,7 @@ public enum DamagePoint {
      * @param hitPoint the location of the hit (typically from ray tracing)
      * @return the body part that was hit, as a {@link DamagePoint}
      */
-    public static DamagePoint getDamagePoint(@NotNull Player victim, @NotNull Location hitPoint) {
+    public static @NotNull DamagePoint getDamagePoint(@NotNull Player victim, @NotNull Location hitPoint) {
         // Player hitbox size (height, width):
         // sleeping: h=0.2, w=0.2
         // standing: h=1.8, w=0.6

@@ -1,6 +1,8 @@
 package org.dredd.bulletcore.listeners.trackers;
 
+import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,14 @@ public class CurrentHitTracker {
      * Stores currently processing hits.
      */
     private static final Map<UUID, UUID> currentHits = new HashMap<>();
+
+    /**
+     * Stores currently processing armor hits.
+     */
+    private static final Map<UUID, ArmorHit> currentArmorHits = new HashMap<>();
+
+
+    // -----< currentHits >-----
 
     /**
      * Marks that a hit is currently being processed.
@@ -49,5 +59,37 @@ public class CurrentHitTracker {
     public static boolean isAlreadyHit(@NotNull UUID damager, @NotNull UUID victim) {
         UUID uuid = currentHits.get(damager);
         return uuid != null && uuid.equals(victim);
+    }
+
+
+    // -----< currentArmorHits >-----
+
+    /**
+     * Adds armor hit.
+     *
+     * @param victimUUID the victim's UUID
+     * @param armorHit   the armor hit data
+     */
+    public static void addArmorHit(@NotNull UUID victimUUID, @NotNull ArmorHit armorHit) {
+        currentArmorHits.put(victimUUID, armorHit);
+    }
+
+    /**
+     * Removes the armor hit for the given victim.
+     *
+     * @param victimUUID the victim's UUID
+     */
+    public static void removeArmorHit(@NotNull UUID victimUUID) {
+        currentArmorHits.remove(victimUUID);
+    }
+
+    /**
+     * Gets the armor hit for the given victim.
+     *
+     * @param victimUUID the victim's UUID
+     * @return the armor hit instance, or {@code null} if not found
+     */
+    public static @Nullable ArmorHit getArmorHit(@NotNull UUID victimUUID) {
+        return currentArmorHits.get(victimUUID);
     }
 }

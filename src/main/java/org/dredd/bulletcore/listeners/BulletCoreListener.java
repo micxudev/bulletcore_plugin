@@ -24,6 +24,8 @@ import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
+import org.dredd.bulletcore.models.armor.Armor;
+import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
@@ -335,6 +337,26 @@ public class BulletCoreListener implements Listener {
                 if (getWeaponOrNull(currentWeapon) == weapon)
                     weapon.onLMB(damager, currentWeapon);
             });
+        }
+    }
+
+    /**
+     * Handles entity damage events to damage the {@link Armor}
+     *
+     * @param event the {@link EntityDamageByEntityEvent} triggered when an entity is damaged by another entity
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void damageArmor(EntityDamageByEntityEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. EntityDamageByEntityEvent (armor damage).");
+
+        if (!(event.getDamager() instanceof Player && event.getEntity() instanceof Player victim)) return;
+        //System.err.println("1. Damager and Victim are Players.");
+
+        ArmorHit armorHit = CurrentHitTracker.getArmorHit(victim.getUniqueId());
+        if (armorHit != null) {
+            //System.err.println("2. Damaging armor.");
+            armorHit.run();
         }
     }
 
