@@ -2,11 +2,10 @@ package org.dredd.bulletcore.models.weapons.shooting.spray;
 
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Handles weapon spray for players.
@@ -43,23 +42,29 @@ public final class SprayHandler {
     }
 
     /**
-     * Applies the spray logic for a shot fired by the given player.<br>
+     * Applies the spray logic for a shot fired by the given player.
      *
      * @param player           the player who fired the shot
-     * @param weaponSpray      the spray config of the used weapon
+     * @param weapon           the weapon used to fire the shot
      * @param initialDirection the initial direction of the shot
-     * @return the final direction of the shot
+     * @return a list of size {@link Weapon#pelletsPerShot} where each element is the final direction of each pellet
      */
-    public static Vector handleShot(@NotNull Player player, @NotNull WeaponSpray weaponSpray, @NotNull Vector initialDirection) {
+    public static @NotNull List<Vector> handleShot(@NotNull Player player, @NotNull Weapon weapon, @NotNull Vector initialDirection) {
+        int pelletCount = weapon.pelletsPerShot;
+        List<Vector> directions = new ArrayList<>(pelletCount);
+
         var sprayContext = getSprayContext(player);
         var state = sprayContext.getState();
         var modifiers = sprayContext.getModifiers();
-        double finalSpray = weaponSpray.getFinalValue(state, modifiers);
+        double finalSpray = weapon.spray.getFinalValue(state, modifiers);
 
         sprayContext.sendMessage(state, modifiers, finalSpray);
 
-        if (finalSpray <= WeaponSpray.NO_SPRAY)
-            return initialDirection;
+        if (finalSpray <= WeaponSpray.NO_SPRAY) {
+            for (int i = 0; i < pelletCount; i++)
+                directions.add(initialDirection);
+            return directions;
+        }
 
         // Change Shot Direction
         double maxSprayRadians = Math.toRadians(finalSpray);
@@ -67,14 +72,18 @@ public final class SprayHandler {
         double cosMax = Math.cos(maxSprayRadians);
         double cosMin = Math.cos(minSprayRadians);
 
-        double z = cosMin + (cosMax - cosMin) * Math.random();
-        double sinT = Math.sqrt(1 - z * z);
-        double theta = Math.TAU * Math.random();
-        double x = sinT * Math.cos(theta);
-        double y = sinT * Math.sin(theta);
-        Vector offset = new Vector(x, y, z);
+        for (int i = 0; i < pelletCount; i++) {
+            double z = cosMin + (cosMax - cosMin) * Math.random();
+            double sinT = Math.sqrt(1 - z * z);
+            double theta = Math.TAU * Math.random();
+            double x = sinT * Math.cos(theta);
+            double y = sinT * Math.sin(theta);
+            Vector offset = new Vector(x, y, z);
+            Vector pelletDirection = rotateVector(offset, initialDirection).normalize();
+            directions.add(pelletDirection);
+        }
 
-        return rotateVector(offset, initialDirection).normalize();
+        return directions;
     }
 
     /**
