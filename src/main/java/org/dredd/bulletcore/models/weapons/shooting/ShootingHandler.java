@@ -35,6 +35,7 @@ import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -163,41 +164,45 @@ public final class ShootingHandler {
 
         World world = player.getWorld();
         Location eyeLocation = player.getEyeLocation();
-        Vector direction = SprayHandler.handleShot(player, weapon.spray, eyeLocation.getDirection().normalize());
 
-        RayTraceResult result = world.rayTrace(
-            eyeLocation,
-            direction,
-            weapon.maxDistance,
-            FluidCollisionMode.NEVER,   // skips water/lava
-            true,                       // ignoredMaterials will handle it
-            config.raySize,             // expands ray a little bit
-            entityFilter,
-            canCollide
-        );
-
+        // Done once per shot
         weapon.sounds.play(player, weapon.sounds.fire);
         RecoilHandler.handleShot(player, weapon.recoil);
 
-        weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
+        // RayTrace each pellet separately
+        List<Vector> directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
+        for (Vector direction : directions) {
+            RayTraceResult result = world.rayTrace(
+                eyeLocation,
+                direction,
+                weapon.maxDistance,
+                FluidCollisionMode.NEVER,   // skips water/lava
+                true,                       // ignoredMaterials will handle it
+                config.raySize,             // expands ray a little bit
+                entityFilter,
+                canCollide
+            );
 
-        // Handle result
-        if (result == null) return true;
+            weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
 
-        final Location hitLocation = result.getHitPosition().toLocation(world);
+            // Handle result
+            if (result == null) continue;
 
-        if (result.getHitEntity() instanceof LivingEntity victim) {
-            // Entity hit
-            DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
-            ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-            ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
-            Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
-            SoundManager.playSound(player, soundLocation, sound);
-        } else if (result.getHitBlock() != null) {
-            // Block hit
-            ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-            SoundManager.playSound(player, hitLocation, config.blockHitSound);
-            config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
+            final Location hitLocation = result.getHitPosition().toLocation(world);
+
+            if (result.getHitEntity() instanceof LivingEntity victim) {
+                // Entity hit
+                DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
+                ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
+                ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
+                Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
+                SoundManager.playSound(player, soundLocation, sound);
+            } else if (result.getHitBlock() != null) {
+                // Block hit
+                ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
+                SoundManager.playSound(player, hitLocation, config.blockHitSound);
+                config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
+            }
         }
 
         return true;

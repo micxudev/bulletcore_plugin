@@ -89,6 +89,11 @@ public class Weapon extends CustomBase {
     public final double victimKnockbackResistance;
 
     /**
+     * Number of projectiles fired per one ammo unit.
+     */
+    public final int pelletsPerShot;
+
+    /**
      * Weapon damage values for each body part.
      */
     public final WeaponDamage damage;
@@ -123,7 +128,7 @@ public class Weapon extends CustomBase {
      * <p>
      * All parameters must be already validated.
      */
-    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, BulletTrailParticle trailParticle, WeaponSkins skins) {
+    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, int pelletsPerShot, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, BulletTrailParticle trailParticle, WeaponSkins skins) {
         super(attrs);
         this.ammo = ammo;
         this.reloadHandler = reloadHandler;
@@ -134,6 +139,7 @@ public class Weapon extends CustomBase {
         this.reloadTime = reloadTime;
         this.isAutomatic = isAutomatic;
         this.victimKnockbackResistance = victimKnockbackResistance;
+        this.pelletsPerShot = pelletsPerShot;
         this.damage = damage;
         this.recoil = recoil;
         this.spray = spray;
