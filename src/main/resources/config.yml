@@ -147,22 +147,6 @@ armorstand-features:
     customModelData: 0
     removeAfter: 200
 
-  # Shows a brief flash at the muzzle when firing
-  muzzle_flash:
-    enabled: true
-    customModelData: 0
-
-  # Displays a visible bullet while it's flying
-  flying_bullet:
-    enabled: true
-    customModelData: 0
-
-  # Spawns a blood splatter effect when an entity is hit
-  blood:
-    enabled: true
-    customModelData: 0
-    removeAfter: 200
-
 # List of materials to ignore during ray trace collision checks.
 # These materials will be skipped, allowing the ray trace to pass through them.
 ignored-materials:
