@@ -12,23 +12,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Abstract registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
+ * Registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
  *
  * @param <T> the type of custom item extending {@link CustomBase}
  * @author dredd
  * @since 1.0.0
  */
-abstract class ItemRegistry<T extends CustomBase> {
+public class ItemRegistry<T extends CustomBase> {
 
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Int2ObjectMap<T> items = new Int2ObjectArrayMap<>(16);
+    private final Int2ObjectMap<T> items;
 
     /**
      * A mapping of item names to their corresponding custom item instances.
      */
-    private final Map<String, T> itemsByName = new HashMap<>();
+    private final Map<String, T> itemsByName;
+
+    private ItemRegistry() {
+        this.items = new Int2ObjectArrayMap<>(16);
+        this.itemsByName = new HashMap<>();
+    }
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     */
+    protected static <T extends CustomBase> ItemRegistry<T> create() {
+        return new ItemRegistry<>();
+    }
 
     /**
      * Retrieves an item by its {@link CustomBase#customModelData} key.

@@ -28,27 +28,27 @@ public final class CustomItemsRegistry {
     /**
      * Global registry for all custom items, regardless of specific type.
      */
-    public static final AllItemRegistry all = AllItemRegistry.getInstance();
+    public static final ItemRegistry<CustomBase> all = ItemRegistry.create();
 
     /**
      * Registry for all {@link Ammo} items.
      */
-    public static final AmmoRegistry ammo = AmmoRegistry.getInstance();
+    public static final ItemRegistry<Ammo> ammo = ItemRegistry.create();
 
     /**
      * Registry for all {@link Armor} items.
      */
-    public static final ArmorRegistry armor = ArmorRegistry.getInstance();
+    public static final ItemRegistry<Armor> armor = ItemRegistry.create();
 
     /**
      * Registry for all {@link Grenade} items.
      */
-    public static final GrenadeRegistry grenade = GrenadeRegistry.getInstance();
+    public static final ItemRegistry<Grenade> grenade = ItemRegistry.create();
 
     /**
      * Registry for all {@link Weapon} items.
      */
-    public static final WeaponRegistry weapon = WeaponRegistry.getInstance();
+    public static final ItemRegistry<Weapon> weapon = ItemRegistry.create();
 
     /**
      * Private constructor to prevent instantiation.
