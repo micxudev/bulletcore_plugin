@@ -32,9 +32,13 @@ public final class EnumMapLoader {
      * @param max       the maximum allowed value
      * @return an {@link EnumMap} of enum constants and their clamped values
      */
-    public static <E extends Enum<E>> EnumMap<E, Double> loadDoubleMap(
-        @NotNull Class<E> enumClass, @NotNull FileConfiguration cfg, @NotNull String prefix,
-        double def, double min, double max
+    public static <E extends Enum<E>> @NotNull EnumMap<E, Double> loadDoubleMap(
+        @NotNull Class<E> enumClass,
+        @NotNull FileConfiguration cfg,
+        @NotNull String prefix,
+        double def,
+        double min,
+        double max
     ) {
         EnumMap<E, Double> map = new EnumMap<>(enumClass);
         for (E constant : enumClass.getEnumConstants()) {

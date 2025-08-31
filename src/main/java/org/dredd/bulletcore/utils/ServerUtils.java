@@ -32,7 +32,7 @@ public final class ServerUtils {
     /**
      * @return a list of player names currently online
      */
-    public static List<String> getOnlinePlayerNames() {
+    public static @NotNull List<String> getOnlinePlayerNames() {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();

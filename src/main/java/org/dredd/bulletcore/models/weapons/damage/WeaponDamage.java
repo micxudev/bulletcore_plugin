@@ -46,7 +46,7 @@ public record WeaponDamage(
      * @param weaponConfig the YAML configuration to load from
      * @return a new {@link WeaponDamage} instance populated from config
      */
-    public static WeaponDamage load(@NotNull YamlConfiguration weaponConfig) {
+    public static @NotNull WeaponDamage load(@NotNull YamlConfiguration weaponConfig) {
         return new WeaponDamage(
             getOrDefault(weaponConfig, "head", 10),
             getOrDefault(weaponConfig, "body", 5),

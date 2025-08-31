@@ -124,7 +124,7 @@ public final class CommandHandler implements TabExecutor {
      * @param sender the command sender (player or console)
      * @return a list of subcommand names that the sender has permission to use
      */
-    private List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
+    private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return subCommands.entrySet().stream()
             .filter(
                 entry -> {

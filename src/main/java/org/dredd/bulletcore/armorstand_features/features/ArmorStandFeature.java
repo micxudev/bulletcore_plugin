@@ -54,7 +54,7 @@ public abstract class ArmorStandFeature {
      * @param modelData custom model data, or {@value DEF_MODEL_DATA} for vanilla item
      * @return the item stack to be used on the armor stand
      */
-    private ItemStack createItem(@NotNull Material material, int modelData) {
+    private @NotNull ItemStack createItem(@NotNull Material material, int modelData) {
         return modelData == DEF_MODEL_DATA ? new ItemStack(material) : ServerUtils.createCustomModelItem(material, modelData);
     }
 }
