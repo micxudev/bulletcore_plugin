@@ -6,8 +6,10 @@ import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,8 +69,8 @@ public class ItemRegistry<T extends CustomBase> {
      *
      * @return a collection of all registered custom items
      */
-    public @NotNull Collection<T> getAll() {
-        return items.values();
+    public @NotNull @Unmodifiable Collection<T> getAll() {
+        return Collections.unmodifiableCollection(items.values());
     }
 
     /**
@@ -76,27 +78,28 @@ public class ItemRegistry<T extends CustomBase> {
      *
      * @return a collection of all registered item names
      */
-    public @NotNull Collection<String> getAllNames() {
-        return itemsByName.keySet();
+    public @NotNull @Unmodifiable Collection<String> getAllNames() {
+        return Collections.unmodifiableSet(itemsByName.keySet());
     }
 
     /**
      * Registers a new item to the registry.
      *
      * @param item the item to register
+     * @throws ItemRegisterException if the item is already registered by customModelData or name
      */
     void register(@NotNull T item) throws ItemRegisterException {
-        int key1 = item.customModelData;
-        String key2 = item.name;
+        int modelData = item.customModelData;
+        String name = item.name;
 
-        T existingByModelData = items.putIfAbsent(key1, item);
+        T existingByModelData = items.putIfAbsent(modelData, item);
         if (existingByModelData != null)
-            throw new ItemRegisterException("Item with customModelData " + key1 + " already registered");
+            throw new ItemRegisterException("Item with customModelData " + modelData + " already registered");
 
-        T existingByName = itemsByName.putIfAbsent(key2, item);
+        T existingByName = itemsByName.putIfAbsent(name, item);
         if (existingByName != null) {
-            items.remove(key1, item);
-            throw new ItemRegisterException("Item already registered by name: " + key2);
+            items.remove(modelData, item);
+            throw new ItemRegisterException("Item already registered by name: " + name);
         }
     }
 

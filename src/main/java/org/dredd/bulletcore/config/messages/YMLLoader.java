@@ -31,7 +31,7 @@ public final class YMLLoader {
      * @param file the YAML file to load messages from
      * @return a {@code Map<String, String>} containing key-value pairs from the file
      */
-    public static @NotNull @Unmodifiable Map<String, String> load(File file) {
+    public static @NotNull @Unmodifiable Map<String, String> load(@NotNull File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         return config.getKeys(true).stream()
             .filter(key -> !config.isConfigurationSection(key))
@@ -54,9 +54,12 @@ public final class YMLLoader {
      * @param file the YAML file containing nested style sections
      * @return a map where each top-level key maps to an ordered map of style keys and values
      */
-    public static @NotNull @Unmodifiable Map<String, LinkedHashMap<String, String>> loadStyles(File file) {
+    public static @NotNull @Unmodifiable Map<
+        String,
+        @NotNull @Unmodifiable Map<String, String>
+        > loadStyles(@NotNull File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        Map<String, LinkedHashMap<String, String>> result = new HashMap<>();
+        Map<String, Map<String, String>> result = new HashMap<>();
 
         for (String sectionKey : config.getKeys(false)) {
             ConfigurationSection section = config.getConfigurationSection(sectionKey);
@@ -66,7 +69,7 @@ public final class YMLLoader {
             for (String key : section.getKeys(false))
                 styles.put(key, section.getString(key, ""));
 
-            result.put(sectionKey, styles);
+            result.put(sectionKey, Collections.unmodifiableSequencedMap(styles));
         }
 
         return Collections.unmodifiableMap(result);

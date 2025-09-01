@@ -41,7 +41,7 @@ public class StylesManager {
      * The style definitions.<br>
      * LinkedHashMap preserves insertion order, which is crucial in this case.
      */
-    private final Map<String, LinkedHashMap<String, String>> styles;
+    private final Map<String, Map<String, String>> styles;
 
     /**
      * Initializes the {@link StylesManager} instance and loads the styles.
@@ -63,7 +63,7 @@ public class StylesManager {
      * @param key the style key
      * @return the style map, or null if not found
      */
-    public @Nullable LinkedHashMap<String, String> getStyles(@NotNull String key) {
+    public @Nullable Map<String, String> getStyles(@NotNull String key) {
         return styles.get(key);
     }
 }

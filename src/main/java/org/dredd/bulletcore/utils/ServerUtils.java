@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ public final class ServerUtils {
     /**
      * @return a list of player names currently online
      */
-    public static @NotNull List<String> getOnlinePlayerNames() {
+    public static @NotNull @Unmodifiable List<String> getOnlinePlayerNames() {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();

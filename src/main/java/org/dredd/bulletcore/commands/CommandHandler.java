@@ -6,6 +6,7 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
 import org.dredd.bulletcore.commands.subcommands.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
@@ -113,7 +114,8 @@ public final class CommandHandler implements TabExecutor {
             return StringUtil.copyPartialMatches(args[0], getAllowedSubcommands(sender), new ArrayList<>());
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
-        return (sub != null && (sub.getPermission() == null || sender.hasPermission(sub.getPermission())))
+        return (sub != null && (sub.getPermission() == null || sub.getPermission().isBlank()
+            || sender.hasPermission(sub.getPermission())))
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;
     }
@@ -124,14 +126,12 @@ public final class CommandHandler implements TabExecutor {
      * @param sender the command sender (player or console)
      * @return a list of subcommand names that the sender has permission to use
      */
-    private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
+    private @NotNull @Unmodifiable List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return subCommands.entrySet().stream()
-            .filter(
-                entry -> {
-                    String subcommandPermission = entry.getValue().getPermission();
-                    return subcommandPermission == null || sender.hasPermission(subcommandPermission);
-                }
-            )
+            .filter(entry -> {
+                String perm = entry.getValue().getPermission();
+                return perm == null || perm.isBlank() || sender.hasPermission(perm);
+            })
             .map(Map.Entry::getKey)
             .toList();
     }

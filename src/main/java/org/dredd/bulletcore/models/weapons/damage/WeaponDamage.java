@@ -65,6 +65,6 @@ public record WeaponDamage(
      * @return the clamped damage value from the config
      */
     private static double getOrDefault(@NotNull YamlConfiguration cfg, @NotNull String key, double def) {
-        return Math.clamp(cfg.getDouble("damage." + key, def), 1.0D, Double.MAX_VALUE);
+        return Math.clamp(cfg.getDouble("damage." + key, def), 0.0D, Double.MAX_VALUE);
     }
 }
