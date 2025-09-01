@@ -40,7 +40,7 @@ public final class ItemRegistry<T extends CustomBase> {
     /**
      * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
      */
-    static <T extends CustomBase> ItemRegistry<T> create() {
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
         return new ItemRegistry<>();
     }
 
