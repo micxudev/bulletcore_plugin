@@ -20,7 +20,7 @@ import java.util.Map;
  * @author dredd
  * @since 1.0.0
  */
-public class ItemRegistry<T extends CustomBase> {
+public final class ItemRegistry<T extends CustomBase> {
 
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
@@ -40,7 +40,7 @@ public class ItemRegistry<T extends CustomBase> {
     /**
      * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
      */
-    protected static <T extends CustomBase> ItemRegistry<T> create() {
+    static <T extends CustomBase> ItemRegistry<T> create() {
         return new ItemRegistry<>();
     }
 

@@ -187,7 +187,7 @@ public final class YMLLModelLoader {
 
         Material material;
         try {
-            material = Material.valueOf(materialName.toUpperCase());
+            material = Material.valueOf(materialName.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
             throw new ItemLoadException("Invalid material name: " + materialName);
         }
