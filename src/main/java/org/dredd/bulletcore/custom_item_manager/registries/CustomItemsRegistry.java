@@ -72,12 +72,18 @@ public final class CustomItemsRegistry {
     public static void register(@Nullable CustomBase item) throws ItemRegisterException {
         if (item == null) throw new ItemRegisterException("Item cannot be null");
         all.register(item);
-        switch (item) {
-            case Ammo ammoItem -> ammo.register(ammoItem);
-            case Armor armorItem -> armor.register(armorItem);
-            case Grenade grenadeItem -> grenade.register(grenadeItem);
-            case Weapon weaponItem -> weapon.register(weaponItem);
-            default -> throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
+        try {
+            switch (item) {
+                case Ammo ammoItem -> ammo.register(ammoItem);
+                case Armor armorItem -> armor.register(armorItem);
+                case Grenade grenadeItem -> grenade.register(grenadeItem);
+                case Weapon weaponItem -> weapon.register(weaponItem);
+                default ->
+                    throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
+            }
+        } catch (ItemRegisterException e) {
+            all.unregister(item);
+            throw e;
         }
     }
 

@@ -104,6 +104,16 @@ public final class ItemRegistry<T extends CustomBase> {
     }
 
     /**
+     * Unregisters an item from the registry.
+     *
+     * @param item the item to unregister
+     */
+    void unregister(@NotNull T item) {
+        items.remove(item.customModelData);
+        itemsByName.remove(item.name, item);
+    }
+
+    /**
      * Clears all registered items from the registry.
      */
     void clearAll() {
