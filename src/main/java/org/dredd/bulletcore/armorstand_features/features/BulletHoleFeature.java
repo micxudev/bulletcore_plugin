@@ -83,7 +83,7 @@ public class BulletHoleFeature extends ArmorStandFeature {
      * @param face the block face that was hit
      * @return the corresponding EulerAngle for head rotation
      */
-    private EulerAngle getHeadPoseForBlockFace(BlockFace face) {
+    private @NotNull EulerAngle getHeadPoseForBlockFace(BlockFace face) {
         return switch (face) {
             case UP -> new EulerAngle(Math.toRadians(90), 0, 0);
             case DOWN -> new EulerAngle(Math.toRadians(-90), 0, 0);

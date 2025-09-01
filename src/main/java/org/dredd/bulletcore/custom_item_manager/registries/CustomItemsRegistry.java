@@ -11,6 +11,8 @@ import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.regex.Pattern;
+
 /**
  * Central access point and utility class for interacting with all custom item registries.
  *
@@ -26,29 +28,34 @@ import org.jetbrains.annotations.Nullable;
 public final class CustomItemsRegistry {
 
     /**
+     * Valid name pattern for custom item names.
+     */
+    private static final Pattern VALID_NAME = Pattern.compile("[a-z0-9/._-]+");
+
+    /**
      * Global registry for all custom items, regardless of specific type.
      */
-    public static final AllItemRegistry all = AllItemRegistry.getInstance();
+    public static final ItemRegistry<CustomBase> all = ItemRegistry.create();
 
     /**
      * Registry for all {@link Ammo} items.
      */
-    public static final AmmoRegistry ammo = AmmoRegistry.getInstance();
+    public static final ItemRegistry<Ammo> ammo = ItemRegistry.create();
 
     /**
      * Registry for all {@link Armor} items.
      */
-    public static final ArmorRegistry armor = ArmorRegistry.getInstance();
+    public static final ItemRegistry<Armor> armor = ItemRegistry.create();
 
     /**
      * Registry for all {@link Grenade} items.
      */
-    public static final GrenadeRegistry grenade = GrenadeRegistry.getInstance();
+    public static final ItemRegistry<Grenade> grenade = ItemRegistry.create();
 
     /**
      * Registry for all {@link Weapon} items.
      */
-    public static final WeaponRegistry weapon = WeaponRegistry.getInstance();
+    public static final ItemRegistry<Weapon> weapon = ItemRegistry.create();
 
     /**
      * Private constructor to prevent instantiation.
@@ -64,14 +71,20 @@ public final class CustomItemsRegistry {
      */
     public static void register(@Nullable CustomBase item) throws ItemRegisterException {
         if (item == null) throw new ItemRegisterException("Item cannot be null");
-        switch (item) {
-            case Ammo ammoItem -> ammo.register(ammoItem);
-            case Armor armorItem -> armor.register(armorItem);
-            case Grenade grenadeItem -> grenade.register(grenadeItem);
-            case Weapon weaponItem -> weapon.register(weaponItem);
-            default -> throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
-        }
         all.register(item);
+        try {
+            switch (item) {
+                case Ammo ammoItem -> ammo.register(ammoItem);
+                case Armor armorItem -> armor.register(armorItem);
+                case Grenade grenadeItem -> grenade.register(grenadeItem);
+                case Weapon weaponItem -> weapon.register(weaponItem);
+                default ->
+                    throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
+            }
+        } catch (ItemRegisterException e) {
+            all.unregister(item);
+            throw e;
+        }
     }
 
     /**
@@ -92,7 +105,7 @@ public final class CustomItemsRegistry {
      * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
      */
     public static boolean canModelDataBeUsed(int customModelData) {
-        return customModelData != 0 && customModelData % 100 == 0 && !all.exists(customModelData);
+        return customModelData > 0 && customModelData % 100 == 0 && !all.exists(customModelData);
     }
 
     /**
@@ -112,7 +125,7 @@ public final class CustomItemsRegistry {
      * @return {@code true} if the input matches the format; {@code false} otherwise
      */
     public static boolean isValidFormat(@NotNull String input) {
-        return input.matches("[a-z0-9/._-]+");
+        return VALID_NAME.matcher(input).matches();
     }
 
     /**

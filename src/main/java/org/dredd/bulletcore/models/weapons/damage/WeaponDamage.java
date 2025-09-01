@@ -46,7 +46,7 @@ public record WeaponDamage(
      * @param weaponConfig the YAML configuration to load from
      * @return a new {@link WeaponDamage} instance populated from config
      */
-    public static WeaponDamage load(@NotNull YamlConfiguration weaponConfig) {
+    public static @NotNull WeaponDamage load(@NotNull YamlConfiguration weaponConfig) {
         return new WeaponDamage(
             getOrDefault(weaponConfig, "head", 10),
             getOrDefault(weaponConfig, "body", 5),
@@ -65,6 +65,6 @@ public record WeaponDamage(
      * @return the clamped damage value from the config
      */
     private static double getOrDefault(@NotNull YamlConfiguration cfg, @NotNull String key, double def) {
-        return Math.clamp(cfg.getDouble("damage." + key, def), 1.0D, Double.MAX_VALUE);
+        return Math.clamp(cfg.getDouble("damage." + key, def), 0.0D, Double.MAX_VALUE);
     }
 }

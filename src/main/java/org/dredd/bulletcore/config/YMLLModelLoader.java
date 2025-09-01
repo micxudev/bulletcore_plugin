@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -118,7 +119,7 @@ public final class YMLLModelLoader {
 
         File[] files = folder.listFiles(
             (dir, name) -> {
-                String lower = name.toLowerCase();
+                String lower = name.toLowerCase(Locale.ROOT);
                 return lower.endsWith(".yml") || lower.endsWith(".yaml");
             });
         if (files == null || files.length == 0) {
@@ -186,7 +187,7 @@ public final class YMLLModelLoader {
 
         Material material;
         try {
-            material = Material.valueOf(materialName.toUpperCase());
+            material = Material.valueOf(materialName.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
             throw new ItemLoadException("Invalid material name: " + materialName);
         }

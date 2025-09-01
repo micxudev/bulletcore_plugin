@@ -3,9 +3,9 @@ package org.dredd.bulletcore.config.messages;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -38,10 +38,9 @@ public class StylesManager {
     }
 
     /**
-     * The style definitions.<br>
-     * LinkedHashMap preserves insertion order, which is crucial in this case.
+     * The style definitions. Inner maps preserve insertion order and are unmodifiable.
      */
-    private final Map<String, LinkedHashMap<String, String>> styles;
+    private final Map<String, Map<String, String>> styles;
 
     /**
      * Initializes the {@link StylesManager} instance and loads the styles.
@@ -63,7 +62,7 @@ public class StylesManager {
      * @param key the style key
      * @return the style map, or null if not found
      */
-    public @Nullable LinkedHashMap<String, String> getStyles(@NotNull String key) {
+    public @Nullable @Unmodifiable Map<String, String> getStyles(@NotNull String key) {
         return styles.get(key);
     }
 }

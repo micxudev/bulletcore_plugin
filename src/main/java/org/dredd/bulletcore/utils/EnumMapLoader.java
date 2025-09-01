@@ -4,6 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
+import java.util.Locale;
 
 /**
  * Utility class for loading {@link EnumMap} of different types from config.
@@ -32,13 +33,18 @@ public final class EnumMapLoader {
      * @param max       the maximum allowed value
      * @return an {@link EnumMap} of enum constants and their clamped values
      */
-    public static <E extends Enum<E>> EnumMap<E, Double> loadDoubleMap(
-        @NotNull Class<E> enumClass, @NotNull FileConfiguration cfg, @NotNull String prefix,
-        double def, double min, double max
+    public static <E extends Enum<E>> @NotNull EnumMap<E, Double> loadDoubleMap(
+        @NotNull Class<E> enumClass,
+        @NotNull FileConfiguration cfg,
+        @NotNull String prefix,
+        double def,
+        double min,
+        double max
     ) {
         EnumMap<E, Double> map = new EnumMap<>(enumClass);
         for (E constant : enumClass.getEnumConstants()) {
-            double value = Math.clamp(cfg.getDouble(prefix + constant.name().toLowerCase(), def), min, max);
+            String path = prefix + constant.name().toLowerCase(Locale.ROOT);
+            double value = Math.clamp(cfg.getDouble(path, def), min, max);
             map.put(constant, value);
         }
         return map;

@@ -95,7 +95,7 @@ public final class SprayHandler {
      * @return the new vector representing the rotated spray direction — the original offset,
      * reoriented so that it lies within a cone centered around the given direction vector.
      */
-    private static Vector rotateVector(@NotNull Vector offset, @NotNull Vector direction) {
+    private static @NotNull Vector rotateVector(@NotNull Vector offset, @NotNull Vector direction) {
         Vector up = (direction.getX() == 0 && direction.getZ() == 0) // avoid gimbal lock
             ? new Vector(1, 0, 0)
             : new Vector(0, 1, 0);

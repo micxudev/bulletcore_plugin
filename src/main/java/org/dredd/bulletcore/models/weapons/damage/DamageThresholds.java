@@ -43,7 +43,7 @@ public record DamageThresholds(
      * @param config the YAML configuration to load from
      * @return a new {@code DamageThresholds} instance populated from the config
      */
-    public static DamageThresholds load(@NotNull FileConfiguration config) {
+    public static @NotNull DamageThresholds load(@NotNull FileConfiguration config) {
         return new DamageThresholds(
             getOrDefault(config, "head", 0.78),
             getOrDefault(config, "body", 0.4),

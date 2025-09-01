@@ -39,7 +39,7 @@ public final class ReloadManager {
      *
      * @param handler the reload handler implementation to register
      */
-    private static void register(ReloadHandler handler) {
+    private static void register(@NotNull ReloadHandler handler) {
         handlers.put(handler.getName(), handler);
     }
 

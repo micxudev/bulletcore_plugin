@@ -6,29 +6,43 @@ import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Abstract registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
+ * Registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
  *
  * @param <T> the type of custom item extending {@link CustomBase}
  * @author dredd
  * @since 1.0.0
  */
-abstract class ItemRegistry<T extends CustomBase> {
+public final class ItemRegistry<T extends CustomBase> {
 
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Int2ObjectMap<T> items = new Int2ObjectArrayMap<>(16);
+    private final Int2ObjectMap<T> items;
 
     /**
      * A mapping of item names to their corresponding custom item instances.
      */
-    private final Map<String, T> itemsByName = new HashMap<>();
+    private final Map<String, T> itemsByName;
+
+    private ItemRegistry() {
+        this.items = new Int2ObjectArrayMap<>(16);
+        this.itemsByName = new HashMap<>();
+    }
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     */
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
+        return new ItemRegistry<>();
+    }
 
     /**
      * Retrieves an item by its {@link CustomBase#customModelData} key.
@@ -55,8 +69,8 @@ abstract class ItemRegistry<T extends CustomBase> {
      *
      * @return a collection of all registered custom items
      */
-    public @NotNull Collection<T> getAll() {
-        return items.values();
+    public @NotNull @Unmodifiable Collection<T> getAll() {
+        return Collections.unmodifiableCollection(items.values());
     }
 
     /**
@@ -64,28 +78,39 @@ abstract class ItemRegistry<T extends CustomBase> {
      *
      * @return a collection of all registered item names
      */
-    public @NotNull Collection<String> getAllNames() {
-        return itemsByName.keySet();
+    public @NotNull @Unmodifiable Collection<String> getAllNames() {
+        return Collections.unmodifiableSet(itemsByName.keySet());
     }
 
     /**
      * Registers a new item to the registry.
      *
      * @param item the item to register
+     * @throws ItemRegisterException if the item is already registered by customModelData or name
      */
     void register(@NotNull T item) throws ItemRegisterException {
-        int key1 = item.customModelData;
-        String key2 = item.name;
+        int modelData = item.customModelData;
+        String name = item.name;
 
-        T existingByModelData = items.putIfAbsent(key1, item);
+        T existingByModelData = items.putIfAbsent(modelData, item);
         if (existingByModelData != null)
-            throw new ItemRegisterException("Item with customModelData " + key1 + " already registered");
+            throw new ItemRegisterException("Item with customModelData " + modelData + " already registered");
 
-        T existingByName = itemsByName.putIfAbsent(key2, item);
+        T existingByName = itemsByName.putIfAbsent(name, item);
         if (existingByName != null) {
-            items.remove(key1, item);
-            throw new ItemRegisterException("Item already registered by name: " + key2);
+            items.remove(modelData, item);
+            throw new ItemRegisterException("Item already registered by name: " + name);
         }
+    }
+
+    /**
+     * Unregisters an item from the registry.
+     *
+     * @param item the item to unregister
+     */
+    void unregister(@NotNull T item) {
+        items.remove(item.customModelData);
+        itemsByName.remove(item.name, item);
     }
 
     /**
