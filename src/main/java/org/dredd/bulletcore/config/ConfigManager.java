@@ -56,6 +56,8 @@ public final class ConfigManager {
 
     public final double raySize;
 
+    public final long fireResumeThreshold;
+
     public final DamageThresholds damageThresholds;
 
     public final ConfiguredSound entityHitHeadSound;
@@ -86,6 +88,9 @@ public final class ConfigManager {
         enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
         raySize = cfg.getDouble("ray-size", 0.01);
+
+        fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
+
         damageThresholds = DamageThresholds.load(cfg);
 
         entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));

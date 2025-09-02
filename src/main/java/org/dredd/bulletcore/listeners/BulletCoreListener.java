@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
@@ -430,14 +431,27 @@ public class BulletCoreListener implements Listener {
         //System.err.println("===============================");
         //System.err.println("0. PlayerToggleSneakEvent.");
 
-        final ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
-        if (!isWeapon(mainHandItem)) return;
+        Player player = event.getPlayer();
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        Weapon weapon = getWeaponOrNull(mainHandItem);
+        if (weapon == null) return;
         //System.err.println("1. Player has Weapon in MainHand.");
 
         boolean isNowSneaking = event.isSneaking();
         if (!isNowSneaking) {
             //System.err.println("2.1. Player is NO MORE sneaking. Cancel auto shooting.");
-            ShootingHandler.cancelAutoShooting(event.getPlayer());
+            ShootingHandler.cancelAutoShooting(player);
+        }
+
+        if (isNowSneaking && weapon.isAutomatic) {
+            //System.err.println("2.1. Player is NOW sneaking with automatic Weapon.");
+            long now = System.currentTimeMillis();
+            long lastSingleShot = PlayerActionTracker.getLastSingleShotUsingAutomaticWeapon(player.getUniqueId());
+            long threshold = ConfigManager.get().fireResumeThreshold;
+            if (now - lastSingleShot < threshold) {
+                //System.err.println("2.1.1. Player shot a single bullet " + (now - lastSingleShot) + "ms ago.");
+                ShootingHandler.tryAutoShoot(player, weapon);
+            }
         }
 
         if (!(mainHandItem.getItemMeta() instanceof CrossbowMeta meta)) return;

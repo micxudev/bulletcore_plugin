@@ -25,6 +25,7 @@ import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.config.sounds.SoundPlaybackMode;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
+import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
@@ -61,7 +62,7 @@ public final class ShootingHandler {
     /**
      * Checks whether the specified player is currently shooting in automatic mode.
      *
-     * @param player the player to check; must not be {@code null}
+     * @param player the player to check
      * @return {@code true} if the player is currently shooting in automatic mode, {@code false} otherwise
      */
     public static boolean isAutoShooting(@NotNull Player player) {
@@ -79,12 +80,28 @@ public final class ShootingHandler {
     /**
      * Cancels the automatic shooting task for the specified player.
      *
-     * @param player the player whose shooting task should be canceled; must not be {@code null}
+     * @param player the player whose shooting task should be canceled
      */
     public static void cancelAutoShooting(@NotNull Player player) {
         BukkitTask task = activeShooters.remove(player.getUniqueId());
-        if (task == null) return;
-        task.cancel();
+        if (task != null) task.cancel();
+    }
+
+    /**
+     * Saves a new auto-shooting task for the specified player.<br>
+     * If a previous task was not canceled, this is a bug.
+     *
+     * @param player       the player to start the task for
+     * @param shootingTask the task to start
+     */
+    private static void startAutoShooting(@NotNull Player player, @NotNull BukkitTask shootingTask) {
+        BukkitTask previousTask = activeShooters.put(player.getUniqueId(), shootingTask);
+        if (previousTask != null) {
+            BulletCore.getInstance().getLogger().warning(
+                "Started new auto-shooting task, but previous one was not cancelled. This is a bug. Report this."
+            );
+            previousTask.cancel();
+        }
     }
 
     /**
@@ -97,33 +114,63 @@ public final class ShootingHandler {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
-        // Check delay between shots
         long currentTime = System.currentTimeMillis();
-        Long lastShot = weapon.getLastShotTime(player);
-        if (lastShot != null && (currentTime - lastShot) < weapon.delayBetweenShots) return;
-
-        // Save new shot time
-        weapon.setLastShotTime(player, currentTime);
+        long lastShot = weapon.getLastShotTime(player);
+        if (currentTime - lastShot < weapon.delayBetweenShots) return;
 
         if (weapon.isAutomatic && player.isSneaking()) {
-            // Fire the first shot immediately to omit waiting next tick
-            boolean shotSuccessful = shoot(player, weapon);
+            if (!shoot(player, weapon)) return;
 
-            // Start an automatic shooting task if the shot was successful
-            if (!shotSuccessful) return;
-
-            long delayBetweenShotsInTicks = weapon.delayBetweenShots / 50;
-            BukkitTask shootingTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!shoot(player, weapon)) cancelAutoShooting(player);
-                }
-            }.runTaskTimer(BulletCore.getInstance(), delayBetweenShotsInTicks, delayBetweenShotsInTicks);
-            activeShooters.put(player.getUniqueId(), shootingTask);
+            long ticksBetweenShots = weapon.delayBetweenShots / 50L;
+            runShootingTask(player, weapon, ticksBetweenShots, ticksBetweenShots);
         } else {
-            // Do a single shot
+            if (weapon.isAutomatic) PlayerActionTracker.updateLastSingleShotUsingAutomaticWeapon(player.getUniqueId());
             shoot(player, weapon);
         }
+    }
+
+    /**
+     * Attempts to shoot in response to the SHIFT key being held down
+     * within {@link ConfigManager#fireResumeThreshold} ms
+     * after the last single shot using an automatic weapon.
+     *
+     * @param player the player who is trying to shoot
+     * @param weapon the weapon used
+     */
+    public static void tryAutoShoot(@NotNull Player player, @NotNull Weapon weapon) {
+        if (!weapon.reloadHandler.isShootingAllowed(player)) return;
+        if (weapon.isAutomatic && isAutoShooting(player)) return;
+
+        long currentTime = System.currentTimeMillis();
+        long lastShot = weapon.getLastShotTime(player);
+        long ticksUntilShotAvailable = Math.ceilDiv((weapon.delayBetweenShots - (currentTime - lastShot)), 50L);
+
+        long ticksBetweenShots = weapon.delayBetweenShots / 50L;
+
+        if (ticksUntilShotAvailable <= 0L) {
+            ticksUntilShotAvailable = ticksBetweenShots;
+            if (!shoot(player, weapon)) return;
+        }
+
+        runShootingTask(player, weapon, ticksUntilShotAvailable, ticksBetweenShots);
+    }
+
+    /**
+     * Runs a new shooting task for the specified player.
+     *
+     * @param player the player to start the task for
+     * @param weapon the weapon used
+     * @param delay  the ticks to wait before running the task
+     * @param period the ticks to wait between runs
+     */
+    private static void runShootingTask(@NotNull Player player, @NotNull Weapon weapon, long delay, long period) {
+        BukkitTask shootingTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!shoot(player, weapon)) cancelAutoShooting(player);
+            }
+        }.runTaskTimer(BulletCore.getInstance(), delay, period);
+        startAutoShooting(player, shootingTask);
     }
 
     /**
@@ -136,6 +183,10 @@ public final class ShootingHandler {
      */
     private static boolean shoot(@NotNull Player player, @NotNull Weapon weapon) {
         ConfigManager config = ConfigManager.get();
+
+        // Update last-shot-time whenever we enter this method
+        // to be consistent across all the callers which rely on that
+        weapon.setLastShotTime(player);
 
         // Always get actual reference from the hand and make sure it didn't change in the meantime
         ItemStack weaponStack = player.getInventory().getItemInMainHand();

@@ -12,6 +12,16 @@ enable-hotbar-messages: true
 # -0.01 → slightly harder to hit
 ray-size: 0.01
 
+# Time window (in ms) after firing a single shot with an automatic weapon
+# during which automatic fire can resume if the player starts sneaking again.
+#
+# Example:
+#   fire-resume-threshold: 1000
+#   - Player fires a single shot at T=0 ms
+#   - Player sneaks again at T=500 ms → automatic fire resumes
+#   - Player sneaks again at T=1200 ms → too late, must click a firing key again
+fire-resume-threshold: 1000
+
 # Damage region thresholds based on hit height.
 # Each value represents the **minimum normalized Y** required to count as a hit on that body part.
 # The values must be in **descending order** (from HEAD to FEET).

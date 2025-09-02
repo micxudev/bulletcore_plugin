@@ -23,6 +23,11 @@ public class PlayerActionTracker {
     private final Map<UUID, Long> lastDrop = new HashMap<>();
 
     /**
+     * Stores last time each player fired a single shot using an automatic weapon.
+     */
+    private static final Map<UUID, Long> lastSingleShotUsingAutomaticWeapon = new HashMap<>();
+
+    /**
      * Marks the current time as the player's last inventory interaction.
      *
      * @param uuid the unique ID of the player
@@ -63,6 +68,21 @@ public class PlayerActionTracker {
     }
 
     /**
+     * Updates the last single-shot timestamp for the given player using an automatic weapon.
+     */
+    public static void updateLastSingleShotUsingAutomaticWeapon(UUID uuid) {
+        PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.put(uuid, System.currentTimeMillis());
+    }
+
+    /**
+     * Gets the timestamp of the last single shot fired with an automatic
+     * weapon by the given player. Returns 0 if none recorded.
+     */
+    public static long getLastSingleShotUsingAutomaticWeapon(UUID uuid) {
+        return PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.getOrDefault(uuid, 0L);
+    }
+
+    /**
      * Clears the recorded data for the given player.
      *
      * @param uuid the unique ID of the player
@@ -70,5 +90,6 @@ public class PlayerActionTracker {
     public void clear(UUID uuid) {
         lastInventoryInteraction.remove(uuid);
         lastDrop.remove(uuid);
+        PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.remove(uuid);
     }
 }

@@ -17,7 +17,6 @@ import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -264,19 +263,18 @@ public class Weapon extends CustomBase {
      * Retrieves the last shot time for the given player for this weapon.
      *
      * @param player the player to retrieve the last shot time for; must not be null
-     * @return last shot time; or {@code null} if none recorded yet
+     * @return last shot time; or 0 if none recorded yet
      */
-    public @Nullable Long getLastShotTime(@NotNull Player player) {
-        return lastShots.get(player.getUniqueId());
+    public long getLastShotTime(@NotNull Player player) {
+        return lastShots.getOrDefault(player.getUniqueId(), 0L);
     }
 
     /**
-     * Saves new last shot time for the given player.
+     * Sets the last shot time for this player to the current system time.
      *
      * @param player the player to save the last shot time for; must not be null
-     * @param time   the new last shot time; must not be null
      */
-    public void setLastShotTime(@NotNull Player player, long time) {
-        lastShots.put(player.getUniqueId(), time);
+    public void setLastShotTime(@NotNull Player player) {
+        lastShots.put(player.getUniqueId(), System.currentTimeMillis());
     }
 }
