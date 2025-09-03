@@ -1,12 +1,12 @@
 package org.dredd.bulletcore.armorstand_features.features;
 
+import io.papermc.paper.math.Rotations;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.util.EulerAngle;
 import org.dredd.bulletcore.armorstand_features.ArmorStandHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,21 +20,33 @@ import org.jetbrains.annotations.Nullable;
 public class BulletHoleFeature extends ArmorStandFeature {
 
     /**
-     * Default material used for the bullet hole visual.
+     * The default material used for the bullet hole visual.
      */
     private static final Material DEF_MATERIAL = Material.IRON_NUGGET;
 
     /**
-     * Default time (in ticks) after which the bullet hole is removed (200 ticks = 10 seconds).
+     * The default number of ticks after which the bullet hole is removed (10 seconds).
      */
     private static final long DEF_REMOVE_AFTER_TICKS = 200L;
+
+    /**
+     * The maximum number of ticks after which a bullet hole is removed (1 hour).
+     */
+    private static final long MAX_REMOVE_AFTER_TICKS = 20L * 60L * 60L;
 
     private static final double VERTICAL_OFFSET = 1.2563;
     private static final double BACK_OFFSET = 0.19;
     private static final double HORIZONTAL_OFFSET = 0.53;
 
+    private static final Rotations HEAD_ROT_UP = Rotations.ofDegrees(90, 0, 0);
+    private static final Rotations HEAD_ROT_DOWN = Rotations.ofDegrees(-90, 0, 0);
+    private static final Rotations HEAD_ROT_SOUTH = Rotations.ofDegrees(0, 180, 0);
+    private static final Rotations HEAD_ROT_WEST = Rotations.ofDegrees(0, -90, 0);
+    private static final Rotations HEAD_ROT_EAST = Rotations.ofDegrees(0, 90, 0);
+    private static final Rotations HEAD_ROT_NORTH = Rotations.ofDegrees(0, 0, 0);
+
     /**
-     * Time (in ticks) after which the spawned armor stand is automatically removed.
+     * The number of ticks after which the spawned armor stand is automatically removed.
      */
     private final long removeAfterTicks;
 
@@ -73,24 +85,24 @@ public class BulletHoleFeature extends ArmorStandFeature {
         else if (hitBlockFace == BlockFace.DOWN)
             spawnLoc.add(0, HORIZONTAL_OFFSET, HORIZONTAL_OFFSET);
 
-        ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, getHeadPoseForBlockFace(hitBlockFace));
+        ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, getHeadRotationsForFace(hitBlockFace));
         ArmorStandHandler.scheduleRemoval(stand, removeAfterTicks);
     }
 
     /**
-     * Gets the appropriate head pose for an armor stand based on the block face hit.
+     * Returns the head rotation based on the given block face.
      *
-     * @param face the block face that was hit
-     * @return the corresponding EulerAngle for head rotation
+     * @param face the block face to align with
+     * @return the corresponding {@link Rotations} for the ArmorStand's head
      */
-    private @NotNull EulerAngle getHeadPoseForBlockFace(BlockFace face) {
+    private @NotNull Rotations getHeadRotationsForFace(@NotNull BlockFace face) {
         return switch (face) {
-            case UP -> new EulerAngle(Math.toRadians(90), 0, 0);
-            case DOWN -> new EulerAngle(Math.toRadians(-90), 0, 0);
-            case SOUTH -> new EulerAngle(0, Math.toRadians(180), 0);
-            case WEST -> new EulerAngle(0, Math.toRadians(-90), 0);
-            case EAST -> new EulerAngle(0, Math.toRadians(90), 0);
-            default -> new EulerAngle(0, 0, 0);
+            case UP -> HEAD_ROT_UP;
+            case DOWN -> HEAD_ROT_DOWN;
+            case SOUTH -> HEAD_ROT_SOUTH;
+            case WEST -> HEAD_ROT_WEST;
+            case EAST -> HEAD_ROT_EAST;
+            default -> HEAD_ROT_NORTH;
         };
     }
 
@@ -107,7 +119,7 @@ public class BulletHoleFeature extends ArmorStandFeature {
 
         boolean enabled = section.getBoolean("enabled", DEF_ENABLED);
         int modelData = section.getInt("customModelData", DEF_MODEL_DATA);
-        long removeAfterTicks = Math.clamp(section.getLong("removeAfter", DEF_REMOVE_AFTER_TICKS), 1L, Long.MAX_VALUE);
+        long removeAfterTicks = Math.clamp(section.getLong("removeAfter", DEF_REMOVE_AFTER_TICKS), 1L, MAX_REMOVE_AFTER_TICKS);
 
         return new BulletHoleFeature(enabled, modelData, removeAfterTicks);
     }

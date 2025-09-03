@@ -1,16 +1,16 @@
 package org.dredd.bulletcore.armorstand_features;
 
+import io.papermc.paper.math.Rotations;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.EulerAngle;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Utility class for spawning and managing invisible armor stands used in visual features.
+ * Utility for spawning and managing invisible armor stands used for visuals.
  *
  * @author dredd
  * @since 1.0.0
@@ -23,16 +23,18 @@ public final class ArmorStandHandler {
     private ArmorStandHandler() {}
 
     /**
-     * Spawns an invisible, non-interactive armor stand with the given item and head pose.
+     * Spawns an invisible, static armor stand with the given head item and rotation.
      *
      * @param world         the world to spawn in
-     * @param spawnLocation the exact location to place the armor stand
-     * @param headItem      the item to place on the armor stand's head (model-based visual)
-     * @param headPose      the rotation of the armor stand's head
-     * @return the spawned armor stand instance
+     * @param spawnLocation the location to place the stand
+     * @param headItem      the item to display on the head
+     * @param headRotations the head rotation
+     * @return the spawned armor stand
      */
-    public static @NotNull ArmorStand spawn(@NotNull World world, @NotNull Location spawnLocation,
-                                            @NotNull ItemStack headItem, @NotNull EulerAngle headPose) {
+    public static @NotNull ArmorStand spawn(@NotNull World world,
+                                            @NotNull Location spawnLocation,
+                                            @NotNull ItemStack headItem,
+                                            @NotNull Rotations headRotations) {
         return world.spawn(spawnLocation, ArmorStand.class, a -> {
             a.setInvisible(true);
             a.setSmall(true);
@@ -42,18 +44,19 @@ public final class ArmorStandHandler {
             a.setGravity(false);
             a.setPersistent(false);
             a.setInvulnerable(true);
+            a.setSilent(true);
             a.setCanMove(false);
             a.setCanTick(false);
             a.getEquipment().setHelmet(headItem, true);
-            a.setHeadPose(headPose);
+            a.setHeadRotations(headRotations);
         });
     }
 
     /**
-     * Schedules automatic removal of an armor stand after a delay.
+     * Removes the given armor stand after the specified delay in ticks.
      *
      * @param stand            the armor stand to remove
-     * @param removeAfterTicks how many ticks to wait before removing (20 ticks = 1 second)
+     * @param removeAfterTicks number of ticks before removing (20 ticks = 1 second)
      */
     public static void scheduleRemoval(@NotNull ArmorStand stand, long removeAfterTicks) {
         Bukkit.getScheduler().runTaskLater(BulletCore.getInstance(), stand::remove, removeAfterTicks);
