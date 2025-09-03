@@ -6,55 +6,55 @@ import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Base class for all visual features rendered using invisible armor stands
+ * Base class for visual features rendered with invisible armor stands.
  * <p>
- * Subclasses can implement specific behavior (e.g., positioning, rotation, removal timing).
+ * Subclasses define specific visuals (e.g., position, rotation, lifespan).
  *
  * @author dredd
  * @since 1.0.0
  */
 public abstract class ArmorStandFeature {
 
+    // ===== Defaults =====
     /**
-     * Default value: feature is enabled
+     * Features are enabled by default
      */
-    protected static final boolean DEF_ENABLED = true;
+    protected static final boolean DEFAULT_ENABLED = true;
 
     /**
-     * Default value: no custom model data (uses base Minecraft material)
+     * Default model data (0 = vanilla material).
      */
-    protected static final int DEF_MODEL_DATA = 0;
+    protected static final int DEFAULT_MODEL_DATA = 0;
 
+    // ===== Instance =====
     /**
-     * Whether the feature is enabled
+     * Whether this feature is enabled
      */
     public final boolean enabled;
 
     /**
-     * The item used as a visual for this feature (with or without custom model data)
+     * The visual item displayed on the armor stand.
      */
     public final ItemStack item;
 
     /**
-     * Constructs a new armor stand feature with the given params.
+     * Creates a new armor stand feature.
      *
      * @param enabled   whether the feature is active
-     * @param material  the material to use for the visual item
-     * @param modelData custom model data ({@value DEF_MODEL_DATA} = use vanilla material)
+     * @param material  the base material for the item
+     * @param modelData custom model data (0 = vanilla)
      */
     protected ArmorStandFeature(boolean enabled, @NotNull Material material, int modelData) {
         this.enabled = enabled;
-        this.item = createItem(material, modelData);
+        this.item = buildItem(material, modelData);
     }
 
     /**
-     * Creates the visual item with optional custom model data.
-     *
-     * @param material  the base material
-     * @param modelData custom model data, or {@value DEF_MODEL_DATA} for vanilla item
-     * @return the item stack to be used on the armor stand
+     * Builds the item used for display, applying custom model data if present.
      */
-    private @NotNull ItemStack createItem(@NotNull Material material, int modelData) {
-        return modelData == DEF_MODEL_DATA ? new ItemStack(material) : ServerUtils.createCustomModelItem(material, modelData);
+    private static @NotNull ItemStack buildItem(@NotNull Material material, int modelData) {
+        return modelData == DEFAULT_MODEL_DATA
+            ? new ItemStack(material)
+            : ServerUtils.createCustomModelItem(material, modelData);
     }
 }
