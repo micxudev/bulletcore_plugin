@@ -100,7 +100,7 @@ public final class ConfigManager {
         entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
         blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
 
-        asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
+        asFeatureManager = ASFeatureManager.load(cfg);
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
         plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
