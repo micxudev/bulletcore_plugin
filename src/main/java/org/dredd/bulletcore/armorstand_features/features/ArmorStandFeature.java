@@ -30,12 +30,12 @@ public abstract class ArmorStandFeature {
     /**
      * Whether this feature is enabled
      */
-    public final boolean enabled;
+    protected final boolean enabled;
 
     /**
      * The visual item displayed on the armor stand.
      */
-    public final ItemStack item;
+    protected final ItemStack item;
 
     /**
      * Creates a new armor stand feature.

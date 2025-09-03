@@ -144,14 +144,14 @@ particles:
     particle: crit
     count: 2
 
-# Adds visual effect features built using invisible armor stands.
+# Armor stand visual features.
 # Each feature supports:
-#   - 'enabled' (default: true) — turns the feature on or off
-#   - 'customModelData' — applies a custom model (use 0 to use a built-in Minecraft item)
-# Some features also support:
-#   - 'removeAfter' — automatically despawns the armor stand after N ticks (20 ticks = 1 second)
+#   enabled: true/false — turn on/off the feature (default: true)
+#   customModelData: integer — custom model data (default: 0 (vanilla item))
+# Some features also have:
+#   removeAfter: ticks — how long the feature lasts (20 ticks = 1 second)
 armorstand-features:
-  # Shows a bullet hole at the block hit location
+  # Spawns a bullet hole at the block hit location
   bullet_hole:
     enabled: true
     customModelData: 0

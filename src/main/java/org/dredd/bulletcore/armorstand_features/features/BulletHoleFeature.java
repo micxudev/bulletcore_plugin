@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * @author dredd
  * @since 1.0.0
  */
-public class BulletHoleFeature extends ArmorStandFeature {
+public final class BulletHoleFeature extends ArmorStandFeature {
 
     // ===== Defaults =====
     /**
