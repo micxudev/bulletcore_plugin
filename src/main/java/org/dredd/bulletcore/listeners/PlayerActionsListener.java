@@ -17,6 +17,7 @@ import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.PlayerSprayContext;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
+import org.dredd.bulletcore.utils.ServerUtils;
 
 /**
  * Listens for player actions and records them using {@link PlayerActionTracker}.
@@ -67,7 +68,9 @@ public class PlayerActionsListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        SprayHandler.getSprayContext(event.getPlayer());
+        final Player player = event.getPlayer();
+        SprayHandler.getSprayContext(player);
+        ServerUtils.chargeOrDischargeIfWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());
     }
 
     /**

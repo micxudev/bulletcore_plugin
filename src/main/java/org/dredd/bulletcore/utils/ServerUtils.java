@@ -5,8 +5,11 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
@@ -29,6 +32,11 @@ public final class ServerUtils {
      * An empty immutable list.
      */
     public static final List<String> EMPTY_LIST = Collections.emptyList();
+
+    /**
+     * A list containing a single arrow item used to charge crossbows.
+     */
+    private static final List<ItemStack> CHARGED_PROJECTILES_LIST = Collections.singletonList(new ItemStack(Material.ARROW));
 
     /**
      * @return a list of player names currently online
@@ -64,5 +72,64 @@ public final class ServerUtils {
      */
     public static @NotNull NamespacedKey rndNamespacedKey() {
         return new NamespacedKey("bulletcore", UUID.randomUUID().toString());
+    }
+
+    /**
+     * Charges or discharges a crossbow if the given stack has CrossbowMeta.
+     *
+     * @param stack  the item stack; can be null
+     * @param charge true to charge, false to discharge
+     */
+    public static void chargeOrDischargeIfCrossbowMeta(@Nullable ItemStack stack, boolean charge) {
+        if (stack != null && stack.getItemMeta() instanceof CrossbowMeta meta) {
+            meta.setChargedProjectiles(charge ? CHARGED_PROJECTILES_LIST : null);
+            stack.setItemMeta(meta);
+        }
+    }
+
+    /**
+     * Charges a crossbow if the given stack has CrossbowMeta.
+     *
+     * @param stack the item stack; can be null
+     */
+    public static void chargeIfCrossbowMeta(@Nullable ItemStack stack) {
+        chargeOrDischargeIfCrossbowMeta(stack, true);
+    }
+
+    /**
+     * Discharges a crossbow if the given stack has CrossbowMeta.
+     *
+     * @param stack the item stack; can be null
+     */
+    public static void dischargeIfCrossbowMeta(@Nullable ItemStack stack) {
+        chargeOrDischargeIfCrossbowMeta(stack, false);
+    }
+
+    /**
+     * Charges or discharges a weapon if it is a crossbow.
+     *
+     * @param stack  the item stack; can be null
+     * @param charge true to charge, false to discharge
+     */
+    public static void chargeOrDischargeIfWeapon(@Nullable ItemStack stack, boolean charge) {
+        if (CustomItemsRegistry.isWeapon(stack)) chargeOrDischargeIfCrossbowMeta(stack, charge);
+    }
+
+    /**
+     * Charges a weapon if it is a crossbow.
+     *
+     * @param stack the item stack; can be null
+     */
+    public static void chargeIfWeapon(@Nullable ItemStack stack) {
+        if (CustomItemsRegistry.isWeapon(stack)) chargeIfCrossbowMeta(stack);
+    }
+
+    /**
+     * Discharges a weapon if it is a crossbow.
+     *
+     * @param stack the item stack; can be null
+     */
+    public static void dischargeIfWeapon(@Nullable ItemStack stack) {
+        if (CustomItemsRegistry.isWeapon(stack)) dischargeIfCrossbowMeta(stack);
     }
 }

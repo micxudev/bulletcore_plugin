@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.config.messages.ComponentMessage;
 import org.dredd.bulletcore.models.CustomBase;
@@ -18,9 +17,13 @@ import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
+import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
@@ -197,15 +200,7 @@ public class Weapon extends CustomBase {
 
     @Override
     public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
-        if (!player.isSneaking()) return false;
-        //System.err.println("1. Player is sneaking.");
-
-        if (usedItem.getItemMeta() instanceof CrossbowMeta meta) {
-            //System.err.println("2.2. Player swapped TO Crossbow Weapon. Charge Crossbow.");
-            meta.setChargedProjectiles(Collections.singletonList(new ItemStack(Material.ARROW)));
-            usedItem.setItemMeta(meta);
-        }
-
+        ServerUtils.chargeOrDischargeIfCrossbowMeta(usedItem, player.isSneaking());
         return false;
     }
 
@@ -213,16 +208,7 @@ public class Weapon extends CustomBase {
     public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
-
-        if (!player.isSneaking()) return false;
-        //System.err.println("1. Player is sneaking.");
-
-        if (usedItem.getItemMeta() instanceof CrossbowMeta meta) {
-            //System.err.println("2.1. Player swapped FROM Crossbow Weapon. Discharge Crossbow.");
-            meta.setChargedProjectiles(null);
-            usedItem.setItemMeta(meta);
-        }
-
+        ServerUtils.dischargeIfCrossbowMeta(usedItem);
         return false;
     }
 
