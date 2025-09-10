@@ -2,7 +2,6 @@ package org.dredd.bulletcore;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
@@ -21,8 +20,7 @@ import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.utils.JsonUtils;
-
-import static org.dredd.bulletcore.commands.CommandHandler.MAIN_COMMAND_NAME;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Main plugin class for <b>BulletCore</b>.
@@ -40,7 +38,7 @@ public final class BulletCore extends JavaPlugin {
     /**
      * Gets the singleton instance of the plugin.
      *
-     * @return the {@code BulletCore} instance
+     * @return the {@link BulletCore} instance or {@code null} if called before the plugin was loaded
      */
     public static BulletCore getInstance() {
         return plugin;
@@ -53,18 +51,18 @@ public final class BulletCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        plugin.getLogger().info("==========================< BulletCore >==========================");
+        getLogger().info("==========================< BulletCore >==========================");
 
         initAll();
-        registerCommand(MAIN_COMMAND_NAME, new CommandHandler());
+        registerMainCommand();
 
         PlayerActionTracker tracker = new PlayerActionTracker();
         registerListener(new BulletCoreListener(tracker));
         registerListener(new PlayerActionsListener(tracker));
         registerListener(new UnknownCommandListener());
 
-        plugin.getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Enabled");
-        plugin.getLogger().info("==================================================================");
+        getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Enabled");
+        getLogger().info("==================================================================");
     }
 
     /**
@@ -85,7 +83,7 @@ public final class BulletCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        plugin.getLogger().info("==========================< BulletCore >==========================");
+        getLogger().info("==========================< BulletCore >==========================");
 
         JsonUtils.shutdownSaveExecutor();
         ReloadHandler.clearAllReloadTasks();
@@ -93,24 +91,23 @@ public final class BulletCore extends JavaPlugin {
         RecoilHandler.stopAndClearAllRecoils();
         CustomItemsRegistry.clearAll();
 
-        plugin.getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Disabled");
-        plugin.getLogger().info("==================================================================");
+        getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Disabled");
+        getLogger().info("==================================================================");
         plugin = null;
     }
 
     /**
-     * Registers a command and its tab executor.
-     *
-     * @param label    the name of the command as defined in {@code plugin.yml}
-     * @param executor the {@link TabExecutor} responsible for handling the command
+     * Registers the main plugin command.
      */
-    private void registerCommand(String label, TabExecutor executor) {
-        PluginCommand command = getCommand(label);
+    private void registerMainCommand() {
+        String name = CommandHandler.MAIN_COMMAND_NAME;
+        PluginCommand command = getCommand(name);
         if (command != null) {
+            CommandHandler executor = new CommandHandler();
             command.setExecutor(executor);
             command.setTabCompleter(executor);
         } else {
-            getLogger().warning("Command '" + label + "' not found in plugin.yml");
+            getLogger().warning("Command '" + name + "' not found in plugin.yml");
         }
     }
 
@@ -119,7 +116,7 @@ public final class BulletCore extends JavaPlugin {
      *
      * @param listener the {@link Listener} to register
      */
-    private void registerListener(Listener listener) {
+    private void registerListener(@NotNull Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
 }
