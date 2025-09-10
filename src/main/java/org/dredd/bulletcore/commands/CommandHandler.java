@@ -15,12 +15,10 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Handles the execution and tab completion of the {@value #MAIN_COMMAND_NAME } command.
+ * Handles execution and tab completion for the {@value #MAIN_COMMAND_NAME} command.<br>
+ * Delegates logic to registered subcommands.
  * <p>
- * This class serves as the central routing point for all the subcommands,
- * delegating logic to specific handler classes.
- *
- * <p>Implements {@link TabExecutor} to support both command execution and tab suggestions.
+ * Implements {@link TabExecutor} to support both execution and tab suggestions.
  *
  * @author dredd
  * @since 1.0.0
@@ -28,18 +26,17 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 public final class CommandHandler implements TabExecutor {
 
     /**
-     * The name of the main command for this plugin.
+     * Main plugin command name.
      */
     public static final String MAIN_COMMAND_NAME = "bulletcore";
 
     /**
-     * A map of registered subcommands by name.
+     * Registered subcommands by name.
      */
     private final Map<String, Subcommand> subCommands = new LinkedHashMap<>();
 
     /**
-     * Constructs a new {@code CommandHandler} instance.
-     * <p>Registers all subcommands for the main command.
+     * Creates a new handler and registers all subcommands.
      */
     public CommandHandler() {
         registerSubcommand(new SubcommandGive());
@@ -50,26 +47,22 @@ public final class CommandHandler implements TabExecutor {
     }
 
     /**
-     * Registers a subcommand with the main command.
+     * Registers a subcommand.
      *
-     * @param subcommand the subcommand to register
+     * @param subcommand subcommand to register
      */
-    private void registerSubcommand(Subcommand subcommand) {
+    private void registerSubcommand(@NotNull Subcommand subcommand) {
         subCommands.put(subcommand.getName().toLowerCase(Locale.ROOT), subcommand);
     }
 
     /**
-     * Handles the execution of the {@value #MAIN_COMMAND_NAME } subcommand.
-     *
-     * @param sender  the source of the command
-     * @param command the command that was executed
-     * @param label   the alias used to execute the command
-     * @param args    the command arguments
-     * @return {@code true} if the command was handled, {@code false} otherwise
+     * Executes the {@value #MAIN_COMMAND_NAME} subcommand.
      */
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             @NotNull String[] args) {
         if (args.length == 0) {
             sender.sendMessage(of(sender, NO_SUBCOMMAND_PROVIDED, Map.of("command", MAIN_COMMAND_NAME)));
             return true;
@@ -81,8 +74,7 @@ public final class CommandHandler implements TabExecutor {
             return true;
         }
 
-        boolean checkPermission = sub.getPermission() != null && !sub.getPermission().isBlank();
-        if (checkPermission && !sender.hasPermission(sub.getPermission())) {
+        if (!sub.getPermission().isBlank() && !sender.hasPermission(sub.getPermission())) {
             sender.sendMessage(of(sender, NO_SUBCOMMAND_PERMISSION, null));
             return true;
         }
@@ -99,38 +91,32 @@ public final class CommandHandler implements TabExecutor {
     }
 
     /**
-     * Provides dynamic tab completion for {@value #MAIN_COMMAND_NAME } subcommands and arguments.
+     * Provides tab completion for subcommands and arguments.
      *
-     * @param sender  the source of the command
-     * @param command the command being tab-completed
-     * @param label   the alias used
-     * @param args    the arguments currently typed
-     * @return a list of possible completions
+     * @return list of completions
      */
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                               @NotNull String label, @NotNull String[] args) {
+    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender,
+                                               @NotNull Command command,
+                                               @NotNull String label,
+                                               @NotNull String[] args) {
         if (args.length == 1)
             return StringUtil.copyPartialMatches(args[0], getAllowedSubcommands(sender), new ArrayList<>());
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
-        return (sub != null && (sub.getPermission() == null || sub.getPermission().isBlank()
-            || sender.hasPermission(sub.getPermission())))
+        return (sub != null && (sub.getPermission().isBlank() || sender.hasPermission(sub.getPermission())))
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;
     }
 
     /**
-     * Returns a list of subcommand names that the sender has permission to use.
-     *
-     * @param sender the command sender (player or console)
-     * @return a list of subcommand names that the sender has permission to use
+     * Returns subcommands the sender can use.
      */
     private @NotNull @Unmodifiable List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return subCommands.entrySet().stream()
             .filter(entry -> {
                 String perm = entry.getValue().getPermission();
-                return perm == null || perm.isBlank() || sender.hasPermission(perm);
+                return perm.isBlank() || sender.hasPermission(perm);
             })
             .map(Map.Entry::getKey)
             .toList();

@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore spray_info} subcommand.
+ * Toggles whether to display weapon spray information for the player.
  *
  * @author dredd
  * @since 1.0.0
@@ -41,7 +40,7 @@ public class SubcommandSprayInfo implements Subcommand {
     }
 
     @Override
-    public @Nullable String getPermission() {
+    public @NotNull String getPermission() {
         return "bulletcore.command.spray_info";
     }
 

@@ -12,7 +12,7 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore reload} subcommand.
+ * Reloads the plugin config.
  *
  * @author dredd
  * @since 1.0.0

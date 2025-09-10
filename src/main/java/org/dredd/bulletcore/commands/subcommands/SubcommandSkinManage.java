@@ -20,7 +20,7 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore skin_manage} subcommand.
+ * Manages weapon skins for the player.
  *
  * @author dredd
  * @since 1.0.0

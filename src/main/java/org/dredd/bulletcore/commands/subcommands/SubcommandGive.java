@@ -18,7 +18,7 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore give} subcommand.
+ * Gives custom items to a player.
  *
  * @author dredd
  * @since 1.0.0
