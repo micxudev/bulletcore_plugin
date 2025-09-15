@@ -5,12 +5,14 @@ import net.kyori.adventure.text.Component;
 /**
  * Represents a weapon skin.
  *
- * @param skinModelData   the custom model data used to render the skin in-game
- * @param skinDisplayName the styled display name of the skin
+ * @param name            the unique identifier for the skin for the given weapon
+ * @param customModelData the custom model data used to render the skin in-game
+ * @param displayName     the styled display name of the skin
  * @author dredd
  * @since 1.0.0
  */
 public record WeaponSkin(
-    int skinModelData,
-    Component skinDisplayName
+    String name,
+    int customModelData,
+    Component displayName
 ) {}

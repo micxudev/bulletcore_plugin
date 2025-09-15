@@ -15,6 +15,8 @@ import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
+import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
+import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
 import org.jetbrains.annotations.NotNull;
 
@@ -148,14 +150,23 @@ public class Weapon extends CustomBase {
     }
 
     /**
-     * Triggered when a player attempts to drop a weapon.
+     * Triggered when a player attempts to drop a weapon.<br>
      * This method is invoked specifically when the drop action is initiated manually with the drop key (Q).
+     * <p>
+     * The current implementation changes weapon skins if the player has any.
      *
      * @param player   the player who attempts to drop the weapon
-     * @param usedItem the item being dropped, which is this weapon object
+     * @param usedItem the item being dropped, which represents this weapon
      */
     public void onDrop(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Weapon drop attempt on key (Q)");
+        List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, this);
+        if (playerWeaponSkins.isEmpty()) return;
+
+        final ItemMeta meta = usedItem.getItemMeta();
+        final WeaponSkin skin = skins.getNextOrDefault(meta.getCustomModelData(), playerWeaponSkins);
+        meta.setCustomModelData(skin.customModelData());
+        meta.displayName(skin.displayName());
+        usedItem.setItemMeta(meta);
     }
 
     @Override

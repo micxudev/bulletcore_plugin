@@ -80,8 +80,8 @@ public class SubcommandSkin implements Subcommand {
         }
 
         ItemMeta meta = mainHandItem.getItemMeta();
-        meta.setCustomModelData(weaponSkin.skinModelData());
-        meta.displayName(weaponSkin.skinDisplayName());
+        meta.setCustomModelData(weaponSkin.customModelData());
+        meta.displayName(weaponSkin.displayName());
         mainHandItem.setItemMeta(meta);
     }
 

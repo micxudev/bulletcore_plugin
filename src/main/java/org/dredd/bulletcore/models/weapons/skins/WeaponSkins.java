@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -9,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,9 +25,14 @@ import java.util.Set;
 public class WeaponSkins {
 
     /**
+     * A mapping of skin modelData to their corresponding {@link WeaponSkin} instances.
+     */
+    private final Int2ObjectMap<WeaponSkin> skinsByModelData;
+
+    /**
      * A mapping of skin names to their corresponding {@link WeaponSkin} instances.
      */
-    private final Map<String, WeaponSkin> skins;
+    private final Map<String, WeaponSkin> skinsByName;
 
     /**
      * The default weapon skin used to reset/clear the skin on the weapon.
@@ -35,18 +44,29 @@ public class WeaponSkins {
      * Use {@link #load(YamlConfiguration, int, Component)} to create an instance.
      */
     private WeaponSkins(int modelData, @NotNull Component displayName) {
-        this.skins = new HashMap<>();
-        this.defaultSkin = new WeaponSkin(modelData, displayName);
+        this.skinsByModelData = new Int2ObjectArrayMap<>();
+        this.skinsByName = new HashMap<>();
+        this.defaultSkin = new WeaponSkin("--default", modelData, displayName);
     }
 
     /**
-     * Adds a skin to the collection under the given name.
+     * Adds a skin to the collection of skins.
      *
-     * @param name the unique identifier for the skin (e.g., {@code gold}, {@code dragon})
      * @param skin the {@link WeaponSkin} instance to register
      */
-    private void addSkin(@NotNull String name, @NotNull WeaponSkin skin) {
-        skins.put(name, skin);
+    private void addSkin(@NotNull WeaponSkin skin) {
+        skinsByModelData.put(skin.customModelData(), skin);
+        skinsByName.put(skin.name(), skin);
+    }
+
+    /**
+     * Retrieves a registered skin by custom model data, or {@code null} if no such skin exists.
+     *
+     * @param customModelData the custom model data of the skin to retrieve
+     * @return the corresponding {@link WeaponSkin}, or {@code null} if not found
+     */
+    public @Nullable WeaponSkin getSkinOrNull(int customModelData) {
+        return skinsByModelData.get(customModelData);
     }
 
     /**
@@ -56,7 +76,7 @@ public class WeaponSkins {
      * @return the corresponding {@link WeaponSkin}, or {@code null} if not found
      */
     public @Nullable WeaponSkin getSkinOrNull(@NotNull String skinName) {
-        return skins.get(skinName);
+        return skinsByName.get(skinName);
     }
 
     /**
@@ -65,7 +85,7 @@ public class WeaponSkins {
      * @return {@code true} if at least one skin exists; {@code false} otherwise
      */
     public boolean hasSkins() {
-        return !skins.isEmpty();
+        return !skinsByName.isEmpty();
     }
 
     /**
@@ -74,7 +94,45 @@ public class WeaponSkins {
      * @return a set containing the names of all registered skins
      */
     public @NotNull Set<String> getSkinNames() {
-        return Set.copyOf(skins.keySet());
+        return Set.copyOf(skinsByName.keySet());
+    }
+
+    /**
+     * Retrieves the next weapon skin available for the player or default if no other skins are available.
+     *
+     * @param customModelData   the custom model data of the current weapon skin
+     * @param playerWeaponSkins a list of available weapon skin names for the player
+     * @return the next {@link WeaponSkin} available for the player, or the default skin
+     */
+    public @NotNull WeaponSkin getNextOrDefault(int customModelData, @NotNull List<String> playerWeaponSkins) {
+        var iterator = playerWeaponSkins.listIterator();
+
+        final WeaponSkin currentSkin = getSkinOrNull(customModelData);
+        if (currentSkin == null) {
+            // customModelData is either default (parent skin) or skin does not exist.
+            // Find the first existing skin or default.
+            return findNextSkinOrDefault(iterator);
+        }
+
+        while (iterator.hasNext())
+            if (currentSkin.name().equals(iterator.next()))
+                return findNextSkinOrDefault(iterator);
+
+        return defaultSkin;
+    }
+
+    /**
+     * Attempts to find the next valid {@link WeaponSkin} from the given iterator.
+     *
+     * @param iterator an {@link Iterator} of skin names to search through
+     * @return the next valid {@link WeaponSkin} if found, or the default skin
+     */
+    private @NotNull WeaponSkin findNextSkinOrDefault(@NotNull Iterator<String> iterator) {
+        while (iterator.hasNext()) {
+            final WeaponSkin skin = getSkinOrNull(iterator.next());
+            if (skin != null) return skin;
+        }
+        return defaultSkin;
     }
 
 
@@ -116,8 +174,7 @@ public class WeaponSkins {
 
             Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
 
-            WeaponSkin skin = new WeaponSkin(skinModelData, skinDisplayName);
-            weaponSkins.addSkin(key, skin);
+            weaponSkins.addSkin(new WeaponSkin(key, skinModelData, skinDisplayName));
         }
 
         return weaponSkins;
