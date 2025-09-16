@@ -132,8 +132,10 @@ public class Armor extends CustomBase {
         meta.getPersistentDataContainer().set(DURABILITY_KEY, DOUBLE, durability);
 
         List<Component> lore = meta.lore();
-        lore.set(0, LORE_ARMOR_DURABILITY.of(String.format("%.1f", durability), maxDurability));
-        meta.lore(lore);
-        stack.setItemMeta(meta);
+        if (lore != null && !lore.isEmpty()) {
+            lore.set(0, LORE_ARMOR_DURABILITY.of(String.format("%.1f", durability), maxDurability));
+            meta.lore(lore);
+            stack.setItemMeta(meta);
+        }
     }
 }

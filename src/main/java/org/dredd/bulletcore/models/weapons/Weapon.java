@@ -234,9 +234,11 @@ public class Weapon extends CustomBase {
         meta.getPersistentDataContainer().set(BULLETS_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        lore.set(0, LORE_WEAPON_BULLETS.of(count, maxBullets));
-        meta.lore(lore);
-        stack.setItemMeta(meta);
+        if (lore != null && !lore.isEmpty()) {
+            lore.set(0, LORE_WEAPON_BULLETS.of(count, maxBullets));
+            meta.lore(lore);
+            stack.setItemMeta(meta);
+        }
     }
 
     /**

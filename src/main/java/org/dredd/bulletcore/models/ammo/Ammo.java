@@ -100,9 +100,11 @@ public class Ammo extends CustomBase {
         meta.getPersistentDataContainer().set(AMMO_COUNT_KEY, INTEGER, count);
 
         List<Component> lore = meta.lore();
-        lore.set(0, LORE_AMMO_COUNT.of(count, maxAmmo));
-        meta.lore(lore);
-        stack.setItemMeta(meta);
+        if (lore != null && !lore.isEmpty()) {
+            lore.set(0, LORE_AMMO_COUNT.of(count, maxAmmo));
+            meta.lore(lore);
+            stack.setItemMeta(meta);
+        }
     }
 
     /**
