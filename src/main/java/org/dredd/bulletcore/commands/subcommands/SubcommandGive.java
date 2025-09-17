@@ -55,7 +55,7 @@ public final class SubcommandGive implements Subcommand {
         }
 
         String itemName = args[2];
-        CustomBase item = CustomItemsRegistry.all.getItemOrNull(itemName);
+        CustomBase item = CustomItemsRegistry.ALL.getItemOrNull(itemName);
         if (item == null) {
             sender.sendMessage(of(sender, INVALID_ITEM, Map.of("item", itemName)));
             return;
@@ -75,7 +75,7 @@ public final class SubcommandGive implements Subcommand {
         if (Bukkit.getPlayerExact(playerName) == null) return EMPTY_LIST;
 
         if (args.length == 3)
-            return StringUtil.copyPartialMatches(args[2], CustomItemsRegistry.all.getAllNames(), new ArrayList<>());
+            return StringUtil.copyPartialMatches(args[2], CustomItemsRegistry.ALL.getAllNames(), new ArrayList<>());
 
         return EMPTY_LIST;
     }

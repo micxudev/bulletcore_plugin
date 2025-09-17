@@ -35,27 +35,27 @@ public final class CustomItemsRegistry {
     /**
      * Global registry for all custom items, regardless of specific type.
      */
-    public static final ItemRegistry<CustomBase> all = ItemRegistry.create();
+    public static final ItemRegistry<CustomBase> ALL = ItemRegistry.create();
 
     /**
      * Registry for all {@link Ammo} items.
      */
-    public static final ItemRegistry<Ammo> ammo = ItemRegistry.create();
+    public static final ItemRegistry<Ammo> AMMO = ItemRegistry.create();
 
     /**
      * Registry for all {@link Armor} items.
      */
-    public static final ItemRegistry<Armor> armor = ItemRegistry.create();
+    public static final ItemRegistry<Armor> ARMOR = ItemRegistry.create();
 
     /**
      * Registry for all {@link Grenade} items.
      */
-    public static final ItemRegistry<Grenade> grenade = ItemRegistry.create();
+    public static final ItemRegistry<Grenade> GRENADE = ItemRegistry.create();
 
     /**
      * Registry for all {@link Weapon} items.
      */
-    public static final ItemRegistry<Weapon> weapon = ItemRegistry.create();
+    public static final ItemRegistry<Weapon> WEAPON = ItemRegistry.create();
 
     /**
      * Private constructor to prevent instantiation.
@@ -71,18 +71,18 @@ public final class CustomItemsRegistry {
      */
     public static void register(@Nullable CustomBase item) throws ItemRegisterException {
         if (item == null) throw new ItemRegisterException("Item cannot be null");
-        all.register(item);
+        ALL.register(item);
         try {
             switch (item) {
-                case Ammo ammoItem -> ammo.register(ammoItem);
-                case Armor armorItem -> armor.register(armorItem);
-                case Grenade grenadeItem -> grenade.register(grenadeItem);
-                case Weapon weaponItem -> weapon.register(weaponItem);
+                case Ammo ammoItem -> AMMO.register(ammoItem);
+                case Armor armorItem -> ARMOR.register(armorItem);
+                case Grenade grenadeItem -> GRENADE.register(grenadeItem);
+                case Weapon weaponItem -> WEAPON.register(weaponItem);
                 default ->
                     throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
             }
         } catch (ItemRegisterException e) {
-            all.unregister(item);
+            ALL.unregister(item);
             throw e;
         }
     }
@@ -91,11 +91,11 @@ public final class CustomItemsRegistry {
      * Clears all registered items from all registries.
      */
     public static void clearAll() {
-        all.clearAll();
-        ammo.clearAll();
-        armor.clearAll();
-        grenade.clearAll();
-        weapon.clearAll();
+        ALL.clearAll();
+        AMMO.clearAll();
+        ARMOR.clearAll();
+        GRENADE.clearAll();
+        WEAPON.clearAll();
     }
 
     /**
@@ -105,7 +105,7 @@ public final class CustomItemsRegistry {
      * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
      */
     public static boolean canModelDataBeUsed(int customModelData) {
-        return customModelData > 0 && customModelData % 100 == 0 && !all.exists(customModelData);
+        return customModelData > 0 && customModelData % 100 == 0 && !ALL.exists(customModelData);
     }
 
     /**
@@ -115,7 +115,7 @@ public final class CustomItemsRegistry {
      * @return {@code true} if the name is non-null, non-blank, and not used; {@code false} otherwise
      */
     public static boolean canNameBeUsed(@Nullable String name) {
-        return name != null && isValidFormat(name) && !all.exists(name);
+        return name != null && isValidFormat(name) && !ALL.exists(name);
     }
 
     /**
@@ -137,7 +137,7 @@ public final class CustomItemsRegistry {
      * If the stack is {@code null}, lacks item meta, or does not have a custom model data set,
      * this method returns {@code 0}.
      *
-     * @param stack the item stack to inspect, may be {@code null}
+     * @param stack the item stack to inspect
      * @return the base custom model data if present, or {@code 0} otherwise
      */
     private static int getBaseModelDataOrZero(@Nullable ItemStack stack) {
@@ -149,107 +149,69 @@ public final class CustomItemsRegistry {
     }
 
     /**
-     * Returns the {@link CustomBase} item associated with the given {@link ItemStack}.
+     * Retrieves an item from the given registry based on the {@link ItemStack}'s base custom model data.
      *
-     * @param stack the item stack to check, may be null
-     * @return the item if {@code stack} represents a custom item, or {@code null} otherwise
+     * @param registry the registry to query
+     * @param stack    the item stack to inspect
+     * @param <T>      the type of item stored in the registry
+     * @return the matching item if found, or {@code null} otherwise
      */
+    private static <T extends CustomBase> @Nullable T getOrNull(@NotNull ItemRegistry<T> registry,
+                                                                @Nullable ItemStack stack) {
+        int modelData = getBaseModelDataOrZero(stack);
+        return (modelData == 0) ? null : registry.getItemOrNull(modelData);
+    }
+
+    /**
+     * Checks whether the given {@link ItemStack} corresponds to an item in the specified registry.
+     *
+     * @param registry the registry to query
+     * @param stack    the item stack to inspect
+     * @param <T>      the type of item stored in the registry
+     * @return {@code true} if the stack maps to an item in the registry, {@code false} otherwise
+     */
+    private static <T extends CustomBase> boolean isType(@NotNull ItemRegistry<T> registry,
+                                                         @Nullable ItemStack stack) {
+        return getOrNull(registry, stack) != null;
+    }
+
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
-        return (modelData == 0) ? null : all.getItemOrNull(modelData);
+        return getOrNull(ALL, stack);
     }
 
-    /**
-     * Checks if the given {@link ItemStack} corresponds to a {@link CustomBase} item.
-     *
-     * @param stack the item stack to check, may be null
-     * @return {@code true} if {@code stack} represents a custom item, {@code false} otherwise
-     */
     public static boolean isCustomItem(@Nullable ItemStack stack) {
-        return getItemOrNull(stack) != null;
+        return isType(ALL, stack);
     }
 
-    /**
-     * Returns the {@link Ammo} item associated with the given {@link ItemStack}.
-     *
-     * @param stack the item stack to check, may be null
-     * @return the item if {@code stack} represents ammo, or {@code null} otherwise
-     */
     public static @Nullable Ammo getAmmoOrNull(@Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
-        return (modelData == 0) ? null : ammo.getItemOrNull(modelData);
+        return getOrNull(AMMO, stack);
     }
 
-    /**
-     * Checks if the given {@link ItemStack} corresponds to an {@link Ammo} item.
-     *
-     * @param stack the item stack to check, may be null
-     * @return {@code true} if {@code stack} represents ammo, {@code false} otherwise
-     */
     public static boolean isAmmo(@Nullable ItemStack stack) {
-        return getAmmoOrNull(stack) != null;
+        return isType(AMMO, stack);
     }
 
-    /**
-     * Returns the {@link Armor} item associated with the given {@link ItemStack}.
-     *
-     * @param stack the item stack to check, may be null
-     * @return the item if {@code stack} represents armor, or {@code null} otherwise
-     */
     public static @Nullable Armor getArmorOrNull(@Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
-        return (modelData == 0) ? null : armor.getItemOrNull(modelData);
+        return getOrNull(ARMOR, stack);
     }
 
-    /**
-     * Checks if the given {@link ItemStack} corresponds to an {@link Armor} item.
-     *
-     * @param stack the item stack to check, may be null
-     * @return {@code true} if {@code stack} represents armor, {@code false} otherwise
-     */
     public static boolean isArmor(@Nullable ItemStack stack) {
-        return getArmorOrNull(stack) != null;
+        return isType(ARMOR, stack);
     }
 
-    /**
-     * Returns the {@link Grenade} item associated with the given {@link ItemStack}.
-     *
-     * @param stack the item stack to check, may be null
-     * @return the item if {@code stack} represents a grenade, or {@code null} otherwise
-     */
     public static @Nullable Grenade getGrenadeOrNull(@Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
-        return (modelData == 0) ? null : grenade.getItemOrNull(modelData);
+        return getOrNull(GRENADE, stack);
     }
 
-    /**
-     * Checks if the given {@link ItemStack} corresponds to a {@link Grenade} item.
-     *
-     * @param stack the item stack to check, may be null
-     * @return {@code true} if {@code stack} represents a grenade, {@code false} otherwise
-     */
     public static boolean isGrenade(@Nullable ItemStack stack) {
-        return getGrenadeOrNull(stack) != null;
+        return isType(GRENADE, stack);
     }
 
-    /**
-     * Returns the {@link Weapon} item associated with the given {@link ItemStack}.
-     *
-     * @param stack the item stack to check, may be null
-     * @return the item if {@code stack} represents a weapon, or {@code null} otherwise
-     */
     public static @Nullable Weapon getWeaponOrNull(@Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
-        return (modelData == 0) ? null : weapon.getItemOrNull(modelData);
+        return getOrNull(WEAPON, stack);
     }
 
-    /**
-     * Checks if the given {@link ItemStack} corresponds to a {@link Weapon} item.
-     *
-     * @param stack the item stack to check, may be null
-     * @return {@code true} if {@code stack} represents a weapon, {@code false} otherwise
-     */
     public static boolean isWeapon(@Nullable ItemStack stack) {
-        return getWeaponOrNull(stack) != null;
+        return isType(WEAPON, stack);
     }
 }

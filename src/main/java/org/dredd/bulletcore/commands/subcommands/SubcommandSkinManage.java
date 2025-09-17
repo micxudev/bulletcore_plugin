@@ -66,7 +66,7 @@ public class SubcommandSkinManage implements Subcommand {
         }
 
         String weaponName = args[3];
-        Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
+        Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) {
             sender.sendMessage(of(sender, INVALID_WEAPON, Map.of("weapon", weaponName)));
             return;
@@ -125,7 +125,7 @@ public class SubcommandSkinManage implements Subcommand {
         String weaponName = args[3];
         if (args.length == 4)
             return StringUtil.copyPartialMatches(weaponName, SkinsManager.getWeaponNamesWithSkins(), new ArrayList<>());
-        Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
+        Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 5) {

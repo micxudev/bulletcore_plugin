@@ -86,7 +86,7 @@ public class SkinsManager {
      * @return a list of weapon names with skins
      */
     public static @NotNull List<String> getWeaponNamesWithSkins() {
-        return CustomItemsRegistry.weapon.getAll().stream()
+        return CustomItemsRegistry.WEAPON.getAll().stream()
             .filter(weapon -> weapon.skins.hasSkins())
             .map(weapon -> weapon.name)
             .toList();

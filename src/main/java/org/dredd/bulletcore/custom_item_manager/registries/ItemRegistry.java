@@ -25,7 +25,7 @@ public final class ItemRegistry<T extends CustomBase> {
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Int2ObjectMap<T> items;
+    private final Int2ObjectMap<T> itemsByModelData;
 
     /**
      * A mapping of item names to their corresponding custom item instances.
@@ -33,7 +33,7 @@ public final class ItemRegistry<T extends CustomBase> {
     private final Map<String, T> itemsByName;
 
     private ItemRegistry() {
-        this.items = new Int2ObjectArrayMap<>(16);
+        this.itemsByModelData = new Int2ObjectArrayMap<>(16);
         this.itemsByName = new HashMap<>();
     }
 
@@ -51,7 +51,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @return the item if found, or {@code null} if not registered
      */
     public @Nullable T getItemOrNull(int customModelData) {
-        return items.get(customModelData);
+        return itemsByModelData.get(customModelData);
     }
 
     /**
@@ -70,7 +70,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @return a collection of all registered custom items
      */
     public @NotNull @Unmodifiable Collection<T> getAll() {
-        return Collections.unmodifiableCollection(items.values());
+        return Collections.unmodifiableCollection(itemsByName.values());
     }
 
     /**
@@ -92,14 +92,14 @@ public final class ItemRegistry<T extends CustomBase> {
         int modelData = item.customModelData;
         String name = item.name;
 
-        T existingByModelData = items.putIfAbsent(modelData, item);
+        T existingByModelData = itemsByModelData.putIfAbsent(modelData, item);
         if (existingByModelData != null)
-            throw new ItemRegisterException("Item with customModelData " + modelData + " already registered");
+            throw new ItemRegisterException("Item is already registered with the customModelData: " + modelData);
 
         T existingByName = itemsByName.putIfAbsent(name, item);
         if (existingByName != null) {
-            items.remove(modelData, item);
-            throw new ItemRegisterException("Item already registered by name: " + name);
+            itemsByModelData.remove(modelData, item);
+            throw new ItemRegisterException("Item is already registered with the name: " + name);
         }
     }
 
@@ -109,7 +109,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @param item the item to unregister
      */
     void unregister(@NotNull T item) {
-        items.remove(item.customModelData);
+        itemsByModelData.remove(item.customModelData, item);
         itemsByName.remove(item.name, item);
     }
 
@@ -117,7 +117,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * Clears all registered items from the registry.
      */
     void clearAll() {
-        items.clear();
+        itemsByModelData.clear();
         itemsByName.clear();
     }
 
@@ -128,7 +128,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @return {@code true} if an item with the given custom model data exists, {@code false} otherwise
      */
     boolean exists(int customModelData) {
-        return items.containsKey(customModelData);
+        return itemsByModelData.containsKey(customModelData);
     }
 
     /**

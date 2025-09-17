@@ -274,7 +274,7 @@ public final class YMLLModelLoader {
         var baseAttributes = loadBaseAttributes(config);
 
         String ammoName = config.getString("ammo", "");
-        Ammo ammo = CustomItemsRegistry.ammo.getItemOrNull(ammoName);
+        Ammo ammo = CustomItemsRegistry.AMMO.getItemOrNull(ammoName);
         if (ammo == null)
             throw new ItemLoadException("Invalid ammo name: " + ammoName);
 
