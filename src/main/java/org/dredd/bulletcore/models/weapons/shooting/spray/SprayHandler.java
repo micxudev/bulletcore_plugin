@@ -5,7 +5,11 @@ import org.bukkit.util.Vector;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles weapon spray for players.

@@ -11,7 +11,11 @@ import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import static org.bukkit.SoundCategory.MASTER;
 import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;

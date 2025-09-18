@@ -4,11 +4,20 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
-import org.dredd.bulletcore.commands.subcommands.*;
+import org.dredd.bulletcore.commands.subcommands.Subcommand;
+import org.dredd.bulletcore.commands.subcommands.SubcommandGive;
+import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSkin;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSkinManage;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSprayInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
 import static org.dredd.bulletcore.config.messages.MessageManager.of;
