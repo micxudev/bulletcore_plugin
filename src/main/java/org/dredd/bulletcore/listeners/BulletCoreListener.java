@@ -60,20 +60,6 @@ public class BulletCoreListener implements Listener {
      */
     private static final int CONVERTED_OFFHAND_SLOT = 40;
 
-    /**
-     * The {@link PlayerActionTracker} instance used to track player interactions.
-     */
-    private final PlayerActionTracker tracker;
-
-    /**
-     * Constructs a new listener using the provided tracker instance.
-     *
-     * @param tracker the {@link PlayerActionTracker} used to track player interactions
-     */
-    public BulletCoreListener(PlayerActionTracker tracker) {
-        this.tracker = tracker;
-    }
-
 
     /* ========== All Custom Items Listeners ========== */
 
@@ -93,8 +79,9 @@ public class BulletCoreListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND) return;
         //System.err.println("1. Used MAIN HAND." + " Action: " + event.getAction());
 
+        final Player player = event.getPlayer();
         long now = System.currentTimeMillis();
-        long lastDrop = tracker.getLastDrop(event.getPlayer().getUniqueId());
+        long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
 
         if (now - lastDrop < 25) {
             //System.err.println("2. Interact is right after the drop (most probably using key (Q)). Do not process.");
@@ -112,13 +99,13 @@ public class BulletCoreListener implements Listener {
         final Action action = event.getAction();
         if (action.isLeftClick()) {
             //System.err.println("4. Left click detected.");
-            if (usedCustomItem.onLMB(event.getPlayer(), usedItem)) {
+            if (usedCustomItem.onLMB(player, usedItem)) {
                 //System.err.println("5. Left click canceled event.");
                 event.setCancelled(true);
             }
         } else if (action.isRightClick()) {
             //System.err.println("4. Right click detected.");
-            if (usedCustomItem.onRMB(event.getPlayer(), usedItem)) {
+            if (usedCustomItem.onRMB(player, usedItem)) {
                 //System.err.println("5. Right click canceled event.");
                 event.setCancelled(true);
             }
@@ -438,7 +425,7 @@ public class BulletCoreListener implements Listener {
         final Player player = event.getPlayer();
 
         long now = System.currentTimeMillis();
-        long last = tracker.getLastInventoryInteraction(player.getUniqueId());
+        long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
 
         // If less than 50 ms passed since the last inventory interaction, assume it came from GUI
         if (now - last < 50) {
@@ -487,7 +474,7 @@ public class BulletCoreListener implements Listener {
         if (isReallySneaking && weapon.isAutomatic) {
             //System.err.println("2.1. Player is NOW sneaking with automatic Weapon.");
             long now = System.currentTimeMillis();
-            long lastSingleShot = PlayerActionTracker.getLastSingleShotUsingAutomaticWeapon(player.getUniqueId());
+            long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
             long threshold = ConfigManager.get().fireResumeThreshold;
             if (now - lastSingleShot < threshold) {
                 //System.err.println("2.1.1. Player shot a single bullet " + (now - lastSingleShot) + "ms ago.");

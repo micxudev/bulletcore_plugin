@@ -124,7 +124,7 @@ public final class ShootingHandler {
             long ticksBetweenShots = weapon.delayBetweenShots / 50L;
             runShootingTask(player, weapon, ticksBetweenShots, ticksBetweenShots);
         } else {
-            if (weapon.isAutomatic) PlayerActionTracker.updateLastSingleShotUsingAutomaticWeapon(player.getUniqueId());
+            if (weapon.isAutomatic) PlayerActionTracker.recordSingleShotAutomatic(player.getUniqueId());
             shoot(player, weapon);
         }
     }

@@ -13,7 +13,6 @@ import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.BulletCoreListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
 import org.dredd.bulletcore.listeners.UnknownCommandListener;
-import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
@@ -56,9 +55,8 @@ public final class BulletCore extends JavaPlugin {
         initAll();
         registerMainCommand();
 
-        PlayerActionTracker tracker = new PlayerActionTracker();
-        registerListener(new BulletCoreListener(tracker));
-        registerListener(new PlayerActionsListener(tracker));
+        registerListener(new BulletCoreListener());
+        registerListener(new PlayerActionsListener());
         registerListener(new UnknownCommandListener());
 
         getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Enabled");

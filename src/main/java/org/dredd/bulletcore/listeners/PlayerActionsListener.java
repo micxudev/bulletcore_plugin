@@ -27,17 +27,6 @@ import org.dredd.bulletcore.utils.ServerUtils;
  */
 public class PlayerActionsListener implements Listener {
 
-    private final PlayerActionTracker tracker;
-
-    /**
-     * Constructs a new listener using the provided tracker instance.
-     *
-     * @param tracker the {@link PlayerActionTracker} used to store inventory interaction timestamps
-     */
-    public PlayerActionsListener(PlayerActionTracker tracker) {
-        this.tracker = tracker;
-    }
-
     /**
      * Called when a player clicks in an inventory.<br>
      * Updates the player's last inventory interaction time.
@@ -46,7 +35,7 @@ public class PlayerActionsListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryInteract(InventoryClickEvent event) {
-        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+        PlayerActionTracker.recordInventoryInteraction(event.getWhoClicked().getUniqueId());
     }
 
     /**
@@ -57,7 +46,7 @@ public class PlayerActionsListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+        PlayerActionTracker.recordInventoryInteraction(event.getWhoClicked().getUniqueId());
     }
 
     /**
@@ -82,7 +71,7 @@ public class PlayerActionsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
-        tracker.clear(player.getUniqueId());
+        PlayerActionTracker.clear(player.getUniqueId());
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
         RecoilHandler.stopAndClearRecoil(player);
@@ -99,10 +88,10 @@ public class PlayerActionsListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player entity = event.getEntity();
-        ReloadHandler.cancelReload(entity, false);
-        ShootingHandler.cancelAutoShooting(entity);
-        RecoilHandler.stopAndClearRecoil(entity);
+        final Player player = event.getEntity();
+        ReloadHandler.cancelReload(player, false);
+        ShootingHandler.cancelAutoShooting(player);
+        RecoilHandler.stopAndClearRecoil(player);
     }
 
     /**
@@ -113,7 +102,7 @@ public class PlayerActionsListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDrop(PlayerDropItemEvent event) {
-        tracker.markDrop(event.getPlayer().getUniqueId());
+        PlayerActionTracker.recordDrop(event.getPlayer().getUniqueId());
     }
 
     /**

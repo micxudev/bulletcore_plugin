@@ -14,20 +14,16 @@ import java.util.UUID;
  * @author dredd
  * @since 1.0.0
  */
-public class CurrentHitTracker {
+public final class CurrentHitTracker {
 
-    /**
-     * Stores currently processing hits.
-     */
-    private static final Map<UUID, UUID> currentHits = new HashMap<>();
+    private CurrentHitTracker() {}
 
-    /**
-     * Stores currently processing armor hits.
-     */
-    private static final Map<UUID, ArmorHit> currentArmorHits = new HashMap<>();
+    private static final Map<UUID, UUID> CURRENT_HITS = new HashMap<>();
+
+    private static final Map<UUID, ArmorHit> CURRENT_ARMOR_HITS = new HashMap<>();
 
 
-    // -----< currentHits >-----
+    // -----< CURRENT_HITS >-----
 
     /**
      * Marks that a hit is currently being processed.
@@ -36,7 +32,7 @@ public class CurrentHitTracker {
      * @param victim  UUID of the entity that is being attacked
      */
     public static void startHitProcess(@NotNull UUID damager, @NotNull UUID victim) {
-        currentHits.put(damager, victim);
+        CURRENT_HITS.put(damager, victim);
     }
 
     /**
@@ -46,7 +42,7 @@ public class CurrentHitTracker {
      * @param victim  UUID of the entity that had been attacked
      */
     public static void finishHitProcess(@NotNull UUID damager, @NotNull UUID victim) {
-        currentHits.remove(damager, victim);
+        CURRENT_HITS.remove(damager, victim);
     }
 
     /**
@@ -57,12 +53,12 @@ public class CurrentHitTracker {
      * @return {@code true} if a hit is currently being processed, {@code false} otherwise
      */
     public static boolean isAlreadyHit(@NotNull UUID damager, @NotNull UUID victim) {
-        UUID uuid = currentHits.get(damager);
+        UUID uuid = CURRENT_HITS.get(damager);
         return uuid != null && uuid.equals(victim);
     }
 
 
-    // -----< currentArmorHits >-----
+    // -----< CURRENT_ARMOR_HITS >-----
 
     /**
      * Adds armor hit.
@@ -71,7 +67,7 @@ public class CurrentHitTracker {
      * @param armorHit   the armor hit data
      */
     public static void addArmorHit(@NotNull UUID victimUUID, @NotNull ArmorHit armorHit) {
-        currentArmorHits.put(victimUUID, armorHit);
+        CURRENT_ARMOR_HITS.put(victimUUID, armorHit);
     }
 
     /**
@@ -80,7 +76,7 @@ public class CurrentHitTracker {
      * @param victimUUID the victim's UUID
      */
     public static void removeArmorHit(@NotNull UUID victimUUID) {
-        currentArmorHits.remove(victimUUID);
+        CURRENT_ARMOR_HITS.remove(victimUUID);
     }
 
     /**
@@ -90,6 +86,6 @@ public class CurrentHitTracker {
      * @return the armor hit instance, or {@code null} if not found
      */
     public static @Nullable ArmorHit getArmorHit(@NotNull UUID victimUUID) {
-        return currentArmorHits.get(victimUUID);
+        return CURRENT_ARMOR_HITS.get(victimUUID);
     }
 }

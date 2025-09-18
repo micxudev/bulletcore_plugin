@@ -19,11 +19,11 @@ import static org.dredd.bulletcore.config.messages.MessageManager.of;
 public class UnknownCommandListener implements Listener {
 
     /**
-     * Called when an unknown command is executed.<br>
+     * Called when an unknown command is executed.
      *
      * @param event the {@link UnknownCommandEvent} triggered
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onUnknownCommand(UnknownCommandEvent event) {
         event.message(of(event.getSender(), UNKNOWN_COMMAND, Map.of("commandline", event.getCommandLine())));
     }

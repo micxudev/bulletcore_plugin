@@ -1,95 +1,82 @@
 package org.dredd.bulletcore.listeners.trackers;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tracks the most recent interactions (e.g., inventory clicks, item drops) for each player.
+ * Tracks recent player actions such as inventory interactions, item drops,
+ * and single shots with automatic weapons.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class PlayerActionTracker {
+public final class PlayerActionTracker {
+
+    private PlayerActionTracker() {}
+
+    private static final Map<UUID, Long> LAST_INVENTORY_INTERACTION = new HashMap<>();
+
+    private static final Map<UUID, Long> LAST_DROP = new HashMap<>();
+
+    private static final Map<UUID, Long> LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON = new HashMap<>();
 
     /**
-     * Stores last inventory interaction time for each player.
+     * Records the current time as the player's last inventory interaction.
      */
-    private final Map<UUID, Long> lastInventoryInteraction = new HashMap<>();
+    public static void recordInventoryInteraction(@NotNull UUID uuid) {
+        LAST_INVENTORY_INTERACTION.put(uuid, System.currentTimeMillis());
+    }
 
     /**
-     * Stores last item drop time for each player.
-     */
-    private final Map<UUID, Long> lastDrop = new HashMap<>();
-
-    /**
-     * Stores last time each player fired a single shot using an automatic weapon.
-     */
-    private static final Map<UUID, Long> lastSingleShotUsingAutomaticWeapon = new HashMap<>();
-
-    /**
-     * Marks the current time as the player's last inventory interaction.
+     * Gets the last recorded inventory interaction time for the player.
      *
-     * @param uuid the unique ID of the player
+     * @return timestamp in ms, or {@code 0} if none recorded
      */
-    public void markInventoryInteraction(UUID uuid) {
-        lastInventoryInteraction.put(uuid, System.currentTimeMillis());
+    public static long getLastInventoryInteraction(@NotNull UUID uuid) {
+        return LAST_INVENTORY_INTERACTION.getOrDefault(uuid, 0L);
     }
 
     /**
-     * Returns the timestamp (in milliseconds) of the player's last inventory interaction.
-     * If no interaction has been recorded, returns {@code 0}.
+     * Records the current time as the player's last item drop.
+     */
+    public static void recordDrop(@NotNull UUID uuid) {
+        LAST_DROP.put(uuid, System.currentTimeMillis());
+    }
+
+    /**
+     * Gets the last recorded item drop time for the player.
      *
-     * @param uuid the unique ID of the player
-     * @return the last interaction time in milliseconds, or {@code 0} if none recorded
+     * @return timestamp in ms, or {@code 0} if none recorded
      */
-    public long getLastInventoryInteraction(UUID uuid) {
-        return lastInventoryInteraction.getOrDefault(uuid, 0L);
+    public static long getLastDrop(@NotNull UUID uuid) {
+        return LAST_DROP.getOrDefault(uuid, 0L);
     }
 
     /**
-     * Marks the current time as the player's last item drop.
+     * Records the current time as the player's last single shot with an automatic weapon.
+     */
+    public static void recordSingleShotAutomatic(@NotNull UUID uuid) {
+        LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.put(uuid, System.currentTimeMillis());
+    }
+
+    /**
+     * Gets the last recorded single shot time with an automatic weapon.
      *
-     * @param uuid the unique ID of the player
+     * @return timestamp in ms, or {@code 0} if none recorded
      */
-    public void markDrop(UUID uuid) {
-        lastDrop.put(uuid, System.currentTimeMillis());
+    public static long getLastSingleShotAutomatic(@NotNull UUID uuid) {
+        return LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.getOrDefault(uuid, 0L);
     }
 
     /**
-     * Returns the timestamp (in milliseconds) of the player's last item drop.
-     * If no drop has been recorded, returns {@code 0}.
-     *
-     * @param uuid the unique ID of the player
-     * @return the last drop time in milliseconds, or {@code 0} if none recorded
+     * Removes all tracked data for the given player.
      */
-    public long getLastDrop(UUID uuid) {
-        return lastDrop.getOrDefault(uuid, 0L);
-    }
-
-    /**
-     * Updates the last single-shot timestamp for the given player using an automatic weapon.
-     */
-    public static void updateLastSingleShotUsingAutomaticWeapon(UUID uuid) {
-        PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.put(uuid, System.currentTimeMillis());
-    }
-
-    /**
-     * Gets the timestamp of the last single shot fired with an automatic
-     * weapon by the given player. Returns 0 if none recorded.
-     */
-    public static long getLastSingleShotUsingAutomaticWeapon(UUID uuid) {
-        return PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.getOrDefault(uuid, 0L);
-    }
-
-    /**
-     * Clears the recorded data for the given player.
-     *
-     * @param uuid the unique ID of the player
-     */
-    public void clear(UUID uuid) {
-        lastInventoryInteraction.remove(uuid);
-        lastDrop.remove(uuid);
-        PlayerActionTracker.lastSingleShotUsingAutomaticWeapon.remove(uuid);
+    public static void clear(@NotNull UUID uuid) {
+        LAST_INVENTORY_INTERACTION.remove(uuid);
+        LAST_DROP.remove(uuid);
+        LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.remove(uuid);
     }
 }
