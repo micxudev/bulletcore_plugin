@@ -2,6 +2,7 @@ package org.dredd.bulletcore.config.messages;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
@@ -16,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.stream.Collectors;
 
 import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
@@ -52,11 +54,11 @@ public class MessageManager {
     }
 
     /**
-     * Reloads the message manager with the given plugin instance and re-loads all locale messages.
+     * Initializes or reloads all the locale messages.
      *
      * @param plugin the plugin instance
      */
-    public static void reload(BulletCore plugin) {
+    public static void reload(@NotNull BulletCore plugin) {
         instance = new MessageManager(plugin);
         instance.loadLocales();
     }
@@ -71,7 +73,7 @@ public class MessageManager {
      *
      * @param plugin the main plugin instance
      */
-    private MessageManager(BulletCore plugin) {
+    private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
         this.langFolder = new File(plugin.getDataFolder(), "lang");
         this.messages = new HashMap<>();
@@ -83,7 +85,9 @@ public class MessageManager {
      */
     private void loadLocales() {
         if (!langFolder.exists()) {
-            langFolder.mkdirs();
+            if (!langFolder.mkdirs())
+                throw new RuntimeException("Failed to create lang folder: " + langFolder.getPath());
+
             copyDefaultLangFiles();
         }
 
@@ -94,13 +98,27 @@ public class MessageManager {
             String localeKey = file.getName().replace(".yml", "");
             Locale locale = Locale.forLanguageTag(localeKey);
             try {
-                messages.put(locale, YMLLoader.load(file));
+                messages.put(locale, loadMessages(file));
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to load language file: " + file.getName() + ": " + e.getMessage());
             }
         }
 
         plugin.getLogger().info("-Loaded " + messages.size() + " language files: " + messages.keySet());
+    }
+
+    /**
+     * Loads all non-section key-value string pairs from a YAML file.
+     *
+     * @param file the YAML file to load messages from
+     * @return a {@code Map<String, String>} containing key-value pairs from the file
+     */
+    private static @NotNull Map<String, String> loadMessages(@NotNull File file) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        return config.getKeys(true).stream()
+            .filter(key -> !config.isConfigurationSection(key))
+            .map(key -> Map.entry(key, config.getString(key, "")))
+            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
@@ -145,7 +163,8 @@ public class MessageManager {
      * @param message the component message key and default
      * @return the resolved message string
      */
-    private @NotNull String resolveMessage(@NotNull CommandSender sender, @NotNull ComponentMessage message) {
+    private @NotNull String resolveMessage(@NotNull CommandSender sender,
+                                           @NotNull ComponentMessage message) {
         @Nullable Locale senderLocale = getLocale(sender);
         @NotNull Locale defaultLocale = ConfigManager.get().locale;
         @NotNull Locale locale1 = senderLocale == null ? defaultLocale : senderLocale;
@@ -163,10 +182,10 @@ public class MessageManager {
      * @param placeholders a map of placeholder keys to values
      * @return the resolved string with placeholders replaced
      */
-    private @NotNull String resolvePlaceholders(String message, @Nullable Map<String, String> placeholders) {
-        if (placeholders != null && !placeholders.isEmpty())
-            for (Map.Entry<String, String> entry : placeholders.entrySet())
-                message = message.replace("%" + entry.getKey() + "%", entry.getValue());
+    private @NotNull String resolvePlaceholders(@NotNull String message,
+                                                @NotNull Map<String, String> placeholders) {
+        for (Map.Entry<String, String> entry : placeholders.entrySet())
+            message = message.replace("%" + entry.getKey() + "%", entry.getValue());
         return message;
     }
 
@@ -182,7 +201,7 @@ public class MessageManager {
                                          @NotNull ComponentMessage message,
                                          @Nullable Map<String, String> placeholders) {
         String resolved = resolveMessage(sender, message);
-        String formatted = resolvePlaceholders(resolved, placeholders);
+        String formatted = placeholders != null ? resolvePlaceholders(resolved, placeholders) : resolved;
         return MINI.deserialize(formatted);
     }
 

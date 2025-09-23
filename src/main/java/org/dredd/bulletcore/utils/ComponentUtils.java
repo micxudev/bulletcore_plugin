@@ -1,8 +1,10 @@
 package org.dredd.bulletcore.utils;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.dredd.bulletcore.config.messages.TranslatableMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +35,19 @@ public final class ComponentUtils {
      * Default white text color used for neutral UI components.
      */
     public static final TextColor WHITE = color(226, 229, 240);
+
+    /**
+     * Key style used for {@link TranslatableMessages} as fallback.
+     */
+    public static final Component KEY_STYLE = MINI.deserialize("<!i><white>");
+
+    /**
+     * Argument styles used for {@link TranslatableMessages} as fallback.
+     */
+    public static final Component ARG_STYLE_RED = MINI.deserialize("<red>");
+    public static final Component ARG_STYLE_GREEN = MINI.deserialize("<green>");
+    public static final Component ARG_STYLE_BLUE = MINI.deserialize("<blue>");
+    public static final Component ARG_STYLE_YELLOW = MINI.deserialize("<yellow>");
 
     /**
      * Returns a non-italic {@link TextComponent} with the given content and color.

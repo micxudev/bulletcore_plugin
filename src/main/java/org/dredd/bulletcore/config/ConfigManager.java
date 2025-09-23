@@ -50,7 +50,7 @@ public final class ConfigManager {
      *
      * @param plugin the plugin instance
      */
-    public static void reload(BulletCore plugin) {
+    public static void reload(@NotNull BulletCore plugin) {
         instance = new ConfigManager(plugin);
     }
 
@@ -73,7 +73,7 @@ public final class ConfigManager {
 
     public final ASFeatureManager asFeatureManager;
 
-    public final @Unmodifiable Set<Material> ignoredMaterials;
+    public final Set<Material> ignoredMaterials;
 
     /**
      * Initializes the {@link ConfigManager} instance by loading and parsing configuration values
@@ -82,7 +82,7 @@ public final class ConfigManager {
      *
      * @param plugin the {@link BulletCore} instance
      */
-    private ConfigManager(BulletCore plugin) {
+    private ConfigManager(@NotNull BulletCore plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();

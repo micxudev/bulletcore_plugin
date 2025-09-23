@@ -18,7 +18,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 
 /**
- * Utility class for loading and spawning configured particles defined in YAML.<br>
+ * Utility class for loading and spawning configured particles.
+ * <p>
  * Particle configurations must be located under the {@code particles.<key>} path in the YAML.
  *
  * @author dredd
@@ -31,8 +32,6 @@ public class ParticleManager {
      */
     private ParticleManager() {}
 
-    // -----< Loading >-----
-
     /**
      * Parses a {@link ConfiguredParticle} from the given config using the key under {@code particles.<key>}.
      *
@@ -42,7 +41,8 @@ public class ParticleManager {
      * @throws NoSuchElementException   if the configuration is missing
      * @throws IllegalArgumentException if the configuration is invalid
      */
-    private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg, @NotNull String key) {
+    private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg,
+                                                             @NotNull String key) {
         String fullKey = "particles." + key;
         ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
@@ -81,7 +81,8 @@ public class ParticleManager {
      * @return the parsed particle data object, or {@code null} if no data is required
      * @throws IllegalArgumentException if required values are missing, invalid, or unsupported
      */
-    private static @Nullable Object getParticleData(@NotNull Class<?> dataType, @NotNull ConfigurationSection section) {
+    private static @Nullable Object getParticleData(@NotNull Class<?> dataType,
+                                                    @NotNull ConfigurationSection section) {
         // 0. most of the particles have Void data class
         if (dataType == Void.class) return null;
 
@@ -183,7 +184,9 @@ public class ParticleManager {
      * @param def the fallback {@link ConfiguredParticle} to use if parsing fails
      * @return a valid {@link ConfiguredParticle}, either parsed, or fallback
      */
-    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg, @NotNull String key, @NotNull ConfiguredParticle def) {
+    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg,
+                                                           @NotNull String key,
+                                                           @NotNull ConfiguredParticle def) {
         try {
             return parseParticle(cfg, key);
         } catch (NoSuchElementException ignored) {
@@ -194,8 +197,6 @@ public class ParticleManager {
         return def;
     }
 
-    // -----< Usage >-----
-
     /**
      * Spawns the given {@link ConfiguredParticle} at the specified location in the world.
      *
@@ -203,7 +204,9 @@ public class ParticleManager {
      * @param location the location where the particle should appear
      * @param particle the configured particle to spawn
      */
-    public static void spawnParticle(@NotNull World world, @NotNull Location location, @NotNull ConfiguredParticle particle) {
+    public static void spawnParticle(@NotNull World world,
+                                     @NotNull Location location,
+                                     @NotNull ConfiguredParticle particle) {
         world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
     }
 }

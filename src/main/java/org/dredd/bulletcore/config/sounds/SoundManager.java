@@ -12,7 +12,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 
 /**
- * Utility class for loading and playing configured sounds defined in YAML.<br>
+ * Utility class for loading and playing configured sounds.
+ * <p>
  * Sound configurations must be located under the {@code sounds.<key>} path in the YAML.
  *
  * @author dredd
@@ -39,7 +40,8 @@ public final class SoundManager {
      * @throws NoSuchElementException   if the configuration is missing
      * @throws IllegalArgumentException if the configuration is invalid
      */
-    private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg, @NotNull String key) {
+    private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg,
+                                                       @NotNull String key) {
         String fullKey = "sounds." + key;
         ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
@@ -82,7 +84,9 @@ public final class SoundManager {
      * @param def the fallback {@link ConfiguredSound} to use if parsing fails
      * @return a valid {@link ConfiguredSound}, either parsed or fallback
      */
-    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg, @NotNull String key, @NotNull ConfiguredSound def) {
+    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg,
+                                                     @NotNull String key,
+                                                     @NotNull ConfiguredSound def) {
         try {
             return parseSound(cfg, key);
         } catch (NoSuchElementException ignored) {
@@ -100,7 +104,9 @@ public final class SoundManager {
      * @param location the location where the sound will be heard from
      * @param sound    the configured sound to play
      */
-    public static void playSound(@NotNull Player player, @NotNull Location location, @NotNull ConfiguredSound sound) {
+    public static void playSound(@NotNull Player player,
+                                 @NotNull Location location,
+                                 @NotNull ConfiguredSound sound) {
         boolean hasSeed = sound.seed() != RANDOM_SEED;
 
         if (sound.mode() == SoundPlaybackMode.WORLD) {

@@ -42,18 +42,23 @@ import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
  * Utility class for loading all custom item models from YML files.
- *
- * <p>This loader reads configuration files for all supported {@link CustomItemType}s
- * and deserializes them into their respective object types, registering them into their proper registries.</p>
- *
- * <p>The loader supports a shared base attribute parser and individual model loaders for each item type.</p>
- *
- * <p>Invalid or disabled files will be skipped with appropriate logging.</p>
+ * <p>
+ * This loader reads configuration files for all supported {@link CustomItemType}s
+ * and deserializes them into their respective object types, registering them into their proper registries.
+ * <p>
+ * The loader supports a shared base attribute parser and individual model loaders for each item type.
+ * <p>
+ * Invalid or disabled files will be skipped with appropriate logging.
  *
  * @author dredd
  * @since 1.0.0
  */
 public final class YMLLModelLoader {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private YMLLModelLoader() {}
 
     /**
      * Reference to the plugin's main instance.
@@ -75,14 +80,14 @@ public final class YMLLModelLoader {
          * @return the loaded item
          * @throws ItemLoadException if the config is invalid or incomplete
          */
-        T load(YamlConfiguration config) throws ItemLoadException;
+        @NotNull T load(@NotNull YamlConfiguration config) throws ItemLoadException;
     }
 
     /**
      * Loads all custom items for each supported item type from their respective folders
      * and registers them into their specific and global registries.
      */
-    public static void loadAllItems(BulletCore plugin) {
+    public static void loadAllItems(@NotNull BulletCore plugin) {
         YMLLModelLoader.plugin = plugin;
 
         Map<CustomItemType, ItemLoader<?>> loaders = new LinkedHashMap<>() {{
@@ -110,7 +115,8 @@ public final class YMLLModelLoader {
      * @param type            the custom item type
      * @param configProcessor a function to process each valid YAML config
      */
-    private static void loadFolder(CustomItemType type, ThrowingFunction<YamlConfiguration, Boolean> configProcessor) {
+    private static void loadFolder(@NotNull CustomItemType type,
+                                   @NotNull ThrowingFunction<YamlConfiguration, Boolean> configProcessor) {
         File folder = new File(plugin.getDataFolder(), type.getFolderPath());
         if (!folder.exists() && !folder.mkdirs()) {
             plugin.getLogger().warning("Failed to create directory: " + folder.getPath());
@@ -151,7 +157,7 @@ public final class YMLLModelLoader {
      * @return the populated {@link CustomBase.BaseAttributes} object
      * @throws ItemLoadException if any required attribute is missing or failed validation
      */
-    private static @NotNull BaseAttributes loadBaseAttributes(YamlConfiguration config) throws ItemLoadException {
+    private static @NotNull BaseAttributes loadBaseAttributes(@NotNull YamlConfiguration config) throws ItemLoadException {
         String name = config.getString("name");
         if (!CustomItemsRegistry.canNameBeUsed(name))
             throw new ItemLoadException("Name: '" + name + "' does not match [a-z0-9/._-] or is already in use");
@@ -180,8 +186,7 @@ public final class YMLLModelLoader {
      * @return Material that supports ItemMeta
      * @throws ItemLoadException if the material is invalid or does not support ItemMeta
      */
-    private static @NotNull Material getMetaCapableMaterial(@Nullable String materialName)
-        throws ItemLoadException {
+    private static @NotNull Material getMetaCapableMaterial(@Nullable String materialName) throws ItemLoadException {
         if (materialName == null || materialName.isBlank())
             throw new ItemLoadException("Material name cannot be null or blank");
 
@@ -208,7 +213,7 @@ public final class YMLLModelLoader {
      * @return the constructed Ammo item
      * @throws ItemLoadException if validation fails
      */
-    private static @NotNull Ammo loadAmmo(YamlConfiguration config) throws ItemLoadException {
+    private static @NotNull Ammo loadAmmo(@NotNull YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
         int maxAmmo = Math.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
@@ -226,7 +231,7 @@ public final class YMLLModelLoader {
      * @return the constructed Armor item
      * @throws ItemLoadException if validation fails
      */
-    private static @NotNull Armor loadArmor(YamlConfiguration config) throws ItemLoadException {
+    private static @NotNull Armor loadArmor(@NotNull YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
         double maxDurability = Math.clamp(config.getDouble("maxDurability", 100.0D), 1.0D, Double.MAX_VALUE);
@@ -257,7 +262,7 @@ public final class YMLLModelLoader {
      * @return the constructed Grenade item
      * @throws ItemLoadException if validation fails
      */
-    private static @NotNull Grenade loadGrenade(YamlConfiguration config) throws ItemLoadException {
+    private static @NotNull Grenade loadGrenade(@NotNull YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
         return new Grenade(baseAttributes);
@@ -270,7 +275,7 @@ public final class YMLLModelLoader {
      * @return the constructed Weapon item
      * @throws ItemLoadException if validation fails
      */
-    private static @NotNull Weapon loadWeapon(YamlConfiguration config) throws ItemLoadException {
+    private static @NotNull Weapon loadWeapon(@NotNull YamlConfiguration config) throws ItemLoadException {
         var baseAttributes = loadBaseAttributes(config);
 
         String ammoName = config.getString("ammo", "");
