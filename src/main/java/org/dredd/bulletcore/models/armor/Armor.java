@@ -19,7 +19,7 @@ import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.persistence.PersistentDataType.DOUBLE;
-import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_ARMOR_DURABILITY;
+import static org.dredd.bulletcore.config.messages.TranslatableMessage.LORE_ARMOR_DURABILITY;
 import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;
 
 /**

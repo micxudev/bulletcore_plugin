@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
-import static org.dredd.bulletcore.config.messages.TranslatableMessages.LORE_AMMO_COUNT;
+import static org.dredd.bulletcore.config.messages.TranslatableMessage.LORE_AMMO_COUNT;
 
 /**
  * Represents ammo items.

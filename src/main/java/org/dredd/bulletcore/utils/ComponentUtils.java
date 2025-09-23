@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.dredd.bulletcore.config.messages.TranslatableMessages;
+import org.dredd.bulletcore.config.messages.TranslatableMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,12 +37,12 @@ public final class ComponentUtils {
     public static final TextColor WHITE = color(226, 229, 240);
 
     /**
-     * Key style used for {@link TranslatableMessages} as fallback.
+     * Key style used for {@link TranslatableMessage} as fallback.
      */
     public static final Component KEY_STYLE = MINI.deserialize("<!i><white>");
 
     /**
-     * Argument styles used for {@link TranslatableMessages} as fallback.
+     * Argument styles used for {@link TranslatableMessage} as fallback.
      */
     public static final Component ARG_STYLE_RED = MINI.deserialize("<red>");
     public static final Component ARG_STYLE_GREEN = MINI.deserialize("<green>");

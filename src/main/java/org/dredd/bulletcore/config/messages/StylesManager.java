@@ -43,7 +43,7 @@ public class StylesManager {
         instance = new StylesManager(plugin);
     }
 
-    private final EnumMap<TranslatableMessages, List<Component>> styles;
+    private final EnumMap<TranslatableMessage, List<Component>> styles;
 
     /**
      * Initializes the {@link StylesManager} instance and loads the styles.
@@ -65,7 +65,7 @@ public class StylesManager {
      * @param key the style key
      * @return the style map, or null if not found
      */
-    public @NotNull List<Component> getStyles(@NotNull TranslatableMessages key) {
+    public @NotNull List<Component> getStyles(@NotNull TranslatableMessage key) {
         return styles.get(key);
     }
 
@@ -82,13 +82,13 @@ public class StylesManager {
      * </pre>
      *
      * @param file the YAML file to load styles from
-     * @return an {@link EnumMap} of {@link TranslatableMessages} constants and their style definitions
+     * @return an {@link EnumMap} of {@link TranslatableMessage} constants and their style definitions
      */
-    private static @NotNull EnumMap<TranslatableMessages, @NotNull List<Component>> load(@NotNull File file) {
+    private static @NotNull EnumMap<TranslatableMessage, @NotNull List<Component>> load(@NotNull File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        EnumMap<TranslatableMessages, List<Component>> result = new EnumMap<>(TranslatableMessages.class);
+        EnumMap<TranslatableMessage, List<Component>> result = new EnumMap<>(TranslatableMessage.class);
 
-        for (TranslatableMessages message : TranslatableMessages.values()) {
+        for (TranslatableMessage message : TranslatableMessage.values()) {
             String path = message.name().toLowerCase(Locale.ROOT);
 
             ConfigurationSection section = config.getConfigurationSection(path);
