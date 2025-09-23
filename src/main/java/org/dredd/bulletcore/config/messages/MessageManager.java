@@ -12,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.security.CodeSource;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.stream.Collectors;
 
 import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
@@ -26,13 +26,10 @@ import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
  * <p>
  * This class is responsible for loading language files from the {@code /lang} directory,
  * resolving locale-specific messages, applying placeholders, and converting them
- * into {@link net.kyori.adventure.text.Component} using MiniMessage.
- * </p>
- *
+ * into {@link Component} using MiniMessage.
  * <p>
  * Language files should be YAML files named with IETF BCP 47 locale tags {@link Locale#forLanguageTag(String)}.
  * When the plugin is first run, default language files from the JAR under {@code /lang} are extracted to the data folder if missing.
- * </p>
  *
  * @author dredd
  * @since 1.0.0
@@ -65,7 +62,7 @@ public class MessageManager {
 
     private final BulletCore plugin;
     private final File langFolder;
-    private final Map<Locale, Map<String, String>> messages;
+    private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
 
     /**
      * Constructs a new {@code MessageManager} and initializes required fields.
@@ -97,11 +94,7 @@ public class MessageManager {
         for (File file : files) {
             String localeKey = file.getName().replace(".yml", "");
             Locale locale = Locale.forLanguageTag(localeKey);
-            try {
-                messages.put(locale, loadMessages(file));
-            } catch (Exception e) {
-                plugin.getLogger().severe("Failed to load language file: " + file.getName() + ": " + e.getMessage());
-            }
+            messages.put(locale, load(file));
         }
 
         plugin.getLogger().info("-Loaded " + messages.size() + " language files: " + messages.keySet());
@@ -113,12 +106,28 @@ public class MessageManager {
      * @param file the YAML file to load messages from
      * @return a {@code Map<String, String>} containing key-value pairs from the file
      */
-    private static @NotNull Map<String, String> loadMessages(@NotNull File file) {
+    private static @NotNull EnumMap<ComponentMessage, String> load(@NotNull File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        return config.getKeys(true).stream()
-            .filter(key -> !config.isConfigurationSection(key))
-            .map(key -> Map.entry(key, config.getString(key, "")))
-            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+        EnumMap<ComponentMessage, String> result = new EnumMap<>(ComponentMessage.class);
+
+        for (ComponentMessage message : ComponentMessage.values()) {
+            String path = message.name().toLowerCase(Locale.ROOT);
+
+            String content = config.getString(path, null);
+            if (content == null) {
+                BulletCore.getInstance().getLogger().severe(
+                    "Lang file: " + file.getName() +
+                        "; has missing message: " + path +
+                        "; falling back to default message."
+                );
+                result.put(message, message.def);
+                continue;
+            }
+
+            result.put(message, content);
+        }
+
+        return result;
     }
 
     /**
@@ -146,13 +155,15 @@ public class MessageManager {
     }
 
     /**
-     * Gets the {@link Locale} of the given {@link CommandSender}, if they are a {@link Player}.
+     * Gets the {@link Locale} of the given {@link CommandSender} or the default locale if not a player.
      *
-     * @param sender the command sender
+     * @param sender        the command sender
+     * @param defaultLocale the default locale to use if the sender is not a player
      * @return the locale of the player, or {@code null} if not a player
      */
-    private @Nullable Locale getLocale(@NotNull CommandSender sender) {
-        return sender instanceof Player player ? player.locale() : null;
+    private @NotNull Locale getLocaleOrDefault(@NotNull CommandSender sender,
+                                               @NotNull Locale defaultLocale) {
+        return sender instanceof Player player ? player.locale() : defaultLocale;
     }
 
     /**
@@ -165,14 +176,13 @@ public class MessageManager {
      */
     private @NotNull String resolveMessage(@NotNull CommandSender sender,
                                            @NotNull ComponentMessage message) {
-        @Nullable Locale senderLocale = getLocale(sender);
-        @NotNull Locale defaultLocale = ConfigManager.get().locale;
-        @NotNull Locale locale1 = senderLocale == null ? defaultLocale : senderLocale;
+        Locale defaultLocale = ConfigManager.get().locale;
+        Locale resolvedLocale = getLocaleOrDefault(sender, defaultLocale);
 
-        var locale1Messages = messages.get(locale1);
-        var localizedMessages = locale1Messages == null ? messages.get(defaultLocale) : locale1Messages;
+        var messagesForLocale = messages.get(resolvedLocale);
+        var localizedMessages = messagesForLocale == null ? messages.get(defaultLocale) : messagesForLocale;
 
-        return localizedMessages == null ? message.def : localizedMessages.getOrDefault(message.key, message.def);
+        return localizedMessages == null ? message.def : localizedMessages.getOrDefault(message, message.def);
     }
 
     /**
