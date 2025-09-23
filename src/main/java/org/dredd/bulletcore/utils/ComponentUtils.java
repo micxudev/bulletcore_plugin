@@ -22,11 +22,6 @@ import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 public final class ComponentUtils {
 
     /**
-     * Pre-configured instance of {@link MiniMessage} for parsing MiniMessage formatted strings.
-     */
-    public static final MiniMessage MINI = MiniMessage.miniMessage();
-
-    /**
      * Private constructor to prevent instantiation.
      */
     private ComponentUtils() {}
@@ -39,15 +34,15 @@ public final class ComponentUtils {
     /**
      * Key style used for {@link TranslatableMessage} as fallback.
      */
-    public static final Component KEY_STYLE = MINI.deserialize("<!i><white>");
+    public static final Component KEY_STYLE = deserialize("<!i><white>");
 
     /**
      * Argument styles used for {@link TranslatableMessage} as fallback.
      */
-    public static final Component ARG_STYLE_RED = MINI.deserialize("<red>");
-    public static final Component ARG_STYLE_GREEN = MINI.deserialize("<green>");
-    public static final Component ARG_STYLE_BLUE = MINI.deserialize("<blue>");
-    public static final Component ARG_STYLE_YELLOW = MINI.deserialize("<yellow>");
+    public static final Component ARG_STYLE_RED = deserialize("<red>");
+    public static final Component ARG_STYLE_GREEN = deserialize("<green>");
+    public static final Component ARG_STYLE_BLUE = deserialize("<blue>");
+    public static final Component ARG_STYLE_YELLOW = deserialize("<yellow>");
 
     /**
      * Returns a non-italic {@link TextComponent} with the given content and color.
@@ -58,5 +53,15 @@ public final class ComponentUtils {
      */
     public static @NotNull TextComponent noItalic(@NotNull String content, @Nullable TextColor color) {
         return text(content, color).decoration(ITALIC, false);
+    }
+
+    /**
+     * Deserializes a MiniMessage-formatted string into a {@link Component}.
+     *
+     * @param message the MiniMessage-formatted string
+     * @return the deserialized {@link Component}
+     */
+    public static @NotNull Component deserialize(@NotNull String message) {
+        return MiniMessage.miniMessage().deserialize(message);
     }
 }

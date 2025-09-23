@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.CONFIG_RELOADED;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -44,7 +43,7 @@ public final class SubcommandReload implements Subcommand {
         long startTime = System.currentTimeMillis();
         BulletCore.initAll();
         long endTime = System.currentTimeMillis();
-        sender.sendMessage(of(sender, CONFIG_RELOADED, Map.of("time", Long.toString(endTime - startTime))));
+        sender.sendMessage(CONFIG_RELOADED.asComponent(sender, Map.of("time", Long.toString(endTime - startTime))));
     }
 
     @Override

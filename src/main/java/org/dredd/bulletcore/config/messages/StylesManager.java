@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.utils.ComponentUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -11,8 +12,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
 /**
  * Class for managing style definitions for translatable client side components.
@@ -112,7 +111,7 @@ public class StylesManager {
             }
 
             List<Component> styles = styleKeys.stream()
-                .map(styleKey -> MINI.deserialize(section.getString(styleKey, "")))
+                .map(styleKey -> ComponentUtils.deserialize(section.getString(styleKey, "")))
                 .toList();
 
             result.put(message, styles);

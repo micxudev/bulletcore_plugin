@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.config.messages;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +13,7 @@ import static org.dredd.bulletcore.utils.ComponentUtils.*;
 /**
  * Enum of translatable client-side messages (e.g., used on item lore).
  * <p>
- * Messages and styles can be resolved via {@link TranslatableMessage#of(Object...)}.
+ * Messages and styles can be resolved via {@link TranslatableMessage#asTranslatable(Object...)}.
  *
  * @author dredd
  * @since 1.0.0
@@ -89,7 +90,7 @@ public enum TranslatableMessage {
      * @param args the arguments to be used in the message.
      * @return translatable {@link Component} with the given arguments.
      */
-    public @NotNull Component of(@NotNull Object... args) {
+    public @NotNull TranslatableComponent asTranslatable(@NotNull Object... args) {
         int expectedArgs = defStyles.size() - 1;
         if (args.length != expectedArgs) {
             throw new IllegalArgumentException("Invalid number of arguments for " + this +

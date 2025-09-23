@@ -101,7 +101,7 @@ public class Ammo extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_AMMO_COUNT.of(count, maxAmmo));
+            lore.set(0, LORE_AMMO_COUNT.asTranslatable(count, maxAmmo));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }

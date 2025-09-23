@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -73,23 +72,23 @@ public final class CommandHandler implements TabExecutor {
                              @NotNull String label,
                              @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(of(sender, NO_SUBCOMMAND_PROVIDED, Map.of("command", MAIN_COMMAND_NAME)));
+            sender.sendMessage(NO_SUBCOMMAND_PROVIDED.asComponent(sender, Map.of("command", MAIN_COMMAND_NAME)));
             return true;
         }
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         if (sub == null) {
-            sender.sendMessage(of(sender, UNKNOWN_SUBCOMMAND, Map.of("subcommand", args[0])));
+            sender.sendMessage(UNKNOWN_SUBCOMMAND.asComponent(sender, Map.of("subcommand", args[0])));
             return true;
         }
 
         if (!sub.getPermission().isBlank() && !sender.hasPermission(sub.getPermission())) {
-            sender.sendMessage(of(sender, NO_SUBCOMMAND_PERMISSION, null));
+            sender.sendMessage(NO_SUBCOMMAND_PERMISSION.asComponent(sender, null));
             return true;
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            sender.sendMessage(of(sender, NOT_ENOUGH_ARGS, Map.of(
+            sender.sendMessage(NOT_ENOUGH_ARGS.asComponent(sender, Map.of(
                 "command", MAIN_COMMAND_NAME, "subcommand", args[0], "args", sub.getUsageArgs())
             ));
             return true;

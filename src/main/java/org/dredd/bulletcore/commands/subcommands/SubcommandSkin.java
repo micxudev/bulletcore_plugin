@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -52,14 +51,14 @@ public class SubcommandSkin implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(of(sender, ONLY_PLAYERS, null));
+            sender.sendMessage(ONLY_PLAYERS.asComponent(sender, null));
             return;
         }
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) {
-            sender.sendMessage(of(player, NO_WEAPON_IN_MAINHAND, null));
+            sender.sendMessage(NO_WEAPON_IN_MAINHAND.asComponent(player, null));
             return;
         }
 
@@ -69,12 +68,12 @@ public class SubcommandSkin implements Subcommand {
             weaponSkin = weapon.skins.defaultSkin;
         } else {
             if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
-                sender.sendMessage(of(player, NO_SKIN, Map.of("skin", skinName)));
+                sender.sendMessage(NO_SKIN.asComponent(player, Map.of("skin", skinName)));
                 return;
             }
             weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
             if (weaponSkin == null) {
-                sender.sendMessage(of(player, ERROR_LOADING_SKIN, Map.of("skin", skinName)));
+                sender.sendMessage(ERROR_LOADING_SKIN.asComponent(player, Map.of("skin", skinName)));
                 return;
             }
         }

@@ -1,5 +1,16 @@
 package org.dredd.bulletcore.config.messages;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
+import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.utils.ComponentUtils;
+import org.dredd.bulletcore.utils.ServerUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * Represents localizable component messages used across the plugin.
  * <p>
@@ -189,5 +200,47 @@ public enum ComponentMessage {
 
     ComponentMessage(String def) {
         this.def = def;
+    }
+
+    /**
+     * Gets the localized message for a sender.
+     *
+     * @param sender the command sender
+     * @return the localized message string
+     */
+    private @NotNull String getMessage(@NotNull CommandSender sender) {
+        Locale defLocale = ConfigManager.get().locale;
+        Locale locale = ServerUtils.getLocaleOrDefault(sender, defLocale);
+        String msg = MessageManager.get().getMessageForOr(locale, defLocale, this);
+        return msg != null ? msg : def;
+    }
+
+    /**
+     * Applies placeholder substitutions in a message.
+     *
+     * @param msg    the message containing placeholders (e.g., {@code %player%})
+     * @param values placeholder key–value pairs
+     * @return the message with all placeholders replaced
+     */
+    private @NotNull String applyPlaceholders(@NotNull String msg,
+                                              @NotNull Map<String, String> values) {
+        for (Map.Entry<String, String> e : values.entrySet())
+            msg = msg.replace("%" + e.getKey() + "%", e.getValue());
+        return msg;
+    }
+
+    /**
+     * Builds a MiniMessage {@link Component} for a sender,
+     * after localization and optional placeholder substitution.
+     *
+     * @param sender the command sender (for locale resolution)
+     * @param values optional placeholder values
+     * @return the deserialized component
+     */
+    public @NotNull Component asComponent(@NotNull CommandSender sender,
+                                          @Nullable Map<String, String> values) {
+        String msg = getMessage(sender);
+        String formatted = values != null ? applyPlaceholders(msg, values) : msg;
+        return ComponentUtils.deserialize(formatted);
     }
 }

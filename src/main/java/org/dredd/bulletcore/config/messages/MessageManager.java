@@ -1,11 +1,8 @@
 package org.dredd.bulletcore.config.messages;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.config.ConfigManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-
-import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 
 /**
  * Manages localization and message resolution.
@@ -46,7 +41,7 @@ public class MessageManager {
      *
      * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
-    private static MessageManager get() {
+    public static MessageManager get() {
         return instance;
     }
 
@@ -57,11 +52,9 @@ public class MessageManager {
      */
     public static void reload(@NotNull BulletCore plugin) {
         instance = new MessageManager(plugin);
-        instance.loadLocales();
     }
 
     private final BulletCore plugin;
-    private final File langFolder;
     private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
 
     /**
@@ -72,15 +65,30 @@ public class MessageManager {
      */
     private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
-        this.langFolder = new File(plugin.getDataFolder(), "lang");
-        this.messages = new HashMap<>();
+        this.messages = loadLocales(new File(plugin.getDataFolder(), "lang"));
+    }
+
+    /**
+     * Tries to get the locale-specific message for any of the given locales.
+     *
+     * @param locale1 first locale to check
+     * @param locale2 second locale to check
+     * @param key     the message key to resolve
+     * @return the locale-specific message, or {@code null} if not found for either locale
+     */
+    public @Nullable String getMessageForOr(@NotNull Locale locale1,
+                                            @NotNull Locale locale2,
+                                            @NotNull ComponentMessage key) {
+        var forLocale1 = messages.get(locale1);
+        var localized = forLocale1 != null ? forLocale1 : messages.get(locale2);
+        return localized != null ? localized.get(key) : null;
     }
 
     /**
      * Loads all locale message files from the {@code /lang} directory and parses them into memory.<br>
      * If the directory does not exist, it is created and default language files are extracted from the plugin JAR.
      */
-    private void loadLocales() {
+    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLocales(File langFolder) {
         if (!langFolder.exists()) {
             if (!langFolder.mkdirs())
                 throw new RuntimeException("Failed to create lang folder: " + langFolder.getPath());
@@ -88,16 +96,19 @@ public class MessageManager {
             copyDefaultLangFiles();
         }
 
+        Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
+
         File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files == null) return;
+        if (files == null) return result;
 
         for (File file : files) {
             String localeKey = file.getName().replace(".yml", "");
             Locale locale = Locale.forLanguageTag(localeKey);
-            messages.put(locale, load(file));
+            result.put(locale, load(file));
         }
 
-        plugin.getLogger().info("-Loaded " + messages.size() + " language files: " + messages.keySet());
+        plugin.getLogger().info("-Loaded " + result.size() + " language files: " + result.keySet());
+        return result;
     }
 
     /**
@@ -152,81 +163,5 @@ public class MessageManager {
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to copy default lang files: " + e.getMessage());
         }
-    }
-
-    /**
-     * Gets the {@link Locale} of the given {@link CommandSender} or the default locale if not a player.
-     *
-     * @param sender        the command sender
-     * @param defaultLocale the default locale to use if the sender is not a player
-     * @return the locale of the player, or {@code null} if not a player
-     */
-    private @NotNull Locale getLocaleOrDefault(@NotNull CommandSender sender,
-                                               @NotNull Locale defaultLocale) {
-        return sender instanceof Player player ? player.locale() : defaultLocale;
-    }
-
-    /**
-     * Resolves the message string for the given component key and sender's locale.<br>
-     * Falls back to the component's default string if not found.
-     *
-     * @param sender  the command sender
-     * @param message the component message key and default
-     * @return the resolved message string
-     */
-    private @NotNull String resolveMessage(@NotNull CommandSender sender,
-                                           @NotNull ComponentMessage message) {
-        Locale defaultLocale = ConfigManager.get().locale;
-        Locale resolvedLocale = getLocaleOrDefault(sender, defaultLocale);
-
-        var messagesForLocale = messages.get(resolvedLocale);
-        var localizedMessages = messagesForLocale == null ? messages.get(defaultLocale) : messagesForLocale;
-
-        return localizedMessages == null ? message.def : localizedMessages.getOrDefault(message, message.def);
-    }
-
-    /**
-     * Replaces placeholder tokens in the message string with values from the provided map.
-     *
-     * @param message      the message string with placeholders (e.g., {@code %player%})
-     * @param placeholders a map of placeholder keys to values
-     * @return the resolved string with placeholders replaced
-     */
-    private @NotNull String resolvePlaceholders(@NotNull String message,
-                                                @NotNull Map<String, String> placeholders) {
-        for (Map.Entry<String, String> entry : placeholders.entrySet())
-            message = message.replace("%" + entry.getKey() + "%", entry.getValue());
-        return message;
-    }
-
-    /**
-     * Converts a resolved message into {@link Component}, after placeholder replacement and MiniMessage deserialization.
-     *
-     * @param sender       the command sender (for locale detection)
-     * @param message      the message key and default fallback
-     * @param placeholders placeholder values to substitute
-     * @return the deserialized MiniMessage component
-     */
-    private @NotNull Component component(@NotNull CommandSender sender,
-                                         @NotNull ComponentMessage message,
-                                         @Nullable Map<String, String> placeholders) {
-        String resolved = resolveMessage(sender, message);
-        String formatted = placeholders != null ? resolvePlaceholders(resolved, placeholders) : resolved;
-        return MINI.deserialize(formatted);
-    }
-
-    /**
-     * Resolves and returns a localized {@link Component} for the given sender and message key,
-     * applying any placeholder substitutions.
-     *
-     * @param sender           the command sender (used to determine locale)
-     * @param componentMessage the message key and default fallback string
-     * @param placeholders     optional placeholders to substitute (e.g., {@code %player%})
-     * @return the resolved and formatted {@link Component}
-     */
-    public static @NotNull Component of(@NotNull CommandSender sender,
-                                        @NotNull ComponentMessage componentMessage,
-                                        @Nullable Map<String, String> placeholders) {
-        return get().component(sender, componentMessage, placeholders);
     }
 }

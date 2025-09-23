@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.text;
 import static org.dredd.bulletcore.config.messages.TranslatableMessage.*;
-import static org.dredd.bulletcore.utils.ComponentUtils.MINI;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
@@ -171,7 +170,7 @@ public final class YMLLModelLoader {
         Component displayName = config.getRichMessage("displayName", ComponentUtils.noItalic(name, WHITE));
 
         List<Component> lore = config.getStringList("lore").stream()
-            .map(MINI::deserialize)
+            .map(ComponentUtils::deserialize)
             .collect(Collectors.toList());
 
         int maxStackSize = Math.clamp(config.getInt("maxStackSize", material.getMaxStackSize()), 1, 99);
@@ -246,11 +245,11 @@ public final class YMLLModelLoader {
 
         var lore = baseAttributes.lore();
         lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.of((int) (damageReduction * 100)));
-        lore.add(2, LORE_ARMOR_ARMOR_POINTS.of(armorPoints));
-        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.of(toughnessPoints));
-        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.of((int) (knockbackResistance * 100)));
-        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.of((int) (explosionKnockbackResistance * 100)));
+        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.asTranslatable((int) (damageReduction * 100)));
+        lore.add(2, LORE_ARMOR_ARMOR_POINTS.asTranslatable(armorPoints));
+        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.asTranslatable(toughnessPoints));
+        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.asTranslatable((int) (knockbackResistance * 100)));
+        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.asTranslatable((int) (explosionKnockbackResistance * 100)));
 
         return new Armor(baseAttributes, maxDurability, damageReduction, unbreakable, armorPoints, toughnessPoints, knockbackResistance, explosionKnockbackResistance);
     }
@@ -305,9 +304,9 @@ public final class YMLLModelLoader {
 
         var lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_WEAPON_DAMAGE.of(damage.head(), damage.body(), damage.legs(), damage.feet()));
-        lore.add(2, LORE_WEAPON_DISTANCE.of(maxDistance));
-        lore.add(3, LORE_WEAPON_AMMO.of(ammo.displayNameString));
+        lore.add(1, LORE_WEAPON_DAMAGE.asTranslatable(damage.head(), damage.body(), damage.legs(), damage.feet()));
+        lore.add(2, LORE_WEAPON_DISTANCE.asTranslatable(maxDistance));
+        lore.add(3, LORE_WEAPON_AMMO.asTranslatable(ammo.displayNameString));
 
         return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, pelletsPerShot, damage, recoil, spray, sounds, trailParticle, skins);
     }

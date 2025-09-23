@@ -16,7 +16,6 @@ import java.util.UUID;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.
@@ -63,7 +62,7 @@ public abstract class ReloadHandler {
         player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
 
         if (!success && ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
+            player.sendActionBar(WEAPON_RELOAD_CANCEL.asComponent(player, null));
     }
 
     /**
@@ -93,7 +92,7 @@ public abstract class ReloadHandler {
      */
     static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponItem, long millisLeft) {
         if (ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(of(player, WEAPON_RELOAD,
+            player.sendActionBar(WEAPON_RELOAD.asComponent(player,
                 Map.of(
                     "bullets", Integer.toString(weapon.getBulletCount(weaponItem)),
                     "maxbullets", Integer.toString(weapon.maxBullets),

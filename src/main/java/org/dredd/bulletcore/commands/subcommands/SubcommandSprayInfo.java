@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -47,24 +46,24 @@ public class SubcommandSprayInfo implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(of(sender, ONLY_PLAYERS, null));
+            sender.sendMessage(ONLY_PLAYERS.asComponent(sender, null));
             return;
         }
 
         String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
-            sender.sendMessage(of(sender, INVALID_OPERATION, Map.of("operation", operation)));
+            sender.sendMessage(INVALID_OPERATION.asComponent(sender, Map.of("operation", operation)));
             return;
         }
 
         switch (operation) {
             case "on" -> {
                 SprayHandler.getSprayContext(player).setSendMessage(true);
-                sender.sendMessage(of(sender, SPRAY_INFO_ON, null));
+                sender.sendMessage(SPRAY_INFO_ON.asComponent(sender, null));
             }
             case "off" -> {
                 SprayHandler.getSprayContext(player).setSendMessage(false);
-                sender.sendMessage(of(sender, SPRAY_INFO_OFF, null));
+                sender.sendMessage(SPRAY_INFO_OFF.asComponent(sender, null));
             }
         }
     }

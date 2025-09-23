@@ -29,7 +29,6 @@ import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_ACTIONBAR;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 import static org.dredd.bulletcore.config.messages.TranslatableMessage.LORE_WEAPON_BULLETS;
 
 /**
@@ -235,7 +234,7 @@ public class Weapon extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_WEAPON_BULLETS.of(count, maxBullets));
+            lore.set(0, LORE_WEAPON_BULLETS.asTranslatable(count, maxBullets));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
@@ -248,7 +247,7 @@ public class Weapon extends CustomBase {
      * @param current the current bullet count in the weapon
      */
     public void sendActionbar(@NotNull Player player, int current) {
-        player.sendActionBar(of(player, WEAPON_ACTIONBAR,
+        player.sendActionBar(WEAPON_ACTIONBAR.asComponent(player,
             Map.of(
                 "displayname", displayNameString,
                 "bullets", Integer.toString(current),

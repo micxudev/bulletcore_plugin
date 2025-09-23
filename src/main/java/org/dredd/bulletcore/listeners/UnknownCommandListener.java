@@ -8,7 +8,6 @@ import org.bukkit.event.command.UnknownCommandEvent;
 import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.ComponentMessage.UNKNOWN_COMMAND;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
 
 /**
  * Listens for unknown commands; sends a formatted message to the sender.
@@ -25,6 +24,6 @@ public class UnknownCommandListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onUnknownCommand(UnknownCommandEvent event) {
-        event.message(of(event.getSender(), UNKNOWN_COMMAND, Map.of("commandline", event.getCommandLine())));
+        event.message(UNKNOWN_COMMAND.asComponent(event.getSender(), Map.of("commandline", event.getCommandLine())));
     }
 }

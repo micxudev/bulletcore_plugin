@@ -3,6 +3,7 @@ package org.dredd.bulletcore.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -45,6 +47,18 @@ public final class ServerUtils {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();
+    }
+
+    /**
+     * Returns the sender's {@link Locale}, or the default if not a player.
+     *
+     * @param sender the command sender
+     * @param def    the fallback locale
+     * @return the player's locale, or the default
+     */
+    public static @NotNull Locale getLocaleOrDefault(@NotNull CommandSender sender,
+                                                     @NotNull Locale def) {
+        return sender instanceof Player player ? player.locale() : def;
     }
 
     /**
