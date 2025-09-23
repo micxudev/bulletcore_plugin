@@ -1,10 +1,11 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.dredd.bulletcore.utils.EnumMapLoader;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -103,8 +104,35 @@ public class WeaponSpray {
      */
     public static @NotNull WeaponSpray load(@NotNull FileConfiguration cfg) {
         return new WeaponSpray(
-            EnumMapLoader.loadDoubleMap(MovementState.class, cfg, "spray.state.", NO_SPRAY, MIN_SPRAY, MAX_SPRAY),
-            EnumMapLoader.loadDoubleMap(MovementModifier.class, cfg, "spray.modifier.", NO_SPRAY, MIN_SPRAY, MAX_SPRAY)
+            loadSprayValues(MovementState.class, cfg, "spray.state."),
+            loadSprayValues(MovementModifier.class, cfg, "spray.modifier.")
         );
+    }
+
+    /**
+     * Loads clamped {@link Double} values for each enum constant from config.
+     * <p>
+     * Keys are {@code prefix + constant name (lowercase)}.<br>
+     * Missing keys default to {@code NO_SPRAY}, and all values are clamped
+     * to [{@code MIN_SPRAY}, {@code MAX_SPRAY}].
+     *
+     * @param <E>    the enum type
+     * @param type   the enum class
+     * @param cfg    the config source
+     * @param prefix the key prefix
+     * @return an {@link EnumMap} of enum constants to their clamped values
+     */
+    private static <E extends Enum<E>> @NotNull EnumMap<E, Double> loadSprayValues(
+        @NotNull Class<E> type,
+        @NotNull FileConfiguration cfg,
+        @NotNull String prefix
+    ) {
+        EnumMap<E, Double> map = new EnumMap<>(type);
+        for (E constant : type.getEnumConstants()) {
+            String path = prefix + constant.name().toLowerCase(Locale.ROOT);
+            double val = Math.clamp(cfg.getDouble(path, NO_SPRAY), MIN_SPRAY, MAX_SPRAY);
+            map.put(constant, val);
+        }
+        return map;
     }
 }
