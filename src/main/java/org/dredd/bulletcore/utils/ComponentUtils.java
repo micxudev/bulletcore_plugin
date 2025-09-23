@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.dredd.bulletcore.config.messages.TranslatableMessage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.TextColor.color;
@@ -45,14 +44,13 @@ public final class ComponentUtils {
     public static final Component ARG_STYLE_YELLOW = deserialize("<yellow>");
 
     /**
-     * Returns a non-italic {@link TextComponent} with the given content and color.
+     * Creates a white, non-italic {@link TextComponent}.
      *
-     * @param content the text to display
-     * @param color   the color to apply (nullable; if {@code null}, default color is used)
-     * @return a non-italic {@link TextComponent}
+     * @param text the content
+     * @return the styled component
      */
-    public static @NotNull TextComponent noItalic(@NotNull String content, @Nullable TextColor color) {
-        return text(content, color).decoration(ITALIC, false);
+    public static @NotNull TextComponent plainWhite(@NotNull String text) {
+        return text(text, WHITE).decoration(ITALIC, false);
     }
 
     /**

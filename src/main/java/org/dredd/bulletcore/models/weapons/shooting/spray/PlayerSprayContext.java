@@ -18,7 +18,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.*;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.*;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.noItalic;
+import static org.dredd.bulletcore.utils.ComponentUtils.plainWhite;
 
 /**
  * Tracks and updates the state context for a specific player.
@@ -204,7 +204,7 @@ public class PlayerSprayContext {
 
         // Line 1: State
         Component stateLine = newline()
-            .append(noItalic(shot + ". State: ", WHITE))
+            .append(plainWhite(shot + ". State: "))
             .append(text(state.name(), GOLD));
 
         // Line 2: Modifiers (optional)
@@ -223,7 +223,7 @@ public class PlayerSprayContext {
         }
 
         // Line 3: Spray
-        Component sprayLine = noItalic(shot + ". Spray: ", WHITE)
+        Component sprayLine = plainWhite(shot + ". Spray: ")
             .append(text(df.format(spray), AQUA));
 
         // Combine all the lines into a single message

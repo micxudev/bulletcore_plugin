@@ -167,7 +167,7 @@ public final class YMLLModelLoader {
 
         Material material = getMetaCapableMaterial(config.getString("material"));
 
-        Component displayName = config.getRichMessage("displayName", ComponentUtils.noItalic(name, WHITE));
+        Component displayName = config.getRichMessage("displayName", ComponentUtils.plainWhite(name));
 
         List<Component> lore = config.getStringList("lore").stream()
             .map(ComponentUtils::deserialize)
