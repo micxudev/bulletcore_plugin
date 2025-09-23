@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.config.messages;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +16,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 /**
- * Manages localization and message resolution.
+ * Handles managing and loading YAML language files from the {@code /lang} directory.
  * <p>
- * This class is responsible for loading language files from the {@code /lang} directory,
- * resolving locale-specific messages, applying placeholders, and converting them
- * into {@link Component} using MiniMessage.
- * <p>
- * Language files should be YAML files named with IETF BCP 47 locale tags {@link Locale#forLanguageTag(String)}.
- * When the plugin is first run, default language files from the JAR under {@code /lang} are extracted to the data folder if missing.
+ * Language files must be named with IETF BCP 47 locale tags {@link Locale#forLanguageTag(String)}.
  *
  * @author dredd
  * @since 1.0.0

@@ -14,8 +14,7 @@ import java.util.Map;
 /**
  * Represents localizable component messages used across the plugin.
  * <p>
- * Messages can be resolved via {@link MessageManager} which handles locale lookup,
- * placeholder resolution, and deserialization.
+ * Messages can be resolved via {@link #asComponent(CommandSender, Map)}.
  *
  * @author dredd
  * @since 1.0.0

@@ -13,7 +13,7 @@ import static org.dredd.bulletcore.utils.ComponentUtils.*;
 /**
  * Enum of translatable client-side messages (e.g., used on item lore).
  * <p>
- * Messages and styles can be resolved via {@link TranslatableMessage#asTranslatable(Object...)}.
+ * Messages and styles can be resolved via {@link #asTranslatable(Object...)}.
  *
  * @author dredd
  * @since 1.0.0

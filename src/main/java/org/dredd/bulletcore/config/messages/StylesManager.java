@@ -51,10 +51,8 @@ public class StylesManager {
      */
     private StylesManager(BulletCore plugin) {
         File stylesFile = new File(plugin.getDataFolder(), "styles.yml");
-
         if (!stylesFile.exists())
             plugin.saveResource("styles.yml", false);
-
         this.styles = load(stylesFile);
     }
 
