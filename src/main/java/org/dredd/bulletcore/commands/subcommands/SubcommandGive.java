@@ -75,6 +75,7 @@ public final class SubcommandGive implements Subcommand {
         String playerName = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
+
         if (Bukkit.getPlayerExact(playerName) == null) return EMPTY_LIST;
 
         if (args.length == 3)

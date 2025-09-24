@@ -114,22 +114,29 @@ public class SubcommandSkinManage implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
+
         String operation = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(operation, OPERATIONS, new ArrayList<>());
+
         if (!OPERATIONS.contains(operation)) return EMPTY_LIST;
+
 
         String playerName = args[2];
         if (args.length == 3)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
+
         Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) return EMPTY_LIST;
+
 
         String weaponName = args[3];
         if (args.length == 4)
             return StringUtil.copyPartialMatches(weaponName, SkinsManager.getWeaponNamesWithSkins(), new ArrayList<>());
+
         Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) return EMPTY_LIST;
+
 
         if (args.length == 5) {
             return switch (operation) {

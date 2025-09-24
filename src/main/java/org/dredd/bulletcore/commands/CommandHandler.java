@@ -34,6 +34,18 @@ public final class CommandHandler extends Command {
     private static final String MAIN_COMMAND_PERMISSION = "bulletcore.command";
     private static final String ALL_SUBCOMMANDS_PERMISSION = "bulletcore.command.*";
 
+    private static boolean canUseAllSubcommands(@NotNull CommandSender sender) {
+        return sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION);
+    }
+
+    private static boolean canUseSubcommand(@NotNull CommandSender sender, @NotNull Subcommand sub) {
+        return sender.hasPermission(sub.getPermission());
+    }
+
+    private static boolean canExecuteSubcommand(@NotNull CommandSender sender, @NotNull Subcommand sub) {
+        return canUseAllSubcommands(sender) || canUseSubcommand(sender, sub);
+    }
+
     private static CommandHandler INSTANCE;
 
     private static final List<Subcommand> SUBCOMMANDS = List.of(
@@ -113,7 +125,7 @@ public final class CommandHandler extends Command {
             return true;
         }
 
-        if (!sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION) && !sender.hasPermission(sub.getPermission())) {
+        if (!canExecuteSubcommand(sender, sub)) {
             sender.sendMessage(NO_SUBCOMMAND_PERMISSION.asComponent(sender, null));
             return true;
         }
@@ -137,17 +149,16 @@ public final class CommandHandler extends Command {
             return StringUtil.copyPartialMatches(args[0], getAllowedSubcommands(sender), new ArrayList<>());
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
-        return (sub != null &&
-            (sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION) || sender.hasPermission(sub.getPermission())))
+        return (sub != null && canExecuteSubcommand(sender, sub))
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;
     }
 
     private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
-        return sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION)
+        return canUseAllSubcommands(sender)
             ? subCommandNames
             : subCommands.entrySet().stream()
-            .filter(entry -> sender.hasPermission(entry.getValue().getPermission()))
+            .filter(entry -> canUseSubcommand(sender, entry.getValue()))
             .map(Map.Entry::getKey)
             .toList();
     }

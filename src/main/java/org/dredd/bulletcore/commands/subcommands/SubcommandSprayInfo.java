@@ -75,8 +75,10 @@ public class SubcommandSprayInfo implements Subcommand {
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player)) return EMPTY_LIST;
+
         if (args.length == 2)
             return StringUtil.copyPartialMatches(args[1], OPERATIONS, new ArrayList<>());
+
         return EMPTY_LIST;
     }
 }
