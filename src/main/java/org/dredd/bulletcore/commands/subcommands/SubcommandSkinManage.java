@@ -26,6 +26,10 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  */
 public class SubcommandSkinManage implements Subcommand {
 
+    public static final SubcommandSkinManage INSTANCE = new SubcommandSkinManage();
+
+    private SubcommandSkinManage() {}
+
     private static final List<String> OPERATIONS = List.of("add", "remove");
     private static final String ALL_OPTION = "--all";
 

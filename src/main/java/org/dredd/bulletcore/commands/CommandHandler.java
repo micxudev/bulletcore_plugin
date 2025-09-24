@@ -37,11 +37,11 @@ public final class CommandHandler extends Command {
     private static CommandHandler INSTANCE;
 
     private static final List<Subcommand> SUBCOMMANDS = List.of(
-        new SubcommandGive(),
-        new SubcommandReload(),
-        new SubcommandSkin(),
-        new SubcommandSkinManage(),
-        new SubcommandSprayInfo()
+        SubcommandGive.INSTANCE,
+        SubcommandReload.INSTANCE,
+        SubcommandSkin.INSTANCE,
+        SubcommandSkinManage.INSTANCE,
+        SubcommandSprayInfo.INSTANCE
     );
 
     public static void init(@NotNull BulletCore plugin) {

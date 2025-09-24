@@ -26,6 +26,10 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  */
 public class SubcommandSkin implements Subcommand {
 
+    public static final SubcommandSkin INSTANCE = new SubcommandSkin();
+
+    private SubcommandSkin() {}
+
     private final static String DEFAULT_SKIN_NAME = "--default";
 
     @Override

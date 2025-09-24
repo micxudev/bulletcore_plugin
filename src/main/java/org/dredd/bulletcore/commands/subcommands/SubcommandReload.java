@@ -18,6 +18,10 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  */
 public final class SubcommandReload implements Subcommand {
 
+    public static final SubcommandReload INSTANCE = new SubcommandReload();
+
+    private SubcommandReload() {}
+
     @Override
     public @NotNull String getName() {
         return "reload";

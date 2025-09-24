@@ -24,6 +24,10 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  */
 public final class SubcommandGive implements Subcommand {
 
+    public static final SubcommandGive INSTANCE = new SubcommandGive();
+
+    private SubcommandGive() {}
+
     @Override
     public @NotNull String getName() {
         return "give";

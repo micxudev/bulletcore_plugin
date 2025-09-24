@@ -21,6 +21,10 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  */
 public class SubcommandSprayInfo implements Subcommand {
 
+    public static final SubcommandSprayInfo INSTANCE = new SubcommandSprayInfo();
+
+    private SubcommandSprayInfo() {}
+
     private static final List<String> OPERATIONS = List.of("on", "off");
 
     @Override
