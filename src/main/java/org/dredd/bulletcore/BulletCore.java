@@ -1,8 +1,8 @@
 package org.dredd.bulletcore;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
+import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
@@ -53,7 +53,7 @@ public final class BulletCore extends JavaPlugin {
         getLogger().info("==========================< BulletCore >==========================");
 
         initAll();
-        registerMainCommand();
+        CommandHandler.init(plugin);
 
         registerListener(new BulletCoreListener());
         registerListener(new PlayerActionsListener());
@@ -83,6 +83,7 @@ public final class BulletCore extends JavaPlugin {
     public void onDisable() {
         getLogger().info("==========================< BulletCore >==========================");
 
+        CommandHandler.destroy();
         JsonUtils.shutdownSaveExecutor();
         ReloadHandler.clearAllReloadTasks();
         ShootingHandler.clearAllAutoShootingTasks();
@@ -95,26 +96,23 @@ public final class BulletCore extends JavaPlugin {
     }
 
     /**
-     * Registers the main plugin command.
-     */
-    private void registerMainCommand() {
-        String name = CommandHandler.MAIN_COMMAND_NAME;
-        PluginCommand command = getCommand(name);
-        if (command != null) {
-            CommandHandler executor = new CommandHandler();
-            command.setExecutor(executor);
-            command.setTabCompleter(executor);
-        } else {
-            getLogger().warning("Command '" + name + "' not found in plugin.yml");
-        }
-    }
-
-    /**
      * Registers a listener.
      *
      * @param listener the {@link Listener} to register
      */
     private void registerListener(@NotNull Listener listener) {
-        Bukkit.getPluginManager().registerEvents(listener, this);
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    /**
+     * Registers a permission if it doesn't already exist.
+     *
+     * @param perm permission to register
+     */
+    public void registerPermission(@NotNull String perm) {
+        Permission permission = new Permission(perm);
+        PluginManager pluginManager = getServer().getPluginManager();
+        if (pluginManager.getPermission(permission.getName()) == null)
+            pluginManager.addPermission(permission);
     }
 }
