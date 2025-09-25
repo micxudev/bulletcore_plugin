@@ -2,6 +2,7 @@ package org.dredd.bulletcore.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.dredd.bulletcore.config.messages.TranslatableMessage;
@@ -33,15 +34,15 @@ public final class ComponentUtils {
     /**
      * Key style used for {@link TranslatableMessage} as fallback.
      */
-    public static final Component KEY_STYLE = deserialize("<!i><white>");
+    public static final Style KEY_STYLE = deserialize("<!i><white>").style();
 
     /**
      * Argument styles used for {@link TranslatableMessage} as fallback.
      */
-    public static final Component ARG_STYLE_RED = deserialize("<red>");
-    public static final Component ARG_STYLE_GREEN = deserialize("<green>");
-    public static final Component ARG_STYLE_BLUE = deserialize("<blue>");
-    public static final Component ARG_STYLE_YELLOW = deserialize("<yellow>");
+    public static final Style ARG_STYLE_RED = deserialize("<red>").style();
+    public static final Style ARG_STYLE_GREEN = deserialize("<green>").style();
+    public static final Style ARG_STYLE_BLUE = deserialize("<blue>").style();
+    public static final Style ARG_STYLE_YELLOW = deserialize("<yellow>").style();
 
     /**
      * Creates a white, non-italic {@link TextComponent}.
