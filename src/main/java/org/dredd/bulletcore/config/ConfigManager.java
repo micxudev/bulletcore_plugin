@@ -116,7 +116,7 @@ public final class ConfigManager {
      * @param materialNames the list of material names to parse; must not be null
      * @return a set of {@link Material} instances parsed from the given list of material names
      */
-    public static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
+    private static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
         Set<Material> parsedMaterials = HashSet.newHashSet(materialNames.size());
 
         for (String name : materialNames) {

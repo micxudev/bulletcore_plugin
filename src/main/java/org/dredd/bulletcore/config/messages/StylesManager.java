@@ -31,7 +31,7 @@ public class StylesManager {
      *
      * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
-    public static StylesManager get() {
+    static StylesManager get() {
         return instance;
     }
 
@@ -62,7 +62,7 @@ public class StylesManager {
      * @param key the message key
      * @return corresponding styles bundle
      */
-    public @NotNull StylesBundle getStyles(@NotNull TranslatableMessage key) {
+    @NotNull StylesBundle getStyles(@NotNull TranslatableMessage key) {
         return styles.get(key);
     }
 

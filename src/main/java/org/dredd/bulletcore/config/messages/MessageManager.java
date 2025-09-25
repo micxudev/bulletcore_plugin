@@ -35,7 +35,7 @@ public class MessageManager {
      *
      * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
      */
-    public static MessageManager get() {
+    static MessageManager get() {
         return instance;
     }
 
@@ -70,7 +70,7 @@ public class MessageManager {
      * @param key     the message key to resolve
      * @return the locale-specific message, or {@code null} if not found for either locale
      */
-    public @Nullable String getMessageForOr(@NotNull Locale locale1,
+    @Nullable String getMessageForOr(@NotNull Locale locale1,
                                             @NotNull Locale locale2,
                                             @NotNull ComponentMessage key) {
         var forLocale1 = messages.get(locale1);
