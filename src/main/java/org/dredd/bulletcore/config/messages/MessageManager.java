@@ -71,8 +71,8 @@ public class MessageManager {
      * @return the locale-specific message, or {@code null} if not found for either locale
      */
     @Nullable String getMessageForOr(@NotNull Locale locale1,
-                                            @NotNull Locale locale2,
-                                            @NotNull ComponentMessage key) {
+                                     @NotNull Locale locale2,
+                                     @NotNull ComponentMessage key) {
         var forLocale1 = messages.get(locale1);
         var localized = forLocale1 != null ? forLocale1 : messages.get(locale2);
         return localized != null ? localized.get(key) : null;

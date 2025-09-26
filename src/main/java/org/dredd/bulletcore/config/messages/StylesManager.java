@@ -10,131 +10,137 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+
+import static org.dredd.bulletcore.config.messages.TranslatableMessage.Defaults.ConfigStyle;
+import static org.dredd.bulletcore.config.messages.TranslatableMessage.MessageStyles;
 
 /**
- * Responsible for managing style definitions for {@link TranslatableMessage}.
+ * Manages style definitions for {@link TranslatableMessage}.
+ * <p>
+ * Loads styles from the file or falls back to default if the file is missing or invalid.
  *
  * @author dredd
  * @since 1.0.0
  */
 public class StylesManager {
 
-    /**
-     * The singleton instance of the {@link StylesManager}
-     */
+    // ----------< Static >----------
+    private static final String STYLES_FILE_NAME = "styles.yml";
+    private static final List<String> STYLES_HEADER = List.of("Wiki: <link>");
+
     private static StylesManager instance;
 
-    /**
-     * Gets the singleton instance of the {@link StylesManager}
-     *
-     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
-     */
     static StylesManager get() {
         return instance;
     }
 
-    /**
-     * Initializes or reloads the styles.
-     */
     public static void reload(@NotNull BulletCore plugin) {
         instance = new StylesManager(plugin);
     }
 
-    private final EnumMap<TranslatableMessage, StylesBundle> styles;
+    // ----------< Instance >----------
+    private final BulletCore plugin;
+    private final EnumMap<TranslatableMessage, MessageStyles> styles;
 
-    /**
-     * Initializes the {@link StylesManager} instance and loads the styles.
-     *
-     * @param plugin the {@link BulletCore} instance
-     */
     private StylesManager(@NotNull BulletCore plugin) {
-        File stylesFile = new File(plugin.getDataFolder(), "styles.yml");
-        if (!stylesFile.exists())
-            plugin.saveResource("styles.yml", false);
-        this.styles = load(stylesFile);
+        this.plugin = plugin;
+
+        File stylesFile = new File(plugin.getDataFolder(), STYLES_FILE_NAME);
+        if (!stylesFile.exists()) {
+            this.styles = loadDefaultStyles();
+            try {
+                writeDefaultStyles(stylesFile);
+                plugin.getLogger().info("Created " + stylesFile);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to create file " + stylesFile + " : " + e.getMessage());
+            }
+        } else {
+            EnumMap<TranslatableMessage, MessageStyles> loadedStyles;
+            YamlConfiguration config = new YamlConfiguration();
+            try {
+                config.load(stylesFile);
+                loadedStyles = parseStyles(config);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to load file " + stylesFile + ":\n" + e.getMessage() + "\nUsing default styles.");
+                loadedStyles = loadDefaultStyles();
+            }
+            this.styles = loadedStyles;
+        }
     }
 
     /**
-     * Gets the {@link StylesBundle} for the given message key.
-     *
-     * @param key the message key
-     * @return corresponding styles bundle
+     * Returns the styles for the given message.
      */
-    @NotNull StylesBundle getStyles(@NotNull TranslatableMessage key) {
-        return styles.get(key);
+    @NotNull MessageStyles stylesFor(@NotNull TranslatableMessage message) {
+        return styles.get(message);
     }
 
     /**
-     * Loads style definitions for all {@link TranslatableMessage} constants from a YAML file.
-     * <p>
-     * Expects a format where each top-level key corresponds to a message and
-     * contains a `key` style and `arg0`, `arg1`, … for each argument.<br>
-     * If a message section is missing or invalid, the default styles are used.
-     *
-     * <pre>
-     * translatable_message_key:
-     *   key: "&f"
-     *   arg0: "&a"
-     *   arg1: "&b"
-     *   ...
-     *   argN: "&c"
-     * </pre>
-     *
-     * @param file the YAML file to load styles from
-     * @return an {@link EnumMap} mapping each message to its loaded or default {@link StylesBundle}
+     * Returns default styles for all translatable messages.
      */
-    private static @NotNull EnumMap<TranslatableMessage, StylesBundle> load(@NotNull File file) {
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        EnumMap<TranslatableMessage, StylesBundle> result = new EnumMap<>(TranslatableMessage.class);
+    private @NotNull EnumMap<TranslatableMessage, MessageStyles> loadDefaultStyles() {
+        EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
+        for (var msg : TranslatableMessage.values())
+            result.put(msg, msg.defaultStyles.toMessageStyles());
+        return result;
+    }
 
-        for (TranslatableMessage message : TranslatableMessage.values()) {
-            String path = message.name().toLowerCase(Locale.ROOT);
+    /**
+     * Writes default styles to the given file.
+     */
+    private void writeDefaultStyles(@NotNull File file) throws Exception {
+        var config = new YamlConfiguration();
+        config.options().setHeader(STYLES_HEADER);
 
-            ConfigurationSection section = config.getConfigurationSection(path);
-            if (section == null) {
-                BulletCore.getInstance().getLogger().severe(
-                    "Missing styles section for: " + path + "; this message will use default styles."
-                );
-                result.put(message, message.defStyles);
-                continue;
-            }
+        for (var msg : TranslatableMessage.values()) {
+            var section = config.createSection(msg.configKey);
 
-            Set<String> styleKeys = section.getKeys(false);
+            var key = msg.defaultStyles.key();
+            section.set(key.configKey(), key.fallback().rawInput());
 
-            int expectedStyleKeys = message.defStyles.argStyles().size() + 1;
-            if (styleKeys.size() != expectedStyleKeys) {
-                BulletCore.getInstance().getLogger().severe(
-                    "Invalid number of styles for: " + path +
-                        "; expected " + expectedStyleKeys + ", but got " + styleKeys.size() +
-                        "; this message will use default styles."
-                );
-                result.put(message, message.defStyles);
-                continue;
-            }
-
-            String key = section.getString("key", null);
-            if (key == null) {
-                BulletCore.getInstance().getLogger().severe(
-                    path + " does not contain style for 'key'; this message will use default styles."
-                );
-                result.put(message, message.defStyles);
-                continue;
-            }
-
-            Style keyStyle = ComponentUtils.deserialize(key).style();
-
-            List<Style> argStyles = styleKeys.stream()
-                .skip(1)
-                .map(styleKey -> ComponentUtils.deserialize(section.getString(styleKey, "")).style())
-                .toList();
-
-            StylesBundle stylesBundle = new StylesBundle(keyStyle, argStyles);
-
-            result.put(message, stylesBundle);
+            var args = msg.defaultStyles.arguments();
+            for (var arg : args)
+                section.set(arg.configKey(), arg.fallback().rawInput());
         }
 
+        config.save(file);
+    }
+
+    /**
+     * Parses styles from the given configuration.
+     */
+    private @NotNull EnumMap<TranslatableMessage, MessageStyles> parseStyles(@NotNull YamlConfiguration config) {
+        EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
+
+        for (var msg : TranslatableMessage.values()) {
+            var section = config.getConfigurationSection(msg.configKey);
+            if (section == null) {
+                plugin.getLogger().severe("Missing section for " + msg.configKey + "; using defaults.");
+                result.put(msg, msg.defaultStyles.toMessageStyles());
+                continue;
+            }
+
+            Style keyStyle = parseStyle(section, msg.defaultStyles.key());
+            List<Style> argStyles = msg.defaultStyles.arguments().stream()
+                .map(arg -> parseStyle(section, arg))
+                .toList();
+
+            result.put(msg, new MessageStyles(keyStyle, argStyles));
+        }
         return result;
+    }
+
+    /**
+     * Parses a single style from the configuration or falls back to default.
+     */
+    private @NotNull Style parseStyle(@NotNull ConfigurationSection section,
+                                      @NotNull ConfigStyle style) {
+        String value = section.getString(style.configKey(), null);
+        if (value == null) {
+            plugin.getLogger().severe(section.getCurrentPath() + " missing style for '"
+                + style.configKey() + "'; using default.");
+            return style.fallback().parsedStyle();
+        }
+        return ComponentUtils.deserialize(value).style();
     }
 }
