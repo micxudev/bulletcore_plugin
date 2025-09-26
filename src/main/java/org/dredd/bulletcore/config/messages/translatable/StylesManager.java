@@ -1,4 +1,4 @@
-package org.dredd.bulletcore.config.messages;
+package org.dredd.bulletcore.config.messages.translatable;
 
 import net.kyori.adventure.text.format.Style;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
 
-import static org.dredd.bulletcore.config.messages.TranslatableMessage.Defaults.ConfigStyle;
-import static org.dredd.bulletcore.config.messages.TranslatableMessage.MessageStyles;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.ConfigStyle;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.MessageStyles;
 
 /**
  * Manages style definitions for {@link TranslatableMessage}.

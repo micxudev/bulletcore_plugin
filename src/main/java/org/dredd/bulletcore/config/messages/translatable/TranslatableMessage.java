@@ -1,4 +1,4 @@
-package org.dredd.bulletcore.config.messages;
+package org.dredd.bulletcore.config.messages.translatable;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Locale;
 
-import static org.dredd.bulletcore.config.messages.TranslatableMessage.Defaults.*;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.*;
 
 /**
  * Defines client-side translatable messages (e.g., shown on custom item lore).

@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.text;
-import static org.dredd.bulletcore.config.messages.TranslatableMessage.*;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
