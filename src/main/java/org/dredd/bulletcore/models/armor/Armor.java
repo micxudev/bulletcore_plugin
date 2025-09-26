@@ -133,7 +133,7 @@ public class Armor extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_ARMOR_DURABILITY.asTranslatable(String.format("%.1f", durability), maxDurability));
+            lore.set(0, LORE_ARMOR_DURABILITY.toTranslatable(String.format("%.1f", durability), maxDurability));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }

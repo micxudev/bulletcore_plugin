@@ -30,11 +30,11 @@ public class StylesManager {
 
     private static StylesManager instance;
 
-    static StylesManager get() {
+    static StylesManager instance() {
         return instance;
     }
 
-    public static void reload(@NotNull BulletCore plugin) {
+    public static void load(@NotNull BulletCore plugin) {
         instance = new StylesManager(plugin);
     }
 

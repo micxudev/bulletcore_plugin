@@ -234,7 +234,7 @@ public class Weapon extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_WEAPON_BULLETS.asTranslatable(count, maxBullets));
+            lore.set(0, LORE_WEAPON_BULLETS.toTranslatable(count, maxBullets));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }

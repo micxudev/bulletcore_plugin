@@ -15,7 +15,7 @@ import static org.dredd.bulletcore.config.messages.TranslatableMessage.Defaults.
 /**
  * Defines client-side translatable messages (e.g., shown on custom item lore).
  * <p>
- * Messages and styles can be resolved via {@link #asTranslatable(Object...)}.
+ * Messages and styles can be resolved via {@link #toTranslatable(Object...)}.
  *
  * @author dredd
  * @since 1.0.0
@@ -146,8 +146,8 @@ public enum TranslatableMessage {
      * @return a styled {@link TranslatableComponent} for this message
      * @throws IllegalArgumentException if the number of provided arguments does not match the expected count
      */
-    public @NotNull TranslatableComponent asTranslatable(@NotNull Object... args) {
-        MessageStyles styles = StylesManager.get().stylesFor(this);
+    public @NotNull TranslatableComponent toTranslatable(@NotNull Object... args) {
+        MessageStyles styles = StylesManager.instance().stylesFor(this);
 
         int expectedArgs = styles.argumentStyles().size();
         if (args.length != expectedArgs)
