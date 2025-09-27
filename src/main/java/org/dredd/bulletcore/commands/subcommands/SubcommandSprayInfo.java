@@ -50,24 +50,24 @@ public class SubcommandSprayInfo implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ONLY_PLAYERS.asComponent(sender, null));
+            sender.sendMessage(ONLY_PLAYERS.toComponent(sender, null));
             return;
         }
 
         String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
-            sender.sendMessage(INVALID_OPERATION.asComponent(sender, Map.of("operation", operation)));
+            sender.sendMessage(INVALID_OPERATION.toComponent(sender, Map.of("operation", operation)));
             return;
         }
 
         switch (operation) {
             case "on" -> {
                 SprayHandler.getSprayContext(player).setSendMessage(true);
-                sender.sendMessage(SPRAY_INFO_ON.asComponent(sender, null));
+                sender.sendMessage(SPRAY_INFO_ON.toComponent(sender, null));
             }
             case "off" -> {
                 SprayHandler.getSprayContext(player).setSendMessage(false);
-                sender.sendMessage(SPRAY_INFO_OFF.asComponent(sender, null));
+                sender.sendMessage(SPRAY_INFO_OFF.toComponent(sender, null));
             }
         }
     }

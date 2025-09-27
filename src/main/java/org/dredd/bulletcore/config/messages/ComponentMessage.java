@@ -15,7 +15,7 @@ import java.util.Map;
  * Defines server-side component messages used for (e.g., command feedback, errors, and notifications).
  * <p>
  * Messages are localized per {@link CommandSender} and support placeholder substitution.<br>
- * They can be converted into {@link Component} instances via {@link #asComponent(CommandSender, Map)}.
+ * They can be converted into {@link Component} instances via {@link #toComponent(CommandSender, Map)}.
  *
  * @author dredd
  * @since 1.0.0
@@ -270,7 +270,7 @@ public enum ComponentMessage {
      * @param values optional placeholder values; if {@code null}, no substitution is performed
      * @return the parsed {@link Component}
      */
-    public @NotNull Component asComponent(@NotNull CommandSender sender,
+    public @NotNull Component toComponent(@NotNull CommandSender sender,
                                           @Nullable Map<String, String> values) {
         String message = getMessage(sender);
         String formatted = values == null ? message : applyPlaceholders(message, values);

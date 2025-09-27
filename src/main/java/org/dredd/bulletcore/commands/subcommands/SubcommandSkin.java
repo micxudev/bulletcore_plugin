@@ -55,14 +55,14 @@ public class SubcommandSkin implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ONLY_PLAYERS.asComponent(sender, null));
+            sender.sendMessage(ONLY_PLAYERS.toComponent(sender, null));
             return;
         }
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) {
-            sender.sendMessage(NO_WEAPON_IN_MAINHAND.asComponent(player, null));
+            sender.sendMessage(NO_WEAPON_IN_MAINHAND.toComponent(player, null));
             return;
         }
 
@@ -72,12 +72,12 @@ public class SubcommandSkin implements Subcommand {
             weaponSkin = weapon.skins.defaultSkin;
         } else {
             if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
-                sender.sendMessage(NO_SKIN.asComponent(player, Map.of("skin", skinName)));
+                sender.sendMessage(NO_SKIN.toComponent(player, Map.of("skin", skinName)));
                 return;
             }
             weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
             if (weaponSkin == null) {
-                sender.sendMessage(ERROR_LOADING_SKIN.asComponent(player, Map.of("skin", skinName)));
+                sender.sendMessage(ERROR_LOADING_SKIN.toComponent(player, Map.of("skin", skinName)));
                 return;
             }
         }

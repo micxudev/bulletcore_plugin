@@ -62,7 +62,7 @@ public abstract class ReloadHandler {
         player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
 
         if (!success && ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(WEAPON_RELOAD_CANCEL.asComponent(player, null));
+            player.sendActionBar(WEAPON_RELOAD_CANCEL.toComponent(player, null));
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class ReloadHandler {
      */
     static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponItem, long millisLeft) {
         if (ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(WEAPON_RELOAD.asComponent(player,
+            player.sendActionBar(WEAPON_RELOAD.toComponent(player,
                 Map.of(
                     "bullets", Integer.toString(weapon.getBulletCount(weaponItem)),
                     "maxbullets", Integer.toString(weapon.maxBullets),

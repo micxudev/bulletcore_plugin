@@ -24,6 +24,6 @@ public class UnknownCommandListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onUnknownCommand(UnknownCommandEvent event) {
-        event.message(UNKNOWN_COMMAND.asComponent(event.getSender(), Map.of("commandline", event.getCommandLine())));
+        event.message(UNKNOWN_COMMAND.toComponent(event.getSender(), Map.of("commandline", event.getCommandLine())));
     }
 }

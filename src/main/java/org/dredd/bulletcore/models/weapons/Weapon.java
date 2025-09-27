@@ -247,7 +247,7 @@ public class Weapon extends CustomBase {
      * @param current the current bullet count in the weapon
      */
     public void sendActionbar(@NotNull Player player, int current) {
-        player.sendActionBar(WEAPON_ACTIONBAR.asComponent(player,
+        player.sendActionBar(WEAPON_ACTIONBAR.toComponent(player,
             Map.of(
                 "displayname", displayNameString,
                 "bullets", Integer.toString(current),

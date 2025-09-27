@@ -53,21 +53,21 @@ public final class SubcommandGive implements Subcommand {
         String playerName = args[1];
         Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) {
-            sender.sendMessage(PLAYER_NOT_FOUND.asComponent(sender, Map.of("player", playerName)));
+            sender.sendMessage(PLAYER_NOT_FOUND.toComponent(sender, Map.of("player", playerName)));
             return;
         }
 
         String itemName = args[2];
         CustomBase item = CustomItemsRegistry.ALL.getItemOrNull(itemName);
         if (item == null) {
-            sender.sendMessage(INVALID_ITEM.asComponent(sender, Map.of("item", itemName)));
+            sender.sendMessage(INVALID_ITEM.toComponent(sender, Map.of("item", itemName)));
             return;
         }
 
         var inv = player.getInventory();
         var leftover = inv.addItem(item.createItemStack());
         leftover.forEach((i, stack) -> player.getWorld().dropItem(player.getLocation(), stack));
-        sender.sendMessage(ITEM_GIVEN.asComponent(sender, Map.of("item", itemName, "player", player.getName())));
+        sender.sendMessage(ITEM_GIVEN.toComponent(sender, Map.of("item", itemName, "player", player.getName())));
     }
 
     @Override
