@@ -22,7 +22,7 @@ import static org.dredd.bulletcore.config.messages.translatable.TranslatableMess
  * @author dredd
  * @since 1.0.0
  */
-public class StylesManager {
+public final class StylesManager {
 
     // ----------< Static >----------
     private static final String STYLES_FILE_NAME = "styles.yml";

@@ -69,7 +69,7 @@ public final class BulletCore extends JavaPlugin {
      */
     public static void initAll() {
         SkinsManager.load();
-        MessageManager.reload(plugin);
+        MessageManager.load(plugin);
         StylesManager.load(plugin);
         ConfigManager.reload(plugin);
         CustomItemsRegistry.clearAll();

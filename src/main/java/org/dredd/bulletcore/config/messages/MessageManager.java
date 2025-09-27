@@ -23,66 +23,49 @@ import java.util.jar.JarInputStream;
  * @author dredd
  * @since 1.0.0
  */
-public class MessageManager {
+public final class MessageManager {
 
-    /**
-     * The singleton instance of the {@link MessageManager}
-     */
+    // ----------< Static >----------
     private static MessageManager instance;
 
-    /**
-     * Gets the singleton instance of the {@link MessageManager}
-     *
-     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
-     */
-    static MessageManager get() {
+    static MessageManager instance() {
         return instance;
     }
 
-    /**
-     * Initializes or reloads all the locale messages.
-     *
-     * @param plugin the plugin instance
-     */
-    public static void reload(@NotNull BulletCore plugin) {
+    public static void load(@NotNull BulletCore plugin) {
         instance = new MessageManager(plugin);
     }
 
+    // ----------< Instance >----------
     private final BulletCore plugin;
     private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
 
-    /**
-     * Constructs a new {@code MessageManager} and initializes required fields.
-     * Language files are not loaded here; use {@link #reload(BulletCore)} to initialize.
-     *
-     * @param plugin the main plugin instance
-     */
     private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
         this.messages = loadLocales(new File(plugin.getDataFolder(), "lang"));
     }
 
     /**
-     * Tries to get the locale-specific message for any of the given locales.
+     * Resolves the given message for the first available locale.
      *
-     * @param locale1 first locale to check
-     * @param locale2 second locale to check
-     * @param key     the message key to resolve
-     * @return the locale-specific message, or {@code null} if not found for either locale
+     * @param primaryLocale  the preferred locale to check first
+     * @param fallbackLocale the secondary locale to check if the primary has no entry
+     * @param message        the message key to resolve
+     * @return the localized message for one of the provided locales, or {@code null} if not found
      */
-    @Nullable String getMessageForOr(@NotNull Locale locale1,
-                                     @NotNull Locale locale2,
-                                     @NotNull ComponentMessage key) {
-        var forLocale1 = messages.get(locale1);
-        var localized = forLocale1 != null ? forLocale1 : messages.get(locale2);
-        return localized != null ? localized.get(key) : null;
+    @Nullable String resolveMessage(@NotNull Locale primaryLocale,
+                                    @NotNull Locale fallbackLocale,
+                                    @NotNull ComponentMessage message) {
+        var primaryMessages = messages.get(primaryLocale);
+        var localizedMessages = primaryMessages != null ? primaryMessages : messages.get(fallbackLocale);
+        return localizedMessages != null ? localizedMessages.get(message) : null;
     }
 
     /**
      * Loads all locale message files from the {@code /lang} directory and parses them into memory.<br>
      * If the directory does not exist, it is created and default language files are extracted from the plugin JAR.
      */
-    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLocales(File langFolder) {
+    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLocales(@NotNull File langFolder) {
         if (!langFolder.exists()) {
             if (!langFolder.mkdirs())
                 throw new RuntimeException("Failed to create lang folder: " + langFolder.getPath());
@@ -111,7 +94,7 @@ public class MessageManager {
      * @param file the YAML file to load messages from
      * @return a {@code Map<String, String>} containing key-value pairs from the file
      */
-    private static @NotNull EnumMap<ComponentMessage, String> load(@NotNull File file) {
+    private @NotNull EnumMap<ComponentMessage, String> load(@NotNull File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         EnumMap<ComponentMessage, String> result = new EnumMap<>(ComponentMessage.class);
 
@@ -125,7 +108,7 @@ public class MessageManager {
                         "; has missing message: " + path +
                         "; falling back to default message."
                 );
-                result.put(message, message.def);
+                result.put(message, message.defaultMessage);
                 continue;
             }
 
