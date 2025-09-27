@@ -6,19 +6,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.CodeSource;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 /**
- * Handles managing and loading YAML language files from the {@code /lang} directory.
+ * Manages localization messages for {@link ComponentMessage}.
  * <p>
- * Language files must be named with IETF BCP 47 locale tags {@link Locale#forLanguageTag(String)}.
+ * Loads messages from the language files or creates a default file if missing.
  *
  * @author dredd
  * @since 1.0.0
@@ -26,6 +23,10 @@ import java.util.jar.JarInputStream;
 public final class MessageManager {
 
     // ----------< Static >----------
+    private static final String LANG_FOLDER_NAME = "lang";
+    private static final String DEFAULT_LANG_FILE_NAME = "en-US.yml";
+    private static final List<String> LANG_HEADER = List.of("Wiki: <link>");
+
     private static MessageManager instance;
 
     static MessageManager instance() {
@@ -42,103 +43,115 @@ public final class MessageManager {
 
     private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
-        this.messages = loadLocales(new File(plugin.getDataFolder(), "lang"));
+
+        File langFolder = new File(plugin.getDataFolder(), LANG_FOLDER_NAME);
+        boolean isFirstLoading = !(langFolder.exists() && langFolder.isDirectory());
+
+        this.messages = isFirstLoading
+            ? initializeDefaults(new File(langFolder, DEFAULT_LANG_FILE_NAME))
+            : loadLanguagesFromFolder(langFolder);
     }
 
     /**
      * Resolves the given message for the first available locale.
      *
      * @param primaryLocale  the preferred locale to check first
-     * @param fallbackLocale the secondary locale to check if the primary has no entry
-     * @param message        the message key to resolve
-     * @return the localized message for one of the provided locales, or {@code null} if not found
+     * @param fallbackLocale the locale to use if the primary is missing
+     * @param message        the message key
+     * @return the localized message, or {@code null} if not found
      */
     @Nullable String resolveMessage(@NotNull Locale primaryLocale,
                                     @NotNull Locale fallbackLocale,
                                     @NotNull ComponentMessage message) {
-        var primaryMessages = messages.get(primaryLocale);
-        var localizedMessages = primaryMessages != null ? primaryMessages : messages.get(fallbackLocale);
-        return localizedMessages != null ? localizedMessages.get(message) : null;
+        var primary = messages.get(primaryLocale);
+        var source = primary != null ? primary : messages.get(fallbackLocale);
+        return source != null ? source.get(message) : null;
+    }
+
+    // -----< First Loading >-----
+
+    /**
+     * Creates the default language file on the first startup.
+     *
+     * @param defaultLangFile file to write
+     * @return an empty map, since no messages are loaded yet
+     */
+    private Map<Locale, EnumMap<ComponentMessage, String>> initializeDefaults(@NotNull File defaultLangFile) {
+        try {
+            writeDefaultMessages(defaultLangFile);
+            plugin.getLogger().info("Created default language file:" + defaultLangFile.getName());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to create default language file '"
+                + defaultLangFile.getName() + "': " + e.getMessage());
+        }
+        return new HashMap<>();
     }
 
     /**
-     * Loads all locale message files from the {@code /lang} directory and parses them into memory.<br>
-     * If the directory does not exist, it is created and default language files are extracted from the plugin JAR.
+     * Writes the default messages to the given file.
      */
-    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLocales(@NotNull File langFolder) {
-        if (!langFolder.exists()) {
-            if (!langFolder.mkdirs())
-                throw new RuntimeException("Failed to create lang folder: " + langFolder.getPath());
+    private void writeDefaultMessages(@NotNull File file) throws Exception {
+        var config = new YamlConfiguration();
+        config.options().setHeader(LANG_HEADER).width(Integer.MAX_VALUE);
 
-            copyDefaultLangFiles();
-        }
+        for (var msg : ComponentMessage.values())
+            config.set(msg.configKey, msg.defaultMessage);
 
+        config.save(file);
+    }
+
+    // -----< Regular Loading >-----
+
+    /**
+     * Loads all language files from the given folder.
+     */
+    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLanguagesFromFolder(@NotNull File langFolder) {
         Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
 
-        File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-        if (files == null) return result;
+        File[] files;
+        try {
+            files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+            if (files == null) {
+                plugin.getLogger().severe("Failed to list language files in folder: " + langFolder);
+                return result;
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error listing files in " + langFolder + ": " + e.getMessage());
+            return result;
+        }
 
         for (File file : files) {
-            String localeKey = file.getName().replace(".yml", "");
-            Locale locale = Locale.forLanguageTag(localeKey);
-            result.put(locale, load(file));
+            try {
+                YamlConfiguration config = new YamlConfiguration();
+                config.load(file);
+
+                String localeKey = file.getName().replace(".yml", "");
+                Locale locale = Locale.forLanguageTag(localeKey);
+                result.put(locale, loadMessages(config, file.getPath()));
+            } catch (Exception e) {
+                plugin.getLogger().severe("Skipping invalid language file " + file + ":\n" + e.getMessage());
+            }
         }
 
-        plugin.getLogger().info("-Loaded " + result.size() + " language files: " + result.keySet());
+        plugin.getLogger().info("-Loaded " + result.size() + " language file(s): " + result.keySet());
         return result;
     }
 
     /**
-     * Loads all non-section key-value string pairs from a YAML file.
-     *
-     * @param file the YAML file to load messages from
-     * @return a {@code Map<String, String>} containing key-value pairs from the file
+     * Loads messages from the configuration. Logs missing keys.
      */
-    private @NotNull EnumMap<ComponentMessage, String> load(@NotNull File file) {
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+    private @NotNull EnumMap<ComponentMessage, String> loadMessages(@NotNull YamlConfiguration config,
+                                                                    @NotNull String filePath) {
         EnumMap<ComponentMessage, String> result = new EnumMap<>(ComponentMessage.class);
 
-        for (ComponentMessage message : ComponentMessage.values()) {
-            String path = message.name().toLowerCase(Locale.ROOT);
-
-            String content = config.getString(path, null);
-            if (content == null) {
-                BulletCore.getInstance().getLogger().severe(
-                    "Lang file: " + file.getName() +
-                        "; has missing message: " + path +
-                        "; falling back to default message."
-                );
-                result.put(message, message.defaultMessage);
-                continue;
-            }
-
-            result.put(message, content);
+        for (var msg : ComponentMessage.values()) {
+            String value = config.getString(msg.configKey, null);
+            if (value == null)
+                plugin.getLogger().severe(filePath + " missing message for key '"
+                    + msg.configKey + "'; using default.");
+            else
+                result.put(msg, value);
         }
-
         return result;
-    }
-
-    /**
-     * Copies bundled default language files from the plugin JAR into the plugin's data folder
-     * if they are not already present.
-     */
-    private void copyDefaultLangFiles() {
-        try {
-            CodeSource src = plugin.getClass().getProtectionDomain().getCodeSource();
-            if (src == null) return;
-            try (JarInputStream jarStream = new JarInputStream(src.getLocation().openStream())) {
-                JarEntry entry;
-                while ((entry = jarStream.getNextJarEntry()) != null) {
-                    String name = entry.getName();
-                    if (name.startsWith("lang/") && !entry.isDirectory()) {
-                        File outFile = new File(plugin.getDataFolder(), name);
-                        if (!outFile.exists())
-                            plugin.saveResource(name, false);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to copy default lang files: " + e.getMessage());
-        }
     }
 }
