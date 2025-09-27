@@ -1,4 +1,4 @@
-package org.dredd.bulletcore.config.messages;
+package org.dredd.bulletcore.config.messages.component;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;

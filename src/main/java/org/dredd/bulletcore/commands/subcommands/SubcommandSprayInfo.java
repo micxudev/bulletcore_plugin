@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**

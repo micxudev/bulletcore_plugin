@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD;
-import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOAD;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOAD_CANCEL;
 
 /**
  * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.

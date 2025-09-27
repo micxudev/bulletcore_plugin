@@ -7,7 +7,7 @@ import org.bukkit.event.command.UnknownCommandEvent;
 
 import java.util.Map;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.UNKNOWN_COMMAND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.UNKNOWN_COMMAND;
 
 /**
  * Listens for unknown commands; sends a formatted message to the sender.

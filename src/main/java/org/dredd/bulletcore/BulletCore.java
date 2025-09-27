@@ -7,7 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.config.YMLLModelLoader;
-import org.dredd.bulletcore.config.messages.MessageManager;
+import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.BulletCoreListener;

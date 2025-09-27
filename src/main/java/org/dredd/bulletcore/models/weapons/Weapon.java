@@ -6,7 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.dredd.bulletcore.config.messages.ComponentMessage;
+import org.dredd.bulletcore.config.messages.component.ComponentMessage;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
@@ -28,7 +28,7 @@ import java.util.UUID;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
-import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_ACTIONBAR;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_ACTIONBAR;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_BULLETS;
 
 /**

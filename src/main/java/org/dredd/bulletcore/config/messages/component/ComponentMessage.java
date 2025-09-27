@@ -1,4 +1,4 @@
-package org.dredd.bulletcore.config.messages;
+package org.dredd.bulletcore.config.messages.component;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;

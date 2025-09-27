@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-import static org.dredd.bulletcore.config.messages.ComponentMessage.CONFIG_RELOADED;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.CONFIG_RELOADED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
