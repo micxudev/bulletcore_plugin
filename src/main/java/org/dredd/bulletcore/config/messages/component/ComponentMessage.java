@@ -276,4 +276,26 @@ public enum ComponentMessage {
         String formatted = values == null ? message : applyPlaceholders(message, values);
         return ComponentUtils.deserialize(formatted);
     }
+
+    /**
+     * Sends this parsed message to the chat of the recipient.
+     *
+     * @param recipient the recipient of the message
+     * @param values    optional placeholder values
+     */
+    public void sendMessage(@NotNull CommandSender recipient,
+                            @Nullable Map<String, String> values) {
+        recipient.sendMessage(toComponent(recipient, values));
+    }
+
+    /**
+     * Sends this parsed message on the action bar of the recipient.
+     *
+     * @param recipient the recipient of the message
+     * @param values    optional placeholder values
+     */
+    public void sendActionBar(@NotNull CommandSender recipient,
+                              @Nullable Map<String, String> values) {
+        recipient.sendActionBar(toComponent(recipient, values));
+    }
 }
