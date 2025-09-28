@@ -182,8 +182,6 @@ public final class ShootingHandler {
      * @return {@code true} if the shot was successful, {@code false} otherwise.
      */
     private static boolean shoot(@NotNull Player player, @NotNull Weapon weapon) {
-        ConfigManager config = ConfigManager.get();
-
         // Update last-shot-time whenever we enter this method
         // to be consistent across all the callers which rely on that
         weapon.setLastShotTime(player);
@@ -191,6 +189,8 @@ public final class ShootingHandler {
         // Always get actual reference from the hand and make sure it didn't change in the meantime
         ItemStack weaponStack = player.getInventory().getItemInMainHand();
         if (CustomItemsRegistry.getWeaponOrNull(weaponStack) != weapon) return false;
+
+        ConfigManager config = ConfigManager.instance();
 
         // Check bullet count
         int bulletCount = weapon.getBulletCount(weaponStack);

@@ -475,7 +475,7 @@ public class BulletCoreListener implements Listener {
             //System.err.println("2.1. Player is NOW sneaking with automatic Weapon.");
             long now = System.currentTimeMillis();
             long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
-            long threshold = ConfigManager.get().fireResumeThreshold;
+            long threshold = ConfigManager.instance().fireResumeThreshold;
             if (now - lastSingleShot < threshold) {
                 //System.err.println("2.1.1. Player shot a single bullet " + (now - lastSingleShot) + "ms ago.");
                 ShootingHandler.tryAutoShoot(player, weapon);

@@ -66,7 +66,7 @@ public enum DamagePoint {
 
         BoundingBox bb = victim.getBoundingBox();
         double normalizedY = (hitPoint.getY() - bb.getMinY()) / bb.getHeight();
-        DamageThresholds thr = ConfigManager.get().damageThresholds;
+        DamageThresholds thr = ConfigManager.instance().damageThresholds;
 
         if (normalizedY > thr.head()) return HEAD;
         if (normalizedY > thr.body()) return BODY;

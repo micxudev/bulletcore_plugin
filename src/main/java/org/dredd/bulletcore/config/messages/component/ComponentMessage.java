@@ -242,7 +242,7 @@ public enum ComponentMessage {
      * @return a localized message string or a fallback when no translation is available
      */
     private @NotNull String getMessage(@NotNull CommandSender sender) {
-        Locale serverDefault = ConfigManager.get().locale;
+        Locale serverDefault = ConfigManager.instance().locale;
         Locale senderLocale = ServerUtils.getLocaleOrDefault(sender, serverDefault);
 
         String resolved = MessageManager.instance().resolveMessage(senderLocale, serverDefault, this);

@@ -71,7 +71,7 @@ public final class BulletCore extends JavaPlugin {
         SkinsManager.load();
         MessageManager.load(plugin);
         StylesManager.load(plugin);
-        ConfigManager.reload(plugin);
+        ConfigManager.load(plugin);
         CustomItemsRegistry.clearAll();
         ReloadManager.initAll();
         ShootingHandler.clearAllAutoShootingTasks();

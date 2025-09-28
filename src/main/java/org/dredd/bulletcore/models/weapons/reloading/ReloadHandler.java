@@ -61,7 +61,7 @@ public abstract class ReloadHandler {
         task.cancel();
         player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
 
-        if (!success && ConfigManager.get().enableHotbarMessages)
+        if (!success && ConfigManager.instance().enableHotbarMessages)
             WEAPON_RELOAD_CANCEL.sendActionBar(player, null);
     }
 
@@ -73,7 +73,7 @@ public abstract class ReloadHandler {
      * @param loadedBullets the new number of bullets loaded in the weapon
      */
     static void finishReload(@NotNull Player player, @NotNull Weapon weapon, int loadedBullets) {
-        if (ConfigManager.get().enableHotbarMessages)
+        if (ConfigManager.instance().enableHotbarMessages)
             weapon.sendActionbar(player, loadedBullets);
 
         weapon.sounds.play(player, weapon.sounds.reloadEnd);
@@ -91,7 +91,7 @@ public abstract class ReloadHandler {
      * @return the number of milliseconds remaining for the next countdown tick
      */
     static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponItem, long millisLeft) {
-        if (ConfigManager.get().enableHotbarMessages)
+        if (ConfigManager.instance().enableHotbarMessages)
             WEAPON_RELOAD.sendActionBar(player,
                 Map.of(
                     "bullets", Integer.toString(weapon.getBulletCount(weaponItem)),
@@ -117,7 +117,7 @@ public abstract class ReloadHandler {
         if (isReloading(player)) return;
 
         if (weapon.isAutomatic) ShootingHandler.cancelAutoShooting(player);
-        ConfigManager config = ConfigManager.get();
+        ConfigManager config = ConfigManager.instance();
 
         // check bullet count on Weapon
         int bulletCount = weapon.getBulletCount(weaponStack);

@@ -9,7 +9,6 @@ import org.dredd.bulletcore.config.particles.ConfiguredParticle;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,35 +23,31 @@ import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
 /**
- * Class for loading and managing the plugin's configuration.
+ * Manages main plugin's configuration.
+ * <p>
+ * Loads values from the config file or defaults, creating a default file if missing.
  *
  * @author dredd
  * @since 1.0.0
  */
 public final class ConfigManager {
 
-    /**
-     * The singleton instance of the {@link ConfigManager}.
-     */
+    // ----------< Static >----------
+    private static final String CONFIG_FILE_NAME = "config.yml";
+    private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
+
     private static ConfigManager instance;
 
-    /**
-     * Gets the singleton instance of the {@link ConfigManager}
-     *
-     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
-     */
-    public static ConfigManager get() {
+    public static ConfigManager instance() {
         return instance;
     }
 
-    /**
-     * Initializes or reloads the config.
-     *
-     * @param plugin the plugin instance
-     */
-    public static void reload(@NotNull BulletCore plugin) {
+    public static void load(@NotNull BulletCore plugin) {
         instance = new ConfigManager(plugin);
     }
+
+    // ----------< Instance >----------
+    private final BulletCore plugin;
 
     public final Locale locale;
 
@@ -75,14 +70,9 @@ public final class ConfigManager {
 
     public final Set<Material> ignoredMaterials;
 
-    /**
-     * Initializes the {@link ConfigManager} instance by loading and parsing configuration values
-     * from the plugin's {@code config.yml} file. This constructor ensures that default
-     * configuration values are saved and reloaded before using them.
-     *
-     * @param plugin the {@link BulletCore} instance
-     */
     private ConfigManager(@NotNull BulletCore plugin) {
+        this.plugin = plugin;
+
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();
@@ -113,21 +103,19 @@ public final class ConfigManager {
     /**
      * Parses a list of material names into a set of {@link Material} instances.
      *
-     * @param materialNames the list of material names to parse; must not be null
+     * @param materialNames the list of material names to parse
      * @return a set of {@link Material} instances parsed from the given list of material names
      */
-    private static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        Set<Material> parsedMaterials = HashSet.newHashSet(materialNames.size());
+    private @NotNull Set<Material> parseMaterials(@NotNull List<String> materialNames) {
+        Set<Material> result = HashSet.newHashSet(materialNames.size());
 
         for (String name : materialNames) {
-            try {
-                Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
-                parsedMaterials.add(material);
-            } catch (IllegalArgumentException e) {
-                BulletCore.getInstance().getLogger().warning("Skipping invalid material in ignored-materials: " + name);
-            }
+            Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
+            if (material != null)
+                result.add(material);
+            else
+                plugin.getLogger().severe("Skipping invalid material in ignored-materials: " + name);
         }
-
-        return Collections.unmodifiableSet(parsedMaterials);
+        return Collections.unmodifiableSet(result);
     }
 }
