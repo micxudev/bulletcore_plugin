@@ -76,6 +76,11 @@ public class Weapon extends CustomBase {
     public final int maxBullets;
 
     /**
+     * String representation of {@link #maxBullets}
+     */
+    public final String maxBulletsString;
+
+    /**
      * This number of milliseconds must elapse before the weapon is reloaded.
      */
     public final long reloadTime;
@@ -139,6 +144,7 @@ public class Weapon extends CustomBase {
         this.delayBetweenShots = delayBetweenShots;
         this.lastShots = new HashMap<>();
         this.maxBullets = maxBullets;
+        this.maxBulletsString = Integer.toString(maxBullets);
         this.reloadTime = reloadTime;
         this.isAutomatic = isAutomatic;
         this.victimKnockbackResistance = victimKnockbackResistance;
@@ -234,7 +240,7 @@ public class Weapon extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_WEAPON_BULLETS.toTranslatable(count, maxBullets));
+            lore.set(0, LORE_WEAPON_BULLETS.toTranslatable(Integer.toString(count), maxBulletsString));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
@@ -251,7 +257,7 @@ public class Weapon extends CustomBase {
             Map.of(
                 "displayname", displayNameString,
                 "bullets", Integer.toString(current),
-                "maxbullets", Integer.toString(maxBullets),
+                "maxbullets", maxBulletsString,
                 "total", Integer.toString(ammo.getAmmoCount(player))
             )
         );

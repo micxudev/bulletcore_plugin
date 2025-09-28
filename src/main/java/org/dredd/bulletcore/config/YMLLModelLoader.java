@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static net.kyori.adventure.text.Component.text;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
+import static org.dredd.bulletcore.utils.FormatterUtils.*;
 
 /**
  * Utility class for loading all custom item models from YML files.
@@ -245,11 +246,11 @@ public final class YMLLModelLoader {
 
         var lore = baseAttributes.lore();
         lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.toTranslatable((int) (damageReduction * 100)));
-        lore.add(2, LORE_ARMOR_ARMOR_POINTS.toTranslatable(armorPoints));
-        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.toTranslatable(toughnessPoints));
-        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.toTranslatable((int) (knockbackResistance * 100)));
-        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.toTranslatable((int) (explosionKnockbackResistance * 100)));
+        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.toTranslatable(formatPercent(damageReduction)));
+        lore.add(2, LORE_ARMOR_ARMOR_POINTS.toTranslatable(Integer.toString(armorPoints)));
+        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.toTranslatable(Integer.toString(toughnessPoints)));
+        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(knockbackResistance)));
+        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(explosionKnockbackResistance)));
 
         return new Armor(baseAttributes, maxDurability, damageReduction, unbreakable, armorPoints, toughnessPoints, knockbackResistance, explosionKnockbackResistance);
     }
@@ -304,8 +305,8 @@ public final class YMLLModelLoader {
 
         var lore = baseAttributes.lore();
         lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(damage.head(), damage.body(), damage.legs(), damage.feet()));
-        lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(maxDistance));
+        lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet())));
+        lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
         lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
 
         return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, pelletsPerShot, damage, recoil, spray, sounds, trailParticle, skins);

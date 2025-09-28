@@ -20,6 +20,7 @@ import static org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.persistence.PersistentDataType.DOUBLE;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_DURABILITY;
+import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
 import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;
 
 /**
@@ -41,6 +42,11 @@ public class Armor extends CustomBase {
     public final double maxDurability;
 
     /**
+     * The formatted version of {@link #maxDurability}.
+     */
+    public final String formattedMaxDurability;
+
+    /**
      * Weapon damage reduction percent.
      */
     public final double damageReduction;
@@ -58,6 +64,7 @@ public class Armor extends CustomBase {
     public Armor(BaseAttributes attrs, double maxDurability, double damageReduction, boolean unbreakable, int armorPoints, int toughnessPoints, double knockbackResistance, double explosionKnockbackResistance) {
         super(attrs);
         this.maxDurability = maxDurability;
+        this.formattedMaxDurability = formatDouble(maxDurability);
         this.damageReduction = damageReduction;
         this.unbreakable = unbreakable;
         this.modifiers = LinkedListMultimap.create();
@@ -133,7 +140,7 @@ public class Armor extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_ARMOR_DURABILITY.toTranslatable(String.format("%.1f", durability), maxDurability));
+            lore.set(0, LORE_ARMOR_DURABILITY.toTranslatable(formatDouble(durability), formattedMaxDurability));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
