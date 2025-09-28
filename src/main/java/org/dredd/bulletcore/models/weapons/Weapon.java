@@ -131,11 +131,6 @@ public class Weapon extends CustomBase {
      */
     public final WeaponSkins skins;
 
-    /**
-     * Constructs a new {@link Weapon} instance.
-     * <p>
-     * All parameters must be already validated.
-     */
     public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, int pelletsPerShot, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, BulletTrailParticle trailParticle, WeaponSkins skins) {
         super(attrs);
         this.ammo = ammo;

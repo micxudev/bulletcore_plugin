@@ -34,17 +34,16 @@ public class Ammo extends CustomBase {
      */
     public final int maxAmmo;
 
-
     /**
-     * Constructs a new {@link Ammo} instance.
-     * <p>
-     * All parameters must be already validated.
+     * String representation of {@link #maxAmmo}
      */
+    public final String maxAmmoString;
+
     public Ammo(BaseAttributes attrs, int maxAmmo) {
         super(attrs);
         this.maxAmmo = maxAmmo;
+        this.maxAmmoString = Integer.toString(this.maxAmmo);
     }
-
 
     @Override
     public @NotNull ItemStack createItemStack() {
@@ -101,7 +100,7 @@ public class Ammo extends CustomBase {
 
         List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
-            lore.set(0, LORE_AMMO_COUNT.toTranslatable(Integer.toString(count), Integer.toString(maxAmmo)));
+            lore.set(0, LORE_AMMO_COUNT.toTranslatable(Integer.toString(count), maxAmmoString));
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
