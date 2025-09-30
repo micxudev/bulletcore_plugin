@@ -22,6 +22,7 @@ import static org.dredd.bulletcore.config.messages.translatable.TranslatableMess
  */
 public enum TranslatableMessage {
 
+    // -----< Weapon >-----
     /**
      * Bullet count shown on weapon lore.
      */
@@ -58,6 +59,8 @@ public enum TranslatableMessage {
         List.of(new ConfigStyle("ammo", STYLE_YELLOW))
     )),
 
+
+    // -----< Ammo >-----
     /**
      * Ammo count shown on ammo lore.
      */
@@ -68,6 +71,8 @@ public enum TranslatableMessage {
         )
     )),
 
+
+    // -----< Armor >-----
     /**
      * Armor durability shown on armor lore.
      */
@@ -113,6 +118,9 @@ public enum TranslatableMessage {
         List.of(new ConfigStyle("resistance", STYLE_RED))
     ));
 
+
+    // ----------< Instance >----------
+
     /**
      * The default styles used if styles were not loaded from the config.
      */
@@ -133,6 +141,8 @@ public enum TranslatableMessage {
         this.configKey = this.name().toLowerCase(Locale.ROOT);
         this.translationKey = "bulletcore." + configKey;
     }
+
+    // -----< Usage >-----
 
     /**
      * Builds a {@link TranslatableComponent} for this message using the provided arguments.
@@ -168,6 +178,9 @@ public enum TranslatableMessage {
      *                       its size must match the number of arguments expected by the message
      */
     record MessageStyles(Style keyStyle, List<Style> argumentStyles) {}
+
+
+    // ----------< Defaults >----------
 
     /**
      * Provides default style definitions used when no config overrides are present.
