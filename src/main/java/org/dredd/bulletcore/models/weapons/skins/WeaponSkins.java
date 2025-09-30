@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.VALID_NAME;
+
 /**
  * Manages a collection of {@link WeaponSkin} instances associated with a weapon.
  *
@@ -162,7 +164,7 @@ public class WeaponSkins {
             skinModelData++;
 
             if (!CustomItemsRegistry.isValidFormat(key)) {
-                BulletCore.getInstance().getLogger().severe("Invalid skin name '" + key + "'. Must match [a-z0-9/._-]");
+                BulletCore.getInstance().getLogger().severe("Invalid skin name '" + key + "'. Must match " + VALID_NAME.pattern());
                 continue;
             }
 

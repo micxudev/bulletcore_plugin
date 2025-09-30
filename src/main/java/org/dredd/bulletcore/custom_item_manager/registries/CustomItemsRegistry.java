@@ -30,7 +30,7 @@ public final class CustomItemsRegistry {
     /**
      * Valid name pattern for custom item names.
      */
-    private static final Pattern VALID_NAME = Pattern.compile("[a-z0-9/._-]+");
+    public static final Pattern VALID_NAME = Pattern.compile("[a-z0-9/._-]+");
 
     /**
      * Global registry for all custom items, regardless of specific type.

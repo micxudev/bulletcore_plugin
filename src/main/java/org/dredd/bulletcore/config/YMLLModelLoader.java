@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.text;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.VALID_NAME;
 import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.FormatterUtils.*;
 
@@ -160,7 +161,7 @@ public final class YMLLModelLoader {
     private static @NotNull BaseAttributes loadBaseAttributes(@NotNull YamlConfiguration config) throws ItemLoadException {
         String name = config.getString("name");
         if (!CustomItemsRegistry.canNameBeUsed(name))
-            throw new ItemLoadException("Name: '" + name + "' does not match [a-z0-9/._-] or is already in use");
+            throw new ItemLoadException("Name: '" + name + "' does not match " + VALID_NAME.pattern() + " or is already in use");
 
         int customModelData = config.getInt("customModelData");
         if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))
