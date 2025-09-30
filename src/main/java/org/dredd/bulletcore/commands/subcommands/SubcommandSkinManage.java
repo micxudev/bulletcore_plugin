@@ -90,14 +90,14 @@ public class SubcommandSkinManage implements Subcommand {
             return;
         }
 
-        WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
-        if (weaponSkin == null) {
-            SKIN_NOT_FOUND.sendMessage(sender, null);
-            return;
-        }
-
         switch (operation) {
             case "add" -> {
+                WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
+                if (weaponSkin == null) {
+                    SKIN_NOT_FOUND.sendMessage(sender, null);
+                    return;
+                }
+
                 if (SkinsManager.addSkinToPlayer(player, weapon, skinName))
                     SKIN_ADDED_SUCCESS.sendMessage(sender, null);
                 else
