@@ -30,6 +30,7 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 public final class CommandHandler extends Command {
 
     // ----------< Static >----------
+
     private static final String MAIN_COMMAND_NAME = "bulletcore";
     private static final String MAIN_COMMAND_PERMISSION = "bulletcore.command";
     private static final String ALL_SUBCOMMANDS_PERMISSION = "bulletcore.command.*";
@@ -69,6 +70,7 @@ public final class CommandHandler extends Command {
             INSTANCE = null;
         }
     }
+
 
     // ----------< Instance >----------
 
@@ -153,6 +155,8 @@ public final class CommandHandler extends Command {
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;
     }
+
+    // -----< Helpers >-----
 
     private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return canUseAllSubcommands(sender)

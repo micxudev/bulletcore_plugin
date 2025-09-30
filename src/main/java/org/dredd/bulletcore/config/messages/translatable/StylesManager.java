@@ -25,6 +25,7 @@ import static org.dredd.bulletcore.config.messages.translatable.TranslatableMess
 public final class StylesManager {
 
     // ----------< Static >----------
+
     private static final String STYLES_FILE_NAME = "styles.yml";
     private static final List<String> STYLES_HEADER = List.of("Wiki: <link>");
 
@@ -38,7 +39,9 @@ public final class StylesManager {
         instance = new StylesManager(plugin);
     }
 
+
     // ----------< Instance >----------
+
     private final BulletCore plugin;
     private final EnumMap<TranslatableMessage, MessageStyles> styles;
 
@@ -46,26 +49,11 @@ public final class StylesManager {
         this.plugin = plugin;
 
         File stylesFile = new File(plugin.getDataFolder(), STYLES_FILE_NAME);
-        if (!stylesFile.exists()) {
-            this.styles = loadDefaultStyles();
-            try {
-                writeDefaultStyles(stylesFile);
-                plugin.getLogger().info("Created default styles file: " + stylesFile.getName());
-            } catch (Exception e) {
-                plugin.getLogger().severe("Failed to create file " + stylesFile + " : " + e.getMessage());
-            }
-        } else {
-            EnumMap<TranslatableMessage, MessageStyles> loadedStyles;
-            YamlConfiguration config = new YamlConfiguration();
-            try {
-                config.load(stylesFile);
-                loadedStyles = parseStyles(config);
-            } catch (Exception e) {
-                plugin.getLogger().severe("Failed to load file " + stylesFile + ":\n" + e.getMessage() + "\nUsing default styles.");
-                loadedStyles = loadDefaultStyles();
-            }
-            this.styles = loadedStyles;
-        }
+        boolean isFirstLoading = !stylesFile.exists();
+
+        this.styles = isFirstLoading
+            ? initializeDefaults(stylesFile)
+            : loadStylesFromFile(stylesFile);
     }
 
     /**
@@ -73,6 +61,21 @@ public final class StylesManager {
      */
     @NotNull MessageStyles stylesFor(@NotNull TranslatableMessage message) {
         return styles.get(message);
+    }
+
+    // -----< First Loading >-----
+
+    /**
+     * Creates the default styles file on the first startup and returns the default styles.
+     */
+    private @NotNull EnumMap<TranslatableMessage, MessageStyles> initializeDefaults(@NotNull File stylesFile) {
+        try {
+            writeDefaultStyles(stylesFile);
+            plugin.getLogger().info("Created default styles file: " + stylesFile.getName());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to create file " + stylesFile + " : " + e.getMessage());
+        }
+        return loadDefaultStyles();
     }
 
     /**
@@ -104,6 +107,23 @@ public final class StylesManager {
         }
 
         config.save(file);
+    }
+
+    // -----< Regular Loading >-----
+
+    /**
+     * Loads styles from the given file or falls back to default on failure.
+     */
+    private EnumMap<TranslatableMessage, MessageStyles> loadStylesFromFile(@NotNull File stylesFile) {
+        var config = new YamlConfiguration();
+        try {
+            config.load(stylesFile);
+            return parseStyles(config);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load styles file: " + stylesFile.getName()
+                + ":\n" + e.getMessage() + "\nUsing default styles.");
+            return loadDefaultStyles();
+        }
     }
 
     /**

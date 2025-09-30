@@ -33,6 +33,7 @@ import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 public final class ConfigManager {
 
     // ----------< Static >----------
+
     private static final String CONFIG_FILE_NAME = "config.yml";
     private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
 
@@ -46,7 +47,9 @@ public final class ConfigManager {
         instance = new ConfigManager(plugin);
     }
 
+
     // ----------< Instance >----------
+
     private final BulletCore plugin;
 
     public final Locale locale;

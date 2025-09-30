@@ -23,6 +23,7 @@ import java.util.Map;
 public final class MessageManager {
 
     // ----------< Static >----------
+
     private static final String LANG_FOLDER_NAME = "lang";
     private static final String DEFAULT_LANG_FILE_NAME = "en-US.yml";
     private static final List<String> LANG_HEADER = List.of("Wiki: <link>");
@@ -37,7 +38,9 @@ public final class MessageManager {
         instance = new MessageManager(plugin);
     }
 
+
     // ----------< Instance >----------
+
     private final BulletCore plugin;
     private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
 
@@ -122,7 +125,7 @@ public final class MessageManager {
 
         for (File file : files) {
             try {
-                YamlConfiguration config = new YamlConfiguration();
+                var config = new YamlConfiguration();
                 config.load(file);
 
                 String localeKey = file.getName().replace(".yml", "");
