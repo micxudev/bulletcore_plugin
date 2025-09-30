@@ -22,33 +22,34 @@ import java.util.Map;
  */
 public enum ComponentMessage {
 
+    // -----< Command >-----
     /**
      * Shown when a player or console executes a command that is not defined.
      * <p>
      * {@code %commandline%} – the command that was entered
      */
-    UNKNOWN_COMMAND("<red>Unknown command: <white>%commandline%</white>"),
+    COMMAND_UNKNOWN("<red>Unknown command <white>%commandline%</white>"),
 
     /**
      * Shown when a command is executed without specifying a subcommand.
      * <p>
      * {@code %command%} – the main command name
      */
-    NO_SUBCOMMAND_PROVIDED("<red>Usage: <white>/%command% <subcommand></white>"),
+    COMMAND_MISSING_SUBCOMMAND("<red>Missing subcommand. Usage <white>/%command% <subcommand></white>"),
 
     /**
      * Shown when an unknown subcommand is used.
      * <p>
      * {@code %subcommand%} – the provided subcommand name
      */
-    UNKNOWN_SUBCOMMAND("<red>Unknown subcommand: <white>%subcommand%</white>"),
+    COMMAND_UNKNOWN_SUBCOMMAND("<red>Unknown subcommand <white>%subcommand%</white>"),
 
     /**
      * Shown when the sender lacks permission to use a subcommand.
      * <p>
      * No placeholders.
      */
-    NO_SUBCOMMAND_PERMISSION("<red>You do not have permission to use this subcommand."),
+    COMMAND_NO_PERMISSION("<red>You do not have permission to use this command."),
 
     /**
      * Shown when not enough arguments are provided to a subcommand.
@@ -57,35 +58,48 @@ public enum ComponentMessage {
      * {@code %subcommand%} – the subcommand name<br>
      * {@code %args%} – the correct arguments usage string
      */
-    NOT_ENOUGH_ARGS("<red>Usage: <white>/%command% %subcommand% %args%</white>"),
+    COMMAND_NOT_ENOUGH_ARGS("<red>Usage <white>/%command% %subcommand% %args%</white>"),
 
     /**
      * Shown when a non-player (e.g., console) attempts to use a subcommand that requires a player.
      * <p>
      * No placeholders.
      */
-    ONLY_PLAYERS("<red>This subcommand can only be used by players."),
+    COMMAND_PLAYERS_ONLY("<red>Command can only be used by players."),
 
     /**
-     * Shown after successfully reloading the configuration.
+     * Shown when the specified operation does not exist.
+     * <p>
+     * {@code %operation%} – the operation name
+     */
+    COMMAND_INVALID_OPERATION("<red>Invalid operation <white>%operation%</white>"),
+
+
+    // -----< Config >-----
+    /**
+     * Shown after reloading the configuration.
      * <p>
      * {@code %time%} – reload time in milliseconds
      */
-    CONFIG_RELOADED("<green>Reloaded in <white>%time%</white> ms."),
+    CONFIG_RELOADED("<green>Config reloaded in <white>%time%</white> ms."),
 
-    /**
-     * Shown when an invalid item is specified.
-     * <p>
-     * {@code %item%} – the name of the invalid item
-     */
-    INVALID_ITEM("<red>Invalid item: <white>%item%</white>"),
 
+    // -----< Player >-----
     /**
-     * Shown when a player cannot be found.
+     * Shown when the specified player does not exist or is not online.
      * <p>
-     * {@code %player%} – the name of the player
+     * {@code %player%} – the player name
      */
-    PLAYER_NOT_FOUND("<red>Player not found: <white>%player%</white>"),
+    PLAYER_NOT_FOUND("<red>Player not found or offline <white>%player%</white>"),
+
+
+    // -----< Item >-----
+    /**
+     * Shown when the specified item does not exist.
+     * <p>
+     * {@code %item%} – the item name
+     */
+    ITEM_NOT_FOUND("<red>Item not found <white>%item%</white>"),
 
     /**
      * Shown when an item is successfully given to a player.
@@ -93,132 +107,134 @@ public enum ComponentMessage {
      * {@code %item%} – the name of the given item<br>
      * {@code %player%} – the name of the receiving player
      */
-    ITEM_GIVEN("<green>Gave <white>%item%</white> to <white>%player%</white>"),
+    ITEM_GIVEN_SUCCESS("<green>Gave <white>%item%</white> to <white>%player%</white>"),
+
+
+    // -----< Weapon >-----
+    /**
+     * Shown when the specified weapon does not exist.
+     * <p>
+     * {@code %weapon%} – the weapon name
+     */
+    WEAPON_NOT_FOUND("<red>Weapon not found <white>%weapon%</white>"),
 
     /**
-     * Shown on the actionbar during weapon interactions (e.g., shooting, reload).
+     * Shown on the actionbar during weapon interactions (e.g., shooting, reload attempt).
      * <p>
      * {@code %displayname%} – weapon’s raw display name (unstyled)<br>
      * {@code %bullets%} – current bullet count<br>
      * {@code %maxbullets%} – max bullet capacity<br>
-     * {@code %total%} – total ammo count in the player’s inventory
+     * {@code %total%} – total ammo count in the player’s inventory (for this weapon)
      */
-    WEAPON_ACTIONBAR("<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"),
-
-    /**
-     * Shown on the actionbar when a weapon reload is canceled.
-     * <p>
-     * No placeholders.
-     */
-    WEAPON_RELOAD_CANCEL("<red>Reload canceled"),
+    WEAPON_STATUS("<b><dark_gray><#7fdbff>%displayname%</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>]"),
 
     /**
      * Shown on the actionbar when a weapon is reloading.
      * <p>
      * {@code %bullets%} – current bullet count<br>
      * {@code %maxbullets%} – max bullet capacity<br>
-     * {@code %total%} – total ammo count in the player’s inventory<br>
+     * {@code %total%} – total ammo count in the player’s inventory (for this weapon)<br>
      * {@code %time%} – seconds remaining for reload
      */
-    WEAPON_RELOAD("<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"),
+    WEAPON_RELOADING("<b><dark_gray><#7fdbff>Reloading</#7fdbff> = <white>%bullets%</white> / <#7fdbff>%maxbullets%</#7fdbff> [<#39ff14>%total%</#39ff14>] | <white>%time%</white> secs"),
+
+    /**
+     * Shown on the actionbar when a weapon reload is canceled.
+     * <p>
+     * No placeholders.
+     */
+    WEAPON_RELOAD_CANCELED("<red>Reload canceled."),
 
     /**
      * Shown when a subcommand requires holding a weapon in the main hand.
      * <p>
      * No placeholders.
      */
-    NO_WEAPON_IN_MAINHAND("<red>You must hold a weapon in your main hand to use this subcommand."),
+    WEAPON_MAINHAND_REQUIRED("<red>You must have a weapon in your main hand."),
+
+
+    // -----< Skins >-----
+    /**
+     * Shown when the specified skin does not exist for the given weapon.
+     * <p>
+     * No placeholders.
+     */
+    SKIN_NOT_FOUND("<red>Weapon does not have this skin."),
+
+    /**
+     * Shown when a player attempts to use a skin they own but failed to load on server startup.
+     * <p>
+     * No placeholders.
+     */
+    SKIN_NOT_LOADED("<red>Server did not load this skin on startup."),
 
     /**
      * Shown when a player attempts to use a skin they do not own.
      * <p>
-     * {@code %skin%} – the requested skin name
+     * No placeholders.
      */
-    NO_SKIN("<red>You do not have the skin: <white>%skin%</white>"),
+    SKIN_NOT_OWNED_SELF("<red>You do not have this skin."),
 
     /**
-     * Shown when a player attempts to use an owned skin that failed to load on a server startup.
+     * Shown when attempting to remove a skin that the target player does not own.
      * <p>
-     * {@code %skin%} – the requested skin name
+     * No placeholders.
      */
-    ERROR_LOADING_SKIN("<red>An error occurred while loading the skin: <white>%skin%</white>"),
+    SKIN_NOT_OWNED_OTHER("<red>Player does not have this skin."),
 
     /**
-     * Shown when an invalid operation is specified.
+     * Shown when attempting to add a skin that the target player already owns.
      * <p>
-     * {@code %operation%} – the invalid operation name
+     * No placeholders.
      */
-    INVALID_OPERATION("<red>Invalid operation: <white>%operation%</white>"),
-
-    /**
-     * Shown when an invalid weapon is specified.
-     * <p>
-     * {@code %weapon%} – the invalid weapon name
-     */
-    INVALID_WEAPON("<red>Invalid weapon: <white>%weapon%</white>"),
-
-    /**
-     * Shown when all skins have been successfully added to a player.
-     * <p>
-     * {@code %count%} – the number of skins added
-     */
-    SKINS_ADDED("<green>Successfully added <white>%count%</white> skin(s) to the player."),
-
-    /**
-     * Shown when all skins have been successfully removed from a player.
-     * <p>
-     * {@code %count%} – the number of skins removed
-     */
-    SKINS_REMOVED("<yellow>Successfully removed <white>%count%</white> skin(s) from the player."),
-
-    /**
-     * Shown when the specified skin is not found for a weapon.
-     * <p>
-     * {@code %skin%} – the missing skin name
-     */
-    SKIN_NOT_FOUND("<red>Skin not found: <white>%skin%</white>"),
+    SKIN_ALREADY_OWNED_OTHER("<yellow>Player already owns this skin."),
 
     /**
      * Shown when a skin is successfully added to a player.
      * <p>
      * No placeholders.
      */
-    SKIN_ADDED("<green>Skin was successfully added to the player."),
-
-    /**
-     * Shown when a player already owns the specified skin.
-     * <p>
-     * No placeholders.
-     */
-    SKIN_ALREADY_OWNED("<yellow>The player already has this skin."),
+    SKIN_ADDED_SUCCESS("<green>Skin added successfully."),
 
     /**
      * Shown when a skin is successfully removed from a player.
      * <p>
      * No placeholders.
      */
-    SKIN_REMOVED("<yellow>Skin was successfully removed from the player."),
+    SKIN_REMOVED_SUCCESS("<green>Skin removed successfully."),
 
     /**
-     * Shown when a player does not own the specified skin.
+     * Shown when all skins have been successfully added to a player.
      * <p>
-     * No placeholders.
+     * {@code %count%} – the number of skins added
      */
-    SKIN_NOT_OWNED("<red>The player does not have this skin."),
+    SKINS_ADDED_SUCCESS("<green>Added <white>%count%</white> skin(s) to the player."),
 
+    /**
+     * Shown when all skins have been successfully removed from a player.
+     * <p>
+     * {@code %count%} – the number of skins removed
+     */
+    SKINS_REMOVED_SUCCESS("<green>Removed <white>%count%</white> skin(s) from the player."),
+
+
+    // -----< Debug >-----
     /**
      * Shown when weapon spray debug messages are enabled.
      * <p>
      * No placeholders.
      */
-    SPRAY_INFO_ON("<white>Spray info is <green>ON</green>"),
+    DEBUG_SPRAY_ENABLED("<white>Spray debug <green>ENABLED</green>"),
 
     /**
      * Shown when weapon spray debug messages are disabled.
      * <p>
      * No placeholders.
      */
-    SPRAY_INFO_OFF("<white>Spray info is <red>OFF</red>");
+    DEBUG_SPRAY_DISABLED("<white>Spray debug <red>DISABLED</red>");
+
+
+    // ----------< Instance >----------
 
     /**
      * The default Mini-Message formatted message used if the message was not loaded from the config.
@@ -234,6 +250,8 @@ public enum ComponentMessage {
         this.defaultMessage = defaultMessage;
         this.configKey = this.name().toLowerCase(Locale.ROOT);
     }
+
+    // -----< Private Usage >-----
 
     /**
      * Resolves the localized MiniMessage-formatted message string for the given {@link CommandSender}.
@@ -262,6 +280,8 @@ public enum ComponentMessage {
             template = template.replace("%" + e.getKey() + "%", e.getValue());
         return template;
     }
+
+    // -----< Public Usage >-----
 
     /**
      * Converts this enum message into a parsed {@link Component} for the given {@link CommandSender}.

@@ -60,14 +60,14 @@ public final class SubcommandGive implements Subcommand {
         String itemName = args[2];
         CustomBase item = CustomItemsRegistry.ALL.getItemOrNull(itemName);
         if (item == null) {
-            INVALID_ITEM.sendMessage(sender, Map.of("item", itemName));
+            ITEM_NOT_FOUND.sendMessage(sender, Map.of("item", itemName));
             return;
         }
 
         var inv = player.getInventory();
         var leftover = inv.addItem(item.createItemStack());
         leftover.forEach((i, stack) -> player.getWorld().dropItem(player.getLocation(), stack));
-        ITEM_GIVEN.sendMessage(sender, Map.of("item", itemName, "player", player.getName()));
+        ITEM_GIVEN_SUCCESS.sendMessage(sender, Map.of("item", itemName, "player", player.getName()));
     }
 
     @Override

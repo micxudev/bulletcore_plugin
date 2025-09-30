@@ -50,7 +50,7 @@ public final class StylesManager {
             this.styles = loadDefaultStyles();
             try {
                 writeDefaultStyles(stylesFile);
-                plugin.getLogger().info("Created " + stylesFile);
+                plugin.getLogger().info("Created default styles file: " + stylesFile.getName());
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to create file " + stylesFile + " : " + e.getMessage());
             }

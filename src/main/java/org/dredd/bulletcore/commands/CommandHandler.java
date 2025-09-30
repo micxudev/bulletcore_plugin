@@ -115,23 +115,23 @@ public final class CommandHandler extends Command {
                            @NotNull String label,
                            @NotNull String[] args) {
         if (args.length == 0) {
-            NO_SUBCOMMAND_PROVIDED.sendMessage(sender, Map.of("command", MAIN_COMMAND_NAME));
+            COMMAND_MISSING_SUBCOMMAND.sendMessage(sender, Map.of("command", MAIN_COMMAND_NAME));
             return true;
         }
 
         Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         if (sub == null) {
-            UNKNOWN_SUBCOMMAND.sendMessage(sender, Map.of("subcommand", args[0]));
+            COMMAND_UNKNOWN_SUBCOMMAND.sendMessage(sender, Map.of("subcommand", args[0]));
             return true;
         }
 
         if (!canExecuteSubcommand(sender, sub)) {
-            NO_SUBCOMMAND_PERMISSION.sendMessage(sender, null);
+            COMMAND_NO_PERMISSION.sendMessage(sender, null);
             return true;
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            NOT_ENOUGH_ARGS.sendMessage(sender, Map.of(
+            COMMAND_NOT_ENOUGH_ARGS.sendMessage(sender, Map.of(
                 "command", MAIN_COMMAND_NAME, "subcommand", args[0], "args", sub.getUsageArgs())
             );
             return true;

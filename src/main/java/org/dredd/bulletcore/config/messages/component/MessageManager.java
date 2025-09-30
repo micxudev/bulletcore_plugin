@@ -79,7 +79,7 @@ public final class MessageManager {
     private Map<Locale, EnumMap<ComponentMessage, String>> initializeDefaults(@NotNull File defaultLangFile) {
         try {
             writeDefaultMessages(defaultLangFile);
-            plugin.getLogger().info("Created default language file:" + defaultLangFile.getName());
+            plugin.getLogger().info("Created default language file: " + defaultLangFile.getName());
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to create default language file '"
                 + defaultLangFile.getName() + "': " + e.getMessage());

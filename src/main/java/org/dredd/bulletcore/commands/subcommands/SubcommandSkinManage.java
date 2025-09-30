@@ -57,7 +57,7 @@ public class SubcommandSkinManage implements Subcommand {
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
-            INVALID_OPERATION.sendMessage(sender, Map.of("operation", operation));
+            COMMAND_INVALID_OPERATION.sendMessage(sender, Map.of("operation", operation));
             return;
         }
 
@@ -71,7 +71,7 @@ public class SubcommandSkinManage implements Subcommand {
         String weaponName = args[3];
         Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) {
-            INVALID_WEAPON.sendMessage(sender, Map.of("weapon", weaponName));
+            WEAPON_NOT_FOUND.sendMessage(sender, Map.of("weapon", weaponName));
             return;
         }
 
@@ -80,11 +80,11 @@ public class SubcommandSkinManage implements Subcommand {
             switch (operation) {
                 case "add" -> {
                     int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
-                    SKINS_ADDED.sendMessage(sender, Map.of("count", Integer.toString(skinsAdded)));
+                    SKINS_ADDED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsAdded)));
                 }
                 case "remove" -> {
                     int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
-                    SKINS_REMOVED.sendMessage(sender, Map.of("count", Integer.toString(skinsRemoved)));
+                    SKINS_REMOVED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsRemoved)));
                 }
             }
             return;
@@ -92,22 +92,22 @@ public class SubcommandSkinManage implements Subcommand {
 
         WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
         if (weaponSkin == null) {
-            SKIN_NOT_FOUND.sendMessage(sender, Map.of("skin", skinName));
+            SKIN_NOT_FOUND.sendMessage(sender, null);
             return;
         }
 
         switch (operation) {
             case "add" -> {
                 if (SkinsManager.addSkinToPlayer(player, weapon, skinName))
-                    SKIN_ADDED.sendMessage(sender, null);
+                    SKIN_ADDED_SUCCESS.sendMessage(sender, null);
                 else
-                    SKIN_ALREADY_OWNED.sendMessage(sender, null);
+                    SKIN_ALREADY_OWNED_OTHER.sendMessage(sender, null);
             }
             case "remove" -> {
                 if (SkinsManager.removeSkinFromPlayer(player, weapon, skinName))
-                    SKIN_REMOVED.sendMessage(sender, null);
+                    SKIN_REMOVED_SUCCESS.sendMessage(sender, null);
                 else
-                    SKIN_NOT_OWNED.sendMessage(sender, null);
+                    SKIN_NOT_OWNED_OTHER.sendMessage(sender, null);
             }
         }
     }

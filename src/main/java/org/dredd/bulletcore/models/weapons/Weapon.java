@@ -28,7 +28,7 @@ import java.util.UUID;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_ACTIONBAR;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_STATUS;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_BULLETS;
 
 /**
@@ -242,13 +242,13 @@ public class Weapon extends CustomBase {
     }
 
     /**
-     * Sends the {@link ComponentMessage#WEAPON_ACTIONBAR} message to a specified player.
+     * Sends the {@link ComponentMessage#WEAPON_STATUS} message to a specified player.
      *
      * @param player  the player to whom the actionbar message will be sent; must not be null
      * @param current the current bullet count in the weapon
      */
     public void sendActionbar(@NotNull Player player, int current) {
-        WEAPON_ACTIONBAR.sendActionBar(player,
+        WEAPON_STATUS.sendActionBar(player,
             Map.of(
                 "displayname", displayNameString,
                 "bullets", Integer.toString(current),
