@@ -34,8 +34,8 @@ public final class ConfigManager {
 
     // ----------< Static >----------
 
-    private static final String CONFIG_FILE_NAME = "config.yml";
-    private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
+    //private static final String CONFIG_FILE_NAME = "config.yml";
+    //private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
 
     private static ConfigManager instance;
 
@@ -100,7 +100,6 @@ public final class ConfigManager {
         asFeatureManager = ASFeatureManager.load(cfg);
 
         ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
-        plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
     }
 
     /**
@@ -110,7 +109,7 @@ public final class ConfigManager {
      * @return a set of {@link Material} instances parsed from the given list of material names
      */
     private @NotNull Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        Set<Material> result = HashSet.newHashSet(materialNames.size());
+        Set<Material> result = new HashSet<>();
 
         for (String name : materialNames) {
             Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
@@ -119,6 +118,12 @@ public final class ConfigManager {
             else
                 plugin.getLogger().severe("Skipping invalid material in ignored-materials: " + name);
         }
+        plugin.getLogger().info("-Loaded " + result.size() + " ignored materials");
+
+        result.addAll(Materials.NO_COLLISION_BLOCKS);
+
+        plugin.getLogger().info("-Total " + result.size() + " ignored materials");
+
         return Collections.unmodifiableSet(result);
     }
 }

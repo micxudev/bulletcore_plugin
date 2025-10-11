@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons.shooting;
 
 import org.bukkit.FluidCollisionMode;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
@@ -227,9 +226,9 @@ public final class ShootingHandler {
                 eyeLocation,
                 direction,
                 weapon.maxDistance,
-                FluidCollisionMode.NEVER,   // skips water/lava
-                true,                       // ignoredMaterials will handle it
-                config.raySize,             // expands ray a little bit
+                FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
+                false,                     // false == will collide with all blocks (even GRASS, but not AIR)
+                config.raySize,            // 0 == precise, > 0 == expands, < 0 == shrinks (hitbox for raycast)
                 entityFilter,
                 canCollide
             );
@@ -266,16 +265,12 @@ public final class ShootingHandler {
      * @return true if the entity should be skipped; false otherwise
      */
     private static boolean skipHit(@NotNull LivingEntity victim) {
-        if (victim.isInvulnerable() || victim.isDead()) return true;
-
-        if (victim instanceof ArmorStand) return true;
-
-        if (victim instanceof Player p) {
-            GameMode gamemode = p.getGameMode();
-            return gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR;
-        }
-
-        return false;
+        return victim.isInvulnerable()
+            || victim instanceof ArmorStand
+            || (victim instanceof Player p && switch (p.getGameMode()) {
+            case CREATIVE, SPECTATOR -> true;
+            default -> false;
+        });
     }
 
     /**
