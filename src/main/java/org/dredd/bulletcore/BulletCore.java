@@ -34,14 +34,7 @@ public final class BulletCore extends JavaPlugin {
      */
     private static BulletCore plugin;
 
-    /**
-     * Gets the singleton instance of the plugin.
-     *
-     * @return the {@link BulletCore} instance or {@code null} if called before the plugin was loaded
-     */
-    public static BulletCore getInstance() {
-        return plugin;
-    }
+    // ----------< Overrides >----------
 
     @Override
     public void onLoad() {
@@ -63,22 +56,6 @@ public final class BulletCore extends JavaPlugin {
         getLogger().info("==================================================================");
     }
 
-    /**
-     * Initializes and loads all the necessary parts of the plugin.<br>
-     * This method is also used to reload the plugin.
-     */
-    public static void initAll() {
-        SkinsManager.load(plugin);
-        MessageManager.load(plugin);
-        StylesManager.load(plugin);
-        ConfigManager.load(plugin);
-        CustomItemsRegistry.clearAll();
-        ReloadManager.initAll();
-        ShootingHandler.clearAllAutoShootingTasks();
-        RecoilHandler.stopAndClearAllRecoils();
-        YMLLModelLoader.loadAllItems(plugin);
-    }
-
     @Override
     public void onDisable() {
         getLogger().info("==========================< BulletCore >==========================");
@@ -94,6 +71,8 @@ public final class BulletCore extends JavaPlugin {
         getLogger().info("==================================================================");
         plugin = null;
     }
+
+    // ----------< Instance Methods >----------
 
     /**
      * Registers a listener.
@@ -114,5 +93,33 @@ public final class BulletCore extends JavaPlugin {
         PluginManager pluginManager = getServer().getPluginManager();
         if (pluginManager.getPermission(permission.getName()) == null)
             pluginManager.addPermission(permission);
+    }
+
+    // ----------< Static Methods >----------
+
+    /**
+     * Initializes and loads all the necessary parts of the plugin.<br>
+     * This method is also used to reload the plugin.
+     */
+    public static void initAll() {
+        SkinsManager.load(plugin);
+        MessageManager.load(plugin);
+        StylesManager.load(plugin);
+        ConfigManager.load(plugin);
+        CustomItemsRegistry.clearAll();
+        ReloadManager.initAll();
+        ShootingHandler.clearAllAutoShootingTasks();
+        RecoilHandler.stopAndClearAllRecoils();
+        YMLLModelLoader.loadAllItems(plugin);
+    }
+
+    // ----------< Convenience Static Methods >----------
+
+    public static BulletCore instance() {
+        return plugin;
+    }
+
+    public static void logError(String msg) {
+        plugin.getLogger().severe(msg);
     }
 }

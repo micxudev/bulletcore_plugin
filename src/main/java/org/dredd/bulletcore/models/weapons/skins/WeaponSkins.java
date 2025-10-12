@@ -164,13 +164,13 @@ public class WeaponSkins {
             skinModelData++;
 
             if (!CustomItemsRegistry.isValidFormat(key)) {
-                BulletCore.getInstance().getLogger().severe("Invalid skin name '" + key + "'. Must match " + VALID_NAME.pattern());
+                BulletCore.logError("Invalid skin name '" + key + "'. Must match " + VALID_NAME.pattern());
                 continue;
             }
 
             ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
             if (skinSection == null) {
-                BulletCore.getInstance().getLogger().severe("Invalid skin definition for skin name '" + key + "'");
+                BulletCore.logError("Invalid skin definition for skin name '" + key + "'");
                 continue;
             }
 

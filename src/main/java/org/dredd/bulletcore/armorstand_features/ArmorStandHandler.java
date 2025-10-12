@@ -60,6 +60,6 @@ public final class ArmorStandHandler {
      */
     public static void scheduleRemoval(@NotNull ArmorStand stand,
                                        long removeAfterTicks) {
-        Bukkit.getScheduler().runTaskLater(BulletCore.getInstance(), stand::remove, removeAfterTicks);
+        Bukkit.getScheduler().runTaskLater(BulletCore.instance(), stand::remove, removeAfterTicks);
     }
 }

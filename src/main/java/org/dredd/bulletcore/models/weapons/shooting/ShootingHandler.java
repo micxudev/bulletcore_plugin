@@ -95,12 +95,7 @@ public final class ShootingHandler {
      */
     private static void startAutoShooting(@NotNull Player player, @NotNull BukkitTask shootingTask) {
         BukkitTask previousTask = activeShooters.put(player.getUniqueId(), shootingTask);
-        if (previousTask != null) {
-            BulletCore.getInstance().getLogger().warning(
-                "Started new auto-shooting task, but previous one was not cancelled. This is a bug. Report this."
-            );
-            previousTask.cancel();
-        }
+        if (previousTask != null) previousTask.cancel();
     }
 
     /**
@@ -168,7 +163,7 @@ public final class ShootingHandler {
             public void run() {
                 if (!shoot(player, weapon)) cancelAutoShooting(player);
             }
-        }.runTaskTimer(BulletCore.getInstance(), delay, period);
+        }.runTaskTimer(BulletCore.instance(), delay, period);
         startAutoShooting(player, shootingTask);
     }
 

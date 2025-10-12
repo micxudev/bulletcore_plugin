@@ -58,7 +58,7 @@ public final class RecoilHandler {
         UUID playerId = player.getUniqueId();
         if (recoilTasks.containsKey(playerId)) return;
 
-        BukkitTask recoilTask = Bukkit.getScheduler().runTaskTimer(BulletCore.getInstance(),
+        BukkitTask recoilTask = Bukkit.getScheduler().runTaskTimer(BulletCore.instance(),
             playerRecoil::tick, 0L, 1L
         );
         recoilTasks.put(playerId, recoilTask);

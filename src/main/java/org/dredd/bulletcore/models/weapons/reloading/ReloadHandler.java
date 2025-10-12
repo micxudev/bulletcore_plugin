@@ -144,7 +144,7 @@ public abstract class ReloadHandler {
         BukkitRunnable runnable = create(player, weapon);
 
         // runs the reload task every 2 ticks (~100 ms), starting immediately.
-        BukkitTask reloadTask = runnable.runTaskTimer(BulletCore.getInstance(), 0L, 2L);
+        BukkitTask reloadTask = runnable.runTaskTimer(BulletCore.instance(), 0L, 2L);
         reloadTasks.put(player.getUniqueId(), reloadTask);
     }
 

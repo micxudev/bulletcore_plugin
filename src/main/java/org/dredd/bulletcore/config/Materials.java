@@ -44,7 +44,7 @@ public final class Materials {
         NO_COLLISION_BLOCKS = Collections.unmodifiableSet(noCollision);
         COLLISION_BLOCKS = Collections.unmodifiableSet(collision);
 
-        writeToFile(new File(BulletCore.getInstance().getDataFolder(), "all-materials.yml"));
+        writeToFile(new File(BulletCore.instance().getDataFolder(), "all-materials.yml"));
     }
 
     private static void writeToFile(@NotNull File file) {
@@ -58,9 +58,7 @@ public final class Materials {
         try {
             Files.writeString(file.toPath(), sb.toString());
         } catch (IOException e) {
-            BulletCore.getInstance().getLogger().severe(
-                "Failed to write " + file.getName() + ": " + e.getMessage()
-            );
+            BulletCore.logError("Failed to write " + file.getName() + ": " + e.getMessage());
         }
     }
 

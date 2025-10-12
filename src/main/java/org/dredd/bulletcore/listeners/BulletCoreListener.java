@@ -357,7 +357,7 @@ public class BulletCoreListener implements Listener {
             // Runs on the next tick to prevent PlayerDeathEvent being called twice
             // since onLMB may also trigger EntityDamageByEntityEvent
             // (Temporal workaround, until we find a better solution without scheduling)
-            Bukkit.getScheduler().runTask(BulletCore.getInstance(), () -> {
+            Bukkit.getScheduler().runTask(BulletCore.instance(), () -> {
                 if (!damager.isOnline() || damager.isDead()) return;
 
                 final ItemStack currentWeapon = damager.getInventory().getItemInMainHand();
