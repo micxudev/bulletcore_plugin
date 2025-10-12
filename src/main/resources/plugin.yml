@@ -3,4 +3,4 @@ version: 1.0.0
 main: org.dredd.bulletcore.BulletCore
 api-version: 1.21.1
 libraries:
-  - com.fasterxml.jackson.core:jackson-databind:2.19.2
+  - tools.jackson.core:jackson-databind:3.0.0

@@ -8,6 +8,7 @@ import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import tools.jackson.core.type.TypeReference;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,13 +21,7 @@ import java.util.UUID;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * A static utility class for managing weapon skins assigned to players.
- * <p>
- * Maintains a runtime mapping of which players have unlocked which skins
- * for each weapon. This class supports querying, adding, and removing skins
- * per player and weapon.
- * <p>
- * All methods assume they are called on the main server thread.
+ * Utility class for managing player weapon skins.
  *
  * @author dredd
  * @since 1.0.0
@@ -39,40 +34,41 @@ public class SkinsManager {
     private SkinsManager() {}
 
     /**
-     * In-memory storage of skins owned by players.
-     * <p>
-     * Maps a player's {@link UUID} to a nested map of weapon names and their corresponding
-     * unlocked skin names.
-     *
+     * Represents the file where skins data is stored and managed.
+     */
+    private static File skinsDataFile;
+
+    /**
+     * Skins storage format:
      * <pre>{@code
-     * UUID playerId -> {
+     * PlayerUUID -> {
      *     "ak47" -> ["gold", "camo"],
      *     "deagle"  -> ["desert"]
      * }
      * }</pre>
      */
-    private static final Map<UUID, Map<String, List<String>>> playerSkinsStorage = new HashMap<>();
+    private static Map<UUID, Map<String, List<String>>> playerSkinsStorage;
+
+    // ----------< Init >----------
 
     /**
-     * The file where the player skin storage is stored.
+     * Loads the skins data from the file and initializes the skins' storage.
      */
-    private static final File playerSkinsStorageFile = new File(
-        BulletCore.getInstance().getDataFolder(), CustomItemType.WEAPON.getFolderPath() + "/data/skins.json");
-
-    /**
-     * Loads the player skin storage from disk.
-     */
-    public static void load() {
-        playerSkinsStorage.clear();
-        playerSkinsStorage.putAll(JsonUtils.loadPlayerWeaponSkins(playerSkinsStorageFile));
+    public static void load(@NotNull BulletCore plugin) {
+        skinsDataFile = new File(plugin.getDataFolder(),
+            CustomItemType.WEAPON.getFolderPath() + "/data/skins.json"
+        );
+        playerSkinsStorage = JsonUtils.load(skinsDataFile, new TypeReference<>() {}, new HashMap<>());
     }
 
     /**
-     * Saves the in-memory player skin storage to disk.
+     * Asynchronously saves the skins data to the file.
      */
     private static void save() {
-        JsonUtils.savePlayerWeaponSkins(playerSkinsStorage, playerSkinsStorageFile);
+        JsonUtils.saveAsync(playerSkinsStorage, skinsDataFile, true);
     }
+
+    // ----------< Usage >----------
 
     /**
      * Retrieves a specific skin from a given weapon by skin name.

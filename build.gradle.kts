@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
-    compileOnly("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+    compileOnly("tools.jackson.core:jackson-databind:3.0.0")
 }
 
 tasks {

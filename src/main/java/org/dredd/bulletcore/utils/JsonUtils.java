@@ -1,20 +1,15 @@
 package org.dredd.bulletcore.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,96 +25,105 @@ public final class JsonUtils {
      */
     private JsonUtils() {}
 
-    /**
-     * The Jackson {@link ObjectMapper} used for JSON serialization.
-     */
-    private static final ObjectMapper mapper = new ObjectMapper();
+    // ----------< Jackson >----------
 
-    /**
-     * A single-threaded executor to serialize save operations and preserve ordering.
-     * This prevents race conditions where older data might overwrite newer data.
-     *
-     * @since 1.0.0
-     */
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectWriter writer = mapper.writer();
+    private static final ObjectWriter prettyWriter = mapper.writerWithDefaultPrettyPrinter();
+
+    // ----------< Executor >----------
+
     private static final ExecutorService SAVE_EXECUTOR = Executors.newSingleThreadExecutor();
 
+    public static void shutdownSaveExecutor() {
+        SAVE_EXECUTOR.shutdown();
+    }
+
+    // ----------< API >----------
+
     /**
-     * Loads player weapon skins from a JSON file.
+     * Reads a JSON file and deserializes it into an instance of the specified type.
      * <p>
-     * The file is expected to contain a JSON object where each key is a player UUID,
-     * and the value is a map of weapon names to lists of skin identifiers.
-     * If the file does not exist or an error occurs while reading, an empty map is returned.
+     * If the file does not exist or cannot be parsed, the provided {@code defaultValue}
+     * is returned. This method supports generic types such as {@code Map}, {@code List},
+     * or custom objects via Jackson's {@link TypeReference}.
      *
-     * @param file the file to read from (must not be {@code null})
-     * @return a map of player UUIDs to weapon skin mappings
-     * @since 1.0.0
+     * @param file         the JSON file to read from
+     * @param typeRef      the Jackson type reference defining the target type
+     * @param defaultValue the value to return if loading fails
+     * @param <T>          the target type to deserialize into
+     * @return the deserialized object, or {@code defaultValue} if reading fails
      */
-    public static @NotNull Map<UUID, Map<String, List<String>>> loadPlayerWeaponSkins(@NotNull File file) {
-        if (!file.exists()) return new HashMap<>();
+    public static <T> @NotNull T load(@NotNull File file,
+                                      @NotNull TypeReference<T> typeRef,
+                                      @NotNull T defaultValue) {
+        if (!file.exists())
+            return defaultValue;
+
         try {
-            return mapper.readValue(file, new TypeReference<>() {});
+            return mapper.readValue(file, typeRef);
         } catch (Exception e) {
-            BulletCore.getInstance().getLogger().severe("Failed to load playerSkins from file: " + e.getMessage());
-            return new HashMap<>();
+            BulletCore.getInstance().getLogger().severe(
+                "Failed to load JSON from " + file.getPath() + ": " + e.getMessage()
+            );
+            return defaultValue;
         }
     }
 
     /**
-     * Saves player weapon skins to a JSON file.
+     * Serializes an object to JSON and saves it to a file asynchronously.
      * <p>
-     * The data is serialized in a pretty-printed JSON format. If the target file or its
-     * parent directories do not exist, they are created automatically.
-     * If an error occurs during writing, it is logged to the server log.
+     * The operation is queued on a single-threaded executor to ensure
+     * non-blocking behavior and prevent concurrent write conflicts.
+     * The file is written atomically using a temporary file to guarantee
+     * data integrity. Optionally supports pretty-printed output.
      *
-     * @param skins the map of player UUIDs to weapon skin mappings; must not be {@code null}
-     * @param file  the file to write to; must not be {@code null}
-     * @since 1.0.0
+     * @param value  the object to serialize
+     * @param file   the target file to write to
+     * @param pretty whether to pretty print the JSON output
      */
-    public static void savePlayerWeaponSkins(@NotNull Map<UUID, Map<String, List<String>>> skins, @NotNull File file) {
-        byte[] jsonBytes;
-        try {
-            jsonBytes = mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(skins);
-        } catch (JsonProcessingException e) {
-            BulletCore.getInstance().getLogger().severe("Failed to serialize playerSkins: " + e.getMessage());
-            return;
-        }
-
+    public static void saveAsync(@NotNull Object value,
+                                 @NotNull File file,
+                                 boolean pretty) {
         SAVE_EXECUTOR.submit(() -> {
             try {
-                attemptCreateFileWithDirs(file);
-                File tempFile = new File(
-                    Optional.ofNullable(file.getParentFile()).orElse(new File(".")),
-                    file.getName() + ".tmp"
+                byte[] bytes = (pretty ? prettyWriter : writer).writeValueAsBytes(value);
+                writeBytesToFile(file, bytes);
+            } catch (Exception e) {
+                BulletCore.getInstance().getLogger().severe(
+                    "Failed to save JSON to " + file.getPath() + ": " + e.getMessage()
                 );
-
-                Files.write(tempFile.toPath(), jsonBytes);
-
-                Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                BulletCore.getInstance().getLogger().severe("Failed to save playerSkins to file: " + e.getMessage());
             }
         });
     }
 
-    /**
-     * Creates the file and its parent directories if they do not exist.
-     *
-     * @param file the file to create
-     * @throws IOException if an I/O error occurs during file or directory creation
-     * @since 1.0.0
-     */
-    private static void attemptCreateFileWithDirs(@NotNull File file) throws IOException {
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs())
-            throw new IOException("Failed to create parent directories for file: " + file.getPath());
-        if (!file.exists() && !file.createNewFile())
-            throw new IOException("Failed to create file: " + file.getPath());
-    }
+    // ----------< Save Helper >----------
 
     /**
-     * Shuts down the {@link #SAVE_EXECUTOR} and waits for it to terminate.
+     * Writes the given byte array to the specified file atomically.
+     * <p>
+     * The data is first written to a temporary file in the same directory,
+     * then atomically moved to the target location. This ensures that the
+     * file is never left in a partially written state, even if a failure occurs.
+     * <p>
+     * If the file’s parent directories do not exist, they will be created automatically.
+     *
+     * @param file  the target file to write to
+     * @param bytes the data to write
+     * @throws Exception if an I/O error occurs
      */
-    public static void shutdownSaveExecutor() {
-        SAVE_EXECUTOR.shutdown();
+    private static void writeBytesToFile(@NotNull File file,
+                                         byte[] bytes) throws Exception {
+        Path path = file.toPath();
+        Path parent = path.getParent();
+
+        if (parent != null) Files.createDirectories(parent);
+
+        Path tempPath = (parent != null)
+            ? Files.createTempFile(parent, path.getFileName().toString(), null)
+            : Files.createTempFile(path.getFileName().toString(), null);
+
+        Files.write(tempPath, bytes);
+        Files.move(tempPath, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 }
