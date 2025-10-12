@@ -45,7 +45,7 @@ public final class SubcommandReload implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         long startTime = System.currentTimeMillis();
-        BulletCore.initAll();
+        BulletCore.init();
         long endTime = System.currentTimeMillis();
         CONFIG_RELOADED.sendMessage(sender, Map.of("time", Long.toString(endTime - startTime)));
     }

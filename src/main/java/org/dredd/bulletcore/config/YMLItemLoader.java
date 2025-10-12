@@ -54,17 +54,12 @@ import static org.dredd.bulletcore.utils.FormatterUtils.*;
  * @author dredd
  * @since 1.0.0
  */
-public final class YMLLModelLoader {
+public final class YMLItemLoader {
 
     /**
      * Private constructor to prevent instantiation.
      */
-    private YMLLModelLoader() {}
-
-    /**
-     * Reference to the plugin's main instance.
-     */
-    private static BulletCore plugin;
+    private YMLItemLoader() {}
 
     /**
      * Functional interface for loading a custom item from a {@link YamlConfiguration}.
@@ -88,14 +83,12 @@ public final class YMLLModelLoader {
      * Loads all custom items for each supported item type from their respective folders
      * and registers them into their specific and global registries.
      */
-    public static void loadAllItems(@NotNull BulletCore plugin) {
-        YMLLModelLoader.plugin = plugin;
-
+    public static void loadAllItems() {
         Map<CustomItemType, ItemLoader<?>> loaders = new LinkedHashMap<>() {{
-            put(CustomItemType.AMMO, YMLLModelLoader::loadAmmo);
-            put(CustomItemType.ARMOR, YMLLModelLoader::loadArmor);
-            put(CustomItemType.GRENADE, YMLLModelLoader::loadGrenade);
-            put(CustomItemType.WEAPON, YMLLModelLoader::loadWeapon);
+            put(CustomItemType.AMMO, YMLItemLoader::loadAmmo);
+            put(CustomItemType.ARMOR, YMLItemLoader::loadArmor);
+            put(CustomItemType.GRENADE, YMLItemLoader::loadGrenade);
+            put(CustomItemType.WEAPON, YMLItemLoader::loadWeapon);
         }};
 
         loaders.forEach((type, loader) ->
@@ -118,9 +111,9 @@ public final class YMLLModelLoader {
      */
     private static void loadFolder(@NotNull CustomItemType type,
                                    @NotNull ThrowingFunction<YamlConfiguration, Boolean> configProcessor) {
-        File folder = new File(plugin.getDataFolder(), type.getFolderPath());
+        File folder = new File(BulletCore.instance().getDataFolder(), type.getFolderPath());
         if (!folder.exists() && !folder.mkdirs()) {
-            plugin.getLogger().warning("Failed to create directory: " + folder.getPath());
+            BulletCore.logError("Failed to create directory: " + folder.getPath());
             return;
         }
 
@@ -130,7 +123,7 @@ public final class YMLLModelLoader {
                 return lower.endsWith(".yml") || lower.endsWith(".yaml");
             });
         if (files == null || files.length == 0) {
-            plugin.getLogger().info("No " + type.getLabel() + " files found in " + folder.getPath());
+            BulletCore.logInfo("No " + type.getLabel() + " files found in " + folder.getPath());
             return;
         }
 
@@ -141,13 +134,13 @@ public final class YMLLModelLoader {
                 if (!config.getBoolean("enabled", true)) continue;
                 if (configProcessor.apply(config)) loadedCount++;
             } catch (ItemLoadException e) {
-                plugin.getLogger().severe(e.getMessage() + "; In file: " + file.getName() + "; Skipping the item.");
+                BulletCore.logError(e.getMessage() + "; In file: " + file.getName() + "; Skipping the item.");
             } catch (Exception e) {
-                plugin.getLogger().severe("Error loading " + file.getName() + ": " + e.getMessage());
+                BulletCore.logError("Error loading " + file.getName() + ": " + e.getMessage());
             }
         }
 
-        plugin.getLogger().info("-Loaded " + loadedCount + " " + type.getLabel() + " types");
+        BulletCore.logInfo("-Loaded " + loadedCount + " " + type.getLabel() + " types");
     }
 
     /**

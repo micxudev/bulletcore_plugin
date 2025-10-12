@@ -90,7 +90,7 @@ public final class CustomItemsRegistry {
     /**
      * Clears all registered items from all registries.
      */
-    public static void clearAll() {
+    public static void clearAllItems() {
         ALL.clearAll();
         AMMO.clearAll();
         ARMOR.clearAll();

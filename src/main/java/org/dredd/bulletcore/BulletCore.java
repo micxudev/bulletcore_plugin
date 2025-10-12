@@ -6,7 +6,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.config.YMLLModelLoader;
+import org.dredd.bulletcore.config.YMLItemLoader;
 import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
@@ -45,8 +45,9 @@ public final class BulletCore extends JavaPlugin {
     public void onEnable() {
         getLogger().info("==========================< BulletCore >==========================");
 
-        initAll();
+        ReloadManager.init();
         CommandHandler.init(plugin);
+        BulletCore.init();
 
         registerListener(new BulletCoreListener());
         registerListener(new PlayerActionsListener());
@@ -58,17 +59,9 @@ public final class BulletCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("==========================< BulletCore >==========================");
-
         CommandHandler.destroy();
         JsonUtils.shutdownSaveExecutor();
-        ReloadHandler.clearAllReloadTasks();
-        ShootingHandler.clearAllAutoShootingTasks();
-        RecoilHandler.stopAndClearAllRecoils();
-        CustomItemsRegistry.clearAll();
-
-        getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Disabled");
-        getLogger().info("==================================================================");
+        BulletCore.cancelAndClear();
         plugin = null;
     }
 
@@ -99,18 +92,27 @@ public final class BulletCore extends JavaPlugin {
 
     /**
      * Initializes and loads all the necessary parts of the plugin.<br>
-     * This method is also used to reload the plugin.
+     * This method is also used on plugin reload.
      */
-    public static void initAll() {
+    public static void init() {
+        cancelAndClear();
+
         SkinsManager.load(plugin);
         MessageManager.load(plugin);
         StylesManager.load(plugin);
         ConfigManager.load(plugin);
-        CustomItemsRegistry.clearAll();
-        ReloadManager.initAll();
-        ShootingHandler.clearAllAutoShootingTasks();
-        RecoilHandler.stopAndClearAllRecoils();
-        YMLLModelLoader.loadAllItems(plugin);
+        YMLItemLoader.loadAllItems();
+    }
+
+    /**
+     * Cancels current running tasks and clears all registries.<br>
+     * This method is used on plugin reload and disable.
+     */
+    private static void cancelAndClear() {
+        ReloadHandler.cancelAllReloadTasks();
+        ShootingHandler.cancelAllAutoShootingTasks();
+        RecoilHandler.cancelAllRecoilTasks();
+        CustomItemsRegistry.clearAllItems();
     }
 
     // ----------< Convenience Static Methods >----------
@@ -121,5 +123,9 @@ public final class BulletCore extends JavaPlugin {
 
     public static void logError(String msg) {
         plugin.getLogger().severe(msg);
+    }
+
+    public static void logInfo(String msg) {
+        plugin.getLogger().info(msg);
     }
 }

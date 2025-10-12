@@ -87,7 +87,7 @@ public final class RecoilHandler {
     /**
      * Stops all the recoil tasks and clears all the recoil data for all the players.
      */
-    public static void stopAndClearAllRecoils() {
+    public static void cancelAllRecoilTasks() {
         recoilTasks.values().forEach(BukkitTask::cancel);
         recoilTasks.clear();
         recoils.clear();

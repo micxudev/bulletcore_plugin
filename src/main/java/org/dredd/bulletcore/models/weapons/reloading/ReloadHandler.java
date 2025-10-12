@@ -44,7 +44,7 @@ public abstract class ReloadHandler {
     /**
      * Clears all reload tasks. Called when the plugin is reloaded or disabled.
      */
-    public static void clearAllReloadTasks() {
+    public static void cancelAllReloadTasks() {
         reloadTasks.values().forEach(BukkitTask::cancel);
         reloadTasks.clear();
     }

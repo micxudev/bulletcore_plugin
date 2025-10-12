@@ -71,7 +71,7 @@ public final class ShootingHandler {
     /**
      * Clears all shooting tasks. Called when the plugin is reloaded or disabled.
      */
-    public static void clearAllAutoShootingTasks() {
+    public static void cancelAllAutoShootingTasks() {
         activeShooters.values().forEach(BukkitTask::cancel);
         activeShooters.clear();
     }

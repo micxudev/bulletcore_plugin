@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,13 +26,18 @@ public final class ReloadManager {
     private static final Map<String, ReloadHandler> handlers = new HashMap<>();
 
     /**
+     * A list of reload handler implementations.
+     */
+    private static final List<ReloadHandler> RELOAD_HANDLERS = List.of(
+        DefaultReloadHandler.INSTANCE,
+        SingleReloadHandler.INSTANCE
+    );
+
+    /**
      * Initializes all reload handler implementations.
      */
-    public static void initAll() {
-        ReloadHandler.clearAllReloadTasks();
-        handlers.clear();
-        register(DefaultReloadHandler.INSTANCE);
-        register(SingleReloadHandler.INSTANCE);
+    public static void init() {
+        RELOAD_HANDLERS.forEach(ReloadManager::register);
     }
 
     /**
