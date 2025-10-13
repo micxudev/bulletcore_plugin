@@ -1,45 +1,22 @@
 package org.dredd.bulletcore.config;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
-import org.dredd.bulletcore.models.CustomBase.BaseAttributes;
 import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
-import org.dredd.bulletcore.models.weapons.BulletTrailParticle;
 import org.dredd.bulletcore.models.weapons.Weapon;
-import org.dredd.bulletcore.models.weapons.WeaponSounds;
-import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
-import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
-import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
-import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
-import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
-import org.dredd.bulletcore.models.weapons.skins.WeaponSkins;
-import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static net.kyori.adventure.text.Component.text;
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
-import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.VALID_NAME;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.FormatterUtils.*;
 
 /**
  * Utility class for loading all custom item models from YML files.
@@ -85,10 +62,10 @@ public final class YMLItemLoader {
      */
     public static void loadAllItems() {
         Map<CustomItemType, ItemLoader<?>> loaders = new LinkedHashMap<>() {{
-            put(CustomItemType.AMMO, YMLItemLoader::loadAmmo);
-            put(CustomItemType.ARMOR, YMLItemLoader::loadArmor);
-            put(CustomItemType.GRENADE, YMLItemLoader::loadGrenade);
-            put(CustomItemType.WEAPON, YMLItemLoader::loadWeapon);
+            put(CustomItemType.AMMO, Ammo::new);
+            put(CustomItemType.ARMOR, Armor::new);
+            put(CustomItemType.GRENADE, Grenade::new);
+            put(CustomItemType.WEAPON, Weapon::new);
         }};
 
         loaders.forEach((type, loader) ->
@@ -141,168 +118,5 @@ public final class YMLItemLoader {
         }
 
         BulletCore.logInfo("-Loaded " + loadedCount + " " + type.getLabel() + " types");
-    }
-
-    /**
-     * Loads common base attributes shared by all custom items.<br>
-     * Described by {@link CustomBase.BaseAttributes}
-     *
-     * @param config the YAML configuration to read from
-     * @return the populated {@link CustomBase.BaseAttributes} object
-     * @throws ItemLoadException if any required attribute is missing or failed validation
-     */
-    private static @NotNull BaseAttributes loadBaseAttributes(@NotNull YamlConfiguration config) throws ItemLoadException {
-        String name = config.getString("name");
-        if (!CustomItemsRegistry.canNameBeUsed(name))
-            throw new ItemLoadException("Name: '" + name + "' does not match " + VALID_NAME.pattern() + " or is already in use");
-
-        int customModelData = config.getInt("customModelData");
-        if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))
-            throw new ItemLoadException("CustomModelData: " + customModelData + " is already in use or does not end with 2 zeroes");
-
-        Material material = getMetaCapableMaterial(config.getString("material"));
-
-        Component displayName = config.getRichMessage("displayName", ComponentUtils.plainWhite(name));
-
-        List<Component> lore = config.getStringList("lore").stream()
-            .map(ComponentUtils::deserialize)
-            .collect(Collectors.toList());
-
-        int maxStackSize = Math.clamp(config.getInt("maxStackSize", material.getMaxStackSize()), 1, 99);
-
-        return new BaseAttributes(name, customModelData, material, displayName, lore, maxStackSize);
-    }
-
-    /**
-     * Parses the given material name and returns the Material if it supports {@link ItemMeta}.
-     *
-     * @param materialName The name of the Material (e.g., "DIAMOND_SWORD")
-     * @return Material that supports ItemMeta
-     * @throws ItemLoadException if the material is invalid or does not support ItemMeta
-     */
-    private static @NotNull Material getMetaCapableMaterial(@Nullable String materialName) throws ItemLoadException {
-        if (materialName == null || materialName.isBlank())
-            throw new ItemLoadException("Material name cannot be null or blank");
-
-        Material material;
-        try {
-            material = Material.valueOf(materialName.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ignored) {
-            throw new ItemLoadException("Invalid material name: " + materialName);
-        }
-
-        if (!material.isItem())
-            throw new ItemLoadException("Material is not an item: " + material);
-
-        if (new ItemStack(material).getItemMeta() == null)
-            throw new ItemLoadException("Material does not support ItemMeta: " + material);
-
-        return material;
-    }
-
-    /**
-     * Loads an {@link Ammo} item from YAML config.
-     *
-     * @param config the YAML configuration
-     * @return the constructed Ammo item
-     * @throws ItemLoadException if validation fails
-     */
-    private static @NotNull Ammo loadAmmo(@NotNull YamlConfiguration config) throws ItemLoadException {
-        var baseAttributes = loadBaseAttributes(config);
-
-        int maxAmmo = Math.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
-
-        var lore = baseAttributes.lore();
-        lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
-
-        return new Ammo(baseAttributes, maxAmmo);
-    }
-
-    /**
-     * Loads an {@link Armor} item from YAML config.
-     *
-     * @param config the YAML configuration
-     * @return the constructed Armor item
-     * @throws ItemLoadException if validation fails
-     */
-    private static @NotNull Armor loadArmor(@NotNull YamlConfiguration config) throws ItemLoadException {
-        var baseAttributes = loadBaseAttributes(config);
-
-        double maxDurability = Math.clamp(config.getDouble("maxDurability", 100.0D), 1.0D, Double.MAX_VALUE);
-        double damageReduction = Math.clamp(config.getDouble("damageReduction", 0.5D), 0.0D, 1.0D);
-        boolean unbreakable = config.getBoolean("unbreakable", true);
-
-        int armorPoints = Math.clamp(config.getInt("armorPoints", 0), 0, 30);
-        int toughnessPoints = Math.clamp(config.getInt("toughnessPoints", 0), 0, 20);
-
-        double knockbackResistance = Math.clamp(config.getDouble("knockbackResistance", 0.0D), 0.0D, 1.0D);
-        double explosionKnockbackResistance = Math.clamp(config.getDouble("explosionKnockbackResistance", 0.0D), 0.0D, 1.0D);
-
-        var lore = baseAttributes.lore();
-        lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.toTranslatable(formatPercent(damageReduction)));
-        lore.add(2, LORE_ARMOR_ARMOR_POINTS.toTranslatable(Integer.toString(armorPoints)));
-        lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.toTranslatable(Integer.toString(toughnessPoints)));
-        lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(knockbackResistance)));
-        lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(explosionKnockbackResistance)));
-
-        return new Armor(baseAttributes, maxDurability, damageReduction, unbreakable, armorPoints, toughnessPoints, knockbackResistance, explosionKnockbackResistance);
-    }
-
-    /**
-     * Loads a {@link Grenade} item from YAML config.
-     *
-     * @param config the YAML configuration
-     * @return the constructed Grenade item
-     * @throws ItemLoadException if validation fails
-     */
-    private static @NotNull Grenade loadGrenade(@NotNull YamlConfiguration config) throws ItemLoadException {
-        var baseAttributes = loadBaseAttributes(config);
-
-        return new Grenade(baseAttributes);
-    }
-
-    /**
-     * Loads a {@link Weapon} item from YAML config.
-     *
-     * @param config the YAML configuration
-     * @return the constructed Weapon item
-     * @throws ItemLoadException if validation fails
-     */
-    private static @NotNull Weapon loadWeapon(@NotNull YamlConfiguration config) throws ItemLoadException {
-        var baseAttributes = loadBaseAttributes(config);
-
-        String ammoName = config.getString("ammo", "");
-        Ammo ammo = CustomItemsRegistry.AMMO.getItemOrNull(ammoName);
-        if (ammo == null)
-            throw new ItemLoadException("Invalid ammo name: " + ammoName);
-
-        String reloadHandlerName = config.getString("reloadHandler", "default");
-        ReloadHandler reloadHandler = ReloadManager.getHandlerOrNull(reloadHandlerName);
-        if (reloadHandler == null)
-            throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
-
-        double maxDistance = Math.clamp(config.getDouble("maxDistance", 64), 1.0D, 300.0D);
-        long delayBetweenShots = Math.clamp(config.getLong("delayBetweenShots", 500L), 50L, Long.MAX_VALUE);
-        int maxBullets = Math.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
-        long reloadTime = Math.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
-        boolean isAutomatic = config.getBoolean("isAutomatic", false);
-        double victimKnockbackResistance = Math.clamp(config.getDouble("victimKnockbackResistance", 0.0D), 0.0D, 1.0D);
-        int pelletsPerShot = Math.clamp(config.getInt("pelletsPerShot", 1), 1, 20);
-
-        WeaponDamage damage = WeaponDamage.load(config);
-        WeaponRecoil recoil = WeaponRecoil.load(config);
-        WeaponSpray spray = WeaponSpray.load(config);
-        WeaponSounds sounds = WeaponSounds.load(config);
-        BulletTrailParticle trailParticle = BulletTrailParticle.load(config);
-        WeaponSkins skins = WeaponSkins.load(config, baseAttributes.customModelData(), baseAttributes.displayName());
-
-        var lore = baseAttributes.lore();
-        lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
-        lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet())));
-        lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
-        lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
-
-        return new Weapon(baseAttributes, ammo, reloadHandler, maxDistance, delayBetweenShots, maxBullets, reloadTime, isAutomatic, victimKnockbackResistance, pelletsPerShot, damage, recoil, spray, sounds, trailParticle, skins);
     }
 }

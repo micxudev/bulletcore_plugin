@@ -1,7 +1,9 @@
 package org.dredd.bulletcore.models.grenades;
 
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Grenade extends CustomBase {
 
-    public Grenade(BaseAttributes attrs) {
-        super(attrs);
+    public Grenade(@NotNull YamlConfiguration config) throws ItemLoadException {
+        super(config);
     }
 
     @Override

@@ -6,21 +6,26 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.attribute.Attribute.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.persistence.PersistentDataType.DOUBLE;
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_DURABILITY;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
+import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
+import static org.dredd.bulletcore.utils.FormatterUtils.formatPercent;
 import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;
 
 /**
@@ -61,13 +66,21 @@ public class Armor extends CustomBase {
      */
     private final Multimap<Attribute, AttributeModifier> modifiers;
 
-    public Armor(BaseAttributes attrs, double maxDurability, double damageReduction, boolean unbreakable, int armorPoints, int toughnessPoints, double knockbackResistance, double explosionKnockbackResistance) {
-        super(attrs);
-        this.maxDurability = maxDurability;
+    public Armor(@NotNull YamlConfiguration config) throws ItemLoadException {
+        super(config);
+
+        this.maxDurability = Math.clamp(config.getDouble("maxDurability", 100.0D), 1.0D, Double.MAX_VALUE);
         this.formattedMaxDurability = formatDouble(maxDurability);
-        this.damageReduction = damageReduction;
-        this.unbreakable = unbreakable;
+
+        this.damageReduction = Math.clamp(config.getDouble("damageReduction", 0.5D), 0.0D, 1.0D);
+
+        this.unbreakable = config.getBoolean("unbreakable", true);
+
         this.modifiers = LinkedListMultimap.create();
+        int armorPoints = Math.clamp(config.getInt("armorPoints", 0), 0, 30);
+        int toughnessPoints = Math.clamp(config.getInt("toughnessPoints", 0), 0, 20);
+        double knockbackResistance = Math.clamp(config.getDouble("knockbackResistance", 0.0D), 0.0D, 1.0D);
+        double explosionKnockbackResistance = Math.clamp(config.getDouble("explosionKnockbackResistance", 0.0D), 0.0D, 1.0D);
 
         if (armorPoints > 0)
             modifiers.put(GENERIC_ARMOR, new AttributeModifier(rndNamespacedKey(), armorPoints, ADD_NUMBER, ARMOR));
@@ -77,6 +90,13 @@ public class Armor extends CustomBase {
             modifiers.put(GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(rndNamespacedKey(), knockbackResistance, ADD_NUMBER, ARMOR));
         if (explosionKnockbackResistance > 0)
             modifiers.put(GENERIC_EXPLOSION_KNOCKBACK_RESISTANCE, new AttributeModifier(rndNamespacedKey(), explosionKnockbackResistance, ADD_NUMBER, ARMOR));
+
+        super.lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
+        super.lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.toTranslatable(formatPercent(damageReduction)));
+        super.lore.add(2, LORE_ARMOR_ARMOR_POINTS.toTranslatable(Integer.toString(armorPoints)));
+        super.lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.toTranslatable(Integer.toString(toughnessPoints)));
+        super.lore.add(4, LORE_ARMOR_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(knockbackResistance)));
+        super.lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(explosionKnockbackResistance)));
     }
 
     @Override

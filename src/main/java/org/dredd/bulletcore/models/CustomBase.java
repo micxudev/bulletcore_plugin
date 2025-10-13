@@ -3,12 +3,18 @@ package org.dredd.bulletcore.models;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.utils.ComponentUtils;
+import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The base class for all custom models.
@@ -19,8 +25,7 @@ import java.util.List;
 public abstract class CustomBase {
 
     /**
-     * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).<br>
-     * It's recommended to keep this lowercase and without space.
+     * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).
      */
     public final String name;
 
@@ -53,32 +58,41 @@ public abstract class CustomBase {
     public final List<Component> lore;
 
     /**
-     * This is the maximum amount that an item will stack, must be between {@code 1} and {@code 99} (inclusive).<br>
-     * Bounds are defined by the {@link ItemMeta#setMaxStackSize(Integer)} method.
+     * This is the maximum amount that an item will stack,
+     * must be between {@code 1} and {@code 99} (inclusive).
      */
     public final int maxStackSize;
 
+    protected CustomBase(@NotNull YamlConfiguration config) throws ItemLoadException {
+        this.name = config.getString("name");
+        if (!CustomItemsRegistry.canNameBeUsed(name))
+            throw new ItemLoadException(
+                "Name: '" + name + "' does not match " + CustomItemsRegistry.VALID_NAME.pattern() + " or is already in use"
+            );
 
-    /**
-     * Constructs a new {@link CustomBase} instance.
-     *
-     * @param attrs the {@link BaseAttributes} to use for this custom object
-     */
-    protected CustomBase(BaseAttributes attrs) {
-        this.name = attrs.name;
-        this.customModelData = attrs.customModelData;
-        this.material = attrs.material;
-        this.displayName = attrs.displayName;
+        this.customModelData = config.getInt("customModelData");
+        if (!CustomItemsRegistry.canModelDataBeUsed(customModelData))
+            throw new ItemLoadException(
+                "CustomModelData: " + customModelData + " is < 0 or does not end with 2 zeroes or is already in use"
+            );
+
+        this.material = ServerUtils.getMetaCapableMaterial(config.getString("material"));
+
+        this.displayName = config.getRichMessage("displayName", ComponentUtils.plainWhite(name));
+
         this.displayNameString = PlainTextComponentSerializer.plainText().serialize(displayName);
-        this.lore = attrs.lore;
-        this.maxStackSize = attrs.maxStackSize;
+
+        this.lore = config.getStringList("lore").stream()
+            .map(ComponentUtils::deserialize)
+            .collect(Collectors.toList());
+
+        this.maxStackSize = Math.clamp(config.getInt("maxStackSize", material.getMaxStackSize()), 1, 99);
     }
 
-
     /**
-     * Creates a new {@link ItemStack} with all the {@link BaseAttributes} already set.
+     * Creates a new {@link ItemStack} with all the base fields already set.
      *
-     * @return A new {@link ItemStack} with the base attributes applied
+     * @return A new {@link ItemStack} with the base fields applied
      */
     protected @NotNull ItemStack createBaseItemStack() {
         ItemStack itemStack = new ItemStack(material);
@@ -136,28 +150,4 @@ public abstract class CustomBase {
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
     public abstract boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem);
-
-    /**
-     * A compact, immutable holder for base-level properties shared by all custom items.
-     * <p>
-     * This record is used to load and transfer shared attributes between the
-     * configuration loader and all classes that extend {@link CustomBase}.
-     * </p>
-     *
-     * <h4>Why use BaseAttributes?</h4>
-     * <ul>
-     *   <li> Avoids duplicated code for common field loading in multiple subclasses</li>
-     *   <li> Centralizes default values and parsing logic for base fields</li>
-     *   <li> Enables safe and immutable passing of base data using Java {@code record}</li>
-     *   <li> Makes the base field set extendable without touching subclasses</li>
-     * </ul>
-     */
-    public record BaseAttributes(
-        String name,
-        int customModelData,
-        Material material,
-        Component displayName,
-        List<Component> lore,
-        int maxStackSize
-    ) {}
 }

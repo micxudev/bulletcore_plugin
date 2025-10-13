@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,6 +78,30 @@ public final class ServerUtils {
         meta.setCustomModelData(customModelData);
         item.setItemMeta(meta);
         return item;
+    }
+
+    /**
+     * Parses the given material name and returns the Material if it supports {@link ItemMeta}.
+     *
+     * @param materialName The name of the Material (e.g., "DIAMOND_SWORD")
+     * @return Material that supports ItemMeta
+     * @throws ItemLoadException if the material is invalid, not an item, or does not support ItemMeta
+     */
+    public static @NotNull Material getMetaCapableMaterial(@Nullable String materialName) throws ItemLoadException {
+        if (materialName == null || materialName.isBlank())
+            throw new ItemLoadException("Material name cannot be null or blank");
+
+        Material material = Material.getMaterial(materialName.toUpperCase(Locale.ROOT));
+        if (material == null)
+            throw new ItemLoadException("Invalid material name: " + materialName);
+
+        if (!material.isItem())
+            throw new ItemLoadException("Material is not an item: " + material);
+
+        if (new ItemStack(material).getItemMeta() == null)
+            throw new ItemLoadException("Material does not support ItemMeta: " + material);
+
+        return material;
     }
 
     /**

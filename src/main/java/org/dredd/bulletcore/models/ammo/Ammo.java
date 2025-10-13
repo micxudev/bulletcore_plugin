@@ -2,10 +2,12 @@ package org.dredd.bulletcore.models.ammo;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +15,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_AMMO_COUNT;
+import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
  * Represents ammo items.
@@ -39,10 +43,13 @@ public class Ammo extends CustomBase {
      */
     public final String maxAmmoString;
 
-    public Ammo(BaseAttributes attrs, int maxAmmo) {
-        super(attrs);
-        this.maxAmmo = maxAmmo;
+    public Ammo(@NotNull YamlConfiguration config) throws ItemLoadException {
+        super(config);
+
+        this.maxAmmo = Math.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
         this.maxAmmoString = Integer.toString(this.maxAmmo);
+
+        super.lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
     }
 
     @Override

@@ -3,14 +3,18 @@ package org.dredd.bulletcore.models.weapons;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.config.messages.component.ComponentMessage;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
@@ -25,11 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_STATUS;
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_BULLETS;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
+import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
+import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
+import static org.dredd.bulletcore.utils.FormatterUtils.formatDoubles;
 
 /**
  * Represents weapon items.
@@ -131,25 +139,40 @@ public class Weapon extends CustomBase {
      */
     public final WeaponSkins skins;
 
-    public Weapon(BaseAttributes attrs, Ammo ammo, ReloadHandler reloadHandler, double maxDistance, long delayBetweenShots, int maxBullets, long reloadTime, boolean isAutomatic, double victimKnockbackResistance, int pelletsPerShot, WeaponDamage damage, WeaponRecoil recoil, WeaponSpray spray, WeaponSounds sounds, BulletTrailParticle trailParticle, WeaponSkins skins) {
-        super(attrs);
-        this.ammo = ammo;
-        this.reloadHandler = reloadHandler;
-        this.maxDistance = maxDistance;
-        this.delayBetweenShots = delayBetweenShots;
+    public Weapon(@NotNull YamlConfiguration config) throws ItemLoadException {
+        super(config);
+
+        String ammoName = config.getString("ammo", "");
+        this.ammo = CustomItemsRegistry.AMMO.getItemOrNull(ammoName);
+        if (ammo == null)
+            throw new ItemLoadException("Invalid ammo name: " + ammoName);
+
+        String reloadHandlerName = config.getString("reloadHandler", "default");
+        this.reloadHandler = ReloadManager.getHandlerOrNull(reloadHandlerName);
+        if (reloadHandler == null)
+            throw new ItemLoadException("Invalid reload handler name: " + reloadHandlerName);
+
+        this.maxDistance = Math.clamp(config.getDouble("maxDistance", 64.0D), 1.0D, 300.0D);
+        this.delayBetweenShots = Math.clamp(config.getLong("delayBetweenShots", 500L), 50L, Long.MAX_VALUE);
         this.lastShots = new HashMap<>();
-        this.maxBullets = maxBullets;
+        this.maxBullets = Math.clamp(config.getInt("maxBullets", 10), 1, Integer.MAX_VALUE);
         this.maxBulletsString = Integer.toString(maxBullets);
-        this.reloadTime = reloadTime;
-        this.isAutomatic = isAutomatic;
-        this.victimKnockbackResistance = victimKnockbackResistance;
-        this.pelletsPerShot = pelletsPerShot;
-        this.damage = damage;
-        this.recoil = recoil;
-        this.spray = spray;
-        this.sounds = sounds;
-        this.trailParticle = trailParticle;
-        this.skins = skins;
+        this.reloadTime = Math.clamp(config.getLong("reloadTime", 3000L), 100L, Long.MAX_VALUE);
+        this.isAutomatic = config.getBoolean("isAutomatic", false);
+        this.victimKnockbackResistance = Math.clamp(config.getDouble("victimKnockbackResistance", 0.0D), 0.0D, 1.0D);
+        this.pelletsPerShot = Math.clamp(config.getInt("pelletsPerShot", 1), 1, 20);
+
+        this.damage = WeaponDamage.load(config);
+        this.recoil = WeaponRecoil.load(config);
+        this.spray = WeaponSpray.load(config);
+        this.sounds = WeaponSounds.load(config);
+        this.trailParticle = BulletTrailParticle.load(config);
+        this.skins = WeaponSkins.load(config, super.customModelData, super.displayName);
+
+        super.lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
+        super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet())));
+        super.lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
+        super.lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
     }
 
     /**
