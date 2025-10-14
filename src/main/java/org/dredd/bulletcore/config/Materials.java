@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.config;
 
 import org.bukkit.Material;
-import org.bukkit.block.BlockType;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,71 +16,57 @@ public final class Materials {
     private Materials() {}
 
     public static final int TOTAL_MATERIALS;
-    public static final Set<Material> OBTAINABLE_ITEMS;
-    public static final Set<Material> NOT_OBTAINABLE_MATERIALS;
-    public static final Set<Material> COLLISION_BLOCKS;
-    public static final Set<Material> NO_COLLISION_BLOCKS;
+    public static final Set<Material> ITEMS_ONLY;
+    public static final Set<Material> BLOCKS_ONLY;
+    public static final Set<Material> BLOCKS_COLLIDABLE;
+    public static final Set<Material> BLOCKS_NON_COLLIDABLE;
 
     static {
         Material[] allMaterials = Material.values();
         TOTAL_MATERIALS = allMaterials.length;
 
-        Set<Material> obtainableItems = new LinkedHashSet<>();
-        Set<Material> notObtainableMaterials = new LinkedHashSet<>();
-        Set<Material> collisionBlocks = new LinkedHashSet<>();
-        Set<Material> noCollisionBlocks = new LinkedHashSet<>();
+        final Set<Material> itemsOnly = new LinkedHashSet<>();
+        final Set<Material> blocksOnly = new LinkedHashSet<>();
+        final Set<Material> blocksCollidable = new LinkedHashSet<>();
+        final Set<Material> blocksNonCollidable = new LinkedHashSet<>();
 
         for (Material material : allMaterials) {
-            categorizeMaterial(
-                material,
-                obtainableItems,
-                notObtainableMaterials,
-                collisionBlocks,
-                noCollisionBlocks
-            );
+            boolean isItem = material.isItem();
+            boolean isBlock = material.isBlock();
+
+            if (isItem && !isBlock) {
+                itemsOnly.add(material);
+                continue;
+            }
+
+            if (!isItem && isBlock) {
+                blocksOnly.add(material);
+                continue;
+            }
+
+            // Both Item and Block
+            if (material.isCollidable())
+                blocksCollidable.add(material);
+            else
+                blocksNonCollidable.add(material);
         }
 
-        OBTAINABLE_ITEMS = Collections.unmodifiableSet(obtainableItems);
-        NOT_OBTAINABLE_MATERIALS = Collections.unmodifiableSet(notObtainableMaterials);
-        COLLISION_BLOCKS = Collections.unmodifiableSet(collisionBlocks);
-        NO_COLLISION_BLOCKS = Collections.unmodifiableSet(noCollisionBlocks);
+        ITEMS_ONLY = Collections.unmodifiableSet(itemsOnly);
+        BLOCKS_ONLY = Collections.unmodifiableSet(blocksOnly);
+        BLOCKS_COLLIDABLE = Collections.unmodifiableSet(blocksCollidable);
+        BLOCKS_NON_COLLIDABLE = Collections.unmodifiableSet(blocksNonCollidable);
 
         writeToFile(new File(BulletCore.instance().getDataFolder(), "all-materials.yml"));
-    }
-
-    private static void categorizeMaterial(
-        Material material,
-        Set<Material> obtainable,
-        Set<Material> notObtainable,
-        Set<Material> collision,
-        Set<Material> noCollision) {
-
-        if (!material.isItem()) {
-            notObtainable.add(material);
-            return;
-        }
-
-        BlockType blockType = material.asBlockType();
-        if (blockType == null) {
-            obtainable.add(material);
-            return;
-        }
-
-        if (blockType.hasCollision()) {
-            collision.add(material);
-        } else {
-            noCollision.add(material);
-        }
     }
 
     private static void writeToFile(@NotNull File file) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("totalMaterials: ").append(TOTAL_MATERIALS).append("\n");
-        appendAsYamlList(sb, "obtainableItems", OBTAINABLE_ITEMS);
-        appendAsYamlList(sb, "notObtainableMaterials", NOT_OBTAINABLE_MATERIALS);
-        appendAsYamlList(sb, "collisionBlocks", COLLISION_BLOCKS);
-        appendAsYamlList(sb, "noCollisionBlocks", NO_COLLISION_BLOCKS);
+        appendAsYamlList(sb, "itemsOnly", ITEMS_ONLY);
+        appendAsYamlList(sb, "blocksOnly", BLOCKS_ONLY);
+        appendAsYamlList(sb, "blocksCollidable", BLOCKS_COLLIDABLE);
+        appendAsYamlList(sb, "blocksNonCollidable", BLOCKS_NON_COLLIDABLE);
 
         try {
             Files.writeString(file.toPath(), sb.toString());
@@ -91,12 +76,12 @@ public final class Materials {
     }
 
     private static void appendAsYamlList(StringBuilder sb, String name, Set<Material> materials) {
-        sb.append("\n")
-            .append(name).append(": ").append(materials.size()).append("\n")
+        sb.append('\n')
+            .append("# ").append(name).append(": ").append(materials.size()).append('\n')
             .append(name).append(":\n");
 
         materials.forEach(material ->
-            sb.append("  - ").append(material.name()).append("\n")
+            sb.append("  - ").append(material.name()).append('\n')
         );
     }
 }
