@@ -122,6 +122,10 @@ public final class ConfigManager {
 
         result.addAll(Materials.NO_COLLISION_BLOCKS);
 
+        // Adds 5 extra (PISTON_HEAD MOVING_PISTON WATER_CAULDRON LAVA_CAULDRON POWDER_SNOW_CAULDRON)
+        // TODO: add configurable list of materials to filter out for each category
+        result.addAll(Materials.NOT_OBTAINABLE_MATERIALS);
+
         plugin.getLogger().info("-Total " + result.size() + " ignored materials");
 
         return Collections.unmodifiableSet(result);
