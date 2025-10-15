@@ -52,17 +52,17 @@ public class SkinsManager {
     // ----------< Init >----------
 
     /**
-     * Loads the skins data from the file and initializes the skins' storage.
+     * Loads the skin data from the file and initializes the skins' storage.
      */
     public static void load(@NotNull BulletCore plugin) {
         skinsDataFile = new File(plugin.getDataFolder(),
-            CustomItemType.WEAPON.getFolderPath() + "/data/skins.json"
+            CustomItemType.WEAPON.folderPath + "/data/skins.json"
         );
         playerSkinsStorage = JsonUtils.load(skinsDataFile, new TypeReference<>() {}, new HashMap<>());
     }
 
     /**
-     * Asynchronously saves the skins data to the file.
+     * Asynchronously saves the skin data to the file.
      */
     private static void save() {
         JsonUtils.saveAsync(playerSkinsStorage, skinsDataFile, true);

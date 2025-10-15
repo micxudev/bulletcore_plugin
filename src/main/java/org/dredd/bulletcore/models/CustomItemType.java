@@ -1,17 +1,30 @@
 package org.dredd.bulletcore.models;
 
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.models.ammo.Ammo;
+import org.dredd.bulletcore.models.armor.Armor;
+import org.dredd.bulletcore.models.grenades.Grenade;
+import org.dredd.bulletcore.models.weapons.Weapon;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Locale;
+
 /**
- * Represents different types of custom items.<br>
- * Used to categorize and manage custom items.
+ * Represents all types of {@link CustomBase} items
+ * and provides utility methods for loading them.
  *
  * @author dredd
  * @since 1.0.0
  */
 public enum CustomItemType {
-    AMMO("ammo", "Ammo"),
-    ARMOR("armor", "Armor"),
-    GRENADE("grenades", "Grenade"),
-    WEAPON("weapons", "Weapon");
+    AMMO("ammo", "Ammo", Ammo::new),
+    ARMOR("armor", "Armor", Armor::new),
+    GRENADE("grenades", "Grenade", Grenade::new),
+    WEAPON("weapons", "Weapon", Weapon::new);
 
     /**
      * Base directory path where all custom item type folders are located.
@@ -19,35 +32,87 @@ public enum CustomItemType {
     private static final String BASE_FOLDER = "custom-items/";
 
     /**
-     * The subfolder name where items of this type are stored.
+     * The path for items of this type inside the plugin's data folder.
      */
-    private final String subfolder;
+    public final String folderPath;
 
     /**
      * The label for this item type shown in logs during the loading process.
      */
     private final String label;
 
-    CustomItemType(String subfolder, String label) {
-        this.subfolder = subfolder;
+    /**
+     * The "recipe" for loading and constructing custom item instances.
+     */
+    private final CustomItemLoader loader;
+
+    CustomItemType(@NotNull String subfolder,
+                   @NotNull String label,
+                   @NotNull CustomItemLoader loader) {
+        this.folderPath = BASE_FOLDER + subfolder;
         this.label = label;
+        this.loader = loader;
     }
 
     /**
-     * Gets the complete folder path for this item type inside the plugin's data folder.
+     * Loads all YAML files from their respective folder within the plugin's data folder.
+     * <p>
+     * For each valid and enabled file:
+     * <ul>
+     *   <li>Parses the YAML configuration</li>
+     *   <li>Constructs the item via its loader</li>
+     *   <li>Registers it in {@link CustomItemsRegistry}</li>
+     * </ul>
+     * Invalid or disabled files are skipped. Logs the total number of items loaded.
      *
-     * @return The full path combining the base folder and type-specific subfolder
+     * @param plugin the plugin instance used for file access and logging
      */
-    public String getFolderPath() {
-        return BASE_FOLDER + subfolder;
+    private void load0(@NotNull BulletCore plugin) {
+        File folder = new File(plugin.getDataFolder(), folderPath);
+
+        if (!folder.exists() && !folder.mkdirs()) {
+            plugin.getLogger().severe("Could not create folder for " + label + ": " + folder.getPath());
+            return;
+        }
+
+        File[] files = folder.listFiles((dir, name) -> {
+            String lower = name.toLowerCase(Locale.ROOT);
+            return lower.endsWith(".yml") || lower.endsWith(".yaml");
+        });
+
+        if (files == null || files.length == 0) {
+            plugin.getLogger().info("No " + label + " definitions found in: " + folder.getPath());
+            return;
+        }
+
+        int loadedCount = 0;
+
+        for (File file : files) {
+            try {
+                var config = new YamlConfiguration();
+                config.load(file);
+
+                if (config.getBoolean("enabled", true)) {
+                    CustomBase item = loader.load(config);
+                    CustomItemsRegistry.register(item);
+                    loadedCount++;
+                }
+
+            } catch (ItemLoadException e) {
+                plugin.getLogger().severe("Skipping " + label + " \"" + file.getName() + "\": " + e.getMessage());
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to load " + label + " file \"" + file.getName() + "\": " + e.getMessage());
+            }
+        }
+
+        plugin.getLogger().info("-Loaded " + loadedCount + " " + label + (loadedCount == 1 ? "" : "s"));
     }
 
     /**
-     * Gets the display label for this item type.
-     *
-     * @return The human-readable label for the item type
+     * Loads all custom item types from their respective folders and registers them.
      */
-    public String getLabel() {
-        return label;
+    public static void load(@NotNull BulletCore plugin) {
+        for (var type : values())
+            type.load0(plugin);
     }
 }

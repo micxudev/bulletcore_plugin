@@ -63,14 +63,12 @@ public final class CustomItemsRegistry {
     private CustomItemsRegistry() {}
 
     /**
-     * Registers a {@link CustomBase} item in the appropriate typed registry
-     * and also in the {@code all} registry.
+     * Registers a {@link CustomBase} item in the appropriate {@code TYPED} and {@link #ALL} registries.
      *
      * @param item the item to register
-     * @throws ItemRegisterException if the item is null or has an unknown type
+     * @throws ItemRegisterException if the item could not be registered or has an unknown type
      */
-    public static void register(@Nullable CustomBase item) throws ItemRegisterException {
-        if (item == null) throw new ItemRegisterException("Item cannot be null");
+    public static void register(@NotNull CustomBase item) throws ItemRegisterException {
         ALL.register(item);
         try {
             switch (item) {

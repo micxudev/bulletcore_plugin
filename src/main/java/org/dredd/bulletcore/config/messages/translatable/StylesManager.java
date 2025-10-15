@@ -115,8 +115,8 @@ public final class StylesManager {
      * Loads styles from the given file or falls back to default on failure.
      */
     private EnumMap<TranslatableMessage, MessageStyles> loadStylesFromFile(@NotNull File stylesFile) {
-        var config = new YamlConfiguration();
         try {
+            var config = new YamlConfiguration();
             config.load(stylesFile);
             return parseStyles(config);
         } catch (Exception e) {

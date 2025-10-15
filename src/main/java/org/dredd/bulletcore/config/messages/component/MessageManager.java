@@ -111,15 +111,9 @@ public final class MessageManager {
     private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLanguagesFromFolder(@NotNull File langFolder) {
         Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
 
-        File[] files;
-        try {
-            files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
-            if (files == null) {
-                plugin.getLogger().severe("Failed to list language files in folder: " + langFolder);
-                return result;
-            }
-        } catch (Exception e) {
-            plugin.getLogger().severe("Error listing files in " + langFolder + ": " + e.getMessage());
+        File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files == null) {
+            plugin.getLogger().severe("Failed to list language files in folder: " + langFolder);
             return result;
         }
 

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The base class for all custom models.
+ * The base class for all custom items.
  *
  * @author dredd
  * @since 1.0.0
