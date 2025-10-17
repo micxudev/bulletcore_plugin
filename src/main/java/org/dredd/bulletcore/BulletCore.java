@@ -22,7 +22,7 @@ import org.dredd.bulletcore.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Main plugin class for <b>BulletCore</b>.
+ * Main plugin class.
  *
  * @author dredd
  * @since 1.0.0
@@ -53,7 +53,6 @@ public final class BulletCore extends JavaPlugin {
         registerListener(new PlayerActionsListener());
         registerListener(new UnknownCommandListener());
 
-        getLogger().info("Version: " + getPluginMeta().getVersion() + " - Plugin Enabled");
         getLogger().info("==================================================================");
     }
 
@@ -95,7 +94,7 @@ public final class BulletCore extends JavaPlugin {
      * This method is also used on plugin reload.
      */
     public static void init() {
-        cancelAndClear();
+        BulletCore.cancelAndClear();
 
         SkinsManager.load(plugin);
         MessageManager.load(plugin);
@@ -123,9 +122,5 @@ public final class BulletCore extends JavaPlugin {
 
     public static void logError(String msg) {
         plugin.getLogger().severe(msg);
-    }
-
-    public static void logInfo(String msg) {
-        plugin.getLogger().info(msg);
     }
 }
