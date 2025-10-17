@@ -12,7 +12,6 @@ import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +43,7 @@ public final class ServerUtils {
     /**
      * @return a list of player names currently online
      */
-    public static @NotNull @Unmodifiable List<String> getOnlinePlayerNames() {
+    public static @NotNull List<String> getOnlinePlayerNames() {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();
@@ -63,18 +62,22 @@ public final class ServerUtils {
     }
 
     /**
-     * Creates an ItemStack with the specified material and CustomModelData.
+     * Creates an {@link ItemStack} with the specified material and CustomModelData.
      *
      * @param material        the item material (must support metadata)
      * @param customModelData the custom model data value
      * @return a new ItemStack with the given model data
-     * @throws IllegalStateException if the material doesn't support ItemMeta
+     * @throws IllegalArgumentException if the material is not an item ({@link Material#isItem()}) or
+     *                                  does not support {@link ItemMeta}
      */
-    public static @NotNull ItemStack createCustomModelItem(@NotNull Material material, int customModelData) {
+    public static @NotNull ItemStack createCustomModelItem(@NotNull Material material,
+                                                           int customModelData) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
+
         if (meta == null)
-            throw new IllegalStateException("Material " + material + " does not support ItemMeta.");
+            throw new IllegalArgumentException("Material " + material + " does not support ItemMeta.");
+
         meta.setCustomModelData(customModelData);
         item.setItemMeta(meta);
         return item;

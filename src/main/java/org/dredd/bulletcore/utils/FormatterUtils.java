@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DecimalFormat;
 
 /**
@@ -41,7 +43,7 @@ public class FormatterUtils {
      * @param ratio the ratio to format.
      * @return the formatted percentage.
      */
-    public static String formatPercent(double ratio) {
+    public static @NotNull String formatPercent(double ratio) {
         return NUMBER_FORMAT_TWO_DECIMAL.format(ratio * 100);
     }
 
@@ -60,7 +62,7 @@ public class FormatterUtils {
      * @param value the value to format
      * @return the formatted value
      */
-    public static String formatDouble(double value) {
+    public static @NotNull String formatDouble(double value) {
         return NUMBER_FORMAT_ONE_DECIMAL.format(value);
     }
 
@@ -75,7 +77,7 @@ public class FormatterUtils {
      * @param values the values to format
      * @return the formatted values array
      */
-    public static String[] formatDoubles(double... values) {
+    public static @NotNull String[] formatDoubles(double... values) {
         String[] result = new String[values.length];
         for (int i = 0; i < values.length; i++)
             result[i] = formatDouble(values[i]);
