@@ -135,9 +135,9 @@ public final class CustomItemsRegistry {
      */
     private static int getBaseModelDataOrZero(@Nullable ItemStack stack) {
         if (stack == null || !stack.hasItemMeta()) return 0;
-        ItemMeta meta = stack.getItemMeta();
+        final ItemMeta meta = stack.getItemMeta();
         if (meta == null || !meta.hasCustomModelData()) return 0;
-        int customModelData = meta.getCustomModelData();
+        final int customModelData = meta.getCustomModelData();
         return customModelData - (customModelData % 100);
     }
 
@@ -151,7 +151,7 @@ public final class CustomItemsRegistry {
      */
     private static <T extends CustomBase> @Nullable T getOrNull(@NotNull ItemRegistry<T> registry,
                                                                 @Nullable ItemStack stack) {
-        int modelData = getBaseModelDataOrZero(stack);
+        final int modelData = getBaseModelDataOrZero(stack);
         return (modelData == 0) ? null : registry.getItemOrNull(modelData);
     }
 

@@ -115,12 +115,12 @@ public final class SprayHandler {
      */
     private static @NotNull Vector rotateVector(@NotNull Vector offset,
                                                 @NotNull Vector direction) {
-        Vector up = (direction.getX() == 0.0D && direction.getZ() == 0.0D) // avoid gimbal lock
+        final Vector up = (direction.getX() == 0.0D && direction.getZ() == 0.0D) // avoid gimbal lock
             ? new Vector(1.0D, 0.0D, 0.0D)
             : new Vector(0.0D, 1.0D, 0.0D);
 
-        Vector right = direction.clone().crossProduct(up).normalize();
-        Vector upAdjusted = right.clone().crossProduct(direction).normalize();
+        final Vector right = direction.clone().crossProduct(up).normalize();
+        final Vector upAdjusted = right.clone().crossProduct(direction).normalize();
 
         return right.multiply(offset.getX())
             .add(upAdjusted.multiply(offset.getY()))

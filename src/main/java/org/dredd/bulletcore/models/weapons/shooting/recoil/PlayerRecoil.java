@@ -143,14 +143,14 @@ public final class PlayerRecoil {
             targetRecoilY *= (1.0f - damping);
         }
 
-        float oldX = currentRecoilX;
-        float oldY = currentRecoilY;
+        final float oldX = currentRecoilX;
+        final float oldY = currentRecoilY;
 
         currentRecoilX = MathUtils.lerp(currentRecoilX, targetRecoilX, lerpFactor);
         currentRecoilY = MathUtils.lerp(currentRecoilY, targetRecoilY, lerpFactor);
 
-        float deltaYaw = (currentRecoilX - oldX) * speed;
-        float deltaPitch = (currentRecoilY - oldY) * speed;
+        final float deltaYaw = (currentRecoilX - oldX) * speed;
+        final float deltaPitch = (currentRecoilY - oldY) * speed;
 
         // Move camera if there is a significant change in yaw or pitch
         if (!MathUtils.approximatelyZero(deltaYaw, 0.01f) ||
@@ -190,7 +190,7 @@ public final class PlayerRecoil {
                                       float yaw,
                                       float pitch) {
         // tested on 1.20.6, 1.21.1 - (multiversion later)
-        var packet = new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, ALL, 0);
+        final var packet = new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, ALL, 0);
         ((CraftPlayer) player).getHandle().connection.send(packet);
     }
 }

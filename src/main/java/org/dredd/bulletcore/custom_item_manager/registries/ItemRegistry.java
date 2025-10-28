@@ -119,14 +119,14 @@ public final class ItemRegistry<T extends CustomBase> {
      * @throws ItemRegisterException if the item is already registered by customModelData or name
      */
     void register(@NotNull T item) throws ItemRegisterException {
-        int modelData = item.customModelData;
-        String name = item.name;
+        final int modelData = item.customModelData;
+        final String name = item.name;
 
-        T existingByModelData = itemsByModelData.putIfAbsent(modelData, item);
+        final T existingByModelData = itemsByModelData.putIfAbsent(modelData, item);
         if (existingByModelData != null)
             throw new ItemRegisterException("Item is already registered with the customModelData: " + modelData);
 
-        T existingByName = itemsByName.putIfAbsent(name, item);
+        final T existingByName = itemsByName.putIfAbsent(name, item);
         if (existingByName != null) {
             itemsByModelData.remove(modelData, item);
             throw new ItemRegisterException("Item is already registered with the name: " + name);

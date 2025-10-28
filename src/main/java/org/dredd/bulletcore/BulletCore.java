@@ -123,8 +123,8 @@ public final class BulletCore extends JavaPlugin {
      * @param perm permission to register
      */
     public void registerPermission(@NotNull String perm) {
-        Permission permission = new Permission(perm);
-        PluginManager pluginManager = getServer().getPluginManager();
+        final Permission permission = new Permission(perm);
+        final PluginManager pluginManager = getServer().getPluginManager();
         if (pluginManager.getPermission(permission.getName()) == null)
             pluginManager.addPermission(permission);
     }

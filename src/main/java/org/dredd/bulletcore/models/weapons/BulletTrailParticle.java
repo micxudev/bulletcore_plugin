@@ -103,14 +103,14 @@ public final class BulletTrailParticle {
 
         if (step < 0.01D) return;
 
-        double travelDistance = (result == null)
+        final double travelDistance = (result == null)
             ? weapon.maxDistance - offset
             : eyeLocation.toVector().distance(result.getHitPosition()) - offset;
 
         if (travelDistance <= 0.0D) return;
 
-        Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(offset));
-        Vector stepVec = direction.clone().multiply(step);
+        final Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(offset));
+        final Vector stepVec = direction.clone().multiply(step);
 
         for (double traveled = 0.0D; traveled < travelDistance; traveled += step) {
             ParticleManager.spawnParticle(world, particleLoc, particle);

@@ -42,15 +42,15 @@ public final class WeaponSkins {
     public static @NotNull WeaponSkins load(@NotNull YamlConfiguration config,
                                             int modelData,
                                             @NotNull Component displayName) {
-        WeaponSkins weaponSkins = new WeaponSkins(modelData, displayName);
+        final WeaponSkins weaponSkins = new WeaponSkins(modelData, displayName);
 
-        ConfigurationSection skinsSection = config.getConfigurationSection("skins");
+        final ConfigurationSection skinsSection = config.getConfigurationSection("skins");
         if (skinsSection == null)
             return weaponSkins;
 
         int skinModelData = modelData;
 
-        for (String key : skinsSection.getKeys(false)) {
+        for (final String key : skinsSection.getKeys(false)) {
             skinModelData++;
 
             if (!CustomItemsRegistry.isValidName(key)) {
@@ -58,13 +58,13 @@ public final class WeaponSkins {
                 continue;
             }
 
-            ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
+            final ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
             if (skinSection == null) {
                 BulletCore.logError("Skin name: '" + key + "' is not a valid section");
                 continue;
             }
 
-            Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
+            final Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
 
             weaponSkins.addSkin(new WeaponSkin(key, skinModelData, skinDisplayName));
         }
@@ -166,7 +166,7 @@ public final class WeaponSkins {
      */
     public @NotNull WeaponSkin getNextOrDefault(int customModelData,
                                                 @NotNull List<String> playerWeaponSkins) {
-        var iterator = playerWeaponSkins.listIterator();
+        final var iterator = playerWeaponSkins.listIterator();
 
         final WeaponSkin currentSkin = getSkinOrNull(customModelData);
         if (currentSkin == null) {

@@ -52,7 +52,7 @@ public final class RecoilHandler {
      * @param player the player whose task should be stopped
      */
     public static void cancelRecoilTask(@NotNull Player player) {
-        BukkitTask task = RECOIL_TASKS.remove(player.getUniqueId());
+        final BukkitTask task = RECOIL_TASKS.remove(player.getUniqueId());
         if (task != null) task.cancel();
     }
 

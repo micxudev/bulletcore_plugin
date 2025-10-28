@@ -53,27 +53,27 @@ public enum SubcommandSkinManage implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        String operation = args[1];
+        final String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
             COMMAND_INVALID_OPERATION.sendMessage(sender, Map.of("operation", operation));
             return;
         }
 
-        String playerName = args[2];
-        Player player = Bukkit.getPlayerExact(playerName);
+        final String playerName = args[2];
+        final Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) {
             PLAYER_NOT_FOUND.sendMessage(sender, Map.of("player", playerName));
             return;
         }
 
-        String weaponName = args[3];
-        Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
+        final String weaponName = args[3];
+        final Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) {
             WEAPON_NOT_FOUND.sendMessage(sender, Map.of("weapon", weaponName));
             return;
         }
 
-        String skinName = args[4];
+        final String skinName = args[4];
         if (skinName.equals(ALL_OPTION)) {
             switch (operation) {
                 case "add" -> {
@@ -90,7 +90,7 @@ public enum SubcommandSkinManage implements Subcommand {
 
         switch (operation) {
             case "add" -> {
-                WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
+                final WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
                 if (weaponSkin == null) {
                     SKIN_NOT_FOUND.sendMessage(sender, null);
                     return;
@@ -112,43 +112,43 @@ public enum SubcommandSkinManage implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        String operation = args[1];
+        final String operation = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(operation, OPERATIONS, new ArrayList<>());
 
         if (!OPERATIONS.contains(operation)) return EMPTY_LIST;
 
 
-        String playerName = args[2];
+        final String playerName = args[2];
         if (args.length == 3)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
 
-        Player player = Bukkit.getPlayerExact(playerName);
+        final Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) return EMPTY_LIST;
 
 
-        String weaponName = args[3];
+        final String weaponName = args[3];
         if (args.length == 4)
             return StringUtil.copyPartialMatches(weaponName, SkinsManager.getWeaponNamesWithSkins(), new ArrayList<>());
 
-        Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
+        final Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) return EMPTY_LIST;
 
 
         if (args.length == 5) {
             return switch (operation) {
                 case "add" -> {
-                    List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
+                    final List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
                     if (missingWeaponSkins.isEmpty()) yield EMPTY_LIST;
-                    List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
+                    final List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(missingWeaponSkins);
                     yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));
                 }
                 case "remove" -> {
-                    List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+                    final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
                     if (playerWeaponSkins.isEmpty()) yield EMPTY_LIST;
-                    List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+                    final List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(playerWeaponSkins);
                     yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));

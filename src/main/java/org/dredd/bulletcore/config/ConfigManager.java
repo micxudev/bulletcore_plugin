@@ -115,10 +115,10 @@ public final class ConfigManager {
      * @return a set of {@link Material} instances parsed from the given list of material names
      */
     private @NotNull Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        Set<Material> result = new HashSet<>();
+        final Set<Material> result = new HashSet<>();
 
-        for (String name : materialNames) {
-            Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
+        for (final String name : materialNames) {
+            final Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
             if (material != null)
                 result.add(material);
             else

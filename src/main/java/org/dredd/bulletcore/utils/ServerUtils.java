@@ -76,8 +76,8 @@ public final class ServerUtils {
      */
     public static @NotNull ItemStack createCustomModelItem(@NotNull Material material,
                                                            int customModelData) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
+        final ItemStack item = new ItemStack(material);
+        final ItemMeta meta = item.getItemMeta();
 
         if (meta == null)
             throw new IllegalArgumentException("Material " + material + " does not support ItemMeta.");
@@ -98,7 +98,7 @@ public final class ServerUtils {
         if (materialName == null || materialName.isBlank())
             throw new ItemLoadException("Material name cannot be null or blank");
 
-        Material material = Material.getMaterial(materialName.toUpperCase(Locale.ROOT));
+        final Material material = Material.getMaterial(materialName.toUpperCase(Locale.ROOT));
         if (material == null)
             throw new ItemLoadException("Invalid material name: " + materialName);
 

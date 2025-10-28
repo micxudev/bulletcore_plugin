@@ -271,8 +271,8 @@ public enum ComponentMessage {
      */
     public @NotNull Component toComponent(@NotNull CommandSender sender,
                                           @Nullable Map<String, String> values) {
-        String message = getMessage(sender);
-        String formatted = values == null ? message : applyPlaceholders(message, values);
+        final String message = getMessage(sender);
+        final String formatted = values == null ? message : applyPlaceholders(message, values);
         return ComponentUtils.deserialize(formatted);
     }
 
@@ -307,10 +307,10 @@ public enum ComponentMessage {
      * @return a localized message string or a fallback when no translation is available
      */
     private @NotNull String getMessage(@NotNull CommandSender sender) {
-        Locale serverDefault = ConfigManager.instance().locale;
-        Locale senderLocale = ServerUtils.getLocaleOrDefault(sender, serverDefault);
+        final Locale serverDefault = ConfigManager.instance().locale;
+        final Locale senderLocale = ServerUtils.getLocaleOrDefault(sender, serverDefault);
 
-        String resolved = MessageManager.instance().resolveMessage(senderLocale, serverDefault, this);
+        final String resolved = MessageManager.instance().resolveMessage(senderLocale, serverDefault, this);
         return resolved != null ? resolved : defaultMessage;
     }
 

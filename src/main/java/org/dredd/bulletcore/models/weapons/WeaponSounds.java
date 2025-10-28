@@ -125,7 +125,7 @@ public final class WeaponSounds {
      * @param sound  the configured sound to play
      */
     public void play(@NotNull Player player, @NotNull ConfiguredSound sound) {
-        Location location = player.getLocation();
+        final Location location = player.getLocation();
         location.setY(location.getY() + player.getHeight() / 2);
         SoundManager.playSound(player, location, sound);
     }

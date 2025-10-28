@@ -85,8 +85,8 @@ public enum BulletCoreListener implements Listener {
         //System.err.println("1. Used MAIN HAND." + " Action: " + event.getAction());
 
         final Player player = event.getPlayer();
-        long now = System.currentTimeMillis();
-        long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
+        final long now = System.currentTimeMillis();
+        final long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
 
         if (now - lastDrop < 25) {
             //System.err.println("2. Interact is right after the drop (most probably using key (Q)). Do not process.");
@@ -227,7 +227,7 @@ public enum BulletCoreListener implements Listener {
         if (clickedInventory == null || !clickedInventory.equals(player.getInventory())) return;
         //System.err.println("3. Click inside player inventory.");
 
-        int heldWeaponSlot = player.getInventory().getHeldItemSlot();
+        final int heldWeaponSlot = player.getInventory().getHeldItemSlot();
         //System.err.println("4. Held weapon slot: " + heldWeaponSlot);
 
         if (event.getSlot() == heldWeaponSlot || event.getHotbarButton() == heldWeaponSlot) {
@@ -254,12 +254,12 @@ public enum BulletCoreListener implements Listener {
         //System.err.println("2. Click inside inventory, not outside.");
 
         final PlayerInventory playerInventory = player.getInventory();
-        int mainHandSlot = playerInventory.getHeldItemSlot();
+        final int mainHandSlot = playerInventory.getHeldItemSlot();
 
         if (event.getClick() == ClickType.NUMBER_KEY) {
             //System.err.println("3. NUMBER_KEY click");
 
-            int hotbarSlot = event.getHotbarButton();
+            final int hotbarSlot = event.getHotbarButton();
             if (hotbarSlot != mainHandSlot) return;
             //System.err.println("4. NUMBER_KEY slot == MAIN_HAND slot");
 
@@ -428,8 +428,8 @@ public enum BulletCoreListener implements Listener {
 
         final Player player = event.getPlayer();
 
-        long now = System.currentTimeMillis();
-        long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
+        final long now = System.currentTimeMillis();
+        final long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
 
         // If less than 50 ms passed since the last inventory interaction, assume it came from GUI
         if (now - last < 50) {
@@ -467,19 +467,19 @@ public enum BulletCoreListener implements Listener {
         if (weapon == null) return;
         //System.err.println("1. Player has Weapon in MainHand.");
 
-        boolean isNowSneaking = event.isSneaking();
+        final boolean isNowSneaking = event.isSneaking();
         if (!isNowSneaking) {
             //System.err.println("2.1. Player is NO MORE sneaking. Cancel auto shooting.");
             ShootingHandler.cancelAutoShooting(player);
         }
 
-        boolean isReallySneaking = isNowSneaking && !player.isInsideVehicle();
+        final boolean isReallySneaking = isNowSneaking && !player.isInsideVehicle();
 
         if (isReallySneaking && weapon.isAutomatic) {
             //System.err.println("2.1. Player is NOW sneaking with automatic Weapon.");
-            long now = System.currentTimeMillis();
-            long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
-            long threshold = ConfigManager.instance().fireResumeThreshold;
+            final long now = System.currentTimeMillis();
+            final long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
+            final long threshold = ConfigManager.instance().fireResumeThreshold;
             if (now - lastSingleShot < threshold) {
                 //System.err.println("2.1.1. Player shot a single bullet " + (now - lastSingleShot) + "ms ago.");
                 ShootingHandler.tryAutoShoot(player, weapon);

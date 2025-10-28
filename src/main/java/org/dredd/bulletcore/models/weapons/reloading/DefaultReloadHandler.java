@@ -40,7 +40,7 @@ public final class DefaultReloadHandler extends ReloadHandler {
             @Override
             public void run() {
                 // make sure the weapon stack didn't change in the meantime
-                ItemStack weaponStack = player.getInventory().getItemInMainHand();
+                final ItemStack weaponStack = player.getInventory().getItemInMainHand();
                 if (!weapon.isThisWeapon(weaponStack)) {
                     ReloadHandler.cancelReload(player, false);
                     return;
@@ -53,12 +53,12 @@ public final class DefaultReloadHandler extends ReloadHandler {
                 }
 
                 // ammo calculations
-                int bulletCount = weapon.getBulletCount(weaponStack);
-                int bulletsToReload = weapon.maxBullets - bulletCount;
-                int removedCount = weapon.ammo.removeAmmo(player, bulletsToReload);
+                final int bulletCount = weapon.getBulletCount(weaponStack);
+                final int bulletsToReload = weapon.maxBullets - bulletCount;
+                final int removedCount = weapon.ammo.removeAmmo(player, bulletsToReload);
 
                 // add bullets to the weapon if changed
-                int newBulletCount = bulletCount + removedCount;
+                final int newBulletCount = bulletCount + removedCount;
                 if (bulletCount != newBulletCount)
                     weapon.setBulletCount(weaponStack, newBulletCount);
 

@@ -34,8 +34,8 @@ public record ArmorHit(
         // make sure the armor stack didn't change in the meantime
         if (!initialArmor.isThisArmor(stack)) return;
 
-        double currentDurability = initialArmor.getDurability(stack);
-        double newDurability = currentDurability - armorDamage;
+        final double currentDurability = initialArmor.getDurability(stack);
+        final double newDurability = currentDurability - armorDamage;
 
         if (newDurability > 0)
             initialArmor.setDurability(stack, newDurability);

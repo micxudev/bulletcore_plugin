@@ -105,9 +105,9 @@ public final class SkinsManager {
     public static boolean playerHasSkin(@NotNull Player player,
                                         @NotNull Weapon weapon,
                                         @NotNull String skinName) {
-        var playerSkins = playerSkinsStorage.get(player.getUniqueId());
+        final var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
-        var weaponSkins = playerSkins.get(weapon.name);
+        final var weaponSkins = playerSkins.get(weapon.name);
         return weaponSkins != null && weaponSkins.contains(skinName);
     }
 
@@ -120,9 +120,9 @@ public final class SkinsManager {
      */
     public static @NotNull List<String> getPlayerWeaponSkins(@NotNull Player player,
                                                              @NotNull Weapon weapon) {
-        var playerSkins = playerSkinsStorage.get(player.getUniqueId());
+        final var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return EMPTY_LIST;
-        var weaponSkins = playerSkins.get(weapon.name);
+        final var weaponSkins = playerSkins.get(weapon.name);
         return (weaponSkins == null) ? EMPTY_LIST : Collections.unmodifiableList(weaponSkins);
     }
 
@@ -136,7 +136,7 @@ public final class SkinsManager {
     public static @NotNull List<String> getMissingWeaponSkins(@NotNull Player player,
                                                               @NotNull Weapon weapon) {
         if (!weapon.skins.hasSkins()) return EMPTY_LIST;
-        var weaponSkinNames = getPlayerWeaponSkins(player, weapon);
+        final var weaponSkinNames = getPlayerWeaponSkins(player, weapon);
         return weapon.skins.getSkinNames().stream()
             .filter(skin -> !weaponSkinNames.contains(skin))
             .toList();
@@ -155,12 +155,12 @@ public final class SkinsManager {
     public static boolean addSkinToPlayer(@NotNull Player player,
                                           @NotNull Weapon weapon,
                                           @NotNull String skinName) {
-        var weaponSkin = getWeaponSkin(weapon, skinName);
+        final var weaponSkin = getWeaponSkin(weapon, skinName);
         if (weaponSkin == null) return false;
         if (playerHasSkin(player, weapon, skinName)) return false;
 
-        var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
-        var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
+        final var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
+        final var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
         weaponSkins.add(skinName);
         save();
         return true;
@@ -175,11 +175,11 @@ public final class SkinsManager {
      */
     public static int addAllWeaponSkinsToPlayer(@NotNull Player player,
                                                 @NotNull Weapon weapon) {
-        var missingWeaponSkins = getMissingWeaponSkins(player, weapon);
+        final var missingWeaponSkins = getMissingWeaponSkins(player, weapon);
         if (missingWeaponSkins.isEmpty()) return 0;
 
-        var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
-        var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
+        final var playerSkins = playerSkinsStorage.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
+        final var weaponSkins = playerSkins.computeIfAbsent(weapon.name, k -> new ArrayList<>());
         weaponSkins.addAll(missingWeaponSkins);
         save();
 
@@ -199,13 +199,13 @@ public final class SkinsManager {
     public static boolean removeSkinFromPlayer(@NotNull Player player,
                                                @NotNull Weapon weapon,
                                                @NotNull String skinName) {
-        var playerSkins = playerSkinsStorage.get(player.getUniqueId());
+        final var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
 
-        var weaponSkins = playerSkins.get(weapon.name);
+        final var weaponSkins = playerSkins.get(weapon.name);
         if (weaponSkins == null) return false;
 
-        boolean remove = weaponSkins.remove(skinName);
+        final boolean remove = weaponSkins.remove(skinName);
         if (!remove) return false;
 
         // Clean up empty lists and maps
@@ -228,10 +228,10 @@ public final class SkinsManager {
      */
     public static int removeAllWeaponSkinsFromPlayer(@NotNull Player player,
                                                      @NotNull Weapon weapon) {
-        var playerSkins = playerSkinsStorage.get(player.getUniqueId());
+        final var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return 0;
 
-        var weaponSkins = playerSkins.remove(weapon.name);
+        final var weaponSkins = playerSkins.remove(weapon.name);
         if (weaponSkins == null) return 0;
         if (playerSkins.isEmpty())
             playerSkinsStorage.remove(player.getUniqueId());

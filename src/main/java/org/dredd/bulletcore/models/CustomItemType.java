@@ -44,7 +44,7 @@ public enum CustomItemType {
      * Loads all custom item types from their respective folders and registers them.
      */
     public static void load(@NotNull BulletCore plugin) {
-        for (var type : values())
+        for (final var type : values())
             type.load0(plugin);
     }
 
@@ -90,14 +90,14 @@ public enum CustomItemType {
      * @param plugin the plugin instance used for file access and logging
      */
     private void load0(@NotNull BulletCore plugin) {
-        File folder = new File(plugin.getDataFolder(), folderPath);
+        final File folder = new File(plugin.getDataFolder(), folderPath);
 
         if (!folder.exists() && !folder.mkdirs()) {
             plugin.getLogger().severe("Could not create folder for " + label + ": " + folder.getPath());
             return;
         }
 
-        File[] files = folder.listFiles((dir, name) -> {
+        final File[] files = folder.listFiles((dir, name) -> {
             String lower = name.toLowerCase(Locale.ROOT);
             return lower.endsWith(".yml") || lower.endsWith(".yaml");
         });
@@ -109,9 +109,9 @@ public enum CustomItemType {
 
         int loadedCount = 0;
 
-        for (File file : files) {
+        for (final File file : files) {
             try {
-                var config = new YamlConfiguration();
+                final var config = new YamlConfiguration();
                 config.load(file);
 
                 if (config.getBoolean("enabled", true)) {

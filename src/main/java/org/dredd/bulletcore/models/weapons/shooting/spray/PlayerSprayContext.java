@@ -146,7 +146,7 @@ public final class PlayerSprayContext {
 
         // Jumping state
         {
-            double currentVelocityY = player.getVelocity().getY();
+            final double currentVelocityY = player.getVelocity().getY();
             jumping = !onClimbable && !underwater && !inFlight && (
                 (currentVelocityY > 0.0 || Math.abs(currentVelocityY) > 0.1) // ascending
                     || (player.getFallDistance() > 0.0f) // falling
@@ -157,8 +157,8 @@ public final class PlayerSprayContext {
 
         // Standing state
         {
-            Location currentLocation = player.getLocation();
-            boolean samePosition = isSamePosition(currentLocation, lastTickLocation);
+            final Location currentLocation = player.getLocation();
+            final boolean samePosition = isSamePosition(currentLocation, lastTickLocation);
             standing = samePosition && wasStanding;
             lastTickLocation = currentLocation;
             wasStanding = samePosition;

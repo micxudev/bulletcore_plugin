@@ -101,7 +101,7 @@ public final class CommandHandler extends Command {
     // -----< Command & Subcommand Registration >-----
 
     private void addSubcommand(@NotNull Subcommand sub) {
-        String name = sub.getName().toLowerCase(Locale.ROOT);
+        final String name = sub.getName().toLowerCase(Locale.ROOT);
         subCommands.put(name, sub);
         subCommandNames.add(name);
         plugin.registerPermission(sub.getPermission());
@@ -133,7 +133,7 @@ public final class CommandHandler extends Command {
             return true;
         }
 
-        Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
+        final Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         if (sub == null) {
             COMMAND_UNKNOWN_SUBCOMMAND.sendMessage(sender, Map.of("subcommand", args[0]));
             return true;
@@ -166,7 +166,7 @@ public final class CommandHandler extends Command {
         if (args.length == 1)
             return StringUtil.copyPartialMatches(args[0], getAllowedSubcommands(sender), new ArrayList<>());
 
-        Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
+        final Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         return (sub != null && canExecuteSubcommand(sender, sub))
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;

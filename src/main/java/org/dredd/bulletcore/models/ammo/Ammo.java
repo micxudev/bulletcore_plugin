@@ -72,7 +72,7 @@ public class Ammo extends CustomBase {
 
     @Override
     public @NotNull ItemStack createItemStack() {
-        ItemStack stack = super.createBaseItemStack();
+        final ItemStack stack = super.createBaseItemStack();
 
         setAmmoCount(stack, maxAmmo);
         return stack;
@@ -127,10 +127,10 @@ public class Ammo extends CustomBase {
      */
     public void setAmmoCount(@NotNull ItemStack stack,
                              int count) {
-        ItemMeta meta = stack.getItemMeta();
+        final ItemMeta meta = stack.getItemMeta();
         meta.getPersistentDataContainer().set(AMMO_COUNT_KEY, INTEGER, count);
 
-        List<Component> lore = meta.lore();
+        final List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
             lore.set(0, LORE_AMMO_COUNT.toTranslatable(Integer.toString(count), maxAmmoString));
             meta.lore(lore);
@@ -195,11 +195,11 @@ public class Ammo extends CustomBase {
             final ItemStack stack = contents[i];
             if (!isThisAmmo(stack)) continue;
 
-            int stackAmmoCount = getAmmoCount(stack);
+            final int stackAmmoCount = getAmmoCount(stack);
 
             // Case 1: stackAmmoCount has enough ammo
             if (stackAmmoCount >= leftToRemove) {
-                int leftInStack = stackAmmoCount - leftToRemove;
+                final int leftInStack = stackAmmoCount - leftToRemove;
 
                 if (leftInStack <= 0) {
                     inventory.setItem(i, null);

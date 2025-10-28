@@ -169,12 +169,12 @@ public class Weapon extends CustomBase {
     public Weapon(@NotNull YamlConfiguration config) throws ItemLoadException {
         super(config);
 
-        String ammoName = config.getString("ammo", null);
+        final String ammoName = config.getString("ammo", null);
         this.ammo = (ammoName == null) ? null : CustomItemsRegistry.AMMO.getItemOrNull(ammoName);
         if (ammo == null)
             throw new ItemLoadException("Invalid 'ammo' name: " + ammoName);
 
-        String reloadHandlerName = config.getString("reloadHandler", DefaultReloadHandler.INSTANCE.getName());
+        final String reloadHandlerName = config.getString("reloadHandler", DefaultReloadHandler.INSTANCE.getName());
         this.reloadHandler = ReloadManager.getHandlerOrNull(reloadHandlerName);
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid 'reloadHandler' name: " + reloadHandlerName);
@@ -208,8 +208,8 @@ public class Weapon extends CustomBase {
 
     @Override
     public @NotNull ItemStack createItemStack() {
-        ItemStack stack = super.createBaseItemStack();
-        ItemMeta meta = stack.getItemMeta();
+        final ItemStack stack = super.createBaseItemStack();
+        final ItemMeta meta = stack.getItemMeta();
 
         // Add only weapon-specific attributes
         meta.setUnbreakable(true);
@@ -263,7 +263,7 @@ public class Weapon extends CustomBase {
      */
     public void onDrop(@NotNull Player player,
                        @NotNull ItemStack usedItem) {
-        List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, this);
+        final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, this);
         if (playerWeaponSkins.isEmpty()) return;
 
         final ItemMeta meta = usedItem.getItemMeta();
@@ -294,10 +294,10 @@ public class Weapon extends CustomBase {
      */
     public void setBulletCount(@NotNull ItemStack stack,
                                int count) {
-        ItemMeta meta = stack.getItemMeta();
+        final ItemMeta meta = stack.getItemMeta();
         meta.getPersistentDataContainer().set(BULLETS_KEY, INTEGER, count);
 
-        List<Component> lore = meta.lore();
+        final List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
             lore.set(0, LORE_WEAPON_BULLETS.toTranslatable(Integer.toString(count), maxBulletsString));
             meta.lore(lore);

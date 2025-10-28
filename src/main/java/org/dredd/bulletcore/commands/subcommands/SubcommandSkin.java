@@ -56,15 +56,15 @@ public enum SubcommandSkin implements Subcommand {
             return;
         }
 
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) {
             WEAPON_MAINHAND_REQUIRED.sendMessage(player, null);
             return;
         }
 
-        String skinName = args[1];
-        WeaponSkin weaponSkin;
+        final String skinName = args[1];
+        final WeaponSkin weaponSkin;
         if (skinName.equals(DEFAULT_SKIN_NAME)) {
             weaponSkin = weapon.skins.defaultSkin;
         } else {
@@ -79,7 +79,7 @@ public enum SubcommandSkin implements Subcommand {
             }
         }
 
-        ItemMeta meta = mainHandItem.getItemMeta();
+        final ItemMeta meta = mainHandItem.getItemMeta();
         meta.setCustomModelData(weaponSkin.customModelData());
         meta.displayName(weaponSkin.displayName());
         mainHandItem.setItemMeta(meta);
@@ -89,8 +89,8 @@ public enum SubcommandSkin implements Subcommand {
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) return EMPTY_LIST;
 
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 2) {

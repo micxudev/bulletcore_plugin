@@ -69,31 +69,31 @@ public final class SoundManager {
      */
     private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg,
                                                        @NotNull String key) {
-        String fullKey = "sounds." + key;
-        ConfigurationSection section = cfg.getConfigurationSection(fullKey);
+        final String fullKey = "sounds." + key;
+        final ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
             throw new NoSuchElementException("Missing sound configuration for key: " + fullKey);
 
-        String sound = section.getString("sound");
+        final String sound = section.getString("sound");
         if (sound == null || sound.isBlank())
             throw new IllegalArgumentException("Missing or empty 'sound' for key: " + fullKey);
 
-        String categoryName = section.getString("category", "MASTER").toUpperCase(Locale.ROOT);
-        SoundCategory category;
+        final String categoryName = section.getString("category", "MASTER").toUpperCase(Locale.ROOT);
+        final SoundCategory category;
         try {
             category = SoundCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: " + fullKey);
         }
 
-        float volume = Math.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
+        final float volume = Math.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
 
-        float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
+        final float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
-        long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
+        final long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
 
-        String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
-        SoundPlaybackMode mode;
+        final String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
+        final SoundPlaybackMode mode;
         try {
             mode = SoundPlaybackMode.valueOf(modeName);
         } catch (IllegalArgumentException e) {
@@ -115,7 +115,7 @@ public final class SoundManager {
     public static void playSound(@NotNull Player player,
                                  @NotNull Location location,
                                  @NotNull ConfiguredSound sound) {
-        boolean hasSeed = sound.seed() != RANDOM_SEED;
+        final boolean hasSeed = sound.seed() != RANDOM_SEED;
 
         if (sound.mode() == SoundPlaybackMode.WORLD) {
             if (hasSeed)

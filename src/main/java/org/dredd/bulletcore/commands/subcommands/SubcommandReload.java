@@ -42,9 +42,9 @@ public enum SubcommandReload implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
         BulletCore.init(BulletCore.instance());
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
         CONFIG_RELOADED.sendMessage(sender, Map.of("time", Long.toString(endTime - startTime)));
     }
 

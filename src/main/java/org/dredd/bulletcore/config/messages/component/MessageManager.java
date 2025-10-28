@@ -51,8 +51,8 @@ public final class MessageManager {
     private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
 
-        File langFolder = new File(plugin.getDataFolder(), LANG_FOLDER_NAME);
-        boolean isFirstLoading = !(langFolder.exists() && langFolder.isDirectory());
+        final File langFolder = new File(plugin.getDataFolder(), LANG_FOLDER_NAME);
+        final boolean isFirstLoading = !(langFolder.exists() && langFolder.isDirectory());
 
         this.messages = isFirstLoading
             ? initializeDefaults(new File(langFolder, DEFAULT_LANG_FILE_NAME))
@@ -72,8 +72,8 @@ public final class MessageManager {
     @Nullable String resolveMessage(@NotNull Locale primaryLocale,
                                     @NotNull Locale fallbackLocale,
                                     @NotNull ComponentMessage message) {
-        var primary = messages.get(primaryLocale);
-        var source = primary != null ? primary : messages.get(fallbackLocale);
+        final var primary = messages.get(primaryLocale);
+        final var source = primary != null ? primary : messages.get(fallbackLocale);
         return source != null ? source.get(message) : null;
     }
 
@@ -100,10 +100,10 @@ public final class MessageManager {
      * Writes the default messages to the given file.
      */
     private void writeDefaultMessages(@NotNull File file) throws Exception {
-        var config = new YamlConfiguration();
+        final var config = new YamlConfiguration();
         config.options().setHeader(LANG_HEADER).width(Integer.MAX_VALUE);
 
-        for (var msg : ComponentMessage.values())
+        for (final var msg : ComponentMessage.values())
             config.set(msg.configKey, msg.defaultMessage);
 
         config.save(file);
@@ -117,19 +117,19 @@ public final class MessageManager {
     private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLanguagesFromFolder(@NotNull File langFolder) {
         Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
 
-        File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        final File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files == null) {
             plugin.getLogger().severe("Failed to list language files in folder: " + langFolder);
             return result;
         }
 
-        for (File file : files) {
+        for (final File file : files) {
             try {
-                var config = new YamlConfiguration();
+                final var config = new YamlConfiguration();
                 config.load(file);
 
-                String localeKey = file.getName().replace(".yml", "");
-                Locale locale = Locale.forLanguageTag(localeKey);
+                final String localeKey = file.getName().replace(".yml", "");
+                final Locale locale = Locale.forLanguageTag(localeKey);
                 result.put(locale, loadMessages(config, file.getPath()));
             } catch (Exception e) {
                 plugin.getLogger().severe("Skipping invalid language file " + file + ":\n" + e.getMessage());
@@ -145,10 +145,10 @@ public final class MessageManager {
      */
     private @NotNull EnumMap<ComponentMessage, String> loadMessages(@NotNull YamlConfiguration config,
                                                                     @NotNull String filePath) {
-        EnumMap<ComponentMessage, String> result = new EnumMap<>(ComponentMessage.class);
+        final EnumMap<ComponentMessage, String> result = new EnumMap<>(ComponentMessage.class);
 
-        for (var msg : ComponentMessage.values()) {
-            String value = config.getString(msg.configKey, null);
+        for (final var msg : ComponentMessage.values()) {
+            final String value = config.getString(msg.configKey, null);
             if (value == null)
                 plugin.getLogger().severe(filePath + " missing message for key '"
                     + msg.configKey + "'; using default.");

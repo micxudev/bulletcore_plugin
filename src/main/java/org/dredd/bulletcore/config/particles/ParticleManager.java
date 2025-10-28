@@ -68,23 +68,23 @@ public final class ParticleManager {
      */
     private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg,
                                                              @NotNull String key) {
-        String fullKey = "particles." + key;
-        ConfigurationSection section = cfg.getConfigurationSection(fullKey);
+        final String fullKey = "particles." + key;
+        final ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
             throw new NoSuchElementException("Missing particle configuration for key: " + fullKey);
 
-        String particleName = section.getString("particle");
+        final String particleName = section.getString("particle");
 
-        Particle particle;
+        final Particle particle;
         try {
             particle = Particle.valueOf(particleName.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid particle '" + particleName + "' for key: " + fullKey);
         }
 
-        int count = Math.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
+        final int count = Math.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
 
-        Object data;
+        final Object data;
         try {
             data = getParticleData(particle.getDataType(), section);
         } catch (Exception e) {
@@ -115,15 +115,15 @@ public final class ParticleManager {
 
         // 1. DUST
         if (dataType == Particle.DustOptions.class) {
-            Color color = parseColor(section.getString("color"));
-            float size = clampSize(section.getDouble("size", 1.0));
+            final Color color = parseColor(section.getString("color"));
+            final float size = clampSize(section.getDouble("size", 1.0));
             return new Particle.DustOptions(color, size);
         }
 
         // 2. ITEM
         if (dataType == ItemStack.class) {
-            Material type = parseItem(section.getString("item"));
-            ItemStack itemStack = new ItemStack(type);
+            final Material type = parseItem(section.getString("item"));
+            final ItemStack itemStack = new ItemStack(type);
             if (itemStack.isEmpty())
                 throw new IllegalArgumentException("Empty stack is not allowed for particle item");
             return itemStack;
@@ -131,15 +131,15 @@ public final class ParticleManager {
 
         // 3. BLOCK, FALLING_DUST, DUST_PILLAR, BLOCK_MARKER
         if (dataType == BlockData.class) {
-            Material type = parseItem(section.getString("item"));
+            final Material type = parseItem(section.getString("item"));
             return Bukkit.createBlockData(type);
         }
 
         // 4. DUST_COLOR_TRANSITION
         if (dataType == Particle.DustTransition.class) {
-            Color fromColor = parseColor(section.getString("from-color"));
-            Color toColor = parseColor(section.getString("to-color"));
-            float size = clampSize(section.getDouble("size", 1.0));
+            final Color fromColor = parseColor(section.getString("from-color"));
+            final Color toColor = parseColor(section.getString("to-color"));
+            final float size = clampSize(section.getDouble("size", 1.0));
             return new Particle.DustTransition(fromColor, toColor, size);
         }
 

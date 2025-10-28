@@ -52,7 +52,7 @@ public enum SubcommandSprayInfo implements Subcommand {
             return;
         }
 
-        String operation = args[1];
+        final String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
             COMMAND_INVALID_OPERATION.sendMessage(sender, Map.of("operation", operation));
             return;

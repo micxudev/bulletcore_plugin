@@ -35,7 +35,7 @@ public final class Materials {
     // ----------< Initialization >----------
 
     static {
-        Material[] allMaterials = Material.values();
+        final Material[] allMaterials = Material.values();
         TOTAL_MATERIALS = allMaterials.length;
 
         final Set<Material> itemsOnly = new LinkedHashSet<>();
@@ -43,9 +43,9 @@ public final class Materials {
         final Set<Material> blocksCollidable = new LinkedHashSet<>();
         final Set<Material> blocksNonCollidable = new LinkedHashSet<>();
 
-        for (Material material : allMaterials) {
-            boolean isItem = material.isItem();
-            boolean isBlock = material.isBlock();
+        for (final Material material : allMaterials) {
+            final boolean isItem = material.isItem();
+            final boolean isBlock = material.isBlock();
 
             if (isItem && !isBlock) {
                 itemsOnly.add(material);
@@ -75,7 +75,7 @@ public final class Materials {
     // ----------< Saving Utilities >----------
 
     private static void writeToFile(@NotNull File file) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         sb.append("totalMaterials: ").append(TOTAL_MATERIALS).append('\n');
         appendAsYamlList(sb, "itemsOnly", ITEMS_ONLY);

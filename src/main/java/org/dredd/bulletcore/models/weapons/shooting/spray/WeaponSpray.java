@@ -71,10 +71,10 @@ public final class WeaponSpray {
         @NotNull YamlConfiguration config,
         @NotNull String prefix
     ) {
-        EnumMap<E, Double> map = new EnumMap<>(type);
-        for (E constant : type.getEnumConstants()) {
-            String path = prefix + constant.name().toLowerCase(Locale.ROOT);
-            double value = Math.clamp(config.getDouble(path, NO_SPRAY), MIN_SPRAY, MAX_SPRAY);
+        final EnumMap<E, Double> map = new EnumMap<>(type);
+        for (final E constant : type.getEnumConstants()) {
+            final String path = prefix + constant.name().toLowerCase(Locale.ROOT);
+            final double value = Math.clamp(config.getDouble(path, NO_SPRAY), MIN_SPRAY, MAX_SPRAY);
             map.put(constant, value);
         }
         return map;
@@ -124,7 +124,7 @@ public final class WeaponSpray {
      * @return the clamped total spray value for the given state and modifiers
      */
     public double getFinalValue(@NotNull MovementState movementState, @NotNull List<MovementModifier> modifiers) {
-        double total = getStateValue(movementState) + getModifiersValue(modifiers);
+        final double total = getStateValue(movementState) + getModifiersValue(modifiers);
         return Math.clamp(total, NO_SPRAY, MAX_SPRAY);
     }
 

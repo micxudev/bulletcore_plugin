@@ -56,7 +56,7 @@ public final class CurrentHitTracker {
      */
     public static boolean isAlreadyHit(@NotNull UUID damager,
                                        @NotNull UUID victim) {
-        UUID uuid = CURRENT_HITS.get(damager);
+        final UUID uuid = CURRENT_HITS.get(damager);
         return uuid != null && uuid.equals(victim);
     }
 

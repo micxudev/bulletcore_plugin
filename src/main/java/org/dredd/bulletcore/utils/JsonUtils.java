@@ -85,7 +85,7 @@ public final class JsonUtils {
                                  boolean pretty) {
         SAVE_EXECUTOR.submit(() -> {
             try {
-                byte[] bytes = (pretty ? PRETTY_WRITER : WRITER).writeValueAsBytes(value);
+                final byte[] bytes = (pretty ? PRETTY_WRITER : WRITER).writeValueAsBytes(value);
                 writeBytesToFile(file, bytes);
             } catch (Exception e) {
                 BulletCore.logError("Failed to save JSON to " + file.getPath() + ": " + e.getMessage());
@@ -110,12 +110,12 @@ public final class JsonUtils {
      */
     private static void writeBytesToFile(@NotNull File file,
                                          byte[] bytes) throws Exception {
-        Path path = file.toPath();
-        Path parent = path.getParent();
+        final Path path = file.toPath();
+        final Path parent = path.getParent();
 
         if (parent != null) Files.createDirectories(parent);
 
-        Path tempPath = (parent != null)
+        final Path tempPath = (parent != null)
             ? Files.createTempFile(parent, path.getFileName().toString(), null)
             : Files.createTempFile(path.getFileName().toString(), null);
 

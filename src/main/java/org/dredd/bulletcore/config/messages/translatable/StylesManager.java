@@ -52,8 +52,8 @@ public final class StylesManager {
     private StylesManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
 
-        File stylesFile = new File(plugin.getDataFolder(), STYLES_FILE_NAME);
-        boolean isFirstLoading = !stylesFile.exists();
+        final File stylesFile = new File(plugin.getDataFolder(), STYLES_FILE_NAME);
+        final boolean isFirstLoading = !stylesFile.exists();
 
         this.styles = isFirstLoading
             ? initializeDefaults(stylesFile)
@@ -88,8 +88,8 @@ public final class StylesManager {
      * Returns default styles for all translatable messages.
      */
     private @NotNull EnumMap<TranslatableMessage, MessageStyles> loadDefaultStyles() {
-        EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
-        for (var msg : TranslatableMessage.values())
+        final EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
+        for (final var msg : TranslatableMessage.values())
             result.put(msg, msg.defaultStyles.toMessageStyles());
         return result;
     }
@@ -98,17 +98,17 @@ public final class StylesManager {
      * Writes default styles to the given file.
      */
     private void writeDefaultStyles(@NotNull File file) throws Exception {
-        var config = new YamlConfiguration();
+        final var config = new YamlConfiguration();
         config.options().setHeader(STYLES_HEADER);
 
-        for (var msg : TranslatableMessage.values()) {
-            var section = config.createSection(msg.configKey);
+        for (final var msg : TranslatableMessage.values()) {
+            final var section = config.createSection(msg.configKey);
 
-            var key = msg.defaultStyles.key();
+            final var key = msg.defaultStyles.key();
             section.set(key.configKey(), key.fallback().rawInput());
 
-            var args = msg.defaultStyles.arguments();
-            for (var arg : args)
+            final var args = msg.defaultStyles.arguments();
+            for (final var arg : args)
                 section.set(arg.configKey(), arg.fallback().rawInput());
         }
 
@@ -122,7 +122,7 @@ public final class StylesManager {
      */
     private EnumMap<TranslatableMessage, MessageStyles> loadStylesFromFile(@NotNull File stylesFile) {
         try {
-            var config = new YamlConfiguration();
+            final var config = new YamlConfiguration();
             config.load(stylesFile);
             return parseStyles(config);
         } catch (Exception e) {
@@ -136,18 +136,18 @@ public final class StylesManager {
      * Parses styles from the given configuration.
      */
     private @NotNull EnumMap<TranslatableMessage, MessageStyles> parseStyles(@NotNull YamlConfiguration config) {
-        EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
+        final EnumMap<TranslatableMessage, MessageStyles> result = new EnumMap<>(TranslatableMessage.class);
 
-        for (var msg : TranslatableMessage.values()) {
-            var section = config.getConfigurationSection(msg.configKey);
+        for (final var msg : TranslatableMessage.values()) {
+            final var section = config.getConfigurationSection(msg.configKey);
             if (section == null) {
                 plugin.getLogger().severe("Missing section for " + msg.configKey + "; using defaults.");
                 result.put(msg, msg.defaultStyles.toMessageStyles());
                 continue;
             }
 
-            Style keyStyle = parseStyle(section, msg.defaultStyles.key());
-            List<Style> argStyles = msg.defaultStyles.arguments().stream()
+            final Style keyStyle = parseStyle(section, msg.defaultStyles.key());
+            final List<Style> argStyles = msg.defaultStyles.arguments().stream()
                 .map(arg -> parseStyle(section, arg))
                 .toList();
 
@@ -161,7 +161,7 @@ public final class StylesManager {
      */
     private @NotNull Style parseStyle(@NotNull ConfigurationSection section,
                                       @NotNull ConfigStyle style) {
-        String value = section.getString(style.configKey(), null);
+        final String value = section.getString(style.configKey(), null);
         if (value == null) {
             plugin.getLogger().severe(section.getCurrentPath() + " missing style for '"
                 + style.configKey() + "'; using default.");

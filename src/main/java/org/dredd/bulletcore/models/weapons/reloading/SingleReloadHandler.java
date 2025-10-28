@@ -41,7 +41,7 @@ public final class SingleReloadHandler extends ReloadHandler {
             @Override
             public void run() {
                 // make sure the weapon stack didn't change in the meantime
-                ItemStack weaponStack = player.getInventory().getItemInMainHand();
+                final ItemStack weaponStack = player.getInventory().getItemInMainHand();
                 if (!weapon.isThisWeapon(weaponStack)) {
                     ReloadHandler.cancelReload(player, false);
                     return;
@@ -55,7 +55,7 @@ public final class SingleReloadHandler extends ReloadHandler {
                 currentBulletMillisLeft = singleBulletReloadTime; // reset reload time for the next bullet
 
                 // ammo calculations
-                int bulletCount = weapon.getBulletCount(weaponStack);
+                final int bulletCount = weapon.getBulletCount(weaponStack);
 
                 // finish reload if (weapon_fully_loaded or player_out_of_ammo)
                 if (bulletCount >= weapon.maxBullets || weapon.ammo.removeAmmo(player, 1) <= 0) {
@@ -64,7 +64,7 @@ public final class SingleReloadHandler extends ReloadHandler {
                 }
 
                 // add 1 bullet to the weapon
-                int newBulletCount = bulletCount + 1;
+                final int newBulletCount = bulletCount + 1;
                 weapon.setBulletCount(weaponStack, newBulletCount);
 
                 // play an add bullet sound

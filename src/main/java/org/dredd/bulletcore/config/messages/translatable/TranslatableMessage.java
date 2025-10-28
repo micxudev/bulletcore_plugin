@@ -162,13 +162,13 @@ public enum TranslatableMessage {
      * @throws IllegalArgumentException if the number of provided arguments does not match the expected count
      */
     public @NotNull TranslatableComponent toTranslatable(@NotNull String... args) {
-        MessageStyles styles = StylesManager.instance().stylesFor(this);
+        final MessageStyles styles = StylesManager.instance().stylesFor(this);
 
-        int expectedArgs = styles.argumentStyles().size();
+        final int expectedArgs = styles.argumentStyles().size();
         if (args.length != expectedArgs)
             throw new IllegalArgumentException(this + " expects " + expectedArgs + " args, got " + args.length);
 
-        Component[] styledArgs = new Component[expectedArgs];
+        final Component[] styledArgs = new Component[expectedArgs];
         for (int i = 0; i < expectedArgs; i++)
             styledArgs[i] = Component.text(args[i], styles.argumentStyles().get(i));
 

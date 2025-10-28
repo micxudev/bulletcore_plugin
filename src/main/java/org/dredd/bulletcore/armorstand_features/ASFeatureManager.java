@@ -44,7 +44,7 @@ public final class ASFeatureManager {
     private static <T> @NotNull T loadFeature(@Nullable ConfigurationSection root,
                                               @NotNull String name,
                                               @NotNull Function<@Nullable ConfigurationSection, @NotNull T> loader) {
-        ConfigurationSection section = (root != null)
+        final ConfigurationSection section = (root != null)
             ? root.getConfigurationSection(name)
             : null;
         return loader.apply(section);

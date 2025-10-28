@@ -79,7 +79,7 @@ public final class ShootingHandler {
      * @param player the player whose shooting task should be canceled
      */
     public static void cancelAutoShooting(@NotNull Player player) {
-        BukkitTask task = AUTO_SHOOTING_TASKS.remove(player.getUniqueId());
+        final BukkitTask task = AUTO_SHOOTING_TASKS.remove(player.getUniqueId());
         if (task != null) task.cancel();
     }
 
@@ -102,8 +102,8 @@ public final class ShootingHandler {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
-        long currentTime = System.currentTimeMillis();
-        long lastShot = weapon.getLastTriggerPullTime(player);
+        final long currentTime = System.currentTimeMillis();
+        final long lastShot = weapon.getLastTriggerPullTime(player);
         if (currentTime - lastShot < weapon.delayBetweenShots) return;
 
         if (weapon.isAutomatic && player.isSneaking()) {
@@ -129,8 +129,8 @@ public final class ShootingHandler {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
-        long currentTime = System.currentTimeMillis();
-        long lastShot = weapon.getLastTriggerPullTime(player);
+        final long currentTime = System.currentTimeMillis();
+        final long lastShot = weapon.getLastTriggerPullTime(player);
         long ticksUntilShotAvailable = Math.ceilDiv((weapon.delayBetweenShots - (currentTime - lastShot)), 50L);
 
         if (ticksUntilShotAvailable <= 0L) {
@@ -156,7 +156,7 @@ public final class ShootingHandler {
                                             @NotNull Weapon weapon,
                                             long delay,
                                             long period) {
-        BukkitTask autoShootingTask = new BukkitRunnable() {
+        final BukkitTask autoShootingTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!shoot(player, weapon)) cancelAutoShooting(player);
@@ -187,7 +187,7 @@ public final class ShootingHandler {
         final ConfigManager config = ConfigManager.instance();
 
         // stop if the weapon is empty
-        int bulletCount = weapon.getBulletCount(weaponStack);
+        final int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount <= 0) {
             weapon.sounds.play(player, weapon.sounds.empty);
             if (config.enableHotbarMessages)
@@ -196,7 +196,7 @@ public final class ShootingHandler {
         }
 
         // update bullet count
-        int newBulletCount = bulletCount - 1;
+        final int newBulletCount = bulletCount - 1;
         weapon.setBulletCount(weaponStack, newBulletCount);
         if (config.enableHotbarMessages)
             weapon.sendWeaponStatus(player, newBulletCount);
@@ -219,8 +219,8 @@ public final class ShootingHandler {
         final Location eyeLocation = player.getEyeLocation();
 
         // rayTrace each pellet direction separately
-        Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
-        for (Vector direction : directions) {
+        final Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
+        for (final Vector direction : directions) {
             final RayTraceResult result = world.rayTrace(
                 eyeLocation,
                 direction,
@@ -337,9 +337,9 @@ public final class ShootingHandler {
 
         if (victim.isSleeping()) return HEAD; // while sleeping hitbox is only in the head
 
-        BoundingBox bb = victim.getBoundingBox();
-        double normalizedY = (hitPoint.getY() - bb.getMinY()) / bb.getHeight();
-        DamageThresholds thr = ConfigManager.instance().damageThresholds;
+        final BoundingBox bb = victim.getBoundingBox();
+        final double normalizedY = (hitPoint.getY() - bb.getMinY()) / bb.getHeight();
+        final DamageThresholds thr = ConfigManager.instance().damageThresholds;
 
         if (normalizedY > thr.head()) return HEAD;
         if (normalizedY > thr.body()) return BODY;

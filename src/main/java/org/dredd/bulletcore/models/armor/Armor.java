@@ -95,10 +95,10 @@ public class Armor extends CustomBase {
         this.unbreakable = config.getBoolean("unbreakable", true);
 
         this.modifiers = LinkedListMultimap.create();
-        int armorPoints = Math.clamp(config.getInt("armorPoints", 0), 0, 30);
-        int toughnessPoints = Math.clamp(config.getInt("toughnessPoints", 0), 0, 20);
-        double knockbackResistance = Math.clamp(config.getDouble("knockbackResistance", 0.0D), 0.0D, 1.0D);
-        double explosionKnockbackResistance = Math.clamp(config.getDouble("explosionKnockbackResistance", 0.0D), 0.0D, 1.0D);
+        final int armorPoints = Math.clamp(config.getInt("armorPoints", 0), 0, 30);
+        final int toughnessPoints = Math.clamp(config.getInt("toughnessPoints", 0), 0, 20);
+        final double knockbackResistance = Math.clamp(config.getDouble("knockbackResistance", 0.0D), 0.0D, 1.0D);
+        final double explosionKnockbackResistance = Math.clamp(config.getDouble("explosionKnockbackResistance", 0.0D), 0.0D, 1.0D);
 
         if (armorPoints > 0)
             modifiers.put(GENERIC_ARMOR, new AttributeModifier(rndNamespacedKey(), armorPoints, ADD_NUMBER, ARMOR));
@@ -121,8 +121,8 @@ public class Armor extends CustomBase {
 
     @Override
     public @NotNull ItemStack createItemStack() {
-        ItemStack stack = super.createBaseItemStack();
-        ItemMeta meta = stack.getItemMeta();
+        final ItemStack stack = super.createBaseItemStack();
+        final ItemMeta meta = stack.getItemMeta();
 
         meta.setUnbreakable(unbreakable);
         meta.addItemFlags(HIDE_ATTRIBUTES, HIDE_UNBREAKABLE, HIDE_ADDITIONAL_TOOLTIP);
@@ -182,10 +182,10 @@ public class Armor extends CustomBase {
      */
     public void setDurability(@NotNull ItemStack stack,
                               double durability) {
-        ItemMeta meta = stack.getItemMeta();
+        final ItemMeta meta = stack.getItemMeta();
         meta.getPersistentDataContainer().set(DURABILITY_KEY, DOUBLE, durability);
 
-        List<Component> lore = meta.lore();
+        final List<Component> lore = meta.lore();
         if (lore != null && !lore.isEmpty()) {
             lore.set(0, LORE_ARMOR_DURABILITY.toTranslatable(formatDouble(durability), formattedMaxDurability));
             meta.lore(lore);

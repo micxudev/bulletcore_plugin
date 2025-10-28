@@ -153,8 +153,8 @@ public abstract class CustomBase {
      * @return a new stack with all the base attributes applied
      */
     protected @NotNull ItemStack createBaseItemStack() {
-        ItemStack itemStack = new ItemStack(material);
-        ItemMeta meta = itemStack.getItemMeta();
+        final ItemStack itemStack = new ItemStack(material);
+        final ItemMeta meta = itemStack.getItemMeta();
 
         meta.setCustomModelData(customModelData);
         meta.displayName(displayName);

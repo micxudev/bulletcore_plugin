@@ -114,7 +114,7 @@ public final class BulletHoleFeature extends ArmorStandFeature {
                       @NotNull BlockFace hitBlockFace) {
         if (!enabled) return;
 
-        Location spawnLoc = hitLocation.clone()
+        final Location spawnLoc = hitLocation.clone()
             .subtract(0, VERTICAL_OFFSET, 0)
             .subtract(hitBlockFace.getDirection().multiply(BACK_OFFSET));
 
@@ -123,7 +123,7 @@ public final class BulletHoleFeature extends ArmorStandFeature {
             case DOWN -> spawnLoc.add(0, HORIZONTAL_OFFSET, HORIZONTAL_OFFSET);
         }
 
-        ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, mapFaceToRotation(hitBlockFace));
+        final ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, mapFaceToRotation(hitBlockFace));
         ArmorStandHandler.scheduleRemoval(stand, removeAfterTicks);
     }
 

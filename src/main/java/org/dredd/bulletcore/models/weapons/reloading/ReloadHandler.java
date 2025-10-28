@@ -53,7 +53,7 @@ public abstract class ReloadHandler {
      */
     public static void cancelReload(@NotNull Player player,
                                     boolean success) {
-        BukkitTask task = RELOAD_TASKS.remove(player.getUniqueId());
+        final BukkitTask task = RELOAD_TASKS.remove(player.getUniqueId());
         if (task == null) return;
         task.cancel();
         player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
@@ -132,7 +132,7 @@ public abstract class ReloadHandler {
         if (weapon.isAutomatic) ShootingHandler.cancelAutoShooting(player);
 
         // stop if (weapon_fully_loaded or player_out_of_ammo)
-        int bulletCount = weapon.getBulletCount(weaponStack);
+        final int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount >= weapon.maxBullets || !weapon.ammo.hasAmmo(player)) {
             if (ConfigManager.instance().enableHotbarMessages)
                 weapon.sendWeaponStatus(player, bulletCount);
@@ -145,13 +145,13 @@ public abstract class ReloadHandler {
         // show more accurate reload time for single-reload weapons
         int ticksToReload = weapon.ticksReloadTime;
         if (weapon.reloadHandler instanceof SingleReloadHandler && bulletCount != 0) {
-            int bulletsToReload = weapon.maxBullets - bulletCount;
+            final int bulletsToReload = weapon.maxBullets - bulletCount;
             ticksToReload = (weapon.ticksReloadTime / weapon.maxBullets) * bulletsToReload;
         }
         player.setCooldown(weapon.material, ticksToReload);
 
         // run the reload task every 2 ticks (~100 ms), starting immediately.
-        BukkitTask reloadTask = create(player, weapon).runTaskTimer(BulletCore.instance(), 0L, 2L);
+        final BukkitTask reloadTask = create(player, weapon).runTaskTimer(BulletCore.instance(), 0L, 2L);
         RELOAD_TASKS.put(player.getUniqueId(), reloadTask);
     }
 

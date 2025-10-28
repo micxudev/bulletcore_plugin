@@ -88,7 +88,7 @@ public final class FormatterUtils {
      * @return the formatted values array
      */
     public static @NotNull String[] formatDoubles(double... values) {
-        String[] result = new String[values.length];
+        final String[] result = new String[values.length];
         for (int i = 0; i < values.length; i++)
             result[i] = formatDouble(values[i]);
         return result;

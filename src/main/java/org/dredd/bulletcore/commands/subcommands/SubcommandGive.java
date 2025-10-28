@@ -48,29 +48,29 @@ public enum SubcommandGive implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        String playerName = args[1];
-        Player player = Bukkit.getPlayerExact(playerName);
+        final String playerName = args[1];
+        final Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) {
             PLAYER_NOT_FOUND.sendMessage(sender, Map.of("player", playerName));
             return;
         }
 
-        String itemName = args[2];
-        CustomBase item = CustomItemsRegistry.ALL.getItemOrNull(itemName);
+        final String itemName = args[2];
+        final CustomBase item = CustomItemsRegistry.ALL.getItemOrNull(itemName);
         if (item == null) {
             ITEM_NOT_FOUND.sendMessage(sender, Map.of("item", itemName));
             return;
         }
 
-        var inv = player.getInventory();
-        var leftover = inv.addItem(item.createItemStack());
+        final var inv = player.getInventory();
+        final var leftover = inv.addItem(item.createItemStack());
         leftover.forEach((i, stack) -> player.getWorld().dropItem(player.getLocation(), stack));
         ITEM_GIVEN_SUCCESS.sendMessage(sender, Map.of("item", itemName, "player", player.getName()));
     }
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        String playerName = args[1];
+        final String playerName = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
 
