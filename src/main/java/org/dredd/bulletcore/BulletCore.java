@@ -29,71 +29,20 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class BulletCore extends JavaPlugin {
 
+    // ----------< Static >----------
+
     /**
      * Singleton instance of the plugin.
      */
     private static BulletCore plugin;
 
-    // ----------< Overrides >----------
-
-    @Override
-    public void onLoad() {
-        plugin = this;
-    }
-
-    @Override
-    public void onEnable() {
-        getLogger().info("==========================< BulletCore >==========================");
-
-        ReloadManager.init();
-        CommandHandler.init(plugin);
-        BulletCore.init();
-
-        registerListener(new BulletCoreListener());
-        registerListener(new PlayerActionsListener());
-        registerListener(new UnknownCommandListener());
-
-        getLogger().info("==================================================================");
-    }
-
-    @Override
-    public void onDisable() {
-        CommandHandler.destroy();
-        JsonUtils.shutdownSaveExecutor();
-        BulletCore.cancelAndClear();
-        plugin = null;
-    }
-
-    // ----------< Instance Methods >----------
-
-    /**
-     * Registers a listener.
-     *
-     * @param listener the {@link Listener} to register
-     */
-    private void registerListener(@NotNull Listener listener) {
-        getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    /**
-     * Registers a permission if it doesn't already exist.
-     *
-     * @param perm permission to register
-     */
-    public void registerPermission(@NotNull String perm) {
-        Permission permission = new Permission(perm);
-        PluginManager pluginManager = getServer().getPluginManager();
-        if (pluginManager.getPermission(permission.getName()) == null)
-            pluginManager.addPermission(permission);
-    }
-
-    // ----------< Static Methods >----------
+    // -----< Initialization & Lifecycle >-----
 
     /**
      * Initializes and loads all the necessary parts of the plugin.<br>
      * This method is also used on plugin reload.
      */
-    public static void init() {
+    public static void init(@NotNull BulletCore plugin) {
         BulletCore.cancelAndClear();
 
         SkinsManager.load(plugin);
@@ -114,7 +63,7 @@ public final class BulletCore extends JavaPlugin {
         CustomItemsRegistry.clearAllItems();
     }
 
-    // ----------< Convenience Static Methods >----------
+    // -----< Access Utilities >-----
 
     public static BulletCore instance() {
         return plugin;
@@ -122,5 +71,61 @@ public final class BulletCore extends JavaPlugin {
 
     public static void logError(String msg) {
         plugin.getLogger().severe(msg);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Lifecycle >-----
+
+    @Override
+    public void onLoad() {
+        plugin = this;
+    }
+
+    @Override
+    public void onEnable() {
+        getLogger().info("==========================< BulletCore >==========================");
+
+        ReloadManager.init();
+        CommandHandler.init(this);
+        BulletCore.init(this);
+
+        registerListener(BulletCoreListener.INSTANCE);
+        registerListener(PlayerActionsListener.INSTANCE);
+        registerListener(UnknownCommandListener.INSTANCE);
+
+        getLogger().info("==================================================================");
+    }
+
+    @Override
+    public void onDisable() {
+        CommandHandler.destroy();
+        JsonUtils.shutdownSaveExecutor();
+        BulletCore.cancelAndClear();
+        plugin = null;
+    }
+
+    // -----< Utilities >-----
+
+    /**
+     * Registers a listener.
+     *
+     * @param listener the {@link Listener} to register
+     */
+    private void registerListener(@NotNull Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    /**
+     * Registers a permission if it doesn't already exist.
+     *
+     * @param perm permission to register
+     */
+    public void registerPermission(@NotNull String perm) {
+        Permission permission = new Permission(perm);
+        PluginManager pluginManager = getServer().getPluginManager();
+        if (pluginManager.getPermission(permission.getName()) == null)
+            pluginManager.addPermission(permission);
     }
 }

@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
  *
  * @since 1.0.0
  */
-public class FormatterUtils {
+public final class FormatterUtils {
 
     /**
      * Private constructor to prevent instantiation.
@@ -64,6 +64,16 @@ public class FormatterUtils {
      */
     public static @NotNull String formatDouble(double value) {
         return NUMBER_FORMAT_ONE_DECIMAL.format(value);
+    }
+
+    /**
+     * Formats a double to two decimal places.
+     *
+     * @param value the value to format
+     * @return the formatted value
+     */
+    public static @NotNull String formatDouble2(double value) {
+        return NUMBER_FORMAT_TWO_DECIMAL.format(value);
     }
 
     /**

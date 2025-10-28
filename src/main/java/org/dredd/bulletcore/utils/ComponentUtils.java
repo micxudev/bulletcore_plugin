@@ -9,7 +9,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Utility for creating and formatting {@link Component} instances.
+ * Utility class for {@link Component} instances.
  *
  * @since 1.0.0
  */

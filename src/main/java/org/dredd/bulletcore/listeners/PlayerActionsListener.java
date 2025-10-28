@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.listeners;
 
-import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,12 +19,16 @@ import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.dredd.bulletcore.utils.ServerUtils;
 
 /**
- * Listens for player actions and records them using {@link PlayerActionTracker}.
+ * Listens to player-related events and updates gameplay trackers accordingly.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class PlayerActionsListener implements Listener {
+public enum PlayerActionsListener implements Listener {
+
+    INSTANCE;
+
+    // ----------< Interactions >----------
 
     /**
      * Called when a player clicks in an inventory.<br>
@@ -50,6 +53,20 @@ public class PlayerActionsListener implements Listener {
     }
 
     /**
+     * Called when a player drops an item.<br>
+     * Updates the player's last drop time.
+     *
+     * @param event the {@link PlayerDropItemEvent} triggered
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDrop(PlayerDropItemEvent event) {
+        PlayerActionTracker.recordDrop(event.getPlayer().getUniqueId());
+    }
+
+
+    // ----------< Lifecycle >----------
+
+    /**
      * Called when a player joins the server.<br>
      * Creates a new {@link PlayerSprayContext} instance for the player to track their state.
      *
@@ -58,7 +75,9 @@ public class PlayerActionsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
+
         SprayHandler.getSprayContext(player);
+
         ServerUtils.chargeOrDischargeIfWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());
     }
 
@@ -71,10 +90,12 @@ public class PlayerActionsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
+
         PlayerActionTracker.clear(player.getUniqueId());
+
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
-        RecoilHandler.stopAndClearRecoil(player);
+        RecoilHandler.cancelAndRemoveRecoil(player);
         SprayHandler.clearSprayContext(player);
     }
 
@@ -89,30 +110,11 @@ public class PlayerActionsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
         final Player player = event.getEntity();
+
+        ServerUtils.dischargeIfWeapon(player.getInventory().getItemInMainHand());
+
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
-        RecoilHandler.stopAndClearRecoil(player);
-    }
-
-    /**
-     * Called when a player drops an item.<br>
-     * Updates the player's last drop time.
-     *
-     * @param event the {@link PlayerDropItemEvent} triggered
-     */
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onDrop(PlayerDropItemEvent event) {
-        PlayerActionTracker.recordDrop(event.getPlayer().getUniqueId());
-    }
-
-    /**
-     * Called when the server has finished ticking the main loop.<br>
-     * Updates player states.
-     *
-     * @param event the {@link ServerTickEndEvent} triggered
-     */
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onTickEnd(ServerTickEndEvent event) {
-        SprayHandler.tick();
+        RecoilHandler.cancelAndRemoveRecoil(player);
     }
 }

@@ -1,7 +1,7 @@
 package org.dredd.bulletcore.config.sounds;
 
 /**
- * Determines how a sound is played back to listeners.
+ * Determines how a sound is played back to listener(s).
  *
  * @author dredd
  * @see ConfiguredSound
@@ -10,7 +10,7 @@ package org.dredd.bulletcore.config.sounds;
 public enum SoundPlaybackMode {
 
     /**
-     * Plays the sound at a location in the world.<br>
+     * Plays the sound at a given location in the world.<br>
      * All players within audible range will hear it.<br>
      * Subject to their client volume settings and distance from the source.
      */

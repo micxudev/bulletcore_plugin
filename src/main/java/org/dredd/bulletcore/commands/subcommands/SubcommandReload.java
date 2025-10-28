@@ -16,11 +16,9 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public final class SubcommandReload implements Subcommand {
+public enum SubcommandReload implements Subcommand {
 
-    public static final SubcommandReload INSTANCE = new SubcommandReload();
-
-    private SubcommandReload() {}
+    INSTANCE;
 
     @Override
     public @NotNull String getName() {
@@ -45,7 +43,7 @@ public final class SubcommandReload implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         long startTime = System.currentTimeMillis();
-        BulletCore.init();
+        BulletCore.init(BulletCore.instance());
         long endTime = System.currentTimeMillis();
         CONFIG_RELOADED.sendMessage(sender, Map.of("time", Long.toString(endTime - startTime)));
     }

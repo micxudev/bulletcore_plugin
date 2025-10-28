@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
@@ -29,16 +30,18 @@ import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
-import org.dredd.bulletcore.models.weapons.damage.HitResult;
+import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
+
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.*;
 
 /**
  * Handles weapon shooting (e.g., single, automatic).
@@ -56,7 +59,9 @@ public final class ShootingHandler {
     /**
      * Stores currently running automatic shooting tasks for each player.
      */
-    private static final Map<UUID, BukkitTask> activeShooters = new HashMap<>();
+    private static final Map<UUID, BukkitTask> AUTO_SHOOTING_TASKS = new HashMap<>();
+
+    // ----------< Public API >----------
 
     /**
      * Checks whether the specified player is currently shooting in automatic mode.
@@ -65,15 +70,7 @@ public final class ShootingHandler {
      * @return {@code true} if the player is currently shooting in automatic mode, {@code false} otherwise
      */
     public static boolean isAutoShooting(@NotNull Player player) {
-        return activeShooters.containsKey(player.getUniqueId());
-    }
-
-    /**
-     * Clears all shooting tasks. Called when the plugin is reloaded or disabled.
-     */
-    public static void cancelAllAutoShootingTasks() {
-        activeShooters.values().forEach(BukkitTask::cancel);
-        activeShooters.clear();
+        return AUTO_SHOOTING_TASKS.containsKey(player.getUniqueId());
     }
 
     /**
@@ -82,20 +79,16 @@ public final class ShootingHandler {
      * @param player the player whose shooting task should be canceled
      */
     public static void cancelAutoShooting(@NotNull Player player) {
-        BukkitTask task = activeShooters.remove(player.getUniqueId());
+        BukkitTask task = AUTO_SHOOTING_TASKS.remove(player.getUniqueId());
         if (task != null) task.cancel();
     }
 
     /**
-     * Saves a new auto-shooting task for the specified player.<br>
-     * If a previous task was not canceled, this is a bug.
-     *
-     * @param player       the player to start the task for
-     * @param shootingTask the task to start
+     * Clears all shooting tasks. Called when the plugin is reloaded or disabled.
      */
-    private static void startAutoShooting(@NotNull Player player, @NotNull BukkitTask shootingTask) {
-        BukkitTask previousTask = activeShooters.put(player.getUniqueId(), shootingTask);
-        if (previousTask != null) previousTask.cancel();
+    public static void cancelAllAutoShootingTasks() {
+        AUTO_SHOOTING_TASKS.values().forEach(BukkitTask::cancel);
+        AUTO_SHOOTING_TASKS.clear();
     }
 
     /**
@@ -104,19 +97,19 @@ public final class ShootingHandler {
      * @param player the player who is trying to shoot
      * @param weapon the weapon used
      */
-    public static void tryShoot(@NotNull Player player, @NotNull Weapon weapon) {
+    public static void tryShoot(@NotNull Player player,
+                                @NotNull Weapon weapon) {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
         long currentTime = System.currentTimeMillis();
-        long lastShot = weapon.getLastShotTime(player);
+        long lastShot = weapon.getLastTriggerPullTime(player);
         if (currentTime - lastShot < weapon.delayBetweenShots) return;
 
         if (weapon.isAutomatic && player.isSneaking()) {
             if (!shoot(player, weapon)) return;
 
-            long ticksBetweenShots = weapon.delayBetweenShots / 50L;
-            runShootingTask(player, weapon, ticksBetweenShots, ticksBetweenShots);
+            runAutoShootingTask(player, weapon, weapon.ticksDelayBetweenShots, weapon.ticksDelayBetweenShots);
         } else {
             if (weapon.isAutomatic) PlayerActionTracker.recordSingleShotAutomatic(player.getUniqueId());
             shoot(player, weapon);
@@ -131,40 +124,46 @@ public final class ShootingHandler {
      * @param player the player who is trying to shoot
      * @param weapon the weapon used
      */
-    public static void tryAutoShoot(@NotNull Player player, @NotNull Weapon weapon) {
+    public static void tryAutoShoot(@NotNull Player player,
+                                    @NotNull Weapon weapon) {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
         long currentTime = System.currentTimeMillis();
-        long lastShot = weapon.getLastShotTime(player);
+        long lastShot = weapon.getLastTriggerPullTime(player);
         long ticksUntilShotAvailable = Math.ceilDiv((weapon.delayBetweenShots - (currentTime - lastShot)), 50L);
 
-        long ticksBetweenShots = weapon.delayBetweenShots / 50L;
-
         if (ticksUntilShotAvailable <= 0L) {
-            ticksUntilShotAvailable = ticksBetweenShots;
+            ticksUntilShotAvailable = weapon.ticksDelayBetweenShots;
             if (!shoot(player, weapon)) return;
         }
 
-        runShootingTask(player, weapon, ticksUntilShotAvailable, ticksBetweenShots);
+        runAutoShootingTask(player, weapon, ticksUntilShotAvailable, weapon.ticksDelayBetweenShots);
     }
 
+
+    // ----------< Internal API >----------
+
     /**
-     * Runs a new shooting task for the specified player.
+     * Runs a new auto shooting task for the specified player.
      *
      * @param player the player to start the task for
      * @param weapon the weapon used
      * @param delay  the ticks to wait before running the task
      * @param period the ticks to wait between runs
      */
-    private static void runShootingTask(@NotNull Player player, @NotNull Weapon weapon, long delay, long period) {
-        BukkitTask shootingTask = new BukkitRunnable() {
+    private static void runAutoShootingTask(@NotNull Player player,
+                                            @NotNull Weapon weapon,
+                                            long delay,
+                                            long period) {
+        BukkitTask autoShootingTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!shoot(player, weapon)) cancelAutoShooting(player);
             }
         }.runTaskTimer(BulletCore.instance(), delay, period);
-        startAutoShooting(player, shootingTask);
+
+        AUTO_SHOOTING_TASKS.put(player.getUniqueId(), autoShootingTask);
     }
 
     /**
@@ -175,49 +174,54 @@ public final class ShootingHandler {
      * @param weapon the weapon used
      * @return {@code true} if the shot was successful, {@code false} otherwise.
      */
-    private static boolean shoot(@NotNull Player player, @NotNull Weapon weapon) {
-        // Update last-shot-time whenever we enter this method
-        // to be consistent across all the callers which rely on that
-        weapon.setLastShotTime(player);
+    private static boolean shoot(@NotNull Player player,
+                                 @NotNull Weapon weapon) {
+        // always update the last trigger-pull time whenever this method is called,
+        // otherwise certain actions may occur more frequently than allowed
+        weapon.setLastTriggerPullTime(player);
 
-        // Always get actual reference from the hand and make sure it didn't change in the meantime
-        ItemStack weaponStack = player.getInventory().getItemInMainHand();
-        if (CustomItemsRegistry.getWeaponOrNull(weaponStack) != weapon) return false;
+        // make sure the weapon stack didn't change in the meantime
+        final ItemStack weaponStack = player.getInventory().getItemInMainHand();
+        if (!weapon.isThisWeapon(weaponStack)) return false;
 
-        ConfigManager config = ConfigManager.instance();
+        final ConfigManager config = ConfigManager.instance();
 
-        // Check bullet count
+        // stop if the weapon is empty
         int bulletCount = weapon.getBulletCount(weaponStack);
         if (bulletCount <= 0) {
             weapon.sounds.play(player, weapon.sounds.empty);
             if (config.enableHotbarMessages)
-                weapon.sendActionbar(player, bulletCount);
+                weapon.sendWeaponStatus(player, bulletCount);
             return false;
         }
 
-        // Update bullet count
-        bulletCount--;
-        weapon.setBulletCount(weaponStack, bulletCount);
+        // update bullet count
+        int newBulletCount = bulletCount - 1;
+        weapon.setBulletCount(weaponStack, newBulletCount);
         if (config.enableHotbarMessages)
-            weapon.sendActionbar(player, bulletCount);
+            weapon.sendWeaponStatus(player, newBulletCount);
 
-        // Set rayTrace settings
-        Predicate<Entity> entityFilter = entity ->
-            entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
-
-        Predicate<Block> canCollide = block -> !config.ignoredMaterials.contains(block.getType());
-
-        World world = player.getWorld();
-        Location eyeLocation = player.getEyeLocation();
-
-        // Done once per shot
+        // play fire sound
         weapon.sounds.play(player, weapon.sounds.fire);
+
+        // update recoil
         RecoilHandler.handleShot(player, weapon.recoil);
 
-        // RayTrace each pellet separately
-        List<Vector> directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
+
+        // -----< RayTracing >-----
+        final Predicate<Entity> entityFilter = entity ->
+            entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
+
+        final Predicate<Block> canCollide = block ->
+            !config.ignoredMaterials.contains(block.getType());
+
+        final World world = player.getWorld();
+        final Location eyeLocation = player.getEyeLocation();
+
+        // rayTrace each pellet direction separately
+        Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
         for (Vector direction : directions) {
-            RayTraceResult result = world.rayTrace(
+            final RayTraceResult result = world.rayTrace(
                 eyeLocation,
                 direction,
                 weapon.maxDistance,
@@ -230,22 +234,22 @@ public final class ShootingHandler {
 
             weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
 
-            // Handle result
+            // handle result
             if (result == null) continue;
 
             final Location hitLocation = result.getHitPosition().toLocation(world);
 
             if (result.getHitEntity() instanceof LivingEntity victim) {
                 // Entity hit
-                DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
-                ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-                ConfiguredSound sound = damagePoint == DamagePoint.HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
-                Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
+                final DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
+                final ConfiguredSound sound = damagePoint == HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
+                final Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
                 SoundManager.playSound(player, soundLocation, sound);
+                ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
             } else if (result.getHitBlock() != null) {
                 // Block hit
-                ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
                 SoundManager.playSound(player, hitLocation, config.blockHitSound);
+                ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
                 config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
             }
         }
@@ -256,7 +260,7 @@ public final class ShootingHandler {
     /**
      * Evaluates whether the bullet should skip the specified entity and go beyond it.
      *
-     * @param victim the entity being evaluated for skipping; must not be null
+     * @param victim the entity being evaluated for skipping
      * @return true if the entity should be skipped; false otherwise
      */
     private static boolean skipHit(@NotNull LivingEntity victim) {
@@ -271,41 +275,40 @@ public final class ShootingHandler {
     /**
      * Applies custom damage to a living entity.
      *
-     * @param victim   the entity receiving damage; must not be null
-     * @param damager  the player who caused the damage using Weapon; must not be null
-     * @param weapon   the weapon used; must not be null
-     * @param hitPoint the location where the damage occurred; must not be null
+     * @param victim   the entity receiving damage
+     * @param damager  the player who caused the damage using Weapon
+     * @param weapon   the weapon used
+     * @param hitPoint the location where the damage occurred
      * @return the damage point of the hit
      */
-    private static @NotNull DamagePoint applyCustomDamage(@NotNull LivingEntity victim, @NotNull Player damager,
-                                                          @NotNull Weapon weapon, @NotNull Location hitPoint) {
-        DamagePoint damagePoint;
-        double finalDamage;
+    private static @NotNull DamagePoint applyCustomDamage(@NotNull LivingEntity victim,
+                                                          @NotNull Player damager,
+                                                          @NotNull Weapon weapon,
+                                                          @NotNull Location hitPoint) {
+        DamagePoint damagePoint = DamagePoint.BODY; // non-player entities will default to BODY
+        double finalDamage = weapon.damage.body();
 
         AttributeInstance victimKnockbackResistance = null;
         double originalKnockbackValue = 0.0;
 
         if (victim instanceof Player victimPlayer) {
+            damagePoint = getDamagePoint(victimPlayer, hitPoint);
+            finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
+
             victimKnockbackResistance = victimPlayer.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
             if (victimKnockbackResistance != null) {
                 originalKnockbackValue = victimKnockbackResistance.getBaseValue();
                 victimKnockbackResistance.setBaseValue(weapon.victimKnockbackResistance);
             }
-
-            damagePoint = DamagePoint.getDamagePoint(victimPlayer, hitPoint);
-            finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
-        } else {
-            damagePoint = DamagePoint.BODY; // Non-player entities default to BODY
-            finalDamage = weapon.damage.body();
         }
 
-        // Prevents recursion for the same hit
-        CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId());
         try {
+            CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId()); // prevents recursion for the same hit
             victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
-            victim.setNoDamageTicks(0); // allow constant hits
+            victim.setNoDamageTicks(0); // allows constant hits
         } finally {
-            if (victimKnockbackResistance != null) victimKnockbackResistance.setBaseValue(originalKnockbackValue);
+            if (victimKnockbackResistance != null)
+                victimKnockbackResistance.setBaseValue(originalKnockbackValue);
             CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
             CurrentHitTracker.removeArmorHit(victim.getUniqueId());
         }
@@ -314,30 +317,73 @@ public final class ShootingHandler {
     }
 
     /**
+     * Determines the {@link DamagePoint} corresponding to the vertical hit position on the victim.
+     * <p>
+     * This method uses the Y-coordinate of the hit relative to the victim's bounding box
+     * to categorize the hit location. If the player is sleeping, all hits are treated as {@link DamagePoint#HEAD},
+     * as the hitbox is tiny and localized to the head region.
+     *
+     * @param victim   the player who was hit
+     * @param hitPoint the location of the hit (typically from ray tracing)
+     * @return the body part that was hit, as a {@link DamagePoint}
+     */
+    private static @NotNull DamagePoint getDamagePoint(@NotNull Player victim,
+                                                       @NotNull Location hitPoint) {
+        // Player hitbox size (height, width):
+        // sleeping: h=0.2, w=0.2
+        // standing: h=1.8, w=0.6
+        // sneaking: h=1.5, w=0.6
+        // lying:    h=0.6, w=0.6
+
+        if (victim.isSleeping()) return HEAD; // while sleeping hitbox is only in the head
+
+        BoundingBox bb = victim.getBoundingBox();
+        double normalizedY = (hitPoint.getY() - bb.getMinY()) / bb.getHeight();
+        DamageThresholds thr = ConfigManager.instance().damageThresholds;
+
+        if (normalizedY > thr.head()) return HEAD;
+        if (normalizedY > thr.body()) return BODY;
+        if (normalizedY > thr.legs()) return LEGS;
+        return FEET;
+    }
+
+    /**
      * Calculates the final damage to be applied to the victim taking the worn {@link Armor} into account.
      *
-     * @param victimPlayer the victim player receiving the damage
-     * @param damagePoint  the damage point of the hit
-     * @param weapon       the weapon used to cause the damage
+     * @param victim      the victim player receiving the damage
+     * @param damagePoint the damage point of the hit
+     * @param weapon      the weapon used to cause the damage
      * @return the final damage to be applied to the victim
      */
-    private static double getFinalDamage(@NotNull Player victimPlayer,
+    private static double getFinalDamage(@NotNull Player victim,
                                          @NotNull DamagePoint damagePoint,
                                          @NotNull Weapon weapon) {
-        PlayerInventory inv = victimPlayer.getInventory();
-        HitResult result = switch (damagePoint) {
+        final PlayerInventory inv = victim.getInventory();
+
+        final var result = switch (damagePoint) {
             case HEAD -> new HitResult(weapon.damage.head(), inv.getHelmet());
             case BODY -> new HitResult(weapon.damage.body(), inv.getChestplate());
             case LEGS -> new HitResult(weapon.damage.legs(), inv.getLeggings());
             case FEET -> new HitResult(weapon.damage.feet(), inv.getBoots());
         };
 
-        Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
+        final Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
         if (armor == null) return result.initialDamage();
 
-        ArmorHit armorHit = new ArmorHit(armor, result.initialDamage(), damagePoint, victimPlayer);
-        CurrentHitTracker.addArmorHit(victimPlayer.getUniqueId(), armorHit);
+        final ArmorHit armorHit = new ArmorHit(armor, result.initialDamage(), damagePoint, victim);
+        CurrentHitTracker.addArmorHit(victim.getUniqueId(), armorHit);
 
         return result.initialDamage() * (1 - armor.damageReduction);
     }
+
+    /**
+     * Represents the result of a hit using {@link Weapon}.
+     *
+     * @param initialDamage The initial damage caused by the hit
+     * @param armorStack    The armor stack worn by the victim during the hit into {@link DamagePoint}
+     */
+    private record HitResult(
+        double initialDamage,
+        @Nullable ItemStack armorStack
+    ) {}
 }

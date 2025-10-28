@@ -22,14 +22,41 @@ import java.util.NoSuchElementException;
 public final class SoundManager {
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private SoundManager() {}
+
+    // ----------< Constants >----------
+
+    /**
      * The value used to indicate that a sound should use a random seed.
      */
     private static final long RANDOM_SEED = -1L;
 
+    // ----------< Loader >----------
+
     /**
-     * Private constructor to prevent instantiation.
+     * Loads a {@link ConfiguredSound} from config, falling back to a default if parsing fails.
+     *
+     * @param cfg the YAML configuration
+     * @param key the key under {@code sounds.<key>} to load
+     * @param def the fallback {@link ConfiguredSound} to use if parsing fails
+     * @return a valid {@link ConfiguredSound}, either parsed or fallback
      */
-    private SoundManager() {}
+    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg,
+                                                     @NotNull String key,
+                                                     @NotNull ConfiguredSound def) {
+        try {
+            return parseSound(cfg, key);
+        } catch (NoSuchElementException ignored) {
+            // Ignored, the sound configuration is optional
+        } catch (IllegalArgumentException e) {
+            BulletCore.logError(e.getMessage() + "; Falling back to default sound");
+        }
+        return def;
+    }
+
+    // ----------< Parser >----------
 
     /**
      * Parses a {@link ConfiguredSound} from the given config using the key under {@code sounds.<key>}.
@@ -76,26 +103,7 @@ public final class SoundManager {
         return new ConfiguredSound(sound, category, volume, pitch, seed, mode);
     }
 
-    /**
-     * Loads a {@link ConfiguredSound} from config, falling back to a default if parsing fails.
-     *
-     * @param cfg the YAML configuration
-     * @param key the key under {@code sounds.<key>} to load
-     * @param def the fallback {@link ConfiguredSound} to use if parsing fails
-     * @return a valid {@link ConfiguredSound}, either parsed or fallback
-     */
-    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg,
-                                                     @NotNull String key,
-                                                     @NotNull ConfiguredSound def) {
-        try {
-            return parseSound(cfg, key);
-        } catch (NoSuchElementException ignored) {
-            // Ignored, the sound configuration is optional
-        } catch (IllegalArgumentException e) {
-            BulletCore.logError(e.getMessage() + "; Falling back to default sound");
-        }
-        return def;
-    }
+    // ----------< Public API >----------
 
     /**
      * Plays the given {@link ConfiguredSound} at the specified location either in the world or for the player.

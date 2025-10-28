@@ -1,7 +1,7 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,15 +16,66 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.VALID_NAME;
-
 /**
  * Manages a collection of {@link WeaponSkin} instances associated with a weapon.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class WeaponSkins {
+public final class WeaponSkins {
+
+    // ----------< Static Loader >----------
+
+    /**
+     * Loads weapon skins from a YAML configuration.
+     * <p>
+     * Skins are expected under a {@code skins} section.<br>
+     * Each skin will be assigned a unique custom model data value
+     * incrementally starting from the provided {@code modelData}.<br>
+     * If a skin does not specify a {@code displayName}, the fallback will be used.
+     *
+     * @param config      the configuration file to read from
+     * @param modelData   the starting custom model data value for skins
+     * @param displayName the fallback display name to use if not defined per skin
+     * @return a new {@link WeaponSkins} instance with loaded skins
+     */
+    public static @NotNull WeaponSkins load(@NotNull YamlConfiguration config,
+                                            int modelData,
+                                            @NotNull Component displayName) {
+        WeaponSkins weaponSkins = new WeaponSkins(modelData, displayName);
+
+        ConfigurationSection skinsSection = config.getConfigurationSection("skins");
+        if (skinsSection == null)
+            return weaponSkins;
+
+        int skinModelData = modelData;
+
+        for (String key : skinsSection.getKeys(false)) {
+            skinModelData++;
+
+            if (!CustomItemsRegistry.isValidName(key)) {
+                BulletCore.logError("Skin name: '" + key + "' does not match " + CustomItemsRegistry.VALID_NAME.pattern());
+                continue;
+            }
+
+            ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
+            if (skinSection == null) {
+                BulletCore.logError("Skin name: '" + key + "' is not a valid section");
+                continue;
+            }
+
+            Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
+
+            weaponSkins.addSkin(new WeaponSkin(key, skinModelData, skinDisplayName));
+        }
+
+        return weaponSkins;
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
 
     /**
      * A mapping of skin modelData to their corresponding {@link WeaponSkin} instances.
@@ -41,15 +92,20 @@ public class WeaponSkins {
      */
     public final WeaponSkin defaultSkin;
 
+    // -----< Construction >-----
+
     /**
      * Constructs an empty {@link WeaponSkins} instance with the default skin already set.<br>
      * Use {@link #load(YamlConfiguration, int, Component)} to create an instance.
      */
-    private WeaponSkins(int modelData, @NotNull Component displayName) {
-        this.skinsByModelData = new Int2ObjectArrayMap<>();
+    private WeaponSkins(int modelData,
+                        @NotNull Component displayName) {
+        this.skinsByModelData = new Int2ObjectOpenHashMap<>();
         this.skinsByName = new HashMap<>();
         this.defaultSkin = new WeaponSkin("--default", modelData, displayName);
     }
+
+    // -----< Internal Registration >-----
 
     /**
      * Adds a skin to the collection of skins.
@@ -60,6 +116,8 @@ public class WeaponSkins {
         skinsByModelData.put(skin.customModelData(), skin);
         skinsByName.put(skin.name(), skin);
     }
+
+    // -----< Public API >-----
 
     /**
      * Retrieves a registered skin by custom model data, or {@code null} if no such skin exists.
@@ -106,7 +164,8 @@ public class WeaponSkins {
      * @param playerWeaponSkins a list of available weapon skin names for the player
      * @return the next {@link WeaponSkin} available for the player, or the default skin
      */
-    public @NotNull WeaponSkin getNextOrDefault(int customModelData, @NotNull List<String> playerWeaponSkins) {
+    public @NotNull WeaponSkin getNextOrDefault(int customModelData,
+                                                @NotNull List<String> playerWeaponSkins) {
         var iterator = playerWeaponSkins.listIterator();
 
         final WeaponSkin currentSkin = getSkinOrNull(customModelData);
@@ -123,6 +182,8 @@ public class WeaponSkins {
         return defaultSkin;
     }
 
+    // -----< Internal Utilities >-----
+
     /**
      * Attempts to find the next valid {@link WeaponSkin} from the given iterator.
      *
@@ -135,50 +196,5 @@ public class WeaponSkins {
             if (skin != null) return skin;
         }
         return defaultSkin;
-    }
-
-
-    /**
-     * Loads weapon skins from a YAML configuration section.
-     * <p>
-     * Skins are expected under a {@code "skins"} section.
-     * Each skin will be assigned a unique custom model data value
-     * incrementally starting from the provided {@code modelData}.<br>
-     * If a skin does not specify a {@code "displayName"}, the fallback {@code displayName} is used.
-     *
-     * @param config      the configuration file to read from
-     * @param modelData   the starting custom model data value for skins
-     * @param displayName the fallback display name to use if not defined per skin
-     * @return a new {@code WeaponSkins} instance populated from configuration
-     */
-    public static @NotNull WeaponSkins load(@NotNull YamlConfiguration config, int modelData, @NotNull Component displayName) {
-        WeaponSkins weaponSkins = new WeaponSkins(modelData, displayName);
-
-        ConfigurationSection skinsSection = config.getConfigurationSection("skins");
-        if (skinsSection == null)
-            return weaponSkins;
-
-        int skinModelData = modelData;
-
-        for (String key : skinsSection.getKeys(false)) {
-            skinModelData++;
-
-            if (!CustomItemsRegistry.isValidFormat(key)) {
-                BulletCore.logError("Invalid skin name '" + key + "'. Must match " + VALID_NAME.pattern());
-                continue;
-            }
-
-            ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
-            if (skinSection == null) {
-                BulletCore.logError("Invalid skin definition for skin name '" + key + "'");
-                continue;
-            }
-
-            Component skinDisplayName = skinSection.getRichMessage("displayName", displayName);
-
-            weaponSkins.addSkin(new WeaponSkin(key, skinModelData, skinDisplayName));
-        }
-
-        return weaponSkins;
     }
 }

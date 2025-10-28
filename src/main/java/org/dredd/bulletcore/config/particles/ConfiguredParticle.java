@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Immutable representation of a configured particle effect, parsed from a YAML file.
  * <p>
- * Supports any built-in Minecraft particle as listed in the official registry.<br>
- * Instances are loaded and validated at config load time.
+ * Supports built-in Minecraft particles as listed in the official registry.<br>
+ * Instances are loaded and validated via {@link ParticleManager}.
  * <p>
  * <b>Field details:</b>
  * <ul>

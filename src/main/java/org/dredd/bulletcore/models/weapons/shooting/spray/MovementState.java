@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 /**
  * Represents the primary movement state of a player.
  * <p>
@@ -16,6 +19,7 @@ package org.dredd.bulletcore.models.weapons.shooting.spray;
  * @since 1.0.0
  */
 public enum MovementState {
+
     GLIDING,
     SWIMMING,
     JUMPING,
@@ -24,5 +28,14 @@ public enum MovementState {
     RIDING,
     FLYING,
     CLIMBING,
-    WALKING
+    WALKING;
+
+    /**
+     * A GOLD colored text component used in debug messages.
+     */
+    public final Component asComponent;
+
+    MovementState() {
+        this.asComponent = Component.text(name(), NamedTextColor.GOLD);
+    }
 }

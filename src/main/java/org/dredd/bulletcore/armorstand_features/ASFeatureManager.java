@@ -18,18 +18,18 @@ import java.util.function.Function;
  */
 public final class ASFeatureManager {
 
-    /**
-     * Bullet hole visual (spawned at block hit locations).
-     */
-    public final BulletHoleFeature bulletHole;
+    // ----------< Static >----------
+
+    // -----< Loaders >-----
 
     /**
-     * Private constructor. Use {@link #load(FileConfiguration)} instead.
+     * Loads all armorstand features from the given configuration.
      *
-     * @param root the root config section for armor stand features; can be null
+     * @param cfg the plugin config
+     * @return a new {@link ASFeatureManager} instance
      */
-    private ASFeatureManager(@Nullable ConfigurationSection root) {
-        this.bulletHole = loadFeature(root, "bullet_hole", BulletHoleFeature::load);
+    public static @NotNull ASFeatureManager load(@NotNull FileConfiguration cfg) {
+        return new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
     }
 
     /**
@@ -44,17 +44,30 @@ public final class ASFeatureManager {
     private static <T> @NotNull T loadFeature(@Nullable ConfigurationSection root,
                                               @NotNull String name,
                                               @NotNull Function<@Nullable ConfigurationSection, @NotNull T> loader) {
-        ConfigurationSection section = root != null ? root.getConfigurationSection(name) : null;
+        ConfigurationSection section = (root != null)
+            ? root.getConfigurationSection(name)
+            : null;
         return loader.apply(section);
     }
 
+
+    // ----------< Instance >----------
+
+    // -----< Features >-----
+
     /**
-     * Loads all armorstand features from the given configuration.
-     *
-     * @param cfg the plugin config
-     * @return a new {@link ASFeatureManager} instance
+     * Bullet hole visual (spawned at block hit locations).
      */
-    public static @NotNull ASFeatureManager load(@NotNull FileConfiguration cfg) {
-        return new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
+    public final BulletHoleFeature bulletHole;
+
+    // -----< Construction >-----
+
+    /**
+     * Private constructor. Use {@link #load(FileConfiguration)} instead.
+     *
+     * @param root the root config section for armor stand features; can be null
+     */
+    private ASFeatureManager(@Nullable ConfigurationSection root) {
+        this.bulletHole = loadFeature(root, "bullet_hole", BulletHoleFeature::load);
     }
 }

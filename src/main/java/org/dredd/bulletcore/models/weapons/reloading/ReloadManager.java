@@ -20,10 +20,12 @@ public final class ReloadManager {
      */
     private ReloadManager() {}
 
+    // -----< Attributes >-----
+
     /**
      * A map of registered reload handlers by name.
      */
-    private static final Map<String, ReloadHandler> handlers = new HashMap<>();
+    private static final Map<String, ReloadHandler> HANDLERS = new HashMap<>();
 
     /**
      * A list of reload handler implementations.
@@ -32,6 +34,8 @@ public final class ReloadManager {
         DefaultReloadHandler.INSTANCE,
         SingleReloadHandler.INSTANCE
     );
+
+    // -----< Initialization >-----
 
     /**
      * Initializes all reload handler implementations.
@@ -46,8 +50,10 @@ public final class ReloadManager {
      * @param handler the reload handler implementation to register
      */
     private static void register(@NotNull ReloadHandler handler) {
-        handlers.put(handler.getName(), handler);
+        HANDLERS.put(handler.getName(), handler);
     }
+
+    // -----< Public Access >-----
 
     /**
      * Gets the reload handler implementation by name.
@@ -56,6 +62,6 @@ public final class ReloadManager {
      * @return the reload handler implementation with the given name, or {@code null} if not found
      */
     public static @Nullable ReloadHandler getHandlerOrNull(@NotNull String name) {
-        return handlers.get(name);
+        return HANDLERS.get(name);
     }
 }

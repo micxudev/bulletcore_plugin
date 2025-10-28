@@ -35,17 +35,23 @@ public final class CommandHandler extends Command {
     private static final String MAIN_COMMAND_PERMISSION = "bulletcore.command";
     private static final String ALL_SUBCOMMANDS_PERMISSION = "bulletcore.command.*";
 
+    // -----< Permission Utilities >-----
+
     private static boolean canUseAllSubcommands(@NotNull CommandSender sender) {
         return sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION);
     }
 
-    private static boolean canUseSubcommand(@NotNull CommandSender sender, @NotNull Subcommand sub) {
+    private static boolean canUseSubcommand(@NotNull CommandSender sender,
+                                            @NotNull Subcommand sub) {
         return sender.hasPermission(sub.getPermission());
     }
 
-    private static boolean canExecuteSubcommand(@NotNull CommandSender sender, @NotNull Subcommand sub) {
+    private static boolean canExecuteSubcommand(@NotNull CommandSender sender,
+                                                @NotNull Subcommand sub) {
         return canUseAllSubcommands(sender) || canUseSubcommand(sender, sub);
     }
+
+    // -----< Lifecycle Management >-----
 
     private static CommandHandler INSTANCE;
 
@@ -59,7 +65,8 @@ public final class CommandHandler extends Command {
 
     public static void init(@NotNull BulletCore plugin) {
         if (INSTANCE == null) {
-            INSTANCE = new CommandHandler(plugin, SUBCOMMANDS);
+            INSTANCE = new CommandHandler(plugin);
+            SUBCOMMANDS.forEach(INSTANCE::addSubcommand);
             INSTANCE.register();
         }
     }
@@ -74,19 +81,31 @@ public final class CommandHandler extends Command {
 
     // ----------< Instance >----------
 
-    private final BulletCore plugin;
-    private final Map<String, Subcommand> subCommands = new HashMap<>();
-    private final List<String> subCommandNames = new ArrayList<>();
+    // -----< Attributes >-----
 
-    private CommandHandler(@NotNull BulletCore plugin,
-                           @NotNull List<Subcommand> subs) {
-        super(MAIN_COMMAND_NAME);
+    private final BulletCore plugin;
+    private final Map<String, Subcommand> subCommands;
+    private final List<String> subCommandNames;
+
+    // -----< Construction >-----
+
+    private CommandHandler(@NotNull BulletCore plugin) {
+        super(MAIN_COMMAND_NAME, "", "", EMPTY_LIST);
         setPermission(MAIN_COMMAND_PERMISSION);
+
         this.plugin = plugin;
-        subs.forEach(this::addSubcommand);
+        this.subCommands = new HashMap<>();
+        this.subCommandNames = new ArrayList<>();
     }
 
-    // -----< Registration >-----
+    // -----< Command & Subcommand Registration >-----
+
+    private void addSubcommand(@NotNull Subcommand sub) {
+        String name = sub.getName().toLowerCase(Locale.ROOT);
+        subCommands.put(name, sub);
+        subCommandNames.add(name);
+        plugin.registerPermission(sub.getPermission());
+    }
 
     private void register() {
         plugin.registerPermission(MAIN_COMMAND_PERMISSION);
@@ -97,20 +116,13 @@ public final class CommandHandler extends Command {
             .put(getName(), this);
     }
 
-    public void unregister() {
+    private void unregister() {
         plugin.getServer().getCommandMap()
             .getKnownCommands()
             .remove(getName());
     }
 
-    private void addSubcommand(@NotNull Subcommand sub) {
-        String name = sub.getName().toLowerCase(Locale.ROOT);
-        subCommands.put(name, sub);
-        subCommandNames.add(name);
-        plugin.registerPermission(sub.getPermission());
-    }
-
-    // -----< Overrides >-----
+    // -----< Command Execution & Tab Completion Overrides >-----
 
     @Override
     public boolean execute(@NotNull CommandSender sender,
@@ -133,8 +145,12 @@ public final class CommandHandler extends Command {
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            COMMAND_NOT_ENOUGH_ARGS.sendMessage(sender, Map.of(
-                "command", MAIN_COMMAND_NAME, "subcommand", args[0], "args", sub.getUsageArgs())
+            COMMAND_NOT_ENOUGH_ARGS.sendMessage(sender,
+                Map.of(
+                    "command", MAIN_COMMAND_NAME,
+                    "subcommand", args[0],
+                    "args", sub.getUsageArgs()
+                )
             );
             return true;
         }
@@ -156,7 +172,7 @@ public final class CommandHandler extends Command {
             : EMPTY_LIST;
     }
 
-    // -----< Helpers >-----
+    // -----< Utilities >-----
 
     private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
         return canUseAllSubcommands(sender)

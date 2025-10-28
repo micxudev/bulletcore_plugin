@@ -22,11 +22,9 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public final class SubcommandGive implements Subcommand {
+public enum SubcommandGive implements Subcommand {
 
-    public static final SubcommandGive INSTANCE = new SubcommandGive();
-
-    private SubcommandGive() {}
+    INSTANCE;
 
     @Override
     public @NotNull String getName() {

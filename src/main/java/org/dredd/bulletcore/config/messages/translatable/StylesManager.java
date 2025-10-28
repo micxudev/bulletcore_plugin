@@ -42,8 +42,12 @@ public final class StylesManager {
 
     // ----------< Instance >----------
 
+    // -----< Attributes >-----
+
     private final BulletCore plugin;
     private final EnumMap<TranslatableMessage, MessageStyles> styles;
+
+    // -----< Construction >-----
 
     private StylesManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
@@ -55,6 +59,8 @@ public final class StylesManager {
             ? initializeDefaults(stylesFile)
             : loadStylesFromFile(stylesFile);
     }
+
+    // -----< API >-----
 
     /**
      * Returns the styles for the given message.

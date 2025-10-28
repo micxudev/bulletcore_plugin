@@ -24,11 +24,9 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public class SubcommandSkinManage implements Subcommand {
+public enum SubcommandSkinManage implements Subcommand {
 
-    public static final SubcommandSkinManage INSTANCE = new SubcommandSkinManage();
-
-    private SubcommandSkinManage() {}
+    INSTANCE;
 
     private static final List<String> OPERATIONS = List.of("add", "remove");
     private static final String ALL_OPTION = "--all";
@@ -114,7 +112,6 @@ public class SubcommandSkinManage implements Subcommand {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-
         String operation = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(operation, OPERATIONS, new ArrayList<>());

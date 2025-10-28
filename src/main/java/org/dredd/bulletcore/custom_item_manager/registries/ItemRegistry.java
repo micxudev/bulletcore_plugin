@@ -1,7 +1,7 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +22,32 @@ import java.util.Map;
  */
 public final class ItemRegistry<T extends CustomBase> {
 
+    // ----------< Static >----------
+
+    // -----< Factory Methods >-----
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     */
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
+        return new ItemRegistry<>(16);
+    }
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the given initial parameters.
+     *
+     * @param expectedSize the expected size of the registry
+     */
+    @SuppressWarnings("SameParameterValue")
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create(int expectedSize) {
+        return new ItemRegistry<>(expectedSize);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
@@ -32,17 +58,19 @@ public final class ItemRegistry<T extends CustomBase> {
      */
     private final Map<String, T> itemsByName;
 
-    private ItemRegistry() {
-        this.itemsByModelData = new Int2ObjectArrayMap<>(16);
-        this.itemsByName = new HashMap<>();
-    }
+    // -----< Construction >-----
 
     /**
-     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     * Private constructor. Use factory methods instead.
+     *
+     * @param expectedSize the expected size of the registry
      */
-    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
-        return new ItemRegistry<>();
+    private ItemRegistry(int expectedSize) {
+        this.itemsByModelData = new Int2ObjectOpenHashMap<>(expectedSize);
+        this.itemsByName = new HashMap<>(expectedSize);
     }
+
+    // -----< Public API >-----
 
     /**
      * Retrieves an item by its {@link CustomBase#customModelData} key.
@@ -82,6 +110,8 @@ public final class ItemRegistry<T extends CustomBase> {
         return Collections.unmodifiableSet(itemsByName.keySet());
     }
 
+    // -----< Internal API >-----
+
     /**
      * Registers a new item to the registry.
      *
@@ -104,40 +134,10 @@ public final class ItemRegistry<T extends CustomBase> {
     }
 
     /**
-     * Unregisters an item from the registry.
-     *
-     * @param item the item to unregister
-     */
-    void unregister(@NotNull T item) {
-        itemsByModelData.remove(item.customModelData, item);
-        itemsByName.remove(item.name, item);
-    }
-
-    /**
      * Clears all registered items from the registry.
      */
     void clearAll() {
         itemsByModelData.clear();
         itemsByName.clear();
-    }
-
-    /**
-     * Checks if an item exists in the registry by its customModelData.
-     *
-     * @param customModelData the custom model data of the item
-     * @return {@code true} if an item with the given custom model data exists, {@code false} otherwise
-     */
-    boolean exists(int customModelData) {
-        return itemsByModelData.containsKey(customModelData);
-    }
-
-    /**
-     * Checks if an item exists in the registry by its name.
-     *
-     * @param name the name of the item
-     * @return {@code true} if an item with the given name exists, {@code false} otherwise
-     */
-    boolean exists(@NotNull String name) {
-        return itemsByName.containsKey(name);
     }
 }

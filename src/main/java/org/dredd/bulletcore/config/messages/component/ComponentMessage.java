@@ -22,7 +22,10 @@ import java.util.Map;
  */
 public enum ComponentMessage {
 
+    // ----------< Enum Fields >----------
+
     // -----< Command >-----
+
     /**
      * Shown when a player or console executes a command that is not defined.
      * <p>
@@ -76,6 +79,7 @@ public enum ComponentMessage {
 
 
     // -----< Config >-----
+
     /**
      * Shown after reloading the configuration.
      * <p>
@@ -85,6 +89,7 @@ public enum ComponentMessage {
 
 
     // -----< Player >-----
+
     /**
      * Shown when the specified player does not exist or is not online.
      * <p>
@@ -94,6 +99,7 @@ public enum ComponentMessage {
 
 
     // -----< Item >-----
+
     /**
      * Shown when the specified item does not exist.
      * <p>
@@ -111,6 +117,7 @@ public enum ComponentMessage {
 
 
     // -----< Weapon >-----
+
     /**
      * Shown when the specified weapon does not exist.
      * <p>
@@ -154,6 +161,7 @@ public enum ComponentMessage {
 
 
     // -----< Skins >-----
+
     /**
      * Shown when the specified skin does not exist for the given weapon.
      * <p>
@@ -219,6 +227,7 @@ public enum ComponentMessage {
 
 
     // -----< Debug >-----
+
     /**
      * Shown when weapon spray debug messages are enabled.
      * <p>
@@ -251,37 +260,7 @@ public enum ComponentMessage {
         this.configKey = this.name().toLowerCase(Locale.ROOT);
     }
 
-    // -----< Private Usage >-----
-
-    /**
-     * Resolves the localized MiniMessage-formatted message string for the given {@link CommandSender}.
-     *
-     * @param sender the command sender whose locale is used
-     * @return a localized message string or a fallback when no translation is available
-     */
-    private @NotNull String getMessage(@NotNull CommandSender sender) {
-        Locale serverDefault = ConfigManager.instance().locale;
-        Locale senderLocale = ServerUtils.getLocaleOrDefault(sender, serverDefault);
-
-        String resolved = MessageManager.instance().resolveMessage(senderLocale, serverDefault, this);
-        return resolved != null ? resolved : defaultMessage;
-    }
-
-    /**
-     * Applies placeholder substitutions to the template.
-     *
-     * @param template the message containing placeholders (e.g., {@code %player%})
-     * @param values   placeholder key → replacement value map
-     * @return the message with all placeholders replaced
-     */
-    private @NotNull String applyPlaceholders(@NotNull String template,
-                                              @NotNull Map<String, String> values) {
-        for (Map.Entry<String, String> e : values.entrySet())
-            template = template.replace("%" + e.getKey() + "%", e.getValue());
-        return template;
-    }
-
-    // -----< Public Usage >-----
+    // -----< Public Messaging API >-----
 
     /**
      * Converts this enum message into a parsed {@link Component} for the given {@link CommandSender}.
@@ -317,5 +296,35 @@ public enum ComponentMessage {
     public void sendActionBar(@NotNull CommandSender recipient,
                               @Nullable Map<String, String> values) {
         recipient.sendActionBar(toComponent(recipient, values));
+    }
+
+    // -----< Internal Resolution Logic >-----
+
+    /**
+     * Resolves the localized MiniMessage-formatted message string for the given {@link CommandSender}.
+     *
+     * @param sender the command sender whose locale is used
+     * @return a localized message string or a fallback when no translation is available
+     */
+    private @NotNull String getMessage(@NotNull CommandSender sender) {
+        Locale serverDefault = ConfigManager.instance().locale;
+        Locale senderLocale = ServerUtils.getLocaleOrDefault(sender, serverDefault);
+
+        String resolved = MessageManager.instance().resolveMessage(senderLocale, serverDefault, this);
+        return resolved != null ? resolved : defaultMessage;
+    }
+
+    /**
+     * Applies placeholder substitutions to the template.
+     *
+     * @param template the message containing placeholders (e.g., {@code %player%})
+     * @param values   placeholder key → replacement value map
+     * @return the message with all placeholders replaced
+     */
+    private @NotNull String applyPlaceholders(@NotNull String template,
+                                              @NotNull Map<String, String> values) {
+        for (Map.Entry<String, String> e : values.entrySet())
+            template = template.replace("%" + e.getKey() + "%", e.getValue());
+        return template;
     }
 }

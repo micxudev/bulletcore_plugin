@@ -3,6 +3,7 @@ package org.dredd.bulletcore.models;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.armor.Armor;
@@ -21,15 +22,34 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public enum CustomItemType {
+
+    // ----------< Enum Fields >----------
+
     AMMO("ammo", "Ammo", Ammo::new),
     ARMOR("armor", "Armor", Armor::new),
     GRENADE("grenades", "Grenade", Grenade::new),
     WEAPON("weapons", "Weapon", Weapon::new);
 
+
+    // ----------< Static >----------
+
     /**
      * Base directory path where all custom item type folders are located.
      */
     private static final String BASE_FOLDER = "custom-items/";
+
+    // -----< Loader >-----
+
+    /**
+     * Loads all custom item types from their respective folders and registers them.
+     */
+    public static void load(@NotNull BulletCore plugin) {
+        for (var type : values())
+            type.load0(plugin);
+    }
+
+
+    // ----------< Instance >----------
 
     /**
      * The path for items of this type inside the plugin's data folder.
@@ -42,7 +62,7 @@ public enum CustomItemType {
     private final String label;
 
     /**
-     * The "recipe" for loading and constructing custom item instances.
+     * The "recipe" for constructing custom item instances.
      */
     private final CustomItemLoader loader;
 
@@ -54,13 +74,15 @@ public enum CustomItemType {
         this.loader = loader;
     }
 
+    // -----< Type Loader >-----
+
     /**
      * Loads all YAML files from their respective folder within the plugin's data folder.
      * <p>
      * For each valid and enabled file:
      * <ul>
      *   <li>Parses the YAML configuration</li>
-     *   <li>Constructs the item via its loader</li>
+     *   <li>Constructs the item via its {@link #loader}</li>
      *   <li>Registers it in {@link CustomItemsRegistry}</li>
      * </ul>
      * Invalid or disabled files are skipped. Logs the total number of items loaded.
@@ -98,7 +120,7 @@ public enum CustomItemType {
                     loadedCount++;
                 }
 
-            } catch (ItemLoadException e) {
+            } catch (ItemLoadException | ItemRegisterException e) {
                 plugin.getLogger().severe("Skipping " + label + " \"" + file.getName() + "\": " + e.getMessage());
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to load " + label + " file \"" + file.getName() + "\": " + e.getMessage());
@@ -106,13 +128,5 @@ public enum CustomItemType {
         }
 
         plugin.getLogger().info("-Loaded " + loadedCount + " " + label + (loadedCount == 1 ? "" : "s"));
-    }
-
-    /**
-     * Loads all custom item types from their respective folders and registers them.
-     */
-    public static void load(@NotNull BulletCore plugin) {
-        for (var type : values())
-            type.load0(plugin);
     }
 }

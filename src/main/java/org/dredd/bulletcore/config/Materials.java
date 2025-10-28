@@ -11,15 +11,28 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Utility class for storing all materials.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class Materials {
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private Materials() {}
+
+    // ----------< Attributes >----------
 
     public static final int TOTAL_MATERIALS;
     public static final Set<Material> ITEMS_ONLY;
     public static final Set<Material> BLOCKS_ONLY;
     public static final Set<Material> BLOCKS_COLLIDABLE;
     public static final Set<Material> BLOCKS_NON_COLLIDABLE;
+
+    // ----------< Initialization >----------
 
     static {
         Material[] allMaterials = Material.values();
@@ -59,10 +72,12 @@ public final class Materials {
         writeToFile(new File(BulletCore.instance().getDataFolder(), "all-materials.yml"));
     }
 
+    // ----------< Saving Utilities >----------
+
     private static void writeToFile(@NotNull File file) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("totalMaterials: ").append(TOTAL_MATERIALS).append("\n");
+        sb.append("totalMaterials: ").append(TOTAL_MATERIALS).append('\n');
         appendAsYamlList(sb, "itemsOnly", ITEMS_ONLY);
         appendAsYamlList(sb, "blocksOnly", BLOCKS_ONLY);
         appendAsYamlList(sb, "blocksCollidable", BLOCKS_COLLIDABLE);
@@ -75,7 +90,9 @@ public final class Materials {
         }
     }
 
-    private static void appendAsYamlList(StringBuilder sb, String name, Set<Material> materials) {
+    private static void appendAsYamlList(@NotNull StringBuilder sb,
+                                         @NotNull String name,
+                                         @NotNull Set<Material> materials) {
         sb.append('\n')
             .append("# ").append(name).append(": ").append(materials.size()).append('\n')
             .append(name).append(":\n");

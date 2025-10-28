@@ -19,11 +19,9 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public class SubcommandSprayInfo implements Subcommand {
+public enum SubcommandSprayInfo implements Subcommand {
 
-    public static final SubcommandSprayInfo INSTANCE = new SubcommandSprayInfo();
-
-    private SubcommandSprayInfo() {}
+    INSTANCE;
 
     private static final List<String> OPERATIONS = List.of("on", "off");
 

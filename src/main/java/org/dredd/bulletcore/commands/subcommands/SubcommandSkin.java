@@ -23,11 +23,9 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public class SubcommandSkin implements Subcommand {
+public enum SubcommandSkin implements Subcommand {
 
-    public static final SubcommandSkin INSTANCE = new SubcommandSkin();
-
-    private SubcommandSkin() {}
+    INSTANCE;
 
     private final static String DEFAULT_SKIN_NAME = "--default";
 

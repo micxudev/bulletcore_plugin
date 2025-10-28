@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Utility class for JSON serialization helper methods.
+ * Utility class for JSON serialization.
  *
  * @since 1.0.0
  */
@@ -27,9 +27,9 @@ public final class JsonUtils {
 
     // ----------< Jackson >----------
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static final ObjectWriter writer = mapper.writer();
-    private static final ObjectWriter prettyWriter = mapper.writerWithDefaultPrettyPrinter();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectWriter WRITER = MAPPER.writer();
+    private static final ObjectWriter PRETTY_WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     // ----------< Executor >----------
 
@@ -39,7 +39,7 @@ public final class JsonUtils {
         SAVE_EXECUTOR.shutdown();
     }
 
-    // ----------< API >----------
+    // ----------< Public API >----------
 
     /**
      * Reads a JSON file and deserializes it into an instance of the specified type.
@@ -61,7 +61,7 @@ public final class JsonUtils {
             return defaultValue;
 
         try {
-            return mapper.readValue(file, typeRef);
+            return MAPPER.readValue(file, typeRef);
         } catch (Exception e) {
             BulletCore.logError("Failed to load JSON from " + file.getPath() + ": " + e.getMessage());
             return defaultValue;
@@ -85,7 +85,7 @@ public final class JsonUtils {
                                  boolean pretty) {
         SAVE_EXECUTOR.submit(() -> {
             try {
-                byte[] bytes = (pretty ? prettyWriter : writer).writeValueAsBytes(value);
+                byte[] bytes = (pretty ? PRETTY_WRITER : WRITER).writeValueAsBytes(value);
                 writeBytesToFile(file, bytes);
             } catch (Exception e) {
                 BulletCore.logError("Failed to save JSON to " + file.getPath() + ": " + e.getMessage());
@@ -93,7 +93,7 @@ public final class JsonUtils {
         });
     }
 
-    // ----------< Save Helper >----------
+    // ----------< Utilities >----------
 
     /**
      * Writes the given byte array to the specified file atomically.

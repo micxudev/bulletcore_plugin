@@ -41,8 +41,12 @@ public final class MessageManager {
 
     // ----------< Instance >----------
 
+    // -----< Attributes >-----
+
     private final BulletCore plugin;
     private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
+
+    // -----< Construction >-----
 
     private MessageManager(@NotNull BulletCore plugin) {
         this.plugin = plugin;
@@ -54,6 +58,8 @@ public final class MessageManager {
             ? initializeDefaults(new File(langFolder, DEFAULT_LANG_FILE_NAME))
             : loadLanguagesFromFolder(langFolder);
     }
+
+    // -----< API >-----
 
     /**
      * Resolves the given message for the first available locale.

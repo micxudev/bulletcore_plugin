@@ -2,23 +2,18 @@ package org.dredd.bulletcore.models.weapons.shooting.spray;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.dredd.bulletcore.utils.ComponentUtils;
+import org.dredd.bulletcore.utils.FormatterUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.kyori.adventure.text.Component.*;
-import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
-import static net.kyori.adventure.text.format.NamedTextColor.GOLD;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.*;
 import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.*;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
-import static org.dredd.bulletcore.utils.ComponentUtils.plainWhite;
 
 /**
  * Tracks and updates the state context for a specific player.
@@ -26,12 +21,9 @@ import static org.dredd.bulletcore.utils.ComponentUtils.plainWhite;
  * @author dredd
  * @since 1.0.0
  */
-public class PlayerSprayContext {
+public final class PlayerSprayContext {
 
-    /**
-     * Decimal formatter for spray values.
-     */
-    private static final DecimalFormat df = new DecimalFormat("#.##");
+    // -----< Attributes >-----
 
     /**
      * The player this state context instance is associated with.
@@ -85,10 +77,14 @@ public class PlayerSprayContext {
     private boolean inCrawlingPose;
     private boolean onClimbable;
 
+    // -----< Construction >-----
+
     public PlayerSprayContext(@NotNull Player player) {
         this.player = player;
         this.lastTickLocation = player.getLocation();
     }
+
+    // -----< State Retrieval API >-----
 
     /**
      * Gets the current {@link MovementState} of the player.<br>
@@ -128,16 +124,7 @@ public class PlayerSprayContext {
         return mods;
     }
 
-    /**
-     * Checks if two locations are the same based on their coordinates excluding rotations.
-     *
-     * @param l1 first location
-     * @param l2 second location
-     * @return true if the locations are the same coordinates, false otherwise
-     */
-    private boolean isSamePosition(@NotNull Location l1, @NotNull Location l2) {
-        return l1.getX() == l2.getX() && l1.getY() == l2.getY() && l1.getZ() == l2.getZ();
-    }
+    // -----< State Update >-----
 
     /**
      * Updates all the {@link MovementState}s and {@link MovementModifier}s for the current player.
@@ -160,11 +147,11 @@ public class PlayerSprayContext {
         // Jumping state
         {
             double currentVelocityY = player.getVelocity().getY();
-            float fallDistance = player.getFallDistance();
-            boolean ascending = currentVelocityY > 0.0 || Math.abs(currentVelocityY) > 0.1;
-            boolean falling = fallDistance > 0.0f;
-            boolean apex = lastTickVelocityY > 0.0 && currentVelocityY < 0.0 && fallDistance == 0.0f;
-            jumping = !onClimbable && !underwater && !inFlight && (ascending || falling || apex);
+            jumping = !onClimbable && !underwater && !inFlight && (
+                (currentVelocityY > 0.0 || Math.abs(currentVelocityY) > 0.1) // ascending
+                    || (player.getFallDistance() > 0.0f) // falling
+                    || (lastTickVelocityY > 0.0 && currentVelocityY < 0.0 && player.getFallDistance() == 0.0f) // apex
+            );
             lastTickVelocityY = currentVelocityY;
         }
 
@@ -192,42 +179,57 @@ public class PlayerSprayContext {
     }
 
     /**
+     * Checks if two locations are the same based on their coordinates excluding rotations.
+     *
+     * @param l1 first location
+     * @param l2 second location
+     * @return true if the locations are the same coordinates, false otherwise
+     */
+    private boolean isSamePosition(@NotNull Location l1,
+                                   @NotNull Location l2) {
+        return l1.getX() == l2.getX() && l1.getY() == l2.getY() && l1.getZ() == l2.getZ();
+    }
+
+    // -----< Message Sending >-----
+
+    /**
      * Sends a message to the player with the current state context.
      *
      * @param state     the movement state the player is currently in
      * @param modifiers the list of movement modifiers the player currently has
      * @param spray     the current spray value for the player
      */
-    public void sendMessage(@NotNull MovementState state, @NotNull List<MovementModifier> modifiers, double spray) {
+    public void sendMessage(@NotNull MovementState state,
+                            @NotNull List<MovementModifier> modifiers,
+                            double spray) {
         if (!sendMessage) return;
+
         shot++;
 
-        // Line 1: State
-        Component stateLine = newline()
-            .append(plainWhite(shot + ". State: "))
-            .append(text(state.name(), GOLD));
+        // line 1: State
+        final Component stateLine = Component.newline()
+            .append(ComponentUtils.plainWhite(shot + ". State: "))
+            .append(state.asComponent);
 
-        // Line 2: Modifiers (optional)
+        // line 2: Modifiers (optional)
         Component modifiersLine = null;
         if (!modifiers.isEmpty()) {
-            TextComponent.Builder base = text()
-                .content(shot + ". Modifiers: ")
-                .color(WHITE)
-                .decoration(TextDecoration.ITALIC, false);
-
-            var list = modifiers.stream()
-                .map(modifier -> text(modifier.name(), modifier.color))
+            final List<Component> modifierComponents = modifiers.stream()
+                .map(modifier -> modifier.asComponent)
                 .toList();
 
-            modifiersLine = base.append(join(JoinConfiguration.arrayLike(), list)).build();
+            final Component joinedModifiers = Component.join(JoinConfiguration.arrayLike(), modifierComponents);
+
+            modifiersLine = ComponentUtils.plainWhite(shot + ". Modifiers: ")
+                .append(joinedModifiers);
         }
 
-        // Line 3: Spray
-        Component sprayLine = plainWhite(shot + ". Spray: ")
-            .append(text(df.format(spray), AQUA));
+        // line 3: Spray
+        final Component sprayLine = ComponentUtils.plainWhite(shot + ". Spray: ")
+            .append(Component.text(FormatterUtils.formatDouble2(spray), NamedTextColor.AQUA));
 
-        // Combine all the lines into a single message
-        Component fullMessage = join(
+        // combine all the lines into a single message
+        final Component fullMessage = Component.join(
             JoinConfiguration.newlines(),
             modifiersLine != null
                 ? List.of(stateLine, modifiersLine, sprayLine)

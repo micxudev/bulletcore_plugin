@@ -20,37 +20,63 @@ import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
  * @author dredd
  * @since 1.0.0
  */
-public class WeaponSounds {
+public final class WeaponSounds {
+
+    // ----------< Static >----------
 
     // -----< Defaults >-----
 
     /**
      * Default sound played when a player fires a shot.
      */
-    private static final ConfiguredSound FIRE = new ConfiguredSound("entity.generic.explode", MASTER, 0.2f, 2f, 0L, WORLD);
+    private static final ConfiguredSound FIRE = new ConfiguredSound(
+        "entity.generic.explode", MASTER, 0.2f, 2f, 0L, WORLD
+    );
 
     /**
      * Default sound played when a player starts reloading.
      */
-    private static final ConfiguredSound RELOAD_START = new ConfiguredSound("block.piston.extend", MASTER, 1.0f, 1.5f, 0L, WORLD);
+    private static final ConfiguredSound RELOAD_START = new ConfiguredSound(
+        "block.piston.extend", MASTER, 1.0f, 1.5f, 0L, WORLD
+    );
 
     /**
      * Default sound played when a reload finishes.
      */
-    private static final ConfiguredSound RELOAD_END = new ConfiguredSound("block.piston.contract", MASTER, 1.0f, 1.5f, 0L, WORLD);
+    private static final ConfiguredSound RELOAD_END = new ConfiguredSound(
+        "block.piston.contract", MASTER, 1.0f, 1.5f, 0L, WORLD
+    );
 
     /**
      * Default sound played when attempting to fire, but the magazine is empty.
      */
-    private static final ConfiguredSound EMPTY = new ConfiguredSound("block.lever.click", MASTER, 1.0f, 1.5f, 0L, WORLD);
+    private static final ConfiguredSound EMPTY = new ConfiguredSound(
+        "block.lever.click", MASTER, 1.0f, 1.5f, 0L, WORLD
+    );
 
     /**
      * Default sound played when a single bullet is inserted; used by {@link SingleReloadHandler}.
      */
-    private static final ConfiguredSound ADD_BULLET = new ConfiguredSound("block.tripwire.attach", MASTER, 1f, 1.5f, 0L, WORLD);
+    private static final ConfiguredSound ADD_BULLET = new ConfiguredSound(
+        "block.tripwire.attach", MASTER, 1f, 1.5f, 0L, WORLD
+    );
+
+    // -----< Loader >-----
+
+    /**
+     * Loads weapon sounds from a YAML config, falling back to internal defaults if loading fails.
+     *
+     * @param config the YAML configuration to load from
+     * @return a fully initialized {@code WeaponSounds} object
+     */
+    public static @NotNull WeaponSounds load(@NotNull YamlConfiguration config) {
+        return new WeaponSounds(config);
+    }
 
 
-    // -----< Per weapon >-----
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
 
     /**
      * Sound played when a shot is fired.
@@ -77,36 +103,20 @@ public class WeaponSounds {
      */
     public final ConfiguredSound addBullet;
 
-    /**
-     * Constructs a new {@code WeaponSounds} instance.
-     */
-    private WeaponSounds(ConfiguredSound fire,
-                         ConfiguredSound reloadStart,
-                         ConfiguredSound reloadEnd,
-                         ConfiguredSound empty,
-                         ConfiguredSound addBullet) {
-        this.fire = fire;
-        this.reloadStart = reloadStart;
-        this.reloadEnd = reloadEnd;
-        this.empty = empty;
-        this.addBullet = addBullet;
-    }
+    // -----< Construction >-----
 
     /**
-     * Loads weapon sounds from a YAML config, falling back to internal defaults if loading fails.
-     *
-     * @param weaponConfig the YAML configuration to load from
-     * @return a fully initialized {@code WeaponSounds} object
+     * Private constructor. Use {@link #load(YamlConfiguration)} instead.
      */
-    public static @NotNull WeaponSounds load(@NotNull YamlConfiguration weaponConfig) {
-        return new WeaponSounds(
-            SoundManager.loadSound(weaponConfig, "fire", FIRE),
-            SoundManager.loadSound(weaponConfig, "reload_start", RELOAD_START),
-            SoundManager.loadSound(weaponConfig, "reload_end", RELOAD_END),
-            SoundManager.loadSound(weaponConfig, "empty", EMPTY),
-            SoundManager.loadSound(weaponConfig, "add_bullet", ADD_BULLET)
-        );
+    private WeaponSounds(@NotNull YamlConfiguration config) {
+        this.fire = SoundManager.loadSound(config, "fire", FIRE);
+        this.reloadStart = SoundManager.loadSound(config, "reload_start", RELOAD_START);
+        this.reloadEnd = SoundManager.loadSound(config, "reload_end", RELOAD_END);
+        this.empty = SoundManager.loadSound(config, "empty", EMPTY);
+        this.addBullet = SoundManager.loadSound(config, "add_bullet", ADD_BULLET);
     }
+
+    // -----< Public API >-----
 
     /**
      * Plays the specified sound at the center of the given player to create a more immersive sound origin.

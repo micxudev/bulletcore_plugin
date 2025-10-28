@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Represents a subcommand of {@link CommandHandler}.
+ * Represents a subcommand of {@link CommandHandler}.<br>
  * Used for modular execution and tab completion.
  *
  * @author dredd

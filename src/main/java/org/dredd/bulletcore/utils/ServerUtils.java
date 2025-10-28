@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Utility class for retrieving information about the current server state.
+ * Utility class for server related operations.
  *
  * @since 1.0.0
  */
@@ -30,6 +30,8 @@ public final class ServerUtils {
      */
     private ServerUtils() {}
 
+    // ----------< Attributes >----------
+
     /**
      * An empty immutable list.
      */
@@ -39,6 +41,8 @@ public final class ServerUtils {
      * A list containing a single arrow item used to charge crossbows.
      */
     private static final List<ItemStack> CHARGED_PROJECTILES_LIST = Collections.singletonList(new ItemStack(Material.ARROW));
+
+    // ----------< Miscelaneous Methods >----------
 
     /**
      * @return a list of player names currently online
@@ -116,13 +120,16 @@ public final class ServerUtils {
         return new NamespacedKey("bulletcore", UUID.randomUUID().toString());
     }
 
+    // ----------< Charge/Discharge API >----------
+
     /**
      * Charges or discharges a crossbow if the given stack has CrossbowMeta.
      *
      * @param stack  the item stack; can be null
      * @param charge true to charge, false to discharge
      */
-    public static void chargeOrDischargeIfCrossbowMeta(@Nullable ItemStack stack, boolean charge) {
+    public static void chargeOrDischargeIfCrossbowMeta(@Nullable ItemStack stack,
+                                                       boolean charge) {
         if (stack != null && stack.getItemMeta() instanceof CrossbowMeta meta) {
             meta.setChargedProjectiles(charge ? CHARGED_PROJECTILES_LIST : null);
             stack.setItemMeta(meta);
@@ -153,8 +160,10 @@ public final class ServerUtils {
      * @param stack  the item stack; can be null
      * @param charge true to charge, false to discharge
      */
-    public static void chargeOrDischargeIfWeapon(@Nullable ItemStack stack, boolean charge) {
-        if (CustomItemsRegistry.isWeapon(stack)) chargeOrDischargeIfCrossbowMeta(stack, charge);
+    public static void chargeOrDischargeIfWeapon(@Nullable ItemStack stack,
+                                                 boolean charge) {
+        if (CustomItemsRegistry.isWeapon(stack))
+            chargeOrDischargeIfCrossbowMeta(stack, charge);
     }
 
     /**
@@ -163,7 +172,7 @@ public final class ServerUtils {
      * @param stack the item stack; can be null
      */
     public static void chargeIfWeapon(@Nullable ItemStack stack) {
-        if (CustomItemsRegistry.isWeapon(stack)) chargeIfCrossbowMeta(stack);
+        chargeOrDischargeIfWeapon(stack, true);
     }
 
     /**
@@ -172,6 +181,6 @@ public final class ServerUtils {
      * @param stack the item stack; can be null
      */
     public static void dischargeIfWeapon(@Nullable ItemStack stack) {
-        if (CustomItemsRegistry.isWeapon(stack)) dischargeIfCrossbowMeta(stack);
+        chargeOrDischargeIfWeapon(stack, false);
     }
 }

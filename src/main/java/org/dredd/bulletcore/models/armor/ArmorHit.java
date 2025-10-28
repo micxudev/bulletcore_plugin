@@ -3,9 +3,7 @@ package org.dredd.bulletcore.models.armor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a hit on an armor piece.
@@ -16,31 +14,31 @@ import org.jetbrains.annotations.NotNull;
  * @param victim       The victim of the hit
  */
 public record ArmorHit(
-    @NotNull Armor initialArmor,
+    Armor initialArmor,
     double armorDamage,
-    @NotNull DamagePoint damagePoint,
-    @NotNull Player victim
+    DamagePoint damagePoint,
+    Player victim
 ) implements Runnable {
 
     @Override
     public void run() {
-        PlayerInventory inv = victim.getInventory();
-        ItemStack armorStack = switch (damagePoint) {
+        final PlayerInventory inv = victim.getInventory();
+
+        final ItemStack stack = switch (damagePoint) {
             case HEAD -> inv.getHelmet();
             case BODY -> inv.getChestplate();
             case LEGS -> inv.getLeggings();
             case FEET -> inv.getBoots();
         };
 
-        Armor currentArmor = CustomItemsRegistry.getArmorOrNull(armorStack);
-        if (armorStack == null || currentArmor != initialArmor)
-            return; // armor was changed in the meantime, cancel the armor damage
+        // make sure the armor stack didn't change in the meantime
+        if (!initialArmor.isThisArmor(stack)) return;
 
-        double currentDurability = currentArmor.getDurability(armorStack);
+        double currentDurability = initialArmor.getDurability(stack);
         double newDurability = currentDurability - armorDamage;
 
         if (newDurability > 0)
-            currentArmor.setDurability(armorStack, newDurability);
+            initialArmor.setDurability(stack, newDurability);
         else
             switch (damagePoint) {
                 case HEAD -> inv.setHelmet(null);

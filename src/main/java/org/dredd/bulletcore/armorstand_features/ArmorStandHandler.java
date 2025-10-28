@@ -10,7 +10,7 @@ import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Utility for spawning and managing invisible armor stands used for visuals.
+ * Utility class for spawning and managing invisible armor stands used for visuals.
  *
  * @author dredd
  * @since 1.0.0
@@ -21,6 +21,8 @@ public final class ArmorStandHandler {
      * Private constructor to prevent instantiation.
      */
     private ArmorStandHandler() {}
+
+    // ----------< Public API >----------
 
     /**
      * Spawns an invisible, static armor stand with the given head item and rotation.

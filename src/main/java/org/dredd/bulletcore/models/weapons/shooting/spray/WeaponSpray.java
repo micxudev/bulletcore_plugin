@@ -1,12 +1,11 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Defines the parameters used to represent weapon spray.
@@ -17,7 +16,11 @@ import java.util.Map;
  * @see PlayerSprayContext
  * @since 1.0.0
  */
-public class WeaponSpray {
+public final class WeaponSpray {
+
+    // ----------< Static >----------
+
+    // -----< Constants >-----
 
     /**
      * Minimum total spray value per {@link MovementState}, {@link MovementModifier}.
@@ -34,27 +37,95 @@ public class WeaponSpray {
      * Default spray value applied when {@link MovementState}, {@link MovementModifier} is not defined in config.<br>
      * Also used as the lower bound when clamping the total spray.
      */
-    public static final double NO_SPRAY = 0.0D;
+    static final double NO_SPRAY = 0.0D;
+
+    // -----< Loader >-----
+
+    /**
+     * Loads a {@link WeaponSpray} instance from the given YAML configuration.<br>
+     * Spray values are loaded from keys using the prefixes {@code spray.state.} and {@code spray.modifier.}.
+     * Each value is clamped between {@link #MIN_SPRAY} and {@link #MAX_SPRAY}; defaults to {@link #NO_SPRAY} if missing.
+     *
+     * @param config the YAML configuration to load from
+     * @return a new {@link WeaponSpray} instance with the configured spray values
+     */
+    public static @NotNull WeaponSpray load(@NotNull YamlConfiguration config) {
+        return new WeaponSpray(config);
+    }
+
+    /**
+     * Loads clamped {@link Double} values for each enum constant from config.
+     * <p>
+     * Keys are {@code prefix + constant name (lowercase)}.<br>
+     * Missing keys default to {@code NO_SPRAY}, and all values are clamped
+     * to [{@code MIN_SPRAY}, {@code MAX_SPRAY}].
+     *
+     * @param <E>    the enum type
+     * @param type   the enum class
+     * @param config the config source
+     * @param prefix the key prefix
+     * @return an {@link EnumMap} of enum constants to their clamped values
+     */
+    private static <E extends Enum<E>> @NotNull EnumMap<E, Double> loadSprayValues(
+        @NotNull Class<E> type,
+        @NotNull YamlConfiguration config,
+        @NotNull String prefix
+    ) {
+        EnumMap<E, Double> map = new EnumMap<>(type);
+        for (E constant : type.getEnumConstants()) {
+            String path = prefix + constant.name().toLowerCase(Locale.ROOT);
+            double value = Math.clamp(config.getDouble(path, NO_SPRAY), MIN_SPRAY, MAX_SPRAY);
+            map.put(constant, value);
+        }
+        return map;
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
+    /**
+     * The minimum percentage of the maximum spray value that the random spray direction should be.<br>
+     * If this value is 1.0 -> spray is always exactly 100%<br>
+     * If this value is 0.5 -> spray is random from 50% to 100% of the maximum value<br>
+     */
+    final double minSprayPercent;
 
     /**
      * Weapon spray values associated with {@link MovementState}.
      */
-    private final Map<MovementState, Double> stateSpray;
+    private final EnumMap<MovementState, Double> stateSpray;
 
     /**
      * Weapon spray values associated with {@link MovementModifier}.
      */
-    private final Map<MovementModifier, Double> modifierSpray;
+    private final EnumMap<MovementModifier, Double> modifierSpray;
+
+    // -----< Construction >-----
 
     /**
-     * Private constructor to initialize the state and modifier spray maps.
-     *
-     * @param stateSpray    map of spray values per {@link MovementState}
-     * @param modifierSpray map of spray values per {@link MovementModifier}
+     * Private constructor. Use {@link #load(YamlConfiguration)} instead.
      */
-    private WeaponSpray(Map<MovementState, Double> stateSpray, Map<MovementModifier, Double> modifierSpray) {
-        this.stateSpray = stateSpray;
-        this.modifierSpray = modifierSpray;
+    private WeaponSpray(@NotNull YamlConfiguration config) {
+        this.minSprayPercent = Math.clamp(config.getDouble("spray.minSprayPercent", 0.5D), 0.0D, 1.0D);
+        this.stateSpray = loadSprayValues(MovementState.class, config, "spray.state.");
+        this.modifierSpray = loadSprayValues(MovementModifier.class, config, "spray.modifier.");
+    }
+
+    // -----< Spray Retrieval API >-----
+
+    /**
+     * Calculates the total spray value based on the player's movement state and active modifiers.<br>
+     * The result is clamped between [{@value NO_SPRAY} and {@value MAX_SPRAY}] to ensure valid bounds.
+     *
+     * @param movementState the current {@link MovementState} of the player
+     * @param modifiers     a list of active {@link MovementModifier}s
+     * @return the clamped total spray value for the given state and modifiers
+     */
+    public double getFinalValue(@NotNull MovementState movementState, @NotNull List<MovementModifier> modifiers) {
+        double total = getStateValue(movementState) + getModifiersValue(modifiers);
+        return Math.clamp(total, NO_SPRAY, MAX_SPRAY);
     }
 
     /**
@@ -79,60 +150,5 @@ public class WeaponSpray {
         return modifiers.stream()
             .mapToDouble(m -> modifierSpray.getOrDefault(m, NO_SPRAY))
             .sum();
-    }
-
-    /**
-     * Calculates the total spray value based on the player's movement state and active modifiers.<br>
-     * The result is clamped between [{@value NO_SPRAY} and {@value MAX_SPRAY}] to ensure valid bounds.
-     *
-     * @param movementState the current {@link MovementState} of the player
-     * @param modifiers     a list of active {@link MovementModifier}s
-     * @return the clamped total spray value for the given state and modifiers
-     */
-    public double getFinalValue(@NotNull MovementState movementState, @NotNull List<MovementModifier> modifiers) {
-        double total = getStateValue(movementState) + getModifiersValue(modifiers);
-        return Math.clamp(total, NO_SPRAY, MAX_SPRAY);
-    }
-
-    /**
-     * Loads a {@link WeaponSpray} instance from the given YAML configuration.<br>
-     * Spray values are loaded from keys using the prefixes {@code spray.state.} and {@code spray.modifier.}.
-     * Each value is clamped between {@link #MIN_SPRAY} and {@link #MAX_SPRAY}; defaults to {@link #NO_SPRAY} if missing.
-     *
-     * @param cfg the YAML configuration to load from
-     * @return a new {@link WeaponSpray} instance with the configured spray values
-     */
-    public static @NotNull WeaponSpray load(@NotNull FileConfiguration cfg) {
-        return new WeaponSpray(
-            loadSprayValues(MovementState.class, cfg, "spray.state."),
-            loadSprayValues(MovementModifier.class, cfg, "spray.modifier.")
-        );
-    }
-
-    /**
-     * Loads clamped {@link Double} values for each enum constant from config.
-     * <p>
-     * Keys are {@code prefix + constant name (lowercase)}.<br>
-     * Missing keys default to {@code NO_SPRAY}, and all values are clamped
-     * to [{@code MIN_SPRAY}, {@code MAX_SPRAY}].
-     *
-     * @param <E>    the enum type
-     * @param type   the enum class
-     * @param cfg    the config source
-     * @param prefix the key prefix
-     * @return an {@link EnumMap} of enum constants to their clamped values
-     */
-    private static <E extends Enum<E>> @NotNull EnumMap<E, Double> loadSprayValues(
-        @NotNull Class<E> type,
-        @NotNull FileConfiguration cfg,
-        @NotNull String prefix
-    ) {
-        EnumMap<E, Double> map = new EnumMap<>(type);
-        for (E constant : type.getEnumConstants()) {
-            String path = prefix + constant.name().toLowerCase(Locale.ROOT);
-            double val = Math.clamp(cfg.getDouble(path, NO_SPRAY), MIN_SPRAY, MAX_SPRAY);
-            map.put(constant, val);
-        }
-        return map;
     }
 }

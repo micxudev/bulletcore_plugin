@@ -26,7 +26,7 @@ import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
  * @author dredd
  * @since 1.0.0
  */
-public class SkinsManager {
+public final class SkinsManager {
 
     /**
      * Private constructor to prevent instantiation.
@@ -68,7 +68,7 @@ public class SkinsManager {
         JsonUtils.saveAsync(playerSkinsStorage, skinsDataFile, true);
     }
 
-    // ----------< Usage >----------
+    // ----------< Public API >----------
 
     /**
      * Retrieves a specific skin from a given weapon by skin name.
@@ -77,7 +77,8 @@ public class SkinsManager {
      * @param skinName the name of the skin to retrieve
      * @return the matching {@link WeaponSkin}, or {@code null} if not found
      */
-    public static @Nullable WeaponSkin getWeaponSkin(@NotNull Weapon weapon, @NotNull String skinName) {
+    public static @Nullable WeaponSkin getWeaponSkin(@NotNull Weapon weapon,
+                                                     @NotNull String skinName) {
         return weapon.skins.getSkinOrNull(skinName);
     }
 
@@ -101,7 +102,9 @@ public class SkinsManager {
      * @param skinName the skin name to check
      * @return {@code true} if the player has the skin unlocked, {@code false} otherwise
      */
-    public static boolean playerHasSkin(@NotNull Player player, @NotNull Weapon weapon, @NotNull String skinName) {
+    public static boolean playerHasSkin(@NotNull Player player,
+                                        @NotNull Weapon weapon,
+                                        @NotNull String skinName) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
         var weaponSkins = playerSkins.get(weapon.name);
@@ -115,7 +118,8 @@ public class SkinsManager {
      * @param weapon the weapon to check
      * @return a list of unlocked skin names, or an empty list if none are unlocked
      */
-    public static @NotNull List<String> getPlayerWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
+    public static @NotNull List<String> getPlayerWeaponSkins(@NotNull Player player,
+                                                             @NotNull Weapon weapon) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return EMPTY_LIST;
         var weaponSkins = playerSkins.get(weapon.name);
@@ -129,7 +133,8 @@ public class SkinsManager {
      * @param weapon the weapon to check
      * @return a list of missing skin names, or an empty list if all skins are owned or none exist
      */
-    public static @NotNull List<String> getMissingWeaponSkins(@NotNull Player player, @NotNull Weapon weapon) {
+    public static @NotNull List<String> getMissingWeaponSkins(@NotNull Player player,
+                                                              @NotNull Weapon weapon) {
         if (!weapon.skins.hasSkins()) return EMPTY_LIST;
         var weaponSkinNames = getPlayerWeaponSkins(player, weapon);
         return weapon.skins.getSkinNames().stream()
@@ -147,7 +152,9 @@ public class SkinsManager {
      * @param skinName the skin name to grant
      * @return {@code true} if the skin was successfully added, {@code false} otherwise
      */
-    public static boolean addSkinToPlayer(@NotNull Player player, @NotNull Weapon weapon, @NotNull String skinName) {
+    public static boolean addSkinToPlayer(@NotNull Player player,
+                                          @NotNull Weapon weapon,
+                                          @NotNull String skinName) {
         var weaponSkin = getWeaponSkin(weapon, skinName);
         if (weaponSkin == null) return false;
         if (playerHasSkin(player, weapon, skinName)) return false;
@@ -166,7 +173,8 @@ public class SkinsManager {
      * @param weapon the weapon the skins belong to.
      * @return the number of skins successfully added to the player, or 0 if none were added.
      */
-    public static int addAllWeaponSkinsToPlayer(@NotNull Player player, @NotNull Weapon weapon) {
+    public static int addAllWeaponSkinsToPlayer(@NotNull Player player,
+                                                @NotNull Weapon weapon) {
         var missingWeaponSkins = getMissingWeaponSkins(player, weapon);
         if (missingWeaponSkins.isEmpty()) return 0;
 
@@ -188,7 +196,9 @@ public class SkinsManager {
      * @param skinName the skin name to remove
      * @return {@code true} if the skin was successfully removed, {@code false} otherwise
      */
-    public static boolean removeSkinFromPlayer(@NotNull Player player, @NotNull Weapon weapon, @NotNull String skinName) {
+    public static boolean removeSkinFromPlayer(@NotNull Player player,
+                                               @NotNull Weapon weapon,
+                                               @NotNull String skinName) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return false;
 
@@ -216,7 +226,8 @@ public class SkinsManager {
      * @param weapon the weapon the skins belong to.
      * @return the number of skins successfully removed from the player, or 0 if none were removed.
      */
-    public static int removeAllWeaponSkinsFromPlayer(@NotNull Player player, @NotNull Weapon weapon) {
+    public static int removeAllWeaponSkinsFromPlayer(@NotNull Player player,
+                                                     @NotNull Weapon weapon) {
         var playerSkins = playerSkinsStorage.get(player.getUniqueId());
         if (playerSkins == null) return 0;
 

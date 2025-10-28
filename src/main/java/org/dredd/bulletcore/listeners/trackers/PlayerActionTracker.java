@@ -1,27 +1,27 @@
 package org.dredd.bulletcore.listeners.trackers;
 
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tracks recent player actions such as inventory interactions, item drops,
- * and single shots with automatic weapons.
+ * Tracks the most recent player actions.
  *
  * @author dredd
  * @since 1.0.0
  */
 public final class PlayerActionTracker {
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private PlayerActionTracker() {}
 
-    private static final Map<UUID, Long> LAST_INVENTORY_INTERACTION = new HashMap<>();
+    // ----------< LAST_INVENTORY_INTERACTION >----------
 
-    private static final Map<UUID, Long> LAST_DROP = new HashMap<>();
-
-    private static final Map<UUID, Long> LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON = new HashMap<>();
+    private static final Object2LongMap<UUID> LAST_INVENTORY_INTERACTION = new Object2LongOpenHashMap<>();
 
     /**
      * Records the current time as the player's last inventory interaction.
@@ -39,6 +39,10 @@ public final class PlayerActionTracker {
         return LAST_INVENTORY_INTERACTION.getOrDefault(uuid, 0L);
     }
 
+    // ----------< LAST_DROP >----------
+
+    private static final Object2LongMap<UUID> LAST_DROP = new Object2LongOpenHashMap<>();
+
     /**
      * Records the current time as the player's last item drop.
      */
@@ -54,6 +58,10 @@ public final class PlayerActionTracker {
     public static long getLastDrop(@NotNull UUID uuid) {
         return LAST_DROP.getOrDefault(uuid, 0L);
     }
+
+    // ----------< LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON >----------
+
+    private static final Object2LongMap<UUID> LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON = new Object2LongOpenHashMap<>();
 
     /**
      * Records the current time as the player's last single shot with an automatic weapon.
@@ -71,12 +79,14 @@ public final class PlayerActionTracker {
         return LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.getOrDefault(uuid, 0L);
     }
 
+    // ----------< SHARED >----------
+
     /**
-     * Removes all tracked data for the given player.
+     * Removes all tracked data for the given player UUID.
      */
     public static void clear(@NotNull UUID uuid) {
-        LAST_INVENTORY_INTERACTION.remove(uuid);
-        LAST_DROP.remove(uuid);
-        LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.remove(uuid);
+        LAST_INVENTORY_INTERACTION.removeLong(uuid);
+        LAST_DROP.removeLong(uuid);
+        LAST_SINGLE_SHOT_USING_AUTOMATIC_WEAPON.removeLong(uuid);
     }
 }

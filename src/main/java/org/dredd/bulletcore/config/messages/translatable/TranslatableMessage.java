@@ -22,7 +22,10 @@ import static org.dredd.bulletcore.config.messages.translatable.TranslatableMess
  */
 public enum TranslatableMessage {
 
+    // ----------< Enum Fields >----------
+
     // -----< Weapon >-----
+
     /**
      * Bullet count shown on weapon lore.
      */
@@ -61,6 +64,7 @@ public enum TranslatableMessage {
 
 
     // -----< Ammo >-----
+
     /**
      * Ammo count shown on ammo lore.
      */
@@ -73,6 +77,7 @@ public enum TranslatableMessage {
 
 
     // -----< Armor >-----
+
     /**
      * Armor durability shown on armor lore.
      */
@@ -142,7 +147,7 @@ public enum TranslatableMessage {
         this.translationKey = "bulletcore." + configKey;
     }
 
-    // -----< Usage >-----
+    // -----< Public Translation API >-----
 
     /**
      * Builds a {@link TranslatableComponent} for this message using the provided arguments.

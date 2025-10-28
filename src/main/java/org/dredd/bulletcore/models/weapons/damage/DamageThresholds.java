@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Example threshold mapping:
  * <ul>
- *   <li>If normalizedY > {@code head} → HEAD</li>
- *   <li>If normalizedY > {@code body} → BODY</li>
- *   <li>If normalizedY > {@code legs} → LEGS</li>
- *   <li>Else → FEET</li>
+ *   <li>If normalizedY > {@code head} → {@link DamagePoint#HEAD}</li>
+ *   <li>If normalizedY > {@code body} → {@link DamagePoint#BODY}</li>
+ *   <li>If normalizedY > {@code legs} → {@link DamagePoint#LEGS}</li>
+ *   <li>Else → {@link DamagePoint#FEET}</li>
  * </ul>
  * </p>
  *
@@ -27,12 +27,15 @@ public record DamageThresholds(
     double legs
 ) {
 
+    // ----------< Static Loader >----------
+
     /**
-     * Loads damage thresholds from a config, using default values if not specified.
+     * Loads damage thresholds from a file configuration.
      * <p>
-     * Thresholds are clamped between 0.0 and 1.0 to ensure validity.<br>
-     * Values are expected under the {@code damage-thresholds} section in the config.
-     *
+     * Values expected in a {@code damage-thresholds} section with the keys
+     * {@code head}, {@code body}, {@code legs}.
+     * <p>
+     * Example section structure:
      * <pre>{@code
      * damage-thresholds:
      *   head: 0.78
@@ -40,27 +43,31 @@ public record DamageThresholds(
      *   legs: 0.08
      * }</pre>
      *
-     * @param config the YAML configuration to load from
-     * @return a new {@code DamageThresholds} instance populated from the config
+     * @param config the File configuration to load from
+     * @return a new {@link DamageThresholds} instance
      */
     public static @NotNull DamageThresholds load(@NotNull FileConfiguration config) {
         return new DamageThresholds(
-            getOrDefault(config, "head", 0.78),
-            getOrDefault(config, "body", 0.4),
-            getOrDefault(config, "legs", 0.08)
+            getOrDefault(config, "head", 0.78D),
+            getOrDefault(config, "body", 0.4D),
+            getOrDefault(config, "legs", 0.08D)
         );
     }
 
+    // ----------< Utilities >----------
+
     /**
-     * Retrieves damage thresholds YAML config, applying a default if missing,
+     * Retrieves damage thresholds from the File config, applying a default if missing,
      * and clamping it to a valid range.
      *
-     * @param cfg the YAML configuration
-     * @param key the body part key ({@code head}, {@code body}, {@code legs})
-     * @param def the default value to use if not defined
+     * @param config the File configuration
+     * @param key    the body part key ({@code head}, {@code body}, {@code legs})
+     * @param def    the default value to use if not defined
      * @return the clamped damage threshold value
      */
-    private static double getOrDefault(@NotNull FileConfiguration cfg, @NotNull String key, double def) {
-        return Math.clamp(cfg.getDouble("damage-thresholds." + key, def), 0.0D, 1.0D);
+    private static double getOrDefault(@NotNull FileConfiguration config,
+                                       @NotNull String key,
+                                       double def) {
+        return Math.clamp(config.getDouble("damage-thresholds." + key, def), 0.0D, 1.0D);
     }
 }

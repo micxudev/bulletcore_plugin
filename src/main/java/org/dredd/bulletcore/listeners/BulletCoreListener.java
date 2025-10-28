@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.listeners;
 
+import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -35,6 +35,7 @@ import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.dredd.bulletcore.utils.ServerUtils;
 
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.*;
@@ -45,8 +46,13 @@ import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsReg
  * @author dredd
  * @since 1.0.0
  */
-public class BulletCoreListener implements Listener {
+public enum BulletCoreListener implements Listener {
+
+    INSTANCE;
+
     /* Don't remove commented debug statements; they might become handy any time */
+
+    // ----------< Constants >----------
 
     /**
      * Raw off-hand slot.
@@ -60,8 +66,7 @@ public class BulletCoreListener implements Listener {
      */
     private static final int CONVERTED_OFFHAND_SLOT = 40;
 
-
-    /* ========== All Custom Items Listeners ========== */
+    // ----------< All Custom Items Events >----------
 
     /**
      * Handles player interaction events to detect and respond to clicks involving custom items.
@@ -136,8 +141,7 @@ public class BulletCoreListener implements Listener {
             event.setCancelled(true);
     }
 
-
-    /* ========== Weapon-Specific Listeners ========== */
+    // ----------< Weapon-Specific Events >----------
 
     /**
      * Handles inventory click events to prevent custom weapons from being placed into the off-hand slot.
@@ -236,8 +240,8 @@ public class BulletCoreListener implements Listener {
     /**
      * Handles inventory clicks to charge or discharge weapons when sneaking.
      * <p>
-     * Taking item out of the main-hand -> discharge<br>
-     * Placing item into the main-hand -> charge
+     * Taking an item out of the main-hand -> discharge<br>
+     * Placing an item into the main-hand -> charge
      *
      * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
      */
@@ -361,7 +365,7 @@ public class BulletCoreListener implements Listener {
                 if (!damager.isOnline() || damager.isDead()) return;
 
                 final ItemStack currentWeapon = damager.getInventory().getItemInMainHand();
-                if (getWeaponOrNull(currentWeapon) == weapon)
+                if (weapon.isThisWeapon(currentWeapon))
                     weapon.onLMB(damager, currentWeapon);
             });
         }
@@ -372,7 +376,7 @@ public class BulletCoreListener implements Listener {
      *
      * @param event the {@link EntityDamageByEntityEvent} triggered when an entity is damaged by another entity
      */
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void damageArmor(EntityDamageByEntityEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. EntityDamageByEntityEvent (armor damage).");
@@ -395,7 +399,7 @@ public class BulletCoreListener implements Listener {
      *
      * @param event the {@link PlayerAnimationEvent} triggered when a player performs an animation
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onAnimation(PlayerAnimationEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. PlayerAnimationEvent.");
@@ -485,13 +489,16 @@ public class BulletCoreListener implements Listener {
         ServerUtils.chargeOrDischargeIfCrossbowMeta(mainHandItem, isReallySneaking);
     }
 
+    // ----------< Server Tick Updates >----------
+
     /**
-     * Handles player death to discharge crossbow weapons upon death.
+     * Called when the server has finished ticking the main loop.<br>
+     * Updates player states.
      *
-     * @param event the {@link PlayerDeathEvent} triggered when a player dies
+     * @param event the {@link ServerTickEndEvent} triggered
      */
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        ServerUtils.dischargeIfWeapon(event.getPlayer().getInventory().getItemInMainHand());
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onTickEnd(ServerTickEndEvent event) {
+        SprayHandler.tick();
     }
 }

@@ -1,6 +1,6 @@
 package org.dredd.bulletcore.models.weapons.shooting.recoil;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,7 +9,26 @@ import org.jetbrains.annotations.NotNull;
  * @author dredd
  * @since 1.0.0
  */
-public class WeaponRecoil {
+public final class WeaponRecoil {
+
+    // ----------< Static >----------
+
+    // -----< Loader >-----
+
+    /**
+     * Loads a {@link WeaponRecoil} from config, defaulting and clamping to the specified values.
+     *
+     * @param config the YAML configuration to load from
+     * @return a new {@link WeaponRecoil} instance
+     */
+    public static @NotNull WeaponRecoil load(@NotNull YamlConfiguration config) {
+        return new WeaponRecoil(config);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
 
     /**
      * Base horizontal recoil applied per shot, in degrees.<br>
@@ -26,7 +45,7 @@ public class WeaponRecoil {
     /**
      * Adds a randomized offset to the horizontal recoil on each shot, centered around {@link #meanX}.<br>
      * For example, if {@code meanX = 0.5} and {@code varianceX = 0.3}, the actual recoil per shot may vary between {@code 0.2} and {@code 0.8}.<br>
-     * <b>Allowed Range:</b> ≥ 0.0<br>
+     * <b>Allowed Range:</b> [0.0 – 90.0]<br>
      * <b>Effect:</b> Higher values introduce more unpredictability in horizontal aim offset.
      */
     public final float varianceX;
@@ -34,7 +53,7 @@ public class WeaponRecoil {
     /**
      * Adds a randomized offset to the vertical recoil on each shot, centered around {@link #meanY}.<br>
      * For example, if {@code meanY = 1.0} and {@code varianceY = 0.2}, the actual recoil per shot may vary between {@code 0.8} and {@code 1.2}.<br>
-     * <b>Allowed Range:</b> ≥ 0.0<br>
+     * <b>Allowed Range:</b> [0.0 – 90.0]<br>
      * <b>Effect:</b> Higher values introduce more vertical aim randomness.
      */
     public final float varianceY;
@@ -91,57 +110,34 @@ public class WeaponRecoil {
     public final int totalTicksToRecover;
     // END TEST VALUES
 
+    // -----< Construction >-----
+
     /**
-     * Constructs a new {@link WeaponRecoil} instance.
-     * <p>
-     * All parameters must be already validated.
+     * Private constructor. Use {@link #load(YamlConfiguration)} instead.
      */
-    private WeaponRecoil(float meanX, float meanY,
-                         float varianceX, float varianceY,
-                         float speed, float lerpFactor,
-                         float damping, float recoveryPercent) {
-        this.meanX = meanX;
-        this.meanY = meanY;
-        this.varianceX = varianceX;
-        this.varianceY = varianceY;
-        this.speed = speed;
-        this.lerpFactor = lerpFactor;
-        this.damping = damping;
-        this.recoveryPercent = recoveryPercent;
+    private WeaponRecoil(@NotNull YamlConfiguration config) {
+        this.meanX = (float) config.getDouble("recoil.meanX", 0.5D);
+        this.meanY = (float) config.getDouble("recoil.meanY", 2.0D);
+        this.varianceX = Math.clamp((float) config.getDouble("recoil.varianceX", 0.0D), 0.0f, 90.0f);
+        this.varianceY = Math.clamp((float) config.getDouble("recoil.varianceY", 0.0D), 0.0f, 90.0f);
+        this.speed = (float) config.getDouble("recoil.speed", 1.0D);
+        this.lerpFactor = Math.clamp((float) config.getDouble("recoil.lerpFactor", 0.5D), 0.0f, 1.0f);
+        this.damping = Math.clamp((float) config.getDouble("recoil.damping", 0.125D), 0.0f, 1.0f);
+        this.recoveryPercent = Math.clamp((float) config.getDouble("recoil.recoveryPercent", 0.5D), 0.0f, 1.0f);
 
         // TEST VALUES
-        float MIN_ZERO = 0.0001f;
-        float MAX_ONE = 0.9999f;
+        final float MIN_ZERO = 0.0001f;
+        final float MAX_ONE = 0.9999f;
 
-        float safeDamping = Math.clamp(damping, MIN_ZERO, MAX_ONE);
-        float safeLerp = Math.clamp(lerpFactor, MIN_ZERO, MAX_ONE);
-        float safeRecoveryPercent = Math.clamp(recoveryPercent, MIN_ZERO, MAX_ONE);
+        final float safeDamping = Math.clamp(damping, MIN_ZERO, MAX_ONE);
+        final float safeLerp = Math.clamp(lerpFactor, MIN_ZERO, MAX_ONE);
+        final float safeRecoveryPercent = Math.clamp(recoveryPercent, MIN_ZERO, MAX_ONE);
 
-        double dTicksToRecoverTarget = Math.log10(1.0f - safeRecoveryPercent) / Math.log10(1.0f - safeDamping);
+        final double dTicksToRecoverTarget = Math.log10(1.0f - safeRecoveryPercent) / Math.log10(1.0f - safeDamping);
         this.ticksToRecoverTarget = (int) Math.ceil(dTicksToRecoverTarget);
 
-        double dSmoothingTicks = Math.log10(0.01f) / Math.log10(1.0f - safeLerp);
+        final double dSmoothingTicks = Math.log10(0.01f) / Math.log10(1.0f - safeLerp);
         this.totalTicksToRecover = (int) Math.ceil(dTicksToRecoverTarget + dSmoothingTicks);
         // END TEST VALUES
-    }
-
-    /**
-     * Loads a {@link WeaponRecoil} from config, defaulting and clamping to the specified values.
-     *
-     * @param cfg the YAML configuration to load from
-     * @return a new {@link WeaponRecoil} instance
-     */
-    public static @NotNull WeaponRecoil load(@NotNull FileConfiguration cfg) {
-        String s = "recoil.";
-        return new WeaponRecoil(
-            (float) cfg.getDouble(s + "meanX", 0.5),
-            (float) cfg.getDouble(s + "meanY", 2.0),
-            Math.clamp((float) cfg.getDouble(s + "varianceX", 0.0), 0.0f, Float.MAX_VALUE),
-            Math.clamp((float) cfg.getDouble(s + "varianceY", 0.0), 0.0f, Float.MAX_VALUE),
-            (float) cfg.getDouble(s + "speed", 1.0),
-            Math.clamp((float) cfg.getDouble(s + "lerpFactor", 0.5), 0.0f, 1.0f),
-            Math.clamp((float) cfg.getDouble(s + "damping", 0.125), 0.0f, 1.0f),
-            Math.clamp((float) cfg.getDouble(s + "recoveryPercent", 0.75), 0.0f, 1.0f)
-        );
     }
 }

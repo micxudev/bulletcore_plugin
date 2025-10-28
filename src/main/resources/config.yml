@@ -7,10 +7,10 @@ enable-hotbar-messages: true
 
 # Entity bounding boxes will be uniformly expanded
 # (or shrunk) by this value before doing collision checks.
-# 0 → precise hitbox detection
-# 0.01 → slightly easier to hit
-# -0.01 → slightly harder to hit
-ray-size: 0.01
+# 0 → precise hitbox
+# 0.1 → easier to hit
+# -0.05 → harder to hit
+ray-size: 0.1
 
 # Time window (in ms) after firing a single shot with an automatic weapon
 # during which automatic fire can resume if the player starts sneaking again.

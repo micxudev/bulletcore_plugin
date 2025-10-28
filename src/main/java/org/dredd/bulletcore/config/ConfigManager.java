@@ -50,6 +50,8 @@ public final class ConfigManager {
 
     // ----------< Instance >----------
 
+    // -----< Attributes >-----
+
     private final BulletCore plugin;
 
     public final Locale locale;
@@ -73,34 +75,38 @@ public final class ConfigManager {
 
     public final Set<Material> ignoredMaterials;
 
-    private ConfigManager(@NotNull BulletCore plugin) {
-        this.plugin = plugin;
+    // -----< Construction >-----
 
+    private ConfigManager(@NotNull BulletCore plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         FileConfiguration cfg = plugin.getConfig();
 
-        locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
+        this.plugin = plugin;
 
-        enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
+        this.locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
-        raySize = cfg.getDouble("ray-size", 0.01);
+        this.enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
-        fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
+        this.raySize = cfg.getDouble("ray-size", 0.1);
 
-        damageThresholds = DamageThresholds.load(cfg);
+        this.fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
 
-        entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
-        entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
-        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
+        this.damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
-        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
+        this.entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
+        this.entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
+        this.blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
 
-        asFeatureManager = ASFeatureManager.load(cfg);
+        this.entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
+        this.blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
 
-        ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
+        this.asFeatureManager = ASFeatureManager.load(cfg);
+
+        this.ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
     }
+
+    // -----< Utilities >-----
 
     /**
      * Parses a list of material names into a set of {@link Material} instances.

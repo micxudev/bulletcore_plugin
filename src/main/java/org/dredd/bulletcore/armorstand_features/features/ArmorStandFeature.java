@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.armorstand_features.features;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -15,45 +16,56 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class ArmorStandFeature {
 
-    // ===== Defaults =====
+    // ----------< Static >----------
+
+    // -----< Defaults >-----
+
     /**
      * Features are enabled by default
      */
-    protected static final boolean DEFAULT_ENABLED = true;
+    private static final boolean DEFAULT_ENABLED = true;
 
     /**
-     * Default model data (0 = vanilla material).
+     * Default custom model data (0 = vanilla material).
      */
-    protected static final int DEFAULT_MODEL_DATA = 0;
+    private static final int DEFAULT_CUSTOM_MODEL_DATA = 0;
 
-    // ===== Instance =====
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     /**
      * Whether this feature is enabled
      */
-    protected final boolean enabled;
+    final boolean enabled;
 
     /**
      * The visual item displayed on the armor stand.
      */
-    protected final ItemStack item;
+    final ItemStack item;
 
-    /**
-     * Creates a new armor stand feature.
-     *
-     * @param enabled   whether the feature is active
-     * @param material  the base material for the item
-     * @param modelData custom model data (0 = vanilla)
-     */
-    protected ArmorStandFeature(boolean enabled, @NotNull Material material, int modelData) {
-        this.enabled = enabled;
-        this.item = buildItem(material, modelData);
+    // -----< Construction >-----
+
+    ArmorStandFeature(@NotNull Material material) {
+        this.enabled = DEFAULT_ENABLED;
+        this.item = buildItem(material, DEFAULT_CUSTOM_MODEL_DATA);
     }
+
+    ArmorStandFeature(@NotNull ConfigurationSection section,
+                      @NotNull Material material) {
+        this.enabled = section.getBoolean("enabled", DEFAULT_ENABLED);
+        this.item = buildItem(material, section.getInt("customModelData", DEFAULT_CUSTOM_MODEL_DATA));
+    }
+
+    // -----< Utilities >-----
 
     /**
      * Builds the item used for display, applying custom model data if present.
      */
-    private static @NotNull ItemStack buildItem(@NotNull Material material, int modelData) {
-        return modelData == DEFAULT_MODEL_DATA
+    private @NotNull ItemStack buildItem(@NotNull Material material,
+                                         int modelData) {
+        return modelData == DEFAULT_CUSTOM_MODEL_DATA
             ? new ItemStack(material)
             : ServerUtils.createCustomModelItem(material, modelData);
     }

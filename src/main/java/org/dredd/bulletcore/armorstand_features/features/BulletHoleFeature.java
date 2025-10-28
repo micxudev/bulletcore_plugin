@@ -19,9 +19,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class BulletHoleFeature extends ArmorStandFeature {
 
-    // ===== Defaults =====
+    // ----------< Static >----------
+
+    // -----< Defaults >-----
+
     /**
-     * The default material used for this visual.
+     * The default material used for this feature.
      */
     private static final Material DEFAULT_MATERIAL = Material.IRON_NUGGET;
 
@@ -40,12 +43,14 @@ public final class BulletHoleFeature extends ArmorStandFeature {
      */
     private static final long MAX_REMOVE_AFTER_TICKS = 20L * 60L * 60L;
 
-    // ===== Position offsets (derived experimentally) =====
+    // -----< Position offsets (derived experimentally) >-----
+
     private static final double VERTICAL_OFFSET = 1.2563;
     private static final double BACK_OFFSET = 0.19;
     private static final double HORIZONTAL_OFFSET = 0.53;
 
-    // ===== Head rotations =====
+    // -----< Head rotations >-----
+
     private static final Rotations HEAD_ROT_UP = Rotations.ofDegrees(90, 0, 0);
     private static final Rotations HEAD_ROT_DOWN = Rotations.ofDegrees(-90, 0, 0);
     private static final Rotations HEAD_ROT_SOUTH = Rotations.ofDegrees(0, 180, 0);
@@ -53,23 +58,48 @@ public final class BulletHoleFeature extends ArmorStandFeature {
     private static final Rotations HEAD_ROT_EAST = Rotations.ofDegrees(0, 90, 0);
     private static final Rotations HEAD_ROT_NORTH = Rotations.ofDegrees(0, 0, 0);
 
-    // ===== Instance =====
+    // -----< Loader >-----
+
+    /**
+     * Loads a {@code BulletHoleFeature} from a config section, or defaults if the section is null.
+     *
+     * @param section the configuration section to load from
+     * @return a new {@link BulletHoleFeature} instance
+     */
+    public static @NotNull BulletHoleFeature load(@Nullable ConfigurationSection section) {
+        return (section == null)
+            ? new BulletHoleFeature()
+            : new BulletHoleFeature(section);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     /**
      * The number of ticks after which the spawned armor stand is automatically removed.
      */
     private final long removeAfterTicks;
 
-    /**
-     * Private constructor. Use {@link #load(ConfigurationSection)} instead.
-     *
-     * @param enabled          whether the bullet hole feature is active
-     * @param modelData        custom model data for the visual item
-     * @param removeAfterTicks number of ticks before the bullet hole is removed
-     */
-    private BulletHoleFeature(boolean enabled, int modelData, long removeAfterTicks) {
-        super(enabled, DEFAULT_MATERIAL, modelData);
-        this.removeAfterTicks = removeAfterTicks;
+    // -----< Construction >-----
+
+    private BulletHoleFeature() {
+        super(DEFAULT_MATERIAL);
+
+        this.removeAfterTicks = DEFAULT_REMOVE_AFTER_TICKS;
     }
+
+    private BulletHoleFeature(@NotNull ConfigurationSection section) {
+        super(section, DEFAULT_MATERIAL);
+
+        this.removeAfterTicks = Math.clamp(
+            section.getLong("removeAfter", DEFAULT_REMOVE_AFTER_TICKS),
+            MIN_REMOVE_AFTER_TICKS, MAX_REMOVE_AFTER_TICKS
+        );
+    }
+
+    // -----< API >-----
 
     /**
      * Spawns a bullet hole at the given block hit location.<br>
@@ -97,6 +127,8 @@ public final class BulletHoleFeature extends ArmorStandFeature {
         ArmorStandHandler.scheduleRemoval(stand, removeAfterTicks);
     }
 
+    // -----< Utilities >-----
+
     /**
      * Maps a block face to the head rotation.
      *
@@ -112,25 +144,5 @@ public final class BulletHoleFeature extends ArmorStandFeature {
             case EAST -> HEAD_ROT_EAST;
             default -> HEAD_ROT_NORTH;
         };
-    }
-
-    /**
-     * Loads a {@code BulletHoleFeature} from a config section, or defaults if the section is null.
-     *
-     * @param section the configuration section to load from
-     * @return a new {@link BulletHoleFeature} instance
-     */
-    public static @NotNull BulletHoleFeature load(@Nullable ConfigurationSection section) {
-        if (section == null)
-            return new BulletHoleFeature(DEFAULT_ENABLED, DEFAULT_MODEL_DATA, DEFAULT_REMOVE_AFTER_TICKS);
-
-        boolean enabled = section.getBoolean("enabled", DEFAULT_ENABLED);
-        int modelData = section.getInt("customModelData", DEFAULT_MODEL_DATA);
-        long removeAfterTicks = Math.clamp(
-            section.getLong("removeAfter", DEFAULT_REMOVE_AFTER_TICKS),
-            MIN_REMOVE_AFTER_TICKS, MAX_REMOVE_AFTER_TICKS
-        );
-
-        return new BulletHoleFeature(enabled, modelData, removeAfterTicks);
     }
 }

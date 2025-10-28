@@ -11,8 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -36,13 +38,20 @@ import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;
  */
 public class Armor extends CustomBase {
 
+    // ----------< Static >----------
+
     /**
      * Identifier for the custom durability on an Armor ItemStack
      */
     private static final NamespacedKey DURABILITY_KEY = new NamespacedKey("bulletcore", "durability");
 
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     /**
-     * The amount of weapon damage the armor piece can absorb before it breaks.
+     * The amount of weapon damage this armor piece can absorb before it breaks.
      */
     public final double maxDurability;
 
@@ -52,12 +61,13 @@ public class Armor extends CustomBase {
     public final String formattedMaxDurability;
 
     /**
-     * Weapon damage reduction percent.
+     * The weapon damage percent this armor piece reduces.
      */
     public final double damageReduction;
 
     /**
-     * Whether the armor piece is unbreakable.
+     * Whether this armor piece is unbreakable.<br>
+     * (true = does not lose default minecraft durability).
      */
     public final boolean unbreakable;
 
@@ -66,6 +76,14 @@ public class Armor extends CustomBase {
      */
     private final Multimap<Attribute, AttributeModifier> modifiers;
 
+    // -----< Construction >-----
+
+    /**
+     * Loads and validates an armor item definition from the given config.
+     *
+     * @param config the YAML configuration source
+     * @throws ItemLoadException if validation fails
+     */
     public Armor(@NotNull YamlConfiguration config) throws ItemLoadException {
         super(config);
 
@@ -99,9 +117,11 @@ public class Armor extends CustomBase {
         super.lore.add(5, LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE.toTranslatable(formatPercent(explosionKnockbackResistance)));
     }
 
+    // -----< Armor Behavior >-----
+
     @Override
     public @NotNull ItemStack createItemStack() {
-        ItemStack stack = createBaseItemStack();
+        ItemStack stack = super.createBaseItemStack();
         ItemMeta meta = stack.getItemMeta();
 
         meta.setUnbreakable(unbreakable);
@@ -114,35 +134,41 @@ public class Armor extends CustomBase {
     }
 
     @Override
-    public boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem) {
+    public boolean onRMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {
         //System.out.println("Right-click with Armor");
         return false;
     }
 
     @Override
-    public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
+    public boolean onLMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {
         //System.out.println("Left-click with Armor");
         return false;
     }
 
     @Override
-    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
+    public boolean onSwapTo(@NotNull Player player,
+                            @NotNull ItemStack stack) {
         //System.out.println("Swapped to Armor");
         return false;
     }
 
     @Override
-    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
+    public boolean onSwapAway(@NotNull Player player,
+                              @NotNull ItemStack stack) {
         //System.out.println("Swapped away from Armor");
         return false;
     }
 
+    // -----< Armor State Management >-----
+
     /**
      * Retrieves the current durability value stored in the given {@link ItemStack}'s metadata.
      *
-     * @param stack The {@link ItemStack} representing {@link Armor} to retrieve the durability value from.
-     * @return The durability value currently stored in the armor stack.<br>
-     * Returns {@code 0.0} if the stack did not store armor durability value metadata.
+     * @param stack the stack representing an armor to retrieve the durability value from
+     * @return the durability value currently stored in the armor stack or
+     * {@code 0.0} if the stack did not store armor durability value metadata.
      */
     public double getDurability(@NotNull ItemStack stack) {
         return stack.getItemMeta().getPersistentDataContainer().getOrDefault(DURABILITY_KEY, DOUBLE, 0.0D);
@@ -151,10 +177,11 @@ public class Armor extends CustomBase {
     /**
      * Sets the custom durability for the given {@link ItemStack}, updating both persistent data and lore display.
      *
-     * @param stack      The armor {@link ItemStack} to modify.
-     * @param durability The new custom durability to set for this armor stack.
+     * @param stack      the armor stack to modify
+     * @param durability the custom durability to set for this armor stack
      */
-    public void setDurability(@NotNull ItemStack stack, double durability) {
+    public void setDurability(@NotNull ItemStack stack,
+                              double durability) {
         ItemMeta meta = stack.getItemMeta();
         meta.getPersistentDataContainer().set(DURABILITY_KEY, DOUBLE, durability);
 
@@ -164,5 +191,15 @@ public class Armor extends CustomBase {
             meta.lore(lore);
             stack.setItemMeta(meta);
         }
+    }
+
+    /**
+     * Determines whether the given {@link ItemStack} represents this specific type of armor.
+     *
+     * @param stack the stack to check
+     * @return {@code true} if the given stack corresponds to this armor type, {@code false} otherwise.
+     */
+    public boolean isThisArmor(@Nullable ItemStack stack) {
+        return CustomItemsRegistry.getArmorOrNull(stack) == this;
     }
 }

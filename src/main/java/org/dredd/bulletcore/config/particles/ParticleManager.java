@@ -25,12 +25,37 @@ import java.util.NoSuchElementException;
  * @author dredd
  * @since 1.0.0
  */
-public class ParticleManager {
+public final class ParticleManager {
 
     /**
      * Private constructor to prevent instantiation.
      */
     private ParticleManager() {}
+
+    // ----------< Loader >----------
+
+    /**
+     * Loads a {@link ConfiguredParticle} from config, falling back to a default if parsing fails.
+     *
+     * @param cfg the YAML configuration
+     * @param key the key under {@code particles.<key>} to load
+     * @param def the fallback {@link ConfiguredParticle} to use if parsing fails
+     * @return a valid {@link ConfiguredParticle}, either parsed, or fallback
+     */
+    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg,
+                                                           @NotNull String key,
+                                                           @NotNull ConfiguredParticle def) {
+        try {
+            return parseParticle(cfg, key);
+        } catch (NoSuchElementException ignored) {
+            // Ignored, the particle configuration is optional
+        } catch (IllegalArgumentException e) {
+            BulletCore.logError(e.getMessage() + "; Falling back to default particle");
+        }
+        return def;
+    }
+
+    // ----------< Parser >----------
 
     /**
      * Parses a {@link ConfiguredParticle} from the given config using the key under {@code particles.<key>}.
@@ -53,7 +78,7 @@ public class ParticleManager {
         Particle particle;
         try {
             particle = Particle.valueOf(particleName.toUpperCase(Locale.ROOT));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid particle '" + particleName + "' for key: " + fullKey);
         }
 
@@ -62,12 +87,14 @@ public class ParticleManager {
         Object data;
         try {
             data = getParticleData(particle.getDataType(), section);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid particle data for key: " + fullKey + " - " + e.getMessage());
         }
 
         return new ConfiguredParticle(particle, count, data);
     }
+
+    // -----< Particle Data >-----
 
     /**
      * Parses particle-specific data for a given particle type.
@@ -146,7 +173,7 @@ public class ParticleManager {
     private static @NotNull Color parseColor(@Nullable String colorStr) {
         try {
             return Color.fromRGB(Integer.parseInt(colorStr.substring(1), 16));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Expected hex color format #RRGGBB, but got: '" + colorStr + "'");
         }
     }
@@ -171,31 +198,12 @@ public class ParticleManager {
     private static @NotNull Material parseItem(@Nullable String itemName) {
         try {
             return Material.valueOf(itemName.toUpperCase(Locale.ROOT));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("This particle requires 'item' value, but got: '" + itemName + "'");
         }
     }
 
-    /**
-     * Loads a {@link ConfiguredParticle} from config, falling back to a default if parsing fails.
-     *
-     * @param cfg the YAML configuration
-     * @param key the key under {@code particles.<key>} to load
-     * @param def the fallback {@link ConfiguredParticle} to use if parsing fails
-     * @return a valid {@link ConfiguredParticle}, either parsed, or fallback
-     */
-    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg,
-                                                           @NotNull String key,
-                                                           @NotNull ConfiguredParticle def) {
-        try {
-            return parseParticle(cfg, key);
-        } catch (NoSuchElementException ignored) {
-            // Ignored, the particle configuration is optional
-        } catch (IllegalArgumentException e) {
-            BulletCore.logError(e.getMessage() + "; Falling back to default particle");
-        }
-        return def;
-    }
+    // ----------< Public API >----------
 
     /**
      * Spawns the given {@link ConfiguredParticle} at the specified location in the world.
@@ -207,6 +215,7 @@ public class ParticleManager {
     public static void spawnParticle(@NotNull World world,
                                      @NotNull Location location,
                                      @NotNull ConfiguredParticle particle) {
-        world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
+        if (particle.count() > 0)
+            world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
     }
 }

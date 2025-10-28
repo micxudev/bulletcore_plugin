@@ -28,14 +28,23 @@ import java.util.regex.Pattern;
 public final class CustomItemsRegistry {
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private CustomItemsRegistry() {}
+
+    // ----------< Constants >----------
+
+    /**
      * Valid name pattern for custom item names.
      */
-    public static final Pattern VALID_NAME = Pattern.compile("[a-z0-9/._-]+");
+    public static final Pattern VALID_NAME = Pattern.compile("[a-z0-9_]+");
+
+    // ----------< Registries >----------
 
     /**
      * Global registry for all custom items, regardless of specific type.
      */
-    public static final ItemRegistry<CustomBase> ALL = ItemRegistry.create();
+    public static final ItemRegistry<CustomBase> ALL = ItemRegistry.create(64);
 
     /**
      * Registry for all {@link Ammo} items.
@@ -57,10 +66,7 @@ public final class CustomItemsRegistry {
      */
     public static final ItemRegistry<Weapon> WEAPON = ItemRegistry.create();
 
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private CustomItemsRegistry() {}
+    // ----------< Registration & Clearing >----------
 
     /**
      * Registers a {@link CustomBase} item in the appropriate {@code TYPED} and {@link #ALL} registries.
@@ -70,18 +76,13 @@ public final class CustomItemsRegistry {
      */
     public static void register(@NotNull CustomBase item) throws ItemRegisterException {
         ALL.register(item);
-        try {
-            switch (item) {
-                case Ammo ammoItem -> AMMO.register(ammoItem);
-                case Armor armorItem -> ARMOR.register(armorItem);
-                case Grenade grenadeItem -> GRENADE.register(grenadeItem);
-                case Weapon weaponItem -> WEAPON.register(weaponItem);
-                default ->
-                    throw new ItemRegisterException("Unknown custom item type: " + item.getClass().getSimpleName());
-            }
-        } catch (ItemRegisterException e) {
-            ALL.unregister(item);
-            throw e;
+
+        switch (item) {
+            case Ammo ammo -> AMMO.register(ammo);
+            case Armor armor -> ARMOR.register(armor);
+            case Grenade grenade -> GRENADE.register(grenade);
+            case Weapon weapon -> WEAPON.register(weapon);
+            default -> throw new ItemRegisterException("Unknown type: " + item.getClass().getSimpleName());
         }
     }
 
@@ -96,35 +97,29 @@ public final class CustomItemsRegistry {
         WEAPON.clearAll();
     }
 
-    /**
-     * Checks whether given custom model data is valid and not already used by any registered item.
-     *
-     * @param customModelData the custom model data to check
-     * @return {@code true} if the custom model data is valid and not used; {@code false} otherwise
-     */
-    public static boolean canModelDataBeUsed(int customModelData) {
-        return customModelData > 0 && customModelData % 100 == 0 && !ALL.exists(customModelData);
-    }
+    // ----------< Validation >----------
 
     /**
-     * Checks whether a given name is valid and not already used by any registered item.
+     * Checks whether a given name is valid and can be used for custom item names.
      *
      * @param name the name to check
-     * @return {@code true} if the name is non-null, non-blank, and not used; {@code false} otherwise
+     * @return {@code true} if the name matches the format; {@code false} otherwise
      */
-    public static boolean canNameBeUsed(@Nullable String name) {
-        return name != null && isValidFormat(name) && !ALL.exists(name);
+    public static boolean isValidName(@Nullable String name) {
+        return name != null && VALID_NAME.matcher(name).matches();
     }
 
     /**
-     * Checks whether a given input is valid and can be used for custom item names.
+     * Checks whether given custom model data is valid and can be used for custom items.
      *
-     * @param input the input to check
-     * @return {@code true} if the input matches the format; {@code false} otherwise
+     * @param customModelData the custom model data to check
+     * @return {@code true} if the custom model data is valid; {@code false} otherwise
      */
-    public static boolean isValidFormat(@NotNull String input) {
-        return VALID_NAME.matcher(input).matches();
+    public static boolean isValidCustomModelData(int customModelData) {
+        return customModelData > 0 && customModelData % 100 == 0;
     }
+
+    // ----------< Lookup Helpers >----------
 
     /**
      * Retrieves the base custom model data from the given {@link ItemStack}.
@@ -172,6 +167,8 @@ public final class CustomItemsRegistry {
                                                          @Nullable ItemStack stack) {
         return getOrNull(registry, stack) != null;
     }
+
+    // ----------< Public Query >----------
 
     public static @Nullable CustomBase getItemOrNull(@Nullable ItemStack stack) {
         return getOrNull(ALL, stack);
