@@ -6,7 +6,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.armorstand_features.ASFeatureManager;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
+import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
+import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,8 +19,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import static org.bukkit.SoundCategory.MASTER;
-import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;
-import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
@@ -33,6 +33,28 @@ import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 public final class ConfigManager {
 
     // ----------< Static >----------
+
+    // -----< Defaults >-----
+
+    private static final ConfiguredSound DEFAULT_ENTITY_HIT_HEAD_SOUND = new ConfiguredSound(
+        "entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER
+    );
+
+    private static final ConfiguredSound DEFAULT_ENTITY_HIT_BODY_SOUND = new ConfiguredSound(
+        "block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD
+    );
+
+    private static final ConfiguredSound DEFAULT_BLOCK_HIT_SOUND = new ConfiguredSound(
+        "block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD
+    );
+
+    private static final ConfiguredParticle DEFAULT_ENTITY_HIT_PARTICLE = new ConfiguredParticle(
+        Particle.DAMAGE_INDICATOR, 1, null
+    );
+
+    private static final ConfiguredParticle DEFAULT_BLOCK_HIT_PARTICLE = new ConfiguredParticle(
+        Particle.CRIT, 2, null
+    );
 
     //private static final String CONFIG_FILE_NAME = "config.yml";
     //private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
@@ -80,7 +102,7 @@ public final class ConfigManager {
     private ConfigManager(@NotNull BulletCore plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
-        FileConfiguration cfg = plugin.getConfig();
+        final FileConfiguration cfg = plugin.getConfig();
 
         this.plugin = plugin;
 
@@ -94,12 +116,12 @@ public final class ConfigManager {
 
         this.damageThresholds = DamageThresholds.load(cfg);
 
-        this.entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
-        this.entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
-        this.blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
+        this.entityHitHeadSound = SoundManager.loadSound(cfg, "entity_hit_head", DEFAULT_ENTITY_HIT_HEAD_SOUND);
+        this.entityHitBodySound = SoundManager.loadSound(cfg, "entity_hit_body", DEFAULT_ENTITY_HIT_BODY_SOUND);
+        this.blockHitSound = SoundManager.loadSound(cfg, "block_hit", DEFAULT_BLOCK_HIT_SOUND);
 
-        this.entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
-        this.blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
+        this.entityHitParticle = ParticleManager.loadParticle(cfg, "entity_hit", DEFAULT_ENTITY_HIT_PARTICLE);
+        this.blockHitParticle = ParticleManager.loadParticle(cfg, "block_hit", DEFAULT_BLOCK_HIT_PARTICLE);
 
         this.asFeatureManager = ASFeatureManager.load(cfg);
 

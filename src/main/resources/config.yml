@@ -138,10 +138,10 @@ sounds:
 #
 particles:
   entity_hit:
-    particle: damage_indicator
+    particle: DAMAGE_INDICATOR
     count: 1
   block_hit:
-    particle: crit
+    particle: CRIT
     count: 2
 
 # Armor stand visual features.
