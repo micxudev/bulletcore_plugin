@@ -1,4 +1,4 @@
-package org.dredd.bulletcore.config;
+package org.dredd.bulletcore.config.materials;
 
 import org.bukkit.Material;
 import org.dredd.bulletcore.BulletCore;
@@ -16,14 +16,14 @@ import java.util.Set;
  * @author dredd
  * @since 1.0.0
  */
-public final class Materials {
+public final class AllMaterials {
 
     /**
      * Private constructor to prevent instantiation.
      */
-    private Materials() {}
+    private AllMaterials() {}
 
-    // ----------< Attributes >----------
+    // -----< Attributes >-----
 
     public static final int TOTAL_MATERIALS;
     public static final Set<Material> ITEMS_ONLY;
@@ -31,7 +31,7 @@ public final class Materials {
     public static final Set<Material> BLOCKS_COLLIDABLE;
     public static final Set<Material> BLOCKS_NON_COLLIDABLE;
 
-    // ----------< Initialization >----------
+    // -----< Initialization >-----
 
     static {
         final Material[] allMaterials = Material.values();
@@ -71,7 +71,7 @@ public final class Materials {
         writeToFile(new File(BulletCore.instance().getDataFolder(), "all-materials.yml"));
     }
 
-    // ----------< Saving Utilities >----------
+    // -----< Saving Utilities >-----
 
     private static void writeToFile(@NotNull File file) {
         final StringBuilder sb = new StringBuilder();

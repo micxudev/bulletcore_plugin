@@ -5,6 +5,7 @@ import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.armorstand_features.ASFeatureManager;
+import org.dredd.bulletcore.config.materials.AllMaterials;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
@@ -148,11 +149,11 @@ public final class ConfigManager {
         }
         plugin.logInfo("-Loaded " + result.size() + " ignored materials");
 
-        result.addAll(Materials.BLOCKS_NON_COLLIDABLE);
+        result.addAll(AllMaterials.BLOCKS_NON_COLLIDABLE);
 
         // Adds 5 extra (PISTON_HEAD MOVING_PISTON WATER_CAULDRON LAVA_CAULDRON POWDER_SNOW_CAULDRON)
         // TODO: add configurable list of materials to filter out for each category
-        result.addAll(Materials.BLOCKS_ONLY);
+        result.addAll(AllMaterials.BLOCKS_ONLY);
 
         plugin.logInfo("-Total " + result.size() + " ignored materials");
 
