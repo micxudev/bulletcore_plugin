@@ -126,8 +126,7 @@ public final class StylesManager {
             config.load(stylesFile);
             return parseStyles(config);
         } catch (Exception e) {
-            plugin.logError("Failed to load styles file: " + stylesFile.getName()
-                + ":\n" + e.getMessage() + "\nUsing default styles.");
+            plugin.logError("Failed to load styles file: " + stylesFile.getName() + ":\n" + e.getMessage() + "\nUsing default styles.");
             return loadDefaultStyles();
         }
     }
@@ -163,8 +162,7 @@ public final class StylesManager {
                                       @NotNull ConfigStyle style) {
         final String value = section.getString(style.configKey(), null);
         if (value == null) {
-            plugin.logError(section.getCurrentPath() + " missing style for '"
-                + style.configKey() + "'; using default.");
+            plugin.logError(section.getCurrentPath() + " missing style for '" + style.configKey() + "'; using default.");
             return style.fallback().parsedStyle();
         }
         return ComponentUtils.deserialize(value).style();

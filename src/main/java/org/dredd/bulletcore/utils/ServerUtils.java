@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Utility class for server related operations.
+ * Utility class for server-related operations.
  *
  * @since 1.0.0
  */
@@ -42,7 +42,7 @@ public final class ServerUtils {
      */
     private static final List<ItemStack> CHARGED_PROJECTILES_LIST = Collections.singletonList(new ItemStack(Material.ARROW));
 
-    // ----------< Miscelaneous Methods >----------
+    // ----------< Miscellaneous Methods >----------
 
     /**
      * @return a list of player names currently online

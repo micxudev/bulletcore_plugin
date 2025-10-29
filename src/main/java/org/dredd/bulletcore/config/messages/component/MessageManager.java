@@ -90,8 +90,7 @@ public final class MessageManager {
             writeDefaultMessages(defaultLangFile);
             plugin.logInfo("Created default language file: " + defaultLangFile.getName());
         } catch (Exception e) {
-            plugin.logError("Failed to create default language file '"
-                + defaultLangFile.getName() + "': " + e.getMessage());
+            plugin.logError("Failed to create default language file '" + defaultLangFile.getName() + "': " + e.getMessage());
         }
         return new HashMap<>();
     }
@@ -150,8 +149,7 @@ public final class MessageManager {
         for (final var msg : ComponentMessage.values()) {
             final String value = config.getString(msg.configKey, null);
             if (value == null)
-                plugin.logError(filePath + " missing message for key '"
-                    + msg.configKey + "'; using default.");
+                plugin.logError(filePath + " missing message for key '" + msg.configKey + "'; using default.");
             else
                 result.put(msg, value);
         }
