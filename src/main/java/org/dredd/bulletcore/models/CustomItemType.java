@@ -93,7 +93,7 @@ public enum CustomItemType {
         final File folder = new File(plugin.getDataFolder(), folderPath);
 
         if (!folder.exists() && !folder.mkdirs()) {
-            plugin.getLogger().severe("Could not create folder for " + label + ": " + folder.getPath());
+            plugin.logError("Could not create folder for " + label + ": " + folder.getPath());
             return;
         }
 
@@ -103,7 +103,7 @@ public enum CustomItemType {
         });
 
         if (files == null || files.length == 0) {
-            plugin.getLogger().info("No " + label + " definitions found in: " + folder.getPath());
+            plugin.logInfo("No " + label + " definitions found in: " + folder.getPath());
             return;
         }
 
@@ -121,12 +121,12 @@ public enum CustomItemType {
                 }
 
             } catch (ItemLoadException | ItemRegisterException e) {
-                plugin.getLogger().severe("Skipping " + label + " \"" + file.getName() + "\": " + e.getMessage());
+                plugin.logError("Skipping " + label + " \"" + file.getName() + "\": " + e.getMessage());
             } catch (Exception e) {
-                plugin.getLogger().severe("Failed to load " + label + " file \"" + file.getName() + "\": " + e.getMessage());
+                plugin.logError("Failed to load " + label + " file \"" + file.getName() + "\": " + e.getMessage());
             }
         }
 
-        plugin.getLogger().info("-Loaded " + loadedCount + " " + label + (loadedCount == 1 ? "" : "s"));
+        plugin.logInfo("-Loaded " + loadedCount + " " + label + (loadedCount == 1 ? "" : "s"));
     }
 }

@@ -122,9 +122,9 @@ public final class ConfigManager {
             if (material != null)
                 result.add(material);
             else
-                plugin.getLogger().severe("Skipping invalid material in ignored-materials: " + name);
+                plugin.logError("Skipping invalid material in ignored-materials: " + name);
         }
-        plugin.getLogger().info("-Loaded " + result.size() + " ignored materials");
+        plugin.logInfo("-Loaded " + result.size() + " ignored materials");
 
         result.addAll(Materials.BLOCKS_NON_COLLIDABLE);
 
@@ -132,7 +132,7 @@ public final class ConfigManager {
         // TODO: add configurable list of materials to filter out for each category
         result.addAll(Materials.BLOCKS_ONLY);
 
-        plugin.getLogger().info("-Total " + result.size() + " ignored materials");
+        plugin.logInfo("-Total " + result.size() + " ignored materials");
 
         return Collections.unmodifiableSet(result);
     }

@@ -69,6 +69,10 @@ public final class BulletCore extends JavaPlugin {
         return plugin;
     }
 
+    public static void logInfo(String msg) {
+        plugin.getLogger().info(msg);
+    }
+
     public static void logError(String msg) {
         plugin.getLogger().severe(msg);
     }
@@ -85,7 +89,7 @@ public final class BulletCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getLogger().info("==========================< BulletCore >==========================");
+        logInfo("==========================< BulletCore >==========================");
 
         ReloadManager.init();
         CommandHandler.init(this);
@@ -95,7 +99,7 @@ public final class BulletCore extends JavaPlugin {
         registerListener(PlayerActionsListener.INSTANCE);
         registerListener(UnknownCommandListener.INSTANCE);
 
-        getLogger().info("==================================================================");
+        logInfo("==================================================================");
     }
 
     @Override

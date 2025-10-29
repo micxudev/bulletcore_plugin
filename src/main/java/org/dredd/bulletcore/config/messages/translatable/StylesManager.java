@@ -77,9 +77,9 @@ public final class StylesManager {
     private @NotNull EnumMap<TranslatableMessage, MessageStyles> initializeDefaults(@NotNull File stylesFile) {
         try {
             writeDefaultStyles(stylesFile);
-            plugin.getLogger().info("Created default styles file: " + stylesFile.getName());
+            plugin.logInfo("Created default styles file: " + stylesFile.getName());
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to create file " + stylesFile + " : " + e.getMessage());
+            plugin.logError("Failed to create file " + stylesFile + " : " + e.getMessage());
         }
         return loadDefaultStyles();
     }
@@ -126,7 +126,7 @@ public final class StylesManager {
             config.load(stylesFile);
             return parseStyles(config);
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to load styles file: " + stylesFile.getName()
+            plugin.logError("Failed to load styles file: " + stylesFile.getName()
                 + ":\n" + e.getMessage() + "\nUsing default styles.");
             return loadDefaultStyles();
         }
@@ -141,7 +141,7 @@ public final class StylesManager {
         for (final var msg : TranslatableMessage.values()) {
             final var section = config.getConfigurationSection(msg.configKey);
             if (section == null) {
-                plugin.getLogger().severe("Missing section for " + msg.configKey + "; using defaults.");
+                plugin.logError("Missing section for " + msg.configKey + "; using defaults.");
                 result.put(msg, msg.defaultStyles.toMessageStyles());
                 continue;
             }
@@ -163,7 +163,7 @@ public final class StylesManager {
                                       @NotNull ConfigStyle style) {
         final String value = section.getString(style.configKey(), null);
         if (value == null) {
-            plugin.getLogger().severe(section.getCurrentPath() + " missing style for '"
+            plugin.logError(section.getCurrentPath() + " missing style for '"
                 + style.configKey() + "'; using default.");
             return style.fallback().parsedStyle();
         }
