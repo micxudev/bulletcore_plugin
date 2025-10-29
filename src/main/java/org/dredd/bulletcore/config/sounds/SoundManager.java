@@ -50,7 +50,7 @@ public final class SoundManager {
             return parseSound(cfg, key);
         } catch (NoSuchElementException ignored) {
             // Ignored, the sound configuration is optional
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             BulletCore.logError(e.getMessage() + "; falling back to default sound.");
         }
         return def;

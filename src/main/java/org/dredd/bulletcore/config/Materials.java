@@ -5,7 +5,6 @@ import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -85,7 +84,7 @@ public final class Materials {
 
         try {
             Files.writeString(file.toPath(), sb.toString());
-        } catch (IOException e) {
+        } catch (Exception e) {
             BulletCore.logError("Failed to save all materials file \"" + file + "\": " + e.getMessage());
         }
     }
