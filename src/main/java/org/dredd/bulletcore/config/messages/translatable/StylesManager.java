@@ -77,9 +77,9 @@ public final class StylesManager {
     private @NotNull EnumMap<TranslatableMessage, MessageStyles> initializeDefaults(@NotNull File stylesFile) {
         try {
             writeDefaultStyles(stylesFile);
-            plugin.logInfo("Created default styles file: " + stylesFile.getName());
+            plugin.logInfo("Created default styles file \"" + stylesFile + "\"");
         } catch (Exception e) {
-            plugin.logError("Failed to create file " + stylesFile + " : " + e.getMessage());
+            plugin.logError("Failed to create default styles file \"" + stylesFile + "\": " + e.getMessage());
         }
         return loadDefaultStyles();
     }
@@ -126,7 +126,7 @@ public final class StylesManager {
             config.load(stylesFile);
             return parseStyles(config);
         } catch (Exception e) {
-            plugin.logError("Failed to load styles file: " + stylesFile.getName() + ":\n" + e.getMessage() + "\nUsing default styles.");
+            plugin.logError("Failed to load styles file \"" + stylesFile + "\":\n" + e.getMessage() + "\nusing default styles.");
             return loadDefaultStyles();
         }
     }
@@ -140,7 +140,7 @@ public final class StylesManager {
         for (final var msg : TranslatableMessage.values()) {
             final var section = config.getConfigurationSection(msg.configKey);
             if (section == null) {
-                plugin.logError("Missing section for " + msg.configKey + "; using defaults.");
+                plugin.logError("Missing styles section for key \"" + msg.configKey + "\"; using default.");
                 result.put(msg, msg.defaultStyles.toMessageStyles());
                 continue;
             }
@@ -162,7 +162,7 @@ public final class StylesManager {
                                       @NotNull ConfigStyle style) {
         final String value = section.getString(style.configKey(), null);
         if (value == null) {
-            plugin.logError(section.getCurrentPath() + " missing style for '" + style.configKey() + "'; using default.");
+            plugin.logError("Styles section \"" + section.getCurrentPath() + "\" is missing style for key \"" + style.configKey() + "\"; using default.");
             return style.fallback().parsedStyle();
         }
         return ComponentUtils.deserialize(value).style();

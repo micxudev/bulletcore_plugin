@@ -122,7 +122,7 @@ public final class ConfigManager {
             if (material != null)
                 result.add(material);
             else
-                plugin.logError("Skipping invalid material in ignored-materials: " + name);
+                plugin.logError("Skipping invalid ignored material \"" + name + "\"");
         }
         plugin.logInfo("-Loaded " + result.size() + " ignored materials");
 

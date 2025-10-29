@@ -88,9 +88,9 @@ public final class MessageManager {
     private Map<Locale, EnumMap<ComponentMessage, String>> initializeDefaults(@NotNull File defaultLangFile) {
         try {
             writeDefaultMessages(defaultLangFile);
-            plugin.logInfo("Created default language file: " + defaultLangFile.getName());
+            plugin.logInfo("Created default language file \"" + defaultLangFile + "\"");
         } catch (Exception e) {
-            plugin.logError("Failed to create default language file '" + defaultLangFile.getName() + "': " + e.getMessage());
+            plugin.logError("Failed to create default language file \"" + defaultLangFile + "\": " + e.getMessage());
         }
         return new HashMap<>();
     }
@@ -118,7 +118,7 @@ public final class MessageManager {
 
         final File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files == null) {
-            plugin.logError("Failed to list language files in folder: " + langFolder);
+            plugin.logError("Failed to list language files in folder \"" + langFolder + "\"");
             return result;
         }
 
@@ -129,9 +129,9 @@ public final class MessageManager {
 
                 final String localeKey = file.getName().replace(".yml", "");
                 final Locale locale = Locale.forLanguageTag(localeKey);
-                result.put(locale, loadMessages(config, file.getPath()));
+                result.put(locale, loadMessages(config, file.toString()));
             } catch (Exception e) {
-                plugin.logError("Skipping invalid language file " + file + ":\n" + e.getMessage());
+                plugin.logError("Skipping invalid language file \"" + file + "\":\n" + e.getMessage());
             }
         }
 
@@ -149,7 +149,7 @@ public final class MessageManager {
         for (final var msg : ComponentMessage.values()) {
             final String value = config.getString(msg.configKey, null);
             if (value == null)
-                plugin.logError(filePath + " missing message for key '" + msg.configKey + "'; using default.");
+                plugin.logError("Messages file \"" + filePath + "\" is missing message for key \"" + msg.configKey + "\"; using default.");
             else
                 result.put(msg, value);
         }

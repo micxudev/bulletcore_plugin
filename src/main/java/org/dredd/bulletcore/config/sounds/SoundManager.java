@@ -51,7 +51,7 @@ public final class SoundManager {
         } catch (NoSuchElementException ignored) {
             // Ignored, the sound configuration is optional
         } catch (IllegalArgumentException e) {
-            BulletCore.logError(e.getMessage() + "; Falling back to default sound");
+            BulletCore.logError(e.getMessage() + "; falling back to default sound.");
         }
         return def;
     }

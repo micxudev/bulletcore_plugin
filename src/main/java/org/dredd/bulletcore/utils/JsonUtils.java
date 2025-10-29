@@ -63,7 +63,7 @@ public final class JsonUtils {
         try {
             return MAPPER.readValue(file, typeRef);
         } catch (Exception e) {
-            BulletCore.logError("Failed to load JSON from " + file.getPath() + ": " + e.getMessage());
+            BulletCore.logError("Failed to load JSON file \"" + file + "\": " + e.getMessage());
             return defaultValue;
         }
     }
@@ -88,7 +88,7 @@ public final class JsonUtils {
                 final byte[] bytes = (pretty ? PRETTY_WRITER : WRITER).writeValueAsBytes(value);
                 writeBytesToFile(file, bytes);
             } catch (Exception e) {
-                BulletCore.logError("Failed to save JSON to " + file.getPath() + ": " + e.getMessage());
+                BulletCore.logError("Failed to save JSON file \"" + file + "\": " + e.getMessage());
             }
         });
     }

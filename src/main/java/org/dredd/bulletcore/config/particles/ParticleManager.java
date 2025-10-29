@@ -50,7 +50,7 @@ public final class ParticleManager {
         } catch (NoSuchElementException ignored) {
             // Ignored, the particle configuration is optional
         } catch (IllegalArgumentException e) {
-            BulletCore.logError(e.getMessage() + "; Falling back to default particle");
+            BulletCore.logError(e.getMessage() + "; falling back to default particle.");
         }
         return def;
     }

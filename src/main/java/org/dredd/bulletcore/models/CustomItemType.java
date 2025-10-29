@@ -93,7 +93,7 @@ public enum CustomItemType {
         final File folder = new File(plugin.getDataFolder(), folderPath);
 
         if (!folder.exists() && !folder.mkdirs()) {
-            plugin.logError("Could not create folder for " + label + ": " + folder.getPath());
+            plugin.logError("Failed to create folder \"" + folder + "\" for " + label);
             return;
         }
 
@@ -103,7 +103,7 @@ public enum CustomItemType {
         });
 
         if (files == null || files.length == 0) {
-            plugin.logInfo("No " + label + " definitions found in: " + folder.getPath());
+            plugin.logInfo("No " + label + " definitions found in folder \"" + folder + "\"");
             return;
         }
 
@@ -121,9 +121,9 @@ public enum CustomItemType {
                 }
 
             } catch (ItemLoadException | ItemRegisterException e) {
-                plugin.logError("Skipping " + label + " \"" + file.getName() + "\": " + e.getMessage());
+                plugin.logError("Skipping " + label + " file \"" + file + "\": " + e.getMessage());
             } catch (Exception e) {
-                plugin.logError("Failed to load " + label + " file \"" + file.getName() + "\": " + e.getMessage());
+                plugin.logError("Failed to load " + label + " file \"" + file + "\": " + e.getMessage());
             }
         }
 

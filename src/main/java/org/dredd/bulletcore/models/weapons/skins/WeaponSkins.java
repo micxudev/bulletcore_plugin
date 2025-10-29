@@ -54,13 +54,13 @@ public final class WeaponSkins {
             skinModelData++;
 
             if (!CustomItemsRegistry.isValidName(key)) {
-                BulletCore.logError("Skin name: '" + key + "' does not match " + CustomItemsRegistry.VALID_NAME.pattern());
+                BulletCore.logError("Skipping skin with name \"" + key + "\": Does not match pattern " + CustomItemsRegistry.VALID_NAME.pattern());
                 continue;
             }
 
             final ConfigurationSection skinSection = skinsSection.getConfigurationSection(key);
             if (skinSection == null) {
-                BulletCore.logError("Skin name: '" + key + "' is not a valid section");
+                BulletCore.logError("Skipping skin with name \"" + key + "\": Is not a section");
                 continue;
             }
 

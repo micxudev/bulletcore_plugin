@@ -86,7 +86,7 @@ public final class Materials {
         try {
             Files.writeString(file.toPath(), sb.toString());
         } catch (IOException e) {
-            BulletCore.logError("Failed to write " + file.getName() + ": " + e.getMessage());
+            BulletCore.logError("Failed to save all materials file \"" + file + "\": " + e.getMessage());
         }
     }
 
