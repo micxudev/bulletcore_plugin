@@ -240,7 +240,28 @@ public enum ComponentMessage {
      * <p>
      * No placeholders.
      */
-    DEBUG_SPRAY_DISABLED("<white>Spray debug <red>DISABLED</red>");
+    DEBUG_SPRAY_DISABLED("<white>Spray debug <red>DISABLED</red>"),
+
+    /**
+     * Shown when no block is detected within the default interaction range.
+     * <p>
+     * No placeholders.
+     */
+    DEBUG_BLOCK_NOT_FOUND("<yellow>No block found within default interaction range."),
+
+    /**
+     * Shown when a block is determined to stop bullets.
+     * <p>
+     * {@code %block%} – the block’s translation key
+     */
+    DEBUG_BLOCK_COLLIDABLE("<green>Bullets will be stopped by <white><lang:%block%></white>"),
+
+    /**
+     * Shown when a block is determined to not stop bullets.
+     * <p>
+     * {@code %block%} – the block’s translation key
+     */
+    DEBUG_BLOCK_NON_COLLIDABLE("<red>Bullets will go through <white><lang:%block%></white>");
 
 
     // ----------< Instance >----------

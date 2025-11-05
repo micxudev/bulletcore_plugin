@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.commands.subcommands.Subcommand;
+import org.dredd.bulletcore.commands.subcommands.SubcommandCanCollide;
 import org.dredd.bulletcore.commands.subcommands.SubcommandGive;
 import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
 import org.dredd.bulletcore.commands.subcommands.SubcommandSkin;
@@ -56,6 +57,7 @@ public final class CommandHandler extends Command {
     private static CommandHandler INSTANCE;
 
     private static final List<Subcommand> SUBCOMMANDS = List.of(
+        SubcommandCanCollide.INSTANCE,
         SubcommandGive.INSTANCE,
         SubcommandReload.INSTANCE,
         SubcommandSkin.INSTANCE,
