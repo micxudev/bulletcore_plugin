@@ -109,12 +109,12 @@ public final class ConfigManager {
 
         this.damageThresholds = DamageThresholds.load(cfg);
 
-        this.entityHitHeadSound = SoundManager.loadSound(cfg, "entity_hit_head", DEFAULT_ENTITY_HIT_HEAD_SOUND);
-        this.entityHitBodySound = SoundManager.loadSound(cfg, "entity_hit_body", DEFAULT_ENTITY_HIT_BODY_SOUND);
-        this.blockHitSound = SoundManager.loadSound(cfg, "block_hit", DEFAULT_BLOCK_HIT_SOUND);
+        this.entityHitHeadSound = SoundManager.loadSound(cfg, "entity-hit-head", DEFAULT_ENTITY_HIT_HEAD_SOUND);
+        this.entityHitBodySound = SoundManager.loadSound(cfg, "entity-hit-body", DEFAULT_ENTITY_HIT_BODY_SOUND);
+        this.blockHitSound = SoundManager.loadSound(cfg, "block-hit", DEFAULT_BLOCK_HIT_SOUND);
 
-        this.entityHitParticle = ParticleManager.loadParticle(cfg, "entity_hit", DEFAULT_ENTITY_HIT_PARTICLE);
-        this.blockHitParticle = ParticleManager.loadParticle(cfg, "block_hit", DEFAULT_BLOCK_HIT_PARTICLE);
+        this.entityHitParticle = ParticleManager.loadParticle(cfg, "entity-hit", DEFAULT_ENTITY_HIT_PARTICLE);
+        this.blockHitParticle = ParticleManager.loadParticle(cfg, "block-hit", DEFAULT_BLOCK_HIT_PARTICLE);
 
         this.asFeatureManager = ASFeatureManager.load(cfg);
     }

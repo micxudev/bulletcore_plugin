@@ -81,21 +81,21 @@ damage-thresholds:
 #     seed: 0
 #     mode: WORLD
 sounds:
-  entity_hit_head:
+  entity-hit-head:
     sound: entity.experience_orb.pickup
     category: MASTER
     volume: 0.5
     pitch: 1.0
     seed: 0
     mode: PLAYER
-  entity_hit_body:
+  entity-hit-body:
     sound: block.beehive.drip
     category: MASTER
     volume: 5.0
     pitch: 1.0
     seed: 0
     mode: WORLD
-  block_hit:
+  block-hit:
     sound: block.metal.hit
     category: MASTER
     volume: 2.0
@@ -137,10 +137,10 @@ sounds:
 # ▪ color: Color in format '#RRGGBB'
 #
 particles:
-  entity_hit:
+  entity-hit:
     particle: DAMAGE_INDICATOR
     count: 1
-  block_hit:
+  block-hit:
     particle: CRIT
     count: 2
 
@@ -150,9 +150,9 @@ particles:
 #   customModelData: integer — custom model data (default: 0 (vanilla item))
 # Some features also have:
 #   removeAfter: ticks — how long the feature lasts (20 ticks = 1 second)
-armorstand-features:
+armor-stand-features:
   # Spawns a bullet hole at the block hit location
-  bullet_hole:
+  bullet-hole:
     enabled: true
     customModelData: 0
     removeAfter: 200

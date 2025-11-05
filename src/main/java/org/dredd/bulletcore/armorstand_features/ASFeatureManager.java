@@ -29,7 +29,7 @@ public final class ASFeatureManager {
      * @return a new {@link ASFeatureManager} instance
      */
     public static @NotNull ASFeatureManager load(@NotNull FileConfiguration cfg) {
-        return new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
+        return new ASFeatureManager(cfg.getConfigurationSection("armor-stand-features"));
     }
 
     /**
@@ -68,6 +68,6 @@ public final class ASFeatureManager {
      * @param root the root config section for armor stand features; can be null
      */
     private ASFeatureManager(@Nullable ConfigurationSection root) {
-        this.bulletHole = loadFeature(root, "bullet_hole", BulletHoleFeature::load);
+        this.bulletHole = loadFeature(root, "bullet-hole", BulletHoleFeature::load);
     }
 }
