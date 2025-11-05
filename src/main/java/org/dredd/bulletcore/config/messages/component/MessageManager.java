@@ -85,7 +85,7 @@ public final class MessageManager {
      * @param defaultLangFile file to write
      * @return an empty map, since no messages are loaded yet
      */
-    private Map<Locale, EnumMap<ComponentMessage, String>> initializeDefaults(@NotNull File defaultLangFile) {
+    private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> initializeDefaults(@NotNull File defaultLangFile) {
         try {
             writeDefaultMessages(defaultLangFile);
             plugin.logInfo("Created default language file \"" + defaultLangFile + "\"");

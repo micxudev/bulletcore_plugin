@@ -6,6 +6,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
@@ -49,6 +50,7 @@ public final class BulletCore extends JavaPlugin {
         MessageManager.load(plugin);
         StylesManager.load(plugin);
         ConfigManager.load(plugin);
+        MaterialsManager.load(plugin);
         CustomItemType.load(plugin);
     }
 

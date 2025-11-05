@@ -1,11 +1,9 @@
 package org.dredd.bulletcore.config;
 
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.armorstand_features.ASFeatureManager;
-import org.dredd.bulletcore.config.materials.AllMaterials;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
@@ -13,11 +11,7 @@ import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import static org.bukkit.SoundCategory.MASTER;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
@@ -96,8 +90,6 @@ public final class ConfigManager {
 
     public final ASFeatureManager asFeatureManager;
 
-    public final Set<Material> ignoredMaterials;
-
     // -----< Construction >-----
 
     private ConfigManager(@NotNull BulletCore plugin) {
@@ -125,38 +117,5 @@ public final class ConfigManager {
         this.blockHitParticle = ParticleManager.loadParticle(cfg, "block_hit", DEFAULT_BLOCK_HIT_PARTICLE);
 
         this.asFeatureManager = ASFeatureManager.load(cfg);
-
-        this.ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
-    }
-
-    // -----< Utilities >-----
-
-    /**
-     * Parses a list of material names into a set of {@link Material} instances.
-     *
-     * @param materialNames the list of material names to parse
-     * @return a set of {@link Material} instances parsed from the given list of material names
-     */
-    private @NotNull Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        final Set<Material> result = new HashSet<>();
-
-        for (final String name : materialNames) {
-            final Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
-            if (material != null)
-                result.add(material);
-            else
-                plugin.logError("Skipping invalid ignored material \"" + name + "\"");
-        }
-        plugin.logInfo("-Loaded " + result.size() + " ignored materials");
-
-        result.addAll(AllMaterials.BLOCKS_NON_COLLIDABLE);
-
-        // Adds 5 extra (PISTON_HEAD MOVING_PISTON WATER_CAULDRON LAVA_CAULDRON POWDER_SNOW_CAULDRON)
-        // TODO: add configurable list of materials to filter out for each category
-        result.addAll(AllMaterials.BLOCKS_ONLY);
-
-        plugin.logInfo("-Total " + result.size() + " ignored materials");
-
-        return Collections.unmodifiableSet(result);
     }
 }

@@ -19,6 +19,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
+import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.config.sounds.SoundManager;
@@ -212,8 +213,7 @@ public final class ShootingHandler {
         final Predicate<Entity> entityFilter = entity ->
             entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
 
-        final Predicate<Block> canCollide = block ->
-            !config.ignoredMaterials.contains(block.getType());
+        final Predicate<Block> canCollide = MaterialsManager.instance().canCollide;
 
         final World world = player.getWorld();
         final Location eyeLocation = player.getEyeLocation();
