@@ -98,7 +98,7 @@ public enum CustomItemType {
         }
 
         final File[] files = folder.listFiles((dir, name) -> {
-            String lower = name.toLowerCase(Locale.ROOT);
+            final String lower = name.toLowerCase(Locale.ROOT);
             return lower.endsWith(".yml") || lower.endsWith(".yaml");
         });
 
@@ -115,7 +115,7 @@ public enum CustomItemType {
                 config.load(file);
 
                 if (config.getBoolean("enabled", true)) {
-                    CustomBase item = loader.load(config);
+                    final CustomBase item = loader.load(config);
                     CustomItemsRegistry.register(item);
                     loadedCount++;
                 }

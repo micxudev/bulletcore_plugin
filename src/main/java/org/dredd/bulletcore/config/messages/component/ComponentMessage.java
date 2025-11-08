@@ -344,7 +344,7 @@ public enum ComponentMessage {
      */
     private @NotNull String applyPlaceholders(@NotNull String template,
                                               @NotNull Map<String, String> values) {
-        for (Map.Entry<String, String> e : values.entrySet())
+        for (final var e : values.entrySet())
             template = template.replace("%" + e.getKey() + "%", e.getValue());
         return template;
     }

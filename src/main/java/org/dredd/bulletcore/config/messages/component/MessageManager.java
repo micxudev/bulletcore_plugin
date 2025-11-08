@@ -114,7 +114,7 @@ public final class MessageManager {
      * Loads all language files from the given folder.
      */
     private @NotNull Map<Locale, EnumMap<ComponentMessage, String>> loadLanguagesFromFolder(@NotNull File langFolder) {
-        Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
+        final Map<Locale, EnumMap<ComponentMessage, String>> result = new HashMap<>();
 
         final File[] files = langFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files == null) {

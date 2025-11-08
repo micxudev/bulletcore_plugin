@@ -99,7 +99,7 @@ public final class WeaponRecoil {
 
     // TEST VALUES
     /**
-     * The number of ticks required to reduce the target recoil by {@link #recoveryPercent} based on {@link #damping}.<br>
+     * The number of ticks required to reduce the target recoil by {@link #recoveryPercent} based on {@link #damping}.
      */
     public final int ticksToRecoverTarget;
 

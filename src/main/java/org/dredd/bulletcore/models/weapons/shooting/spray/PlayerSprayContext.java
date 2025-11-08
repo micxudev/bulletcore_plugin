@@ -112,7 +112,7 @@ public final class PlayerSprayContext {
      * @return the list of {@link MovementModifier}s for the player
      */
     public @NotNull List<MovementModifier> getModifiers() {
-        List<MovementModifier> mods = new ArrayList<>(MovementModifier.values().length);
+        final List<MovementModifier> mods = new ArrayList<>(MovementModifier.values().length);
         if (sprinting) mods.add(SPRINTING);
         if (sneaking) mods.add(SNEAKING);
         if (underwater) mods.add(UNDERWATER);

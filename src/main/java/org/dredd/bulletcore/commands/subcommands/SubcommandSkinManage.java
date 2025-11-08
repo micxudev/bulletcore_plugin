@@ -77,11 +77,11 @@ public enum SubcommandSkinManage implements Subcommand {
         if (skinName.equals(ALL_OPTION)) {
             switch (operation) {
                 case "add" -> {
-                    int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
+                    final int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
                     SKINS_ADDED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsAdded)));
                 }
                 case "remove" -> {
-                    int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
+                    final int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
                     SKINS_REMOVED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsRemoved)));
                 }
             }

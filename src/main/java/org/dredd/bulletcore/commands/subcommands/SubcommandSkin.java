@@ -94,8 +94,8 @@ public enum SubcommandSkin implements Subcommand {
         if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 2) {
-            List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
-            List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+            final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+            final List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
             skinOptions.add(DEFAULT_SKIN_NAME);
             skinOptions.addAll(playerWeaponSkins);
 
