@@ -88,7 +88,11 @@ public abstract class CustomBase {
 
         this.displayNameString = PlainTextComponentSerializer.plainText().serialize(displayName);
 
-        this.lore = config.getStringList("lore").stream()
+        final List<String> loreList = config.getStringList("lore");
+        if (loreList.size() > 256)
+            throw new ItemLoadException("Lore cannot have more than 256 lines");
+
+        this.lore = loreList.stream()
             .map(ComponentUtils::deserialize)
             .collect(Collectors.toList());
 
