@@ -207,8 +207,7 @@ public class Weapon extends CustomBase {
     // -----< Weapon Behavior >-----
 
     @Override
-    public @NotNull ItemStack createItemStack() {
-        final ItemStack stack = super.createBaseItemStack();
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {
         final ItemMeta meta = stack.getItemMeta();
 
         // Add only weapon-specific attributes
@@ -217,7 +216,6 @@ public class Weapon extends CustomBase {
 
         stack.setItemMeta(meta);
         setBulletCount(stack, maxBullets);
-        return stack;
     }
 
     @Override

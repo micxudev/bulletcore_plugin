@@ -12,6 +12,7 @@ import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,12 @@ import java.util.stream.Collectors;
 public abstract class CustomBase {
 
     // -----< Attributes >-----
+
+    /**
+     * Lazily initialized {@link ItemStack} representing this custom item.<br>
+     * Created on the first request and cloned for faster subsequent creation.
+     */
+    private volatile @Nullable ItemStack prototype;
 
     /**
      * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).
@@ -102,12 +109,28 @@ public abstract class CustomBase {
     // -----< Item Behavior >-----
 
     /**
-     * Subclasses must implement this method to provide additional information to the final item stack.
+     * Creates and returns a clone of this custom item's prototype stack.
+     * <p>
+     * Lazily initializes the prototype if it hasn't been created yet.
      *
-     * @return a new stack with all the necessary attributes and additional ones applied
-     * @see #createBaseItemStack()
+     * @return a new stack representing this custom item
      */
-    public abstract @NotNull ItemStack createItemStack();
+    public @NotNull ItemStack createItemStack() {
+        if (prototype == null) {
+            synchronized (this) {
+                if (prototype == null)
+                    prototype = createPrototype();
+            }
+        }
+        return prototype.clone();
+    }
+
+    /**
+     * Allows subclasses to add or modify attributes on the base item stack.
+     *
+     * @param stack the base stack to customize
+     */
+    protected abstract void applyCustomAttributes(@NotNull ItemStack stack);
 
     /**
      * Called when a player right-clicks with this custom item in the main hand.
@@ -152,11 +175,22 @@ public abstract class CustomBase {
     // -----< Utilities >-----
 
     /**
+     * Builds the prototype {@link ItemStack} for this custom item.
+     *
+     * @return a fully configured prototype stack
+     */
+    private @NotNull ItemStack createPrototype() {
+        final ItemStack stack = createBaseItemStack();
+        applyCustomAttributes(stack);
+        return stack;
+    }
+
+    /**
      * Creates a new {@link ItemStack} with all the base attributes already set.
      *
      * @return a new stack with all the base attributes applied
      */
-    protected @NotNull ItemStack createBaseItemStack() {
+    private @NotNull ItemStack createBaseItemStack() {
         final ItemStack itemStack = new ItemStack(material);
         final ItemMeta meta = itemStack.getItemMeta();
 

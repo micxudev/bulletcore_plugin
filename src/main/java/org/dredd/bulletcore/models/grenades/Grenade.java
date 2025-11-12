@@ -30,9 +30,8 @@ public class Grenade extends CustomBase {
     // -----< Grenade Behavior >-----
 
     @Override
-    public @NotNull ItemStack createItemStack() {
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {
         // Add only grenade-specific attributes
-        return super.createBaseItemStack();
     }
 
     @Override

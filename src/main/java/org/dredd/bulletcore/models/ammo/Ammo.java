@@ -71,11 +71,8 @@ public class Ammo extends CustomBase {
     // -----< Ammo Behavior >-----
 
     @Override
-    public @NotNull ItemStack createItemStack() {
-        final ItemStack stack = super.createBaseItemStack();
-
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {
         setAmmoCount(stack, maxAmmo);
-        return stack;
     }
 
     @Override

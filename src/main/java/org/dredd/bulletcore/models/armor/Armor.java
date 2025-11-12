@@ -120,8 +120,7 @@ public class Armor extends CustomBase {
     // -----< Armor Behavior >-----
 
     @Override
-    public @NotNull ItemStack createItemStack() {
-        final ItemStack stack = super.createBaseItemStack();
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {
         final ItemMeta meta = stack.getItemMeta();
 
         meta.setUnbreakable(unbreakable);
@@ -130,7 +129,6 @@ public class Armor extends CustomBase {
 
         stack.setItemMeta(meta);
         setDurability(stack, maxDurability);
-        return stack;
     }
 
     @Override
