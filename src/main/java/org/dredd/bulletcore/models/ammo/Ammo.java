@@ -73,34 +73,6 @@ public class Ammo extends CustomBase {
         setAmmoCount(stack, maxAmmo);
     }
 
-    @Override
-    public boolean onRMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Right-click with Ammo");
-        return false;
-    }
-
-    @Override
-    public boolean onLMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Left-click with Ammo");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapTo(@NotNull Player player,
-                            @NotNull ItemStack stack) {
-        //System.out.println("Swapped to Ammo");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapAway(@NotNull Player player,
-                              @NotNull ItemStack stack) {
-        //System.out.println("Swapped away from Ammo");
-        return false;
-    }
-
     // -----< ItemStack | Ammo >-----
 
     /**

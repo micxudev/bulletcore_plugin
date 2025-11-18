@@ -7,7 +7,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
@@ -129,35 +128,7 @@ public class Armor extends CustomBase {
         setDurability(stack, maxDurability);
     }
 
-    @Override
-    public boolean onRMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Right-click with Armor");
-        return false;
-    }
-
-    @Override
-    public boolean onLMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Left-click with Armor");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapTo(@NotNull Player player,
-                            @NotNull ItemStack stack) {
-        //System.out.println("Swapped to Armor");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapAway(@NotNull Player player,
-                              @NotNull ItemStack stack) {
-        //System.out.println("Swapped away from Armor");
-        return false;
-    }
-
-    // -----< Armor State Management >-----
+    // -----< ItemStack | Armor >-----
 
     /**
      * Retrieves the current durability value stored in the given {@link ItemStack}'s metadata.

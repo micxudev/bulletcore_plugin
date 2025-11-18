@@ -269,7 +269,7 @@ public class Weapon extends CustomBase {
         usedItem.setItemMeta(meta);
     }
 
-    // -----< Weapon State Management >-----
+    // -----< ItemStack | Weapon >-----
 
     /**
      * Retrieves the current bullet count stored in the given {@link ItemStack}'s metadata.
@@ -310,6 +310,8 @@ public class Weapon extends CustomBase {
     public boolean isThisWeapon(@Nullable ItemStack stack) {
         return CustomItemsRegistry.getWeaponOrNull(stack) == this;
     }
+
+    // -----< Player | Weapon >-----
 
     /**
      * Retrieves the timestamp of the last trigger pull for the given player with this weapon.

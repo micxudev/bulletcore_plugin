@@ -1,8 +1,6 @@
 package org.dredd.bulletcore.models.grenades;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
@@ -29,36 +27,5 @@ public class Grenade extends CustomBase {
 
     // -----< Grenade Behavior >-----
 
-    @Override
-    protected void applyCustomAttributes(@NotNull ItemStack stack) {
-        // Add only grenade-specific attributes
-    }
-
-    @Override
-    public boolean onRMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Right-click with Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onLMB(@NotNull Player player,
-                         @NotNull ItemStack stack) {
-        //System.out.println("Left-click with Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapTo(@NotNull Player player,
-                            @NotNull ItemStack stack) {
-        //System.out.println("Swapped to Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapAway(@NotNull Player player,
-                              @NotNull ItemStack stack) {
-        //System.out.println("Swapped away from Grenade");
-        return false;
-    }
+    // Override only needed methods from CustomBase
 }

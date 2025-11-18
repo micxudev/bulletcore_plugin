@@ -115,7 +115,7 @@ public abstract class CustomBase {
      *
      * @return a new stack representing this custom item
      */
-    public @NotNull ItemStack createItemStack() {
+    public final @NotNull ItemStack createItemStack() {
         if (prototype == null) {
             synchronized (this) {
                 if (prototype == null)
@@ -130,7 +130,7 @@ public abstract class CustomBase {
      *
      * @param stack the base stack to customize
      */
-    protected abstract void applyCustomAttributes(@NotNull ItemStack stack);
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {}
 
     /**
      * Called when a player right-clicks with this custom item in the main hand.
@@ -139,8 +139,8 @@ public abstract class CustomBase {
      * @param stack  the item stack that was right-clicked with
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
-    public abstract boolean onRMB(@NotNull Player player,
-                                  @NotNull ItemStack stack);
+    public boolean onRMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {return false;}
 
     /**
      * Called when a player left-clicks with this custom item in the main hand.
@@ -149,8 +149,8 @@ public abstract class CustomBase {
      * @param stack  the item stack that was left-clicked with
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
-    public abstract boolean onLMB(@NotNull Player player,
-                                  @NotNull ItemStack stack);
+    public boolean onLMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {return false;}
 
     /**
      * Called when a player swaps to this custom item.
@@ -159,8 +159,8 @@ public abstract class CustomBase {
      * @param stack  the item stack that was swapped to
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
-    public abstract boolean onSwapTo(@NotNull Player player,
-                                     @NotNull ItemStack stack);
+    public boolean onSwapTo(@NotNull Player player,
+                            @NotNull ItemStack stack) {return false;}
 
     /**
      * Called when a player swaps away from this custom item.
@@ -169,8 +169,8 @@ public abstract class CustomBase {
      * @param stack  the item stack that was swapped away
      * @return {@code true} if the involved event should be canceled, {@code false} otherwise
      */
-    public abstract boolean onSwapAway(@NotNull Player player,
-                                       @NotNull ItemStack stack);
+    public boolean onSwapAway(@NotNull Player player,
+                              @NotNull ItemStack stack) {return false;}
 
     // -----< Utilities >-----
 
