@@ -18,14 +18,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.attribute.Attribute.*;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.persistence.PersistentDataType.DOUBLE;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatPercent;
 import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;
@@ -109,7 +107,7 @@ public class Armor extends CustomBase {
         if (explosionKnockbackResistance > 0)
             modifiers.put(GENERIC_EXPLOSION_KNOCKBACK_RESISTANCE, new AttributeModifier(rndNamespacedKey(), explosionKnockbackResistance, ADD_NUMBER, ARMOR));
 
-        super.lore.add(0, text("Durability will be here on ItemStack creation", WHITE));
+        super.lore.add(0, Component.empty()); // Durability will be here on ItemStack creation
         super.lore.add(1, LORE_ARMOR_DAMAGE_REDUCTION.toTranslatable(formatPercent(damageReduction)));
         super.lore.add(2, LORE_ARMOR_ARMOR_POINTS.toTranslatable(Integer.toString(armorPoints)));
         super.lore.add(3, LORE_ARMOR_TOUGHNESS_POINTS.toTranslatable(Integer.toString(toughnessPoints)));

@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_AMMO_COUNT;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 
 /**
  * Represents ammo items.
@@ -65,7 +63,7 @@ public class Ammo extends CustomBase {
         this.maxAmmo = Math.clamp(config.getInt("maxAmmo", 100), 1, Integer.MAX_VALUE);
         this.maxAmmoString = Integer.toString(maxAmmo);
 
-        super.lore.add(0, text("Ammo count will be here on ItemStack creation", WHITE));
+        super.lore.add(0, Component.empty()); // Ammo count will be here on ItemStack creation
     }
 
     // -----< Ammo Behavior >-----

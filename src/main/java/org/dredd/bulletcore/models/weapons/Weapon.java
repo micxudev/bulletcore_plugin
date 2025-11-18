@@ -31,13 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_STATUS;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
-import static org.dredd.bulletcore.utils.ComponentUtils.WHITE;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDoubles;
 
@@ -198,7 +196,7 @@ public class Weapon extends CustomBase {
         this.trailParticle = BulletTrailParticle.load(config);
         this.skins = WeaponSkins.load(config, super.customModelData, super.displayName);
 
-        super.lore.add(0, text("Bullets will be here on ItemStack creation", WHITE));
+        super.lore.add(0, Component.empty()); // Bullets will be here on ItemStack creation
         super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet())));
         super.lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
         super.lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
