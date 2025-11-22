@@ -36,6 +36,7 @@ public final class SingleReloadHandler extends ReloadHandler {
                                    @NotNull Weapon weapon) {
         return new BukkitRunnable() {
             final long singleBulletReloadTime = weapon.reloadTime / weapon.maxBullets;
+
             long currentBulletMillisLeft = singleBulletReloadTime;
 
             @Override

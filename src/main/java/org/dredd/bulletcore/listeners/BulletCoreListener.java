@@ -38,7 +38,9 @@ import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.dredd.bulletcore.utils.ServerUtils;
 
-import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.*;
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.getItemOrNull;
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.getWeaponOrNull;
+import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
 
 /**
  * The main listener for the plugin.
@@ -361,13 +363,15 @@ public enum BulletCoreListener implements Listener {
             // Runs on the next tick to prevent PlayerDeathEvent being called twice
             // since onLMB may also trigger EntityDamageByEntityEvent
             // (Temporal workaround, until we find a better solution without scheduling)
-            Bukkit.getScheduler().runTask(BulletCore.instance(), () -> {
-                if (!damager.isOnline() || damager.isDead()) return;
+            Bukkit.getScheduler().runTask(
+                BulletCore.instance(), () -> {
+                    if (!damager.isOnline() || damager.isDead()) return;
 
-                final ItemStack currentWeapon = damager.getInventory().getItemInMainHand();
-                if (weapon.isThisWeapon(currentWeapon))
-                    weapon.onLMB(damager, currentWeapon);
-            });
+                    final ItemStack currentWeapon = damager.getInventory().getItemInMainHand();
+                    if (weapon.isThisWeapon(currentWeapon))
+                        weapon.onLMB(damager, currentWeapon);
+                }
+            );
         }
     }
 

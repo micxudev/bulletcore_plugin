@@ -1,10 +1,10 @@
 package org.dredd.bulletcore.listeners.trackers;
 
+import java.util.UUID;
+
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Tracks the most recent player actions.

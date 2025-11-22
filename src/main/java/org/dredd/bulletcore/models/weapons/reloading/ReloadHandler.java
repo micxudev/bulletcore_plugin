@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,10 +14,6 @@ import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.utils.FormatterUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOADING;
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOAD_CANCELED;
@@ -103,7 +103,8 @@ public abstract class ReloadHandler {
                                       @NotNull ItemStack stack,
                                       long millisLeft) {
         if (ConfigManager.instance().enableHotbarMessages)
-            WEAPON_RELOADING.sendActionBar(player,
+            WEAPON_RELOADING.sendActionBar(
+                player,
                 Map.of(
                     "bullets", Integer.toString(weapon.getBulletCount(stack)),
                     "maxbullets", weapon.maxBulletsString,

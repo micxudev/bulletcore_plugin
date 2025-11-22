@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.config.particles;
 
+import java.util.Locale;
+import java.util.NoSuchElementException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -13,9 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Locale;
-import java.util.NoSuchElementException;
 
 /**
  * Utility class for loading and spawning configured particles.

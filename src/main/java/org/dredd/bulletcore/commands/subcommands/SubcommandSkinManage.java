@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,11 +15,16 @@ import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_INVALID_OPERATION;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.PLAYER_NOT_FOUND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKINS_ADDED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKINS_REMOVED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_ADDED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_ALREADY_OWNED_OTHER;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_FOUND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_OWNED_OTHER;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_REMOVED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_NOT_FOUND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -29,6 +38,7 @@ public enum SubcommandSkinManage implements Subcommand {
     INSTANCE;
 
     private static final List<String> OPERATIONS = List.of("add", "remove");
+
     private static final String ALL_OPTION = "--all";
 
     @Override

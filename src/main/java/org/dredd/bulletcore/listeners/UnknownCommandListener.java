@@ -1,11 +1,11 @@
 package org.dredd.bulletcore.listeners;
 
+import java.util.Map;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.command.UnknownCommandEvent;
-
-import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_UNKNOWN;
 

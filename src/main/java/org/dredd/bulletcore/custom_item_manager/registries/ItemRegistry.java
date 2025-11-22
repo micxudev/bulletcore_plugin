@@ -1,5 +1,10 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
@@ -7,11 +12,6 @@ import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.

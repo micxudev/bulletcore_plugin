@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.config.messages.component;
 
+import java.util.Locale;
+import java.util.Map;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.dredd.bulletcore.config.ConfigManager;
@@ -7,9 +10,6 @@ import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Defines server-side component messages used for (e.g., command feedback, errors, and notifications).

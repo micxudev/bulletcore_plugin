@@ -1,10 +1,10 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.dredd.bulletcore.commands.CommandHandler;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * Represents a subcommand of {@link CommandHandler}.<br>

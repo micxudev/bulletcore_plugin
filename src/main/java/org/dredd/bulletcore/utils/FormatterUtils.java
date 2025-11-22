@@ -1,8 +1,8 @@
 package org.dredd.bulletcore.utils;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.text.DecimalFormat;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class for formatting numbers.

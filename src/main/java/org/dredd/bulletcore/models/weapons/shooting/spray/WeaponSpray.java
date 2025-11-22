@@ -1,11 +1,11 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Defines the parameters used to represent weapon spray.

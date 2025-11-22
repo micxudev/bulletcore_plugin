@@ -1,5 +1,13 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
@@ -9,14 +17,6 @@ import org.dredd.bulletcore.utils.JsonUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.core.type.TypeReference;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
@@ -55,7 +55,8 @@ public final class SkinsManager {
      * Loads the skin data from the file and initializes the skins' storage.
      */
     public static void load(@NotNull BulletCore plugin) {
-        skinsDataFile = new File(plugin.getDataFolder(),
+        skinsDataFile = new File(
+            plugin.getDataFolder(),
             CustomItemType.WEAPON.folderPath + "/data/skins.json"
         );
         playerSkinsStorage = JsonUtils.load(skinsDataFile, new TypeReference<>() {}, new HashMap<>());

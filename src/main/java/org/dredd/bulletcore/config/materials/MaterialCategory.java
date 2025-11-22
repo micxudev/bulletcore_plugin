@@ -1,9 +1,5 @@
 package org.dredd.bulletcore.config.materials;
 
-import org.bukkit.Material;
-import org.dredd.bulletcore.BulletCore;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -11,6 +7,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import org.bukkit.Material;
+import org.dredd.bulletcore.BulletCore;
+import org.jetbrains.annotations.NotNull;
 
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
@@ -35,9 +35,13 @@ public enum MaterialCategory {
     private static final class AllMaterials {
 
         private static final int TOTAL_MATERIALS;
+
         private static final Set<Material> ITEMS_ONLY;
+
         private static final Set<Material> BLOCKS_ONLY;
+
         private static final Set<Material> BLOCKS_COLLIDABLE;
+
         private static final Set<Material> BLOCKS_NON_COLLIDABLE;
 
         static {
@@ -141,6 +145,7 @@ public enum MaterialCategory {
     private static final class ExcludePatterns {
 
         private static final List<String> BLOCKS_ONLY;
+
         private static final List<String> BLOCKS_COLLIDABLE;
 
         static {
@@ -208,8 +213,6 @@ public enum MaterialCategory {
             .append("# ").append(name).append(": ").append(materials.size()).append('\n')
             .append(name).append(":\n");
 
-        materials.forEach(material ->
-            sb.append("  - ").append(material.name()).append('\n')
-        );
+        materials.forEach(material -> sb.append("  - ").append(material.name()).append('\n'));
     }
 }

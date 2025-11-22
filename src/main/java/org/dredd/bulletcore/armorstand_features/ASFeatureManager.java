@@ -1,12 +1,12 @@
 package org.dredd.bulletcore.armorstand_features;
 
+import java.util.function.Function;
+
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.armorstand_features.features.BulletHoleFeature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Function;
 
 /**
  * Manages all armorstand-based visual features and loads them from config.

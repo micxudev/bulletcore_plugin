@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,10 +14,10 @@ import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_PLAYERS_ONLY;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_LOADED;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_OWNED_SELF;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_MAINHAND_REQUIRED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**

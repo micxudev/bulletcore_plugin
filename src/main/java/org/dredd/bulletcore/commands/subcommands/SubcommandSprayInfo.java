@@ -1,16 +1,19 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_INVALID_OPERATION;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_PLAYERS_ONLY;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.DEBUG_SPRAY_DISABLED;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.DEBUG_SPRAY_ENABLED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**

@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -9,11 +12,23 @@ import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.FormatterUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.*;
-import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.*;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.IN_CRAWLING_POSE;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.IN_FLIGHT;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.IN_VEHICLE;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.IN_WATER;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.ON_CLIMBABLE;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.SNEAKING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.SPRINTING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementModifier.UNDERWATER;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.CLIMBING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.CRAWLING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.FLYING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.GLIDING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.JUMPING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.RIDING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.STANDING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.SWIMMING;
+import static org.dredd.bulletcore.models.weapons.shooting.spray.MovementState.WALKING;
 
 /**
  * Tracks and updates the state context for a specific player.
@@ -58,23 +73,38 @@ public final class PlayerSprayContext {
 
     // States
     private boolean gliding;
+
     private boolean swimming;
+
     private boolean jumping;
+
     private boolean standing;
+
     private boolean crawling;
+
     private boolean riding;
+
     private boolean flying;
+
     private boolean climbing;
+
     private boolean walking;
 
     // Modifiers
     private boolean sprinting;
+
     private boolean sneaking;
+
     private boolean underwater;
+
     private boolean inWater;
+
     private boolean inVehicle;
+
     private boolean inFlight;
+
     private boolean inCrawlingPose;
+
     private boolean onClimbable;
 
     // -----< Construction >-----

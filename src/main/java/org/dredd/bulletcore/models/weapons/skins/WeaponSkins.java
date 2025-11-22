@@ -1,5 +1,11 @@
 package org.dredd.bulletcore.models.weapons.skins;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.kyori.adventure.text.Component;
@@ -9,12 +15,6 @@ import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Manages a collection of {@link WeaponSkin} instances associated with a weapon.

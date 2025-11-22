@@ -46,16 +46,23 @@ public final class BulletHoleFeature extends ArmorStandFeature {
     // -----< Position offsets (derived experimentally) >-----
 
     private static final double VERTICAL_OFFSET = 1.2563;
+
     private static final double BACK_OFFSET = 0.19;
+
     private static final double HORIZONTAL_OFFSET = 0.53;
 
     // -----< Head rotations >-----
 
     private static final Rotations HEAD_ROT_UP = Rotations.ofDegrees(90, 0, 0);
+
     private static final Rotations HEAD_ROT_DOWN = Rotations.ofDegrees(-90, 0, 0);
+
     private static final Rotations HEAD_ROT_SOUTH = Rotations.ofDegrees(0, 180, 0);
+
     private static final Rotations HEAD_ROT_WEST = Rotations.ofDegrees(0, -90, 0);
+
     private static final Rotations HEAD_ROT_EAST = Rotations.ofDegrees(0, 90, 0);
+
     private static final Rotations HEAD_ROT_NORTH = Rotations.ofDegrees(0, 0, 0);
 
     // -----< Loader >-----

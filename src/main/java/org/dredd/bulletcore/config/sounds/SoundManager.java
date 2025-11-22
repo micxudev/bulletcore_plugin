@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.config.sounds;
 
+import java.util.Locale;
+import java.util.NoSuchElementException;
+
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.ConfigurationSection;
@@ -7,9 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Locale;
-import java.util.NoSuchElementException;
 
 /**
  * Utility class for loading and playing configured sounds.

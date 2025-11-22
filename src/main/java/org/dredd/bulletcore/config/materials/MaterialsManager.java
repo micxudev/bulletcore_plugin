@@ -1,11 +1,5 @@
 package org.dredd.bulletcore.config.materials;
 
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.dredd.bulletcore.BulletCore;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,6 +9,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.dredd.bulletcore.BulletCore;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Manages and loads materials.
@@ -27,9 +27,11 @@ public final class MaterialsManager {
     // ----------< Static >----------
 
     private static final String ALL_MATERIALS_FILE_NAME = "all-materials.yml";
+
     private static final boolean GENERATE_ALL_MATERIALS_FILE = true;
 
     private static final String IGNORED_MATERIALS_FILE_NAME = "ignored-materials.yml";
+
     private static final List<String> IGNORED_MATERIALS_HEADER = List.of("Wiki: <link>");
 
     private static MaterialsManager instance;

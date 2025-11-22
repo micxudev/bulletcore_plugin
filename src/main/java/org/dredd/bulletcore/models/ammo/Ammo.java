@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.models.ammo;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,9 +15,6 @@ import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_AMMO_COUNT;

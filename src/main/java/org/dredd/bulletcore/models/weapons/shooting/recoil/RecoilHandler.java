@@ -1,14 +1,14 @@
 package org.dredd.bulletcore.models.weapons.shooting.recoil;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Handles recoil tasks for players.

@@ -1,15 +1,15 @@
 package org.dredd.bulletcore.config.messages.translatable;
 
+import java.io.File;
+import java.util.EnumMap;
+import java.util.List;
+
 import net.kyori.adventure.text.format.Style;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.EnumMap;
-import java.util.List;
 
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.ConfigStyle;
 import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.MessageStyles;
@@ -27,6 +27,7 @@ public final class StylesManager {
     // ----------< Static >----------
 
     private static final String STYLES_FILE_NAME = "styles.yml";
+
     private static final List<String> STYLES_HEADER = List.of("Wiki: <link>");
 
     private static StylesManager instance;
@@ -45,6 +46,7 @@ public final class StylesManager {
     // -----< Attributes >-----
 
     private final BulletCore plugin;
+
     private final EnumMap<TranslatableMessage, MessageStyles> styles;
 
     // -----< Construction >-----

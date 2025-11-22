@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -9,10 +12,10 @@ import org.bukkit.util.RayTraceResult;
 import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_PLAYERS_ONLY;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.DEBUG_BLOCK_COLLIDABLE;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.DEBUG_BLOCK_NON_COLLIDABLE;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.DEBUG_BLOCK_NOT_FOUND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**

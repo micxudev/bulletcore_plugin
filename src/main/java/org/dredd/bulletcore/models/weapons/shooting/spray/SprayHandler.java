@@ -1,15 +1,15 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-import org.dredd.bulletcore.models.weapons.Weapon;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import org.dredd.bulletcore.models.weapons.Weapon;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Handles weapon spray for players.
@@ -26,7 +26,9 @@ public final class SprayHandler {
 
     // ----------< Spray Look-Up Table >----------
     private static final int LUT_SIZE = 256;
+
     private static final double[] SIN = new double[LUT_SIZE];
+
     private static final double[] COS = new double[LUT_SIZE];
 
     static {

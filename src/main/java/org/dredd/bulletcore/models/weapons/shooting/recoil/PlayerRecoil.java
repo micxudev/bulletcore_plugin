@@ -45,6 +45,7 @@ public final class PlayerRecoil {
     private final Player player;
 
     // START: Recoil parameters from the weapon used in the last shot
+
     /**
      * Recoil speed multiplier from the weapon's profile. See {@link WeaponRecoil#speed}.
      */
@@ -61,6 +62,7 @@ public final class PlayerRecoil {
     private float damping;
 
     // TEST VALUES
+
     /**
      * Estimated ticks required to reduce target recoil by {@link WeaponRecoil#recoveryPercent}.
      */

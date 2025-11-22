@@ -1,5 +1,10 @@
 package org.dredd.bulletcore.utils;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -12,11 +17,6 @@ import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Utility class for server-related operations.

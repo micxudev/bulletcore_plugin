@@ -1,11 +1,11 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.command.CommandSender;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.CONFIG_RELOADED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;

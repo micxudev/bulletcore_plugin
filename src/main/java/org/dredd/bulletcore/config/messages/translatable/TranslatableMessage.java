@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.config.messages.translatable;
 
+import java.util.List;
+import java.util.Locale;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -7,10 +10,13 @@ import net.kyori.adventure.text.format.Style;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Locale;
-
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.*;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.ConfigStyle;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.ConfigStyles;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.KEY_STYLE;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.STYLE_BLUE;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.STYLE_GREEN;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.STYLE_RED;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.Defaults.STYLE_YELLOW;
 
 /**
  * Defines client-side translatable messages (e.g., shown on custom item lore).
@@ -29,7 +35,8 @@ public enum TranslatableMessage {
     /**
      * Bullet count shown on weapon lore.
      */
-    LORE_WEAPON_BULLETS(new ConfigStyles(KEY_STYLE,
+    LORE_WEAPON_BULLETS(new ConfigStyles(
+        KEY_STYLE,
         List.of(
             new ConfigStyle("count", STYLE_GREEN),
             new ConfigStyle("max", STYLE_BLUE)
@@ -39,7 +46,8 @@ public enum TranslatableMessage {
     /**
      * Weapon damage value shown on weapon lore.
      */
-    LORE_WEAPON_DAMAGE(new ConfigStyles(KEY_STYLE,
+    LORE_WEAPON_DAMAGE(new ConfigStyles(
+        KEY_STYLE,
         List.of(
             new ConfigStyle("head", STYLE_RED),
             new ConfigStyle("body", STYLE_RED),
@@ -51,14 +59,16 @@ public enum TranslatableMessage {
     /**
      * Weapon range shown on weapon lore.
      */
-    LORE_WEAPON_DISTANCE(new ConfigStyles(KEY_STYLE,
+    LORE_WEAPON_DISTANCE(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("distance", STYLE_RED))
     )),
 
     /**
      * Ammo type used by the weapon shown on weapon lore.
      */
-    LORE_WEAPON_AMMO(new ConfigStyles(KEY_STYLE,
+    LORE_WEAPON_AMMO(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("ammo", STYLE_YELLOW))
     )),
 
@@ -68,7 +78,8 @@ public enum TranslatableMessage {
     /**
      * Ammo count shown on ammo lore.
      */
-    LORE_AMMO_COUNT(new ConfigStyles(KEY_STYLE,
+    LORE_AMMO_COUNT(new ConfigStyles(
+        KEY_STYLE,
         List.of(
             new ConfigStyle("count", STYLE_GREEN),
             new ConfigStyle("max", STYLE_BLUE)
@@ -81,7 +92,8 @@ public enum TranslatableMessage {
     /**
      * Armor durability shown on armor lore.
      */
-    LORE_ARMOR_DURABILITY(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_DURABILITY(new ConfigStyles(
+        KEY_STYLE,
         List.of(
             new ConfigStyle("current", STYLE_GREEN),
             new ConfigStyle("max", STYLE_BLUE)
@@ -91,35 +103,40 @@ public enum TranslatableMessage {
     /**
      * Damage reduction percentage shown on armor lore.
      */
-    LORE_ARMOR_DAMAGE_REDUCTION(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_DAMAGE_REDUCTION(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("reduction", STYLE_RED))
     )),
 
     /**
      * Vanilla armor points (0–30) shown on armor lore.
      */
-    LORE_ARMOR_ARMOR_POINTS(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_ARMOR_POINTS(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("points", STYLE_RED))
     )),
 
     /**
      * Vanilla toughness points (0–20) shown on armor lore.
      */
-    LORE_ARMOR_TOUGHNESS_POINTS(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_TOUGHNESS_POINTS(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("points", STYLE_RED))
     )),
 
     /**
      * Knockback resistance percentage shown on armor lore.
      */
-    LORE_ARMOR_KNOCKBACK_RESISTANCE(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_KNOCKBACK_RESISTANCE(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("resistance", STYLE_RED))
     )),
 
     /**
      * Explosion knockback resistance percentage shown on armor lore.
      */
-    LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE(new ConfigStyles(KEY_STYLE,
+    LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE(new ConfigStyles(
+        KEY_STYLE,
         List.of(new ConfigStyle("resistance", STYLE_RED))
     ));
 
@@ -224,8 +241,11 @@ public enum TranslatableMessage {
          * Common fallback styles for arguments.
          */
         static final ResolvedStyle STYLE_RED = new ResolvedStyle("<red>");
+
         static final ResolvedStyle STYLE_GREEN = new ResolvedStyle("<green>");
+
         static final ResolvedStyle STYLE_BLUE = new ResolvedStyle("<blue>");
+
         static final ResolvedStyle STYLE_YELLOW = new ResolvedStyle("<yellow>");
 
         /**
@@ -236,6 +256,7 @@ public enum TranslatableMessage {
         static final class ResolvedStyle {
 
             private final String rawInput;
+
             private final Style parsedStyle;
 
             ResolvedStyle(String rawInput) {

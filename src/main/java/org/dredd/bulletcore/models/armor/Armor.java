@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.models.armor;
 
+import java.util.List;
+
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import net.kyori.adventure.text.Component;
@@ -15,14 +17,22 @@ import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-import static org.bukkit.attribute.Attribute.*;
+import static org.bukkit.attribute.Attribute.GENERIC_ARMOR;
+import static org.bukkit.attribute.Attribute.GENERIC_ARMOR_TOUGHNESS;
+import static org.bukkit.attribute.Attribute.GENERIC_EXPLOSION_KNOCKBACK_RESISTANCE;
+import static org.bukkit.attribute.Attribute.GENERIC_KNOCKBACK_RESISTANCE;
 import static org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
 import static org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
-import static org.bukkit.inventory.ItemFlag.*;
+import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
+import static org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES;
+import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.DOUBLE;
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_ARMOR_POINTS;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_DAMAGE_REDUCTION;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_DURABILITY;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_EXPLOSION_KNOCKBACK_RESISTANCE;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_KNOCKBACK_RESISTANCE;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_ARMOR_TOUGHNESS_POINTS;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatPercent;
 import static org.dredd.bulletcore.utils.ServerUtils.rndNamespacedKey;

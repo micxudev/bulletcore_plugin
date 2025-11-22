@@ -1,5 +1,10 @@
 package org.dredd.bulletcore.models.weapons.shooting;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Predicate;
+
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -37,12 +42,10 @@ import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Predicate;
-
-import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.*;
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.BODY;
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.FEET;
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.HEAD;
+import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.LEGS;
 
 /**
  * Handles weapon shooting (e.g., single, automatic).

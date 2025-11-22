@@ -1,17 +1,17 @@
 package org.dredd.bulletcore.utils;
 
-import org.dredd.bulletcore.BulletCore;
-import org.jetbrains.annotations.NotNull;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.dredd.bulletcore.BulletCore;
+import org.jetbrains.annotations.NotNull;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 /**
  * Utility class for JSON serialization.
@@ -26,13 +26,13 @@ public final class JsonUtils {
     private JsonUtils() {}
 
     // ----------< Jackson >----------
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private static final ObjectWriter WRITER = MAPPER.writer();
+
     private static final ObjectWriter PRETTY_WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     // ----------< Executor >----------
-
     private static final ExecutorService SAVE_EXECUTOR = Executors.newSingleThreadExecutor();
 
     public static void shutdownSaveExecutor() {

@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.models.weapons;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.kyori.adventure.text.Component;
@@ -27,15 +31,14 @@ import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import static org.bukkit.inventory.ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_STATUS;
-import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.*;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_AMMO;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_BULLETS;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_DAMAGE;
+import static org.dredd.bulletcore.config.messages.translatable.TranslatableMessage.LORE_WEAPON_DISTANCE;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDouble;
 import static org.dredd.bulletcore.utils.FormatterUtils.formatDoubles;
 
@@ -342,7 +345,8 @@ public class Weapon extends CustomBase {
      */
     public void sendWeaponStatus(@NotNull Player player,
                                  int current) {
-        WEAPON_STATUS.sendActionBar(player,
+        WEAPON_STATUS.sendActionBar(
+            player,
             Map.of(
                 "displayname", displayNameString,
                 "bullets", Integer.toString(current),

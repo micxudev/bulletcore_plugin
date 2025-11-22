@@ -37,21 +37,23 @@ public final class ArmorStandHandler {
                                             @NotNull Location spawnLocation,
                                             @NotNull ItemStack headItem,
                                             @NotNull Rotations headRotations) {
-        return world.spawn(spawnLocation, ArmorStand.class, a -> {
-            a.setInvisible(true);
-            a.setSmall(true);
-            a.setArms(false);
-            a.setBasePlate(false);
-            a.setMarker(true);
-            a.setGravity(false);
-            a.setPersistent(false);
-            a.setInvulnerable(true);
-            a.setSilent(true);
-            a.setCanMove(false);
-            a.setCanTick(false);
-            a.getEquipment().setHelmet(headItem, true);
-            a.setHeadRotations(headRotations);
-        });
+        return world.spawn(
+            spawnLocation, ArmorStand.class, a -> {
+                a.setInvisible(true);
+                a.setSmall(true);
+                a.setArms(false);
+                a.setBasePlate(false);
+                a.setMarker(true);
+                a.setGravity(false);
+                a.setPersistent(false);
+                a.setInvulnerable(true);
+                a.setSilent(true);
+                a.setCanMove(false);
+                a.setCanTick(false);
+                a.getEquipment().setHelmet(headItem, true);
+                a.setHeadRotations(headRotations);
+            }
+        );
     }
 
     /**

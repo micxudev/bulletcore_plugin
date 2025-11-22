@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.config;
 
+import java.util.Locale;
+
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
@@ -10,8 +12,6 @@ import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Locale;
 
 import static org.bukkit.SoundCategory.MASTER;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
@@ -82,10 +82,13 @@ public final class ConfigManager {
     public final DamageThresholds damageThresholds;
 
     public final ConfiguredSound entityHitHeadSound;
+
     public final ConfiguredSound entityHitBodySound;
+
     public final ConfiguredSound blockHitSound;
 
     public final ConfiguredParticle entityHitParticle;
+
     public final ConfiguredParticle blockHitParticle;
 
     public final ASFeatureManager asFeatureManager;

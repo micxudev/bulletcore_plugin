@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.models;
 
+import java.io.File;
+import java.util.Locale;
+
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
@@ -10,9 +13,6 @@ import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.grenades.Grenade;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.Locale;
 
 /**
  * Represents all types of {@link CustomBase} items

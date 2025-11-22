@@ -1,5 +1,11 @@
 package org.dredd.bulletcore.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.util.StringUtil;
@@ -13,13 +19,10 @@ import org.dredd.bulletcore.commands.subcommands.SubcommandSkinManage;
 import org.dredd.bulletcore.commands.subcommands.SubcommandSprayInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_MISSING_SUBCOMMAND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_NOT_ENOUGH_ARGS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_NO_PERMISSION;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_UNKNOWN_SUBCOMMAND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
@@ -33,7 +36,9 @@ public final class CommandHandler extends Command {
     // ----------< Static >----------
 
     private static final String MAIN_COMMAND_NAME = "bulletcore";
+
     private static final String MAIN_COMMAND_PERMISSION = "bulletcore.command";
+
     private static final String ALL_SUBCOMMANDS_PERMISSION = "bulletcore.command.*";
 
     // -----< Permission Utilities >-----
@@ -86,7 +91,9 @@ public final class CommandHandler extends Command {
     // -----< Attributes >-----
 
     private final BulletCore plugin;
+
     private final Map<String, Subcommand> subCommands;
+
     private final List<String> subCommandNames;
 
     // -----< Construction >-----
@@ -147,7 +154,8 @@ public final class CommandHandler extends Command {
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            COMMAND_NOT_ENOUGH_ARGS.sendMessage(sender,
+            COMMAND_NOT_ENOUGH_ARGS.sendMessage(
+                sender,
                 Map.of(
                     "command", MAIN_COMMAND_NAME,
                     "subcommand", args[0],

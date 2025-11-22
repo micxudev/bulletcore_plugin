@@ -1,16 +1,16 @@
 package org.dredd.bulletcore.config.messages.component;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.dredd.bulletcore.BulletCore;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.dredd.bulletcore.BulletCore;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Manages localization messages for {@link ComponentMessage}.
@@ -25,7 +25,9 @@ public final class MessageManager {
     // ----------< Static >----------
 
     private static final String LANG_FOLDER_NAME = "lang";
+
     private static final String DEFAULT_LANG_FILE_NAME = "en-US.yml";
+
     private static final List<String> LANG_HEADER = List.of("Wiki: <link>");
 
     private static MessageManager instance;
@@ -44,6 +46,7 @@ public final class MessageManager {
     // -----< Attributes >-----
 
     private final BulletCore plugin;
+
     private final Map<Locale, EnumMap<ComponentMessage, String>> messages;
 
     // -----< Construction >-----

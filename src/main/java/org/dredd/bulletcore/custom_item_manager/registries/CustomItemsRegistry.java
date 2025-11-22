@@ -1,5 +1,7 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
+import java.util.regex.Pattern;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
@@ -10,8 +12,6 @@ import org.dredd.bulletcore.models.grenades.Grenade;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.regex.Pattern;
 
 /**
  * Central access point and utility class for interacting with all custom item registries.

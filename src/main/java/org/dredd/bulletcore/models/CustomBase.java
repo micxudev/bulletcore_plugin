@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.models;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
@@ -13,9 +16,6 @@ import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The base class for all custom items.

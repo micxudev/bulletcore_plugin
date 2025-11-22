@@ -1,12 +1,12 @@
 package org.dredd.bulletcore.listeners.trackers;
 
-import org.dredd.bulletcore.models.armor.ArmorHit;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.dredd.bulletcore.models.armor.ArmorHit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Tracks currently processing hit(s) caused by Weapons.

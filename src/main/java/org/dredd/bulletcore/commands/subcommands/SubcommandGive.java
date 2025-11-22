@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -9,11 +13,9 @@ import org.dredd.bulletcore.models.CustomBase;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.component.ComponentMessage.*;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.ITEM_GIVEN_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.ITEM_NOT_FOUND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.PLAYER_NOT_FOUND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
