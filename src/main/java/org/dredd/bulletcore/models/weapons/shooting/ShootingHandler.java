@@ -219,7 +219,7 @@ public final class ShootingHandler {
         final Location eyeLocation = player.getEyeLocation();
 
         // rayTrace each pellet direction separately
-        final Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection().normalize());
+        final Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection());
         for (final Vector direction : directions) {
             final RayTraceResult result = world.rayTrace(
                 eyeLocation,
