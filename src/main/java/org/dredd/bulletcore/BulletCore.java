@@ -11,6 +11,7 @@ import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.BulletCoreListener;
+import org.dredd.bulletcore.listeners.CustomBaseListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
 import org.dredd.bulletcore.listeners.UnknownCommandListener;
 import org.dredd.bulletcore.models.CustomItemType;
@@ -97,6 +98,7 @@ public final class BulletCore extends JavaPlugin {
         CommandHandler.init(this);
         BulletCore.init(this);
 
+        registerListener(CustomBaseListener.INSTANCE);
         registerListener(BulletCoreListener.INSTANCE);
         registerListener(PlayerActionsListener.INSTANCE);
         registerListener(UnknownCommandListener.INSTANCE);
