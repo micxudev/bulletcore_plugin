@@ -20,65 +20,40 @@ public enum CustomBaseListener implements Listener {
 
     INSTANCE;
 
-    /**
-     * Handles player interaction events to detect and respond to clicks involving custom items.
-     * <p>
-     * If the interacted item is a {@link CustomBase} and defines a custom left or right click action,
-     * this method will trigger the appropriate method and cancel the event if necessary.
-     *
-     * @param event the {@link PlayerInteractEvent} triggered when a player interacts with the world
-     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        /* (Called once for each hand) */
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerInteractEvent.");
+        // Called once for each hand, do not process off-hand
         if (event.getHand() != EquipmentSlot.HAND) return;
-        //System.err.println("1. Used MAIN HAND." + " Action: " + event.getAction());
 
         final Player player = event.getPlayer();
+
+        // If less than 25 ms passed since LastDrop, assume this event caused by using drop key (Q), do not process
+        // (due to PlayerDropItemEvent being fired right before this event, but
+        // if the drop comes from GUI AND there is no block within the player interaction range,
+        // for some reason PlayerDropItemEvent will be fired only after this event)
         final long now = System.currentTimeMillis();
         final long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
 
-        if (now - lastDrop < 25) {
-            //System.err.println("2. Interact is right after the drop (most probably using key (Q)). Do not process.");
-            return;
-        }
+        if (now - lastDrop < 25L) return;
 
         final ItemStack usedItem = event.getItem();
         if (usedItem == null) return;
-        //System.err.println("2. Interact item is not null");
 
         final CustomBase usedCustomItem = CustomItemsRegistry.getItemOrNull(usedItem);
         if (usedCustomItem == null) return;
-        //System.err.println("3. Custom item found. Name: " + usedCustomItem.name);
 
         final Action action = event.getAction();
         if (action.isLeftClick()) {
-            //System.err.println("4. Left click detected.");
-            if (usedCustomItem.onLMB(player, usedItem)) {
-                //System.err.println("5. Left click canceled event.");
+            if (usedCustomItem.onLMB(player, usedItem))
                 event.setCancelled(true);
-            }
         } else if (action.isRightClick()) {
-            //System.err.println("4. Right click detected.");
-            if (usedCustomItem.onRMB(player, usedItem)) {
-                //System.err.println("5. Right click canceled event.");
+            if (usedCustomItem.onRMB(player, usedItem))
                 event.setCancelled(true);
-            }
         }
     }
 
-    /**
-     * Handles item slot changes for custom items.
-     *
-     * @param event the {@link PlayerItemHeldEvent} triggered when a player changes their selected hotbar slot
-     */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemSwap(PlayerItemHeldEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerItemHeldEvent.");
-
+    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
         final Player player = event.getPlayer();
         final PlayerInventory inventory = player.getInventory();
 
@@ -93,20 +68,12 @@ public enum CustomBaseListener implements Listener {
             event.setCancelled(true);
     }
 
-    /**
-     * Handles hotkey (F by default) hand-swap events.
-     *
-     * @param event the {@link PlayerSwapHandItemsEvent} triggered when a player swaps items between hands
-     */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onSwapHandItems(PlayerSwapHandItemsEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerSwapHandItemsEvent.");
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        final Player player = event.getPlayer();
 
         // event.getMainHandItem() = will be a NEW main-hand item (if the event is not cancelled) (not the current one)
         // event.getOffHandItem()  = will be a NEW off-hand  item (if the event is not cancelled) (not the current one)
-
-        final Player player = event.getPlayer();
         final ItemStack currentOff = event.getMainHandItem();
         final ItemStack currentMain = event.getOffHandItem();
 
@@ -121,20 +88,11 @@ public enum CustomBaseListener implements Listener {
             event.setCancelled(true);
     }
 
-    /**
-     * Handles item drop events for custom items.
-     *
-     * @param event the {@link PlayerDropItemEvent} triggered when a player drops an item
-     */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onDropItem(PlayerDropItemEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerDropItemEvent.");
-
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
         final ItemStack droppedItem = event.getItemDrop().getItemStack();
         final CustomBase droppedCustomItem = CustomItemsRegistry.getItemOrNull(droppedItem);
         if (droppedCustomItem == null) return;
-        //System.err.println("1. Dropped item is a custom item. Name: " + droppedCustomItem.name);
 
         final Player player = event.getPlayer();
 
@@ -143,7 +101,6 @@ public enum CustomBaseListener implements Listener {
         final long now = System.currentTimeMillis();
         final long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
         final boolean isFromGui = now - last < 50L;
-        //System.err.println("2. Is drop from GUI: " + isFromGui);
 
         if (droppedCustomItem.onDropItem(player, droppedItem, isFromGui))
             event.setCancelled(true);
