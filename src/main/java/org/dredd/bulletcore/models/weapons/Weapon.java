@@ -249,6 +249,25 @@ public class Weapon extends CustomBase {
         return false;
     }
 
+    @Override
+    public boolean onSwapFromMainToOff(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {
+        return true;
+    }
+
+    @Override
+    public boolean onSwapFromOffToMain(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {
+        // Currently, this method is only needed if
+        // we want to prevent removing a weapon from the off-hand slot.
+        // As for now, we never put a weapon to the off-hand slot.
+        // But if we ever do (e.g., we might: place scope, fake weapon)
+        // we start returning true.
+        return false;
+    }
+
     // -----< Weapon-specific Behavior >-----
 
     /**

@@ -172,6 +172,34 @@ public abstract class CustomBase {
     public boolean onSwapAway(@NotNull Player player,
                               @NotNull ItemStack stack) {return false;}
 
+    /**
+     * Called when a player attempts to swap items {@code using the hotkey} and this item is currently in the
+     * main hand, about to be moved to the off hand.
+     *
+     * @param player              the player performing the swap
+     * @param currentMainHandItem the item stack currently in the player's main hand (representing this custom item)
+     * @param currentOffHandItem  the item stack currently in the player's off hand, which will move
+     *                            to the main hand if the swap completes
+     * @return {@code true} to cancel the swap event, {@code false} to allow it
+     */
+    public boolean onSwapFromMainToOff(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {return false;}
+
+    /**
+     * Called when a player attempts to swap items {@code using the hotkey} and this item is currently in the
+     * off hand, about to be moved to the main hand.
+     *
+     * @param player              the player performing the swap
+     * @param currentMainHandItem the item stack currently in the player's main hand, which will move
+     *                            to the off hand if the swap completes
+     * @param currentOffHandItem  the item stack currently in the player's off hand (representing this custom item)
+     * @return {@code true} to cancel the swap event, {@code false} to allow it
+     */
+    public boolean onSwapFromOffToMain(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {return false;}
+
     // -----< Utilities >-----
 
     /**

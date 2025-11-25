@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -195,34 +194,6 @@ public enum BulletCoreListener implements Listener {
             ServerUtils.dischargeIfWeapon(event.getCurrentItem());
             ServerUtils.chargeIfWeapon(event.getCursor());
         }
-    }
-
-    /**
-     * Handles hand-swap events (F key by default) to prevent players from swapping weapons
-     * between the main hand and off-hand to prevent placing a weapon into the off-hand slot.
-     *
-     * @param event the {@link PlayerSwapHandItemsEvent} triggered when a player swaps items between hands
-     */
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onSwapHandItems(PlayerSwapHandItemsEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerSwapHandItemsEvent.");
-
-        //System.err.println("1. OffHand item: " + event.getOffHandItem().getType());
-        if (isWeapon(event.getOffHandItem())) {
-            //System.err.println("2. OffHand item is a Weapon. Canceled event.");
-            event.setCancelled(true);
-            return;
-        }
-
-        // The code below is only needed if we want to prevent removing a weapon from the off-hand slot.
-        // As for now, we never put a weapon to the off-hand slot.
-        // But if we ever do (e.g., we might: place scope, fake weapon), we uncomment it.
-        //System.err.println("2. MainHand item: " + event.getMainHandItem().getType());
-        /*if (isWeapon(event.getMainHandItem())) {
-            //System.err.println("3. MainHand item is a Weapon. Canceled event.");
-            event.setCancelled(true);
-        }*/
     }
 
     /**

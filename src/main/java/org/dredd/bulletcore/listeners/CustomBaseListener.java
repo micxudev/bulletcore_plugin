@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -88,6 +89,34 @@ public enum CustomBaseListener implements Listener {
         final ItemStack newItem = inventory.getItem(event.getNewSlot());
         final CustomBase newCustomItem = CustomItemsRegistry.getItemOrNull(newItem);
         if (newCustomItem != null && newCustomItem.onSwapTo(player, newItem))
+            event.setCancelled(true);
+    }
+
+    /**
+     * Handles hotkey (F by default) hand-swap events.
+     *
+     * @param event the {@link PlayerSwapHandItemsEvent} triggered when a player swaps items between hands
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onSwapHandItems(PlayerSwapHandItemsEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerSwapHandItemsEvent.");
+
+        // event.getMainHandItem() = will be a NEW main-hand item (if the event is not cancelled) (not the current one)
+        // event.getOffHandItem()  = will be a NEW off-hand  item (if the event is not cancelled) (not the current one)
+
+        final Player player = event.getPlayer();
+        final ItemStack currentOff = event.getMainHandItem();
+        final ItemStack currentMain = event.getOffHandItem();
+
+        // Called on item moving from main-hand → off-hand
+        final CustomBase currentMainCustom = CustomItemsRegistry.getItemOrNull(currentMain);
+        if (currentMainCustom != null && currentMainCustom.onSwapFromMainToOff(player, currentMain, currentOff))
+            event.setCancelled(true);
+
+        // Called on item moving from off-hand → main-hand
+        final CustomBase currentOffCustom = CustomItemsRegistry.getItemOrNull(currentOff);
+        if (currentOffCustom != null && currentOffCustom.onSwapFromOffToMain(player, currentMain, currentOff))
             event.setCancelled(true);
     }
 }
