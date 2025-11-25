@@ -34,17 +34,17 @@ import org.dredd.bulletcore.utils.ServerUtils;
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.getWeaponOrNull;
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
 
+// TODO: clean docs, rename methods
+
 /**
- * The main listener for the plugin.
+ * Listens for the specific events related to items representing {@link Weapon}.
  *
  * @author dredd
  * @since 1.0.0
  */
-public enum BulletCoreListener implements Listener {
+public enum WeaponListener implements Listener {
 
     INSTANCE;
-
-    /* Don't remove commented debug statements; they might become handy any time */
 
     // ----------< Constants >----------
 

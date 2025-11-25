@@ -10,7 +10,7 @@ import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
-import org.dredd.bulletcore.listeners.BulletCoreListener;
+import org.dredd.bulletcore.listeners.WeaponListener;
 import org.dredd.bulletcore.listeners.CustomBaseListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
 import org.dredd.bulletcore.listeners.UnknownCommandListener;
@@ -99,7 +99,7 @@ public final class BulletCore extends JavaPlugin {
         BulletCore.init(this);
 
         registerListener(CustomBaseListener.INSTANCE);
-        registerListener(BulletCoreListener.INSTANCE);
+        registerListener(WeaponListener.INSTANCE);
         registerListener(PlayerActionsListener.INSTANCE);
         registerListener(UnknownCommandListener.INSTANCE);
 

@@ -16,6 +16,12 @@ import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.CustomBase;
 
+/**
+ * Listens for the specific interaction events related to items representing {@link CustomBase}.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public enum CustomBaseListener implements Listener {
 
     INSTANCE;
