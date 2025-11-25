@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
@@ -117,6 +118,34 @@ public enum CustomBaseListener implements Listener {
         // Called on item moving from off-hand → main-hand
         final CustomBase currentOffCustom = CustomItemsRegistry.getItemOrNull(currentOff);
         if (currentOffCustom != null && currentOffCustom.onSwapFromOffToMain(player, currentMain, currentOff))
+            event.setCancelled(true);
+    }
+
+    /**
+     * Handles item drop events for custom items.
+     *
+     * @param event the {@link PlayerDropItemEvent} triggered when a player drops an item
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDropItem(PlayerDropItemEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. PlayerDropItemEvent.");
+
+        final ItemStack droppedItem = event.getItemDrop().getItemStack();
+        final CustomBase droppedCustomItem = CustomItemsRegistry.getItemOrNull(droppedItem);
+        if (droppedCustomItem == null) return;
+        //System.err.println("1. Dropped item is a custom item. Name: " + droppedCustomItem.name);
+
+        final Player player = event.getPlayer();
+
+        // If less than 50 ms passed since LastInventoryInteraction, assume it came from GUI
+        // (due to InventoryClickEvent being fired right before this event)
+        final long now = System.currentTimeMillis();
+        final long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
+        final boolean isFromGui = now - last < 50L;
+        //System.err.println("2. Is drop from GUI: " + isFromGui);
+
+        if (droppedCustomItem.onDropItem(player, droppedItem, isFromGui))
             event.setCancelled(true);
     }
 }

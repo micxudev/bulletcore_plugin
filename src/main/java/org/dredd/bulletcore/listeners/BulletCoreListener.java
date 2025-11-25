@@ -13,7 +13,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -303,41 +302,6 @@ public enum BulletCoreListener implements Listener {
             //System.err.println("2. MainHand item is a Weapon. Cancel event.");
             event.setCancelled(true);
         }
-    }
-
-    /**
-     * Handles item drop events to prevent players from dropping weapons using key (Q)
-     *
-     * @param event the {@link PlayerDropItemEvent} triggered when a player drops an item
-     */
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemDrop(PlayerDropItemEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerDropItemEvent.");
-
-        final ItemStack droppedItem = event.getItemDrop().getItemStack();
-        final Weapon weapon = getWeaponOrNull(droppedItem);
-        if (weapon == null) return;
-        //System.err.println("1. Dropped item is a Weapon.");
-
-        final Player player = event.getPlayer();
-
-        final long now = System.currentTimeMillis();
-        final long last = PlayerActionTracker.getLastInventoryInteraction(player.getUniqueId());
-
-        // If less than 50 ms passed since the last inventory interaction, assume it came from GUI
-        if (now - last < 50) {
-            //System.err.println("2. Used GUI to drop item. Allow drop.");
-            if (droppedItem == player.getInventory().getItemInMainHand()) {
-                //System.err.println("3. If the player is reloading, this must be the dropped item. Cancel reload.");
-                ReloadHandler.cancelReload(player, false);
-            }
-            return;
-        }
-
-        //System.err.println("2. Used key (Q) to drop item. Cancel drop.");
-        event.setCancelled(true);
-        weapon.onDrop(player, droppedItem);
     }
 
     /**

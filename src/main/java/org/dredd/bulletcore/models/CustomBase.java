@@ -200,6 +200,18 @@ public abstract class CustomBase {
                                        @NotNull ItemStack currentMainHandItem,
                                        @NotNull ItemStack currentOffHandItem) {return false;}
 
+    /**
+     * Called when a player attempts to drop an item stack representing this custom item.
+     *
+     * @param player    the player who attempts to drop the weapon
+     * @param stack     the item stack that was dropped
+     * @param isFromGui {@code true} if the drop comes from the GUI (inventory), {@code false} (using hotkey Q)
+     * @return {@code true} to cancel the drop event, {@code false} to allow it
+     */
+    public boolean onDropItem(@NotNull Player player,
+                              @NotNull ItemStack stack,
+                              boolean isFromGui) {return false;}
+
     // -----< Utilities >-----
 
     /**

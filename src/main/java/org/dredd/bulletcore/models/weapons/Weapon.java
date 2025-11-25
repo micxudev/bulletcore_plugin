@@ -268,27 +268,33 @@ public class Weapon extends CustomBase {
         return false;
     }
 
+    @Override
+    public boolean onDropItem(@NotNull Player player,
+                              @NotNull ItemStack stack,
+                              boolean isFromGui) {
+        if (isFromGui) return false;
+        changeSkin(player, stack);
+        return true;
+    }
+
     // -----< Weapon-specific Behavior >-----
 
     /**
-     * Triggered when a player attempts to drop a weapon.<br>
-     * This method is invoked specifically when the drop action is initiated manually with the drop key (Q).
-     * <p>
-     * The current implementation changes weapon skins if the player has any.
+     * Change the weapon skin to the next one if the player has any.
      *
-     * @param player   the player who attempts to drop the weapon
-     * @param usedItem the item being dropped, which represents this weapon
+     * @param player the player requesting the skin change
+     * @param stack  the item stack representing this weapon
      */
-    public void onDrop(@NotNull Player player,
-                       @NotNull ItemStack usedItem) {
+    private void changeSkin(@NotNull Player player,
+                            @NotNull ItemStack stack) {
         final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, this);
         if (playerWeaponSkins.isEmpty()) return;
 
-        final ItemMeta meta = usedItem.getItemMeta();
+        final ItemMeta meta = stack.getItemMeta();
         final WeaponSkin skin = skins.getNextOrDefault(meta.getCustomModelData(), playerWeaponSkins);
         meta.setCustomModelData(skin.customModelData());
         meta.displayName(skin.displayName());
-        usedItem.setItemMeta(meta);
+        stack.setItemMeta(meta);
     }
 
     // -----< ItemStack | Weapon >-----
