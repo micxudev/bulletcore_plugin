@@ -148,7 +148,8 @@ public class Armor extends CustomBase {
      * {@code 0.0} if the stack did not store armor durability value metadata.
      */
     public double getDurability(@NotNull ItemStack stack) {
-        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(DURABILITY_KEY, DOUBLE, 0.0D);
+        final Double value = stack.getItemMeta().getPersistentDataContainer().get(DURABILITY_KEY, DOUBLE);
+        return value == null ? 0.0D : Math.max(0.0D, value);
     }
 
     /**

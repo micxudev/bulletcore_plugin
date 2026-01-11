@@ -83,7 +83,8 @@ public class Ammo extends CustomBase {
      * {@code 0} if the stack did not store ammo count metadata.
      */
     public int getAmmoCount(@NotNull ItemStack stack) {
-        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(AMMO_COUNT_KEY, INTEGER, 0);
+        final Integer value = stack.getItemMeta().getPersistentDataContainer().get(AMMO_COUNT_KEY, INTEGER);
+        return value == null ? 0 : Math.max(0, value);
     }
 
     /**

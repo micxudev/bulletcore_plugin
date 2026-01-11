@@ -307,7 +307,8 @@ public class Weapon extends CustomBase {
      * {@code 0} if the stack did not store bullet count metadata.
      */
     public int getBulletCount(@NotNull ItemStack stack) {
-        return stack.getItemMeta().getPersistentDataContainer().getOrDefault(BULLETS_KEY, INTEGER, 0);
+        final Integer value = stack.getItemMeta().getPersistentDataContainer().get(BULLETS_KEY, INTEGER);
+        return value == null ? 0 : Math.max(0, value);
     }
 
     /**
