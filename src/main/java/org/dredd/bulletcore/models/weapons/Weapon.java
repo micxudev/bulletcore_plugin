@@ -20,7 +20,7 @@ import org.dredd.bulletcore.models.ammo.Ammo;
 import org.dredd.bulletcore.models.weapons.damage.WeaponDamage;
 import org.dredd.bulletcore.models.weapons.reloading.DefaultReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
-import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
+import org.dredd.bulletcore.models.weapons.reloading.ReloadType;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
@@ -176,7 +176,7 @@ public class Weapon extends CustomBase {
             throw new ItemLoadException("Invalid 'ammo' name: " + ammoName);
 
         final String reloadHandlerName = config.getString("reloadHandler", DefaultReloadHandler.INSTANCE.getName());
-        this.reloadHandler = ReloadManager.getHandlerOrNull(reloadHandlerName);
+        this.reloadHandler = ReloadType.getHandlerOrNull(reloadHandlerName);
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid 'reloadHandler' name: " + reloadHandlerName);
 

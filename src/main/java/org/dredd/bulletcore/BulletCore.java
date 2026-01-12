@@ -16,7 +16,6 @@ import org.dredd.bulletcore.listeners.UnknownCommandListener;
 import org.dredd.bulletcore.listeners.WeaponListener;
 import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
-import org.dredd.bulletcore.models.weapons.reloading.ReloadManager;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
@@ -94,7 +93,6 @@ public final class BulletCore extends JavaPlugin {
     public void onEnable() {
         logInfo("==========================< BulletCore >==========================");
 
-        ReloadManager.init();
         CommandHandler.init(this);
         BulletCore.init(this);
 
