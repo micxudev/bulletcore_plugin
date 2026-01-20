@@ -29,9 +29,17 @@ public abstract class ReloadHandler {
     // ----------< Static >----------
 
     /**
+     * Represents a weapon reload action.
+     *
+     * @param weapon     the weapon currently being reloaded
+     * @param reloadTask the {@link BukkitTask} managing the reload process
+     */
+    private record WeaponReload(Weapon weapon, BukkitTask reloadTask) {}
+
+    /**
      * Stores currently running reload tasks for each player.
      */
-    private static final Map<UUID, BukkitTask> RELOAD_TASKS = new HashMap<>();
+    private static final Map<UUID, WeaponReload> RELOAD_TASKS = new HashMap<>();
 
     // -----< Public API >-----
 
@@ -53,10 +61,11 @@ public abstract class ReloadHandler {
      */
     public static void cancelReload(@NotNull Player player,
                                     boolean success) {
-        final BukkitTask task = RELOAD_TASKS.remove(player.getUniqueId());
-        if (task == null) return;
-        task.cancel();
-        player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
+        final WeaponReload reload = RELOAD_TASKS.remove(player.getUniqueId());
+        if (reload == null) return;
+
+        reload.reloadTask.cancel();
+        player.setCooldown(reload.weapon.material, 0);
 
         if (!success && ConfigManager.instance().enableHotbarMessages)
             WEAPON_RELOAD_CANCELED.sendActionBar(player, null);
@@ -66,7 +75,7 @@ public abstract class ReloadHandler {
      * Clears all reload tasks. Called when the plugin is reloaded or disabled.
      */
     public static void cancelAllReloadTasks() {
-        RELOAD_TASKS.values().forEach(BukkitTask::cancel);
+        RELOAD_TASKS.values().stream().map(WeaponReload::reloadTask).forEach(BukkitTask::cancel);
         RELOAD_TASKS.clear();
     }
 
@@ -153,7 +162,7 @@ public abstract class ReloadHandler {
 
         // run the reload task every 2 ticks (~100 ms), starting immediately.
         final BukkitTask reloadTask = create(player, weapon).runTaskTimer(BulletCore.instance(), 0L, 2L);
-        RELOAD_TASKS.put(player.getUniqueId(), reloadTask);
+        RELOAD_TASKS.put(player.getUniqueId(), new WeaponReload(weapon, reloadTask));
     }
 
     // -----< Abstract >-----

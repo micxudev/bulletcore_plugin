@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -26,7 +25,6 @@ import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
-import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.dredd.bulletcore.utils.ServerUtils;
@@ -63,13 +61,7 @@ public enum WeaponListener implements Listener {
     // ----------< Weapon-Specific Events >----------
 
     /**
-     * Handles inventory click events to prevent custom weapons from being placed into the off-hand slot.
-     * <p>
-     * This includes cases where the off-hand is accessed via direct clicking, cursor movement, hotbar swaps,
-     * or the off-hand swap click type. If any attempt is made to move a weapon into the off-hand,
-     * the event will be canceled.
-     *
-     * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
+     * Prevent placing Weapon into the off-hand slot.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
@@ -120,40 +112,6 @@ public enum WeaponListener implements Listener {
             //System.err.println("8. Current item is a Weapon. Canceled event.");
             event.setCancelled(true);
         }*/
-    }
-
-    /**
-     * Handles inventory click events to cancel weapon automatic shooting;<br>
-     * or reloading if the player interacts with the inventory slot currently holding the reloading weapon.
-     *
-     * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
-     */
-    @EventHandler(priority = EventPriority.LOW)
-    public void cancelActionsOnWeaponInteract(InventoryClickEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. InventoryClickEvent.");
-
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        //System.err.println("1. Player clicked.");
-
-        ShootingHandler.cancelAutoShooting(player);
-
-        if (!ReloadHandler.isReloading(player)) return;
-        //System.err.println("2. Player is reloading.");
-
-        // Check if the click is in the player's inventory
-        final Inventory clickedInventory = event.getClickedInventory();
-        if (clickedInventory == null || !clickedInventory.equals(player.getInventory())) return;
-        //System.err.println("3. Click inside player inventory.");
-
-        final int heldWeaponSlot = player.getInventory().getHeldItemSlot();
-        //System.err.println("4. Held weapon slot: " + heldWeaponSlot);
-
-        if (event.getSlot() == heldWeaponSlot || event.getHotbarButton() == heldWeaponSlot) {
-            //System.err.println("5. Click slot: " + event.getSlot() + ". hotbar slot: " + event.getHotbarButton());
-            //System.err.println("6. Player used held weapon slot. Cancel reload.");
-            ReloadHandler.cancelReload(player, false);
-        }
     }
 
     /**
