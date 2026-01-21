@@ -58,13 +58,11 @@ public enum WeaponListener implements Listener {
      */
     private static final int CONVERTED_OFFHAND_SLOT = 40;
 
-    // ----------< Weapon-Specific Events >----------
-
     /**
-     * Prevent placing Weapon into the off-hand slot.
+     * Prevent placing Weapon into the off-hand slot {@code on inventory click}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent event) {
+    public void preventOffhandWeaponPlacementOnInventoryClick(InventoryClickEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. InventoryClickEvent.");
 
@@ -115,6 +113,25 @@ public enum WeaponListener implements Listener {
     }
 
     /**
+     * Prevent placing Weapon into the off-hand slot {@code on inventory drag}.
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void preventOffhandWeaponPlacementOnInventoryDrag(InventoryDragEvent event) {
+        //System.err.println("===============================");
+        //System.err.println("0. InventoryDragEvent.");
+
+        if (event.getView().getTopInventory().getType() != InventoryType.CRAFTING) return;
+        //System.err.println("1. Top inventory is player inventory (no external container open).");
+
+        final ItemStack draggedItem = event.getNewItems().get(RAW_OFFHAND_SLOT);
+        //System.err.println("2. Dragged item into off-hand slot: " + (draggedItem != null ? draggedItem.getType() : "null"));
+        if (isWeapon(draggedItem)) {
+            //System.err.println("3. Off-hand slot item is a Weapon. Canceled event.");
+            event.setCancelled(true);
+        }
+    }
+
+    /**
      * Handles inventory clicks to charge or discharge weapons when sneaking.
      * <p>
      * Taking an item out of the main-hand -> discharge<br>
@@ -150,30 +167,6 @@ public enum WeaponListener implements Listener {
 
             ServerUtils.dischargeIfWeapon(event.getCurrentItem());
             ServerUtils.chargeIfWeapon(event.getCursor());
-        }
-    }
-
-    /**
-     * Handles inventory drag events to prevent players from dragging custom weapons into the off-hand slot.
-     *
-     * @param event the {@link InventoryDragEvent} triggered when a player drags items in an inventory
-     */
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDrag(InventoryDragEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. InventoryDragEvent.");
-
-        if (event.getView().getTopInventory().getType() != InventoryType.CRAFTING) return;
-        //System.err.println("1. Top inventory is player inventory (no external container open).");
-
-        if (!event.getRawSlots().contains(RAW_OFFHAND_SLOT)) return;
-        //System.err.println("2. Drag includes off-hand slot.");
-
-        final ItemStack draggedItem = event.getNewItems().get(RAW_OFFHAND_SLOT);
-        //System.err.println("3. Dragged item into off-hand slot: " + draggedItem.getType());
-        if (isWeapon(draggedItem)) {
-            //System.err.println("4. Off-hand slot item is a Weapon. Canceled event.");
-            event.setCancelled(true);
         }
     }
 
