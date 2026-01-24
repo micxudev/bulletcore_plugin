@@ -18,9 +18,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
-import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
@@ -241,18 +239,15 @@ public enum WeaponListener implements Listener {
         }
     }
 
-    // TODO: clean docs, rename, separate charge/discharge from autoShoot.
-
     /**
-     * Handles player sneaking to simulate charging and discharging a custom crossbow weapon.<br>
-     * As well as cancel automatic shooting when the player stops sneaking.
-     * <p>
-     * When a player begins sneaking while holding a valid custom crossbow weapon,
-     * an arrow is visually charged into it. When the player stops sneaking,
-     * the crossbow is visually discharged.
+     * Handle player toggle sneak while holding a weapon.
+     * <ul>
+     *   <li>Start or stop automatic shooting depending on sneak state</li>
+     *   <li>Charge or discharge weapon if crossbow</li>
+     * </ul>
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onShift(PlayerToggleSneakEvent event) {
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. PlayerToggleSneakEvent.");
 
@@ -262,23 +257,11 @@ public enum WeaponListener implements Listener {
         if (weapon == null) return;
         //System.err.println("1. Player has Weapon in MainHand.");
 
-        final boolean isNowSneaking = event.isSneaking();
-        if (!isNowSneaking) {
-            //System.err.println("2.1. Player is NO MORE sneaking. Cancel auto shooting.");
+        final boolean isReallySneaking = event.isSneaking() && !player.isInsideVehicle();
+        if (isReallySneaking) {
+            ShootingHandler.tryAutoShootOnToggleSneak(player, weapon);
+        } else {
             ShootingHandler.cancelAutoShooting(player);
-        }
-
-        final boolean isReallySneaking = isNowSneaking && !player.isInsideVehicle();
-
-        if (isReallySneaking && weapon.isAutomatic) {
-            //System.err.println("2.1. Player is NOW sneaking with automatic Weapon.");
-            final long now = System.currentTimeMillis();
-            final long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
-            final long threshold = ConfigManager.instance().fireResumeThreshold;
-            if (now - lastSingleShot < threshold) {
-                //System.err.println("2.1.1. Player shot a single bullet " + (now - lastSingleShot) + "ms ago.");
-                ShootingHandler.tryAutoShoot(player, weapon);
-            }
         }
 
         ServerUtils.chargeOrDischargeIfCrossbowMeta(mainHandItem, isReallySneaking);

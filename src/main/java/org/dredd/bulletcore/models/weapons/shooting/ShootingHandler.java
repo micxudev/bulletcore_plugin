@@ -96,13 +96,13 @@ public final class ShootingHandler {
     }
 
     /**
-     * Attempts to shoot in response to the shooting trigger (e.g., LMB).
+     * Attempts to shoot in response to the shooting trigger (LMB).
      *
      * @param player the player who is trying to shoot
      * @param weapon the weapon used
      */
-    public static void tryShoot(@NotNull Player player,
-                                @NotNull Weapon weapon) {
+    public static void tryShootOnLMB(@NotNull Player player,
+                                     @NotNull Weapon weapon) {
         if (!weapon.reloadHandler.isShootingAllowed(player)) return;
         if (weapon.isAutomatic && isAutoShooting(player)) return;
 
@@ -128,14 +128,20 @@ public final class ShootingHandler {
      * @param player the player who is trying to shoot
      * @param weapon the weapon used
      */
-    public static void tryAutoShoot(@NotNull Player player,
-                                    @NotNull Weapon weapon) {
-        if (!weapon.reloadHandler.isShootingAllowed(player)) return;
-        if (weapon.isAutomatic && isAutoShooting(player)) return;
+    public static void tryAutoShootOnToggleSneak(@NotNull Player player,
+                                                 @NotNull Weapon weapon) {
+        if (!weapon.isAutomatic) return;
 
-        final long currentTime = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
+        final long lastSingleShot = PlayerActionTracker.getLastSingleShotAutomatic(player.getUniqueId());
+        final long threshold = ConfigManager.instance().fireResumeThreshold;
+        if ((now - lastSingleShot) >= threshold) return;
+
+        if (!weapon.reloadHandler.isShootingAllowed(player)) return;
+        if (isAutoShooting(player)) return;
+
         final long lastShot = weapon.getLastTriggerPullTime(player);
-        long ticksUntilShotAvailable = Math.ceilDiv((weapon.delayBetweenShots - (currentTime - lastShot)), 50L);
+        long ticksUntilShotAvailable = Math.ceilDiv((weapon.delayBetweenShots - (now - lastShot)), 50L);
 
         if (ticksUntilShotAvailable <= 0L) {
             ticksUntilShotAvailable = weapon.ticksDelayBetweenShots;
