@@ -19,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.armor.Armor;
@@ -31,8 +30,6 @@ import org.dredd.bulletcore.utils.ServerUtils;
 
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.getWeaponOrNull;
 import static org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry.isWeapon;
-
-// TODO: clean docs, rename methods
 
 /**
  * Listens for the specific events related to items representing {@link Weapon}.
@@ -57,6 +54,8 @@ public enum WeaponListener implements Listener {
      * @see InventoryView#convertSlot(int)
      */
     private static final int CONVERTED_OFFHAND_SLOT = 40;
+
+    // ----------< Events >----------
 
     /**
      * Prevent placing Weapon into the off-hand slot {@code on inventory click}.
@@ -132,15 +131,14 @@ public enum WeaponListener implements Listener {
     }
 
     /**
-     * Handles inventory clicks to charge or discharge weapons when sneaking.
+     * Charge or discharge weapon {@code on inventory click} when sneaking.
      * <p>
-     * Taking an item out of the main-hand -> discharge<br>
-     * Placing an item into the main-hand -> charge
-     *
-     * @param event the {@link InventoryClickEvent} triggered when a player clicks inside an inventory
+     * Taking {@code out of} the main-hand -> discharge
+     * <br>
+     * Placing {@code into} the main-hand -> charge
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void dischargeWeaponOnInteract(InventoryClickEvent event) {
+    public void handleWeaponChargeDischargeOnInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player) || !player.isSneaking()) return;
         //System.err.println("1. Player clicked. Player is sneaking.");
 
@@ -171,16 +169,10 @@ public enum WeaponListener implements Listener {
     }
 
     /**
-     * Handles entity damage events to intercept direct player attacks with custom weapons.
-     * <p>
-     * If a player damages another entity using a weapon registered in the {@link CustomItemsRegistry},
-     * this method cancels the default damage event and instead invokes the weapon's left-click behavior
-     * via {@link Weapon#onLMB(Player, ItemStack)}.
-     *
-     * @param event the {@link EntityDamageByEntityEvent} triggered when an entity is damaged by another entity
+     * Cancel the default {@code melee} atack damage and instead invoke the weapon's LMB behavior.
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    public void handleMeleeAttackOnEntityDamageByEntity(EntityDamageByEntityEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. EntityDamageByEntityEvent.");
 
@@ -204,7 +196,8 @@ public enum WeaponListener implements Listener {
             // since onLMB may also trigger EntityDamageByEntityEvent
             // (Temporal workaround, until we find a better solution without scheduling)
             Bukkit.getScheduler().runTask(
-                BulletCore.instance(), () -> {
+                BulletCore.instance(),
+                () -> {
                     if (!damager.isOnline() || damager.isDead()) return;
 
                     final ItemStack currentWeapon = damager.getInventory().getItemInMainHand();
@@ -216,12 +209,10 @@ public enum WeaponListener implements Listener {
     }
 
     /**
-     * Handles entity damage events to damage the {@link Armor}
-     *
-     * @param event the {@link EntityDamageByEntityEvent} triggered when an entity is damaged by another entity
+     * Damage the {@link Armor}.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void damageArmor(EntityDamageByEntityEvent event) {
+    public void damageArmorOnEntityDamageByEntity(EntityDamageByEntityEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. EntityDamageByEntityEvent (armor damage).");
 
@@ -236,15 +227,10 @@ public enum WeaponListener implements Listener {
     }
 
     /**
-     * Handles player animation events (e.g., arm swinging) to suppress animation when holding a custom weapon.
-     * <p>
-     * This is used to prevent visual feedback (like swing animations) when using weapons that override
-     * default behavior, ensuring consistent interaction logic and visuals.
-     *
-     * @param event the {@link PlayerAnimationEvent} triggered when a player performs an animation
+     * Suppress arm swing animation when holding a weapon.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onAnimation(PlayerAnimationEvent event) {
+    public void suppressWeaponSwingOnPlayerAnimation(PlayerAnimationEvent event) {
         //System.err.println("===============================");
         //System.err.println("0. PlayerAnimationEvent.");
 
@@ -255,6 +241,8 @@ public enum WeaponListener implements Listener {
         }
     }
 
+    // TODO: clean docs, rename, separate charge/discharge from autoShoot.
+
     /**
      * Handles player sneaking to simulate charging and discharging a custom crossbow weapon.<br>
      * As well as cancel automatic shooting when the player stops sneaking.
@@ -262,8 +250,6 @@ public enum WeaponListener implements Listener {
      * When a player begins sneaking while holding a valid custom crossbow weapon,
      * an arrow is visually charged into it. When the player stops sneaking,
      * the crossbow is visually discharged.
-     *
-     * @param event the {@link PlayerToggleSneakEvent} triggered when a player toggles sneaking
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onShift(PlayerToggleSneakEvent event) {
@@ -298,16 +284,11 @@ public enum WeaponListener implements Listener {
         ServerUtils.chargeOrDischargeIfCrossbowMeta(mainHandItem, isReallySneaking);
     }
 
-    // ----------< Server Tick Updates >----------
-
     /**
-     * Called when the server has finished ticking the main loop.<br>
-     * Updates player states.
-     *
-     * @param event the {@link ServerTickEndEvent} triggered
+     * Update states every server tick.
      */
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onTickEnd(ServerTickEndEvent event) {
+    public void updateStatesOnServerTickEnd(ServerTickEndEvent event) {
         SprayHandler.tick();
     }
 }
