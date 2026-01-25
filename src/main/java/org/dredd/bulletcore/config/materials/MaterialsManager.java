@@ -2,7 +2,7 @@ package org.dredd.bulletcore.config.materials;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -100,7 +100,7 @@ public final class MaterialsManager {
                                                  boolean addAll,
                                                  @NotNull List<String> include,
                                                  @NotNull List<String> exclude) {
-        final Set<Material> result = new HashSet<>();
+        final Set<Material> result = EnumSet.noneOf(Material.class);
         final Pattern[] includePatterns = compilePatterns(include);
         final Pattern[] excludePatterns = compilePatterns(exclude);
 
@@ -140,7 +140,7 @@ public final class MaterialsManager {
         if (GENERATE_ALL_MATERIALS_FILE)
             MaterialCategory.writeAllMaterials(new File(plugin.getDataFolder(), ALL_MATERIALS_FILE_NAME));
 
-        final Set<Material> result = new HashSet<>();
+        final Set<Material> result = EnumSet.noneOf(Material.class);
 
         for (final var category : MaterialCategory.values()) {
             if (category.skipInIgnored) continue;
@@ -202,7 +202,7 @@ public final class MaterialsManager {
      * Parses ignored materials from the given configuration.
      */
     private @NotNull Set<Material> parseIgnoredMaterials(@NotNull YamlConfiguration config) {
-        final Set<Material> result = new HashSet<>();
+        final Set<Material> result = EnumSet.noneOf(Material.class);
 
         for (final var category : MaterialCategory.values()) {
             if (category.skipInIgnored) continue;

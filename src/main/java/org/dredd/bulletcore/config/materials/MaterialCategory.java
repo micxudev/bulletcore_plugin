@@ -3,7 +3,7 @@ package org.dredd.bulletcore.config.materials;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -48,10 +48,10 @@ public enum MaterialCategory {
             final Material[] allMaterials = Material.values();
             TOTAL_MATERIALS = allMaterials.length;
 
-            ITEMS_ONLY = new LinkedHashSet<>();
-            BLOCKS_ONLY = new LinkedHashSet<>();
-            BLOCKS_COLLIDABLE = new LinkedHashSet<>();
-            BLOCKS_NON_COLLIDABLE = new LinkedHashSet<>();
+            ITEMS_ONLY = EnumSet.noneOf(Material.class);
+            BLOCKS_ONLY = EnumSet.noneOf(Material.class);
+            BLOCKS_COLLIDABLE = EnumSet.noneOf(Material.class);
+            BLOCKS_NON_COLLIDABLE = EnumSet.noneOf(Material.class);
 
             for (final Material material : allMaterials) {
                 final boolean isItem = material.isItem();
