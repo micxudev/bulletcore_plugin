@@ -87,12 +87,10 @@ public final class RecoilHandler {
         final var playerRecoil = getRecoil(player);
         playerRecoil.onShotFired(weaponRecoil);
 
-        final UUID playerId = player.getUniqueId();
-        if (RECOIL_TASKS.containsKey(playerId)) return;
-
-        final BukkitTask recoilTask = Bukkit.getScheduler().runTaskTimer(
-            BulletCore.instance(), playerRecoil::tick, 0L, 1L
+        RECOIL_TASKS.computeIfAbsent(player.getUniqueId(), k ->
+            Bukkit.getScheduler().runTaskTimer(
+                BulletCore.instance(), playerRecoil::tick, 0L, 1L
+            )
         );
-        RECOIL_TASKS.put(playerId, recoilTask);
     }
 }
