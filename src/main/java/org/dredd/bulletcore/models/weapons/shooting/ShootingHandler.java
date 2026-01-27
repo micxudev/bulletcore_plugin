@@ -297,10 +297,13 @@ public final class ShootingHandler {
         DamagePoint damagePoint = DamagePoint.BODY; // non-player entities will default to BODY
         double finalDamage = weapon.damage.body();
 
+        // START: PLAYER ONLY
+        final Player victimPlayer = victim instanceof Player p ? p : null;
+
         AttributeInstance victimKnockbackResistance = null;
         double originalKnockbackValue = 0.0;
 
-        if (victim instanceof Player victimPlayer) {
+        if (victimPlayer != null) {
             damagePoint = getDamagePoint(victimPlayer, hitPoint);
             finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
 
@@ -310,16 +313,21 @@ public final class ShootingHandler {
                 victimKnockbackResistance.setBaseValue(weapon.victimKnockbackResistance);
             }
         }
+        // END: PLAYER ONLY
 
         try {
-            CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId()); // prevents recursion for the same hit
+            CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId(), weapon);
             victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
             victim.setNoDamageTicks(0); // allows constant hits
         } finally {
-            if (victimKnockbackResistance != null)
-                victimKnockbackResistance.setBaseValue(originalKnockbackValue);
             CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
-            CurrentHitTracker.removeArmorHit(victim.getUniqueId());
+
+            // PLAYER ONLY
+            if (victimPlayer != null) {
+                if (victimKnockbackResistance != null)
+                    victimKnockbackResistance.setBaseValue(originalKnockbackValue);
+                CurrentHitTracker.removeArmorHit(victim.getUniqueId());
+            }
         }
 
         return damagePoint;
