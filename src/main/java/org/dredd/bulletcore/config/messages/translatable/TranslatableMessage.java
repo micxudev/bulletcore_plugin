@@ -52,7 +52,8 @@ public enum TranslatableMessage {
             new ConfigStyle("head", STYLE_RED),
             new ConfigStyle("body", STYLE_RED),
             new ConfigStyle("legs", STYLE_RED),
-            new ConfigStyle("feet", STYLE_RED)
+            new ConfigStyle("feet", STYLE_RED),
+            new ConfigStyle("shield", STYLE_RED)
         )
     )),
 

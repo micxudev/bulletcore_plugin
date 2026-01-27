@@ -200,7 +200,7 @@ public class Weapon extends CustomBase {
         this.skins = WeaponSkins.load(config, super.customModelData, super.displayName);
 
         super.lore.add(0, Component.empty()); // Bullets will be here on ItemStack creation
-        super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet())));
+        super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet(), damage.shield())));
         super.lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
         super.lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
     }
