@@ -153,16 +153,16 @@ public enum WeaponListener implements Listener {
             if (hotbarSlot != mainHandSlot) return;
             //System.err.println("4. NUMBER_KEY slot == MAIN_HAND slot");
 
-            ServerUtils.dischargeIfWeapon(playerInventory.getItem(hotbarSlot));
-            ServerUtils.chargeIfWeapon(event.getCurrentItem());
+            ServerUtils.dischargeIfCrossbowWeapon(playerInventory.getItem(hotbarSlot));
+            ServerUtils.chargeIfCrossbowWeapon(event.getCurrentItem());
             return;
         }
 
         if (event.getSlot() == mainHandSlot) {
             //System.err.println("3. Direct click on MAIN_HAND slot.");
 
-            ServerUtils.dischargeIfWeapon(event.getCurrentItem());
-            ServerUtils.chargeIfWeapon(event.getCursor());
+            ServerUtils.dischargeIfCrossbowWeapon(event.getCurrentItem());
+            ServerUtils.chargeIfCrossbowWeapon(event.getCursor());
         }
     }
 

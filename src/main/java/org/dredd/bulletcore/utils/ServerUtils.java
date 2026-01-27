@@ -160,8 +160,8 @@ public final class ServerUtils {
      * @param stack  the item stack; can be null
      * @param charge true to charge, false to discharge
      */
-    public static void chargeOrDischargeIfWeapon(@Nullable ItemStack stack,
-                                                 boolean charge) {
+    public static void chargeOrDischargeIfCrossbowWeapon(@Nullable ItemStack stack,
+                                                         boolean charge) {
         if (CustomItemsRegistry.isWeapon(stack))
             chargeOrDischargeIfCrossbowMeta(stack, charge);
     }
@@ -171,8 +171,8 @@ public final class ServerUtils {
      *
      * @param stack the item stack; can be null
      */
-    public static void chargeIfWeapon(@Nullable ItemStack stack) {
-        chargeOrDischargeIfWeapon(stack, true);
+    public static void chargeIfCrossbowWeapon(@Nullable ItemStack stack) {
+        chargeOrDischargeIfCrossbowWeapon(stack, true);
     }
 
     /**
@@ -180,7 +180,7 @@ public final class ServerUtils {
      *
      * @param stack the item stack; can be null
      */
-    public static void dischargeIfWeapon(@Nullable ItemStack stack) {
-        chargeOrDischargeIfWeapon(stack, false);
+    public static void dischargeIfCrossbowWeapon(@Nullable ItemStack stack) {
+        chargeOrDischargeIfCrossbowWeapon(stack, false);
     }
 }

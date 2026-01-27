@@ -54,7 +54,7 @@ public enum PlayerActionsListener implements Listener {
 
         SprayHandler.getSprayContext(player);
 
-        ServerUtils.chargeOrDischargeIfWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());
+        ServerUtils.chargeOrDischargeIfCrossbowWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -73,7 +73,7 @@ public enum PlayerActionsListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         final Player player = event.getEntity();
 
-        ServerUtils.dischargeIfWeapon(player.getInventory().getItemInMainHand());
+        ServerUtils.dischargeIfCrossbowWeapon(player.getInventory().getItemInMainHand());
 
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
