@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.listeners;
 
-import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,112 +14,69 @@ import org.dredd.bulletcore.listeners.trackers.PlayerActionTracker;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
-import org.dredd.bulletcore.models.weapons.shooting.spray.PlayerSprayContext;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
+import org.dredd.bulletcore.utils.ServerUtils;
+
+// TODO: verify whether ignoreCancelled should be applied to some/all events
 
 /**
- * Listens for player actions and records them using {@link PlayerActionTracker}.
+ * Listens for the player-related events and updates gameplay trackers accordingly.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class PlayerActionsListener implements Listener {
+public enum PlayerActionsListener implements Listener {
 
-    private final PlayerActionTracker tracker;
+    INSTANCE;
 
-    /**
-     * Constructs a new listener using the provided tracker instance.
-     *
-     * @param tracker the {@link PlayerActionTracker} used to store inventory interaction timestamps
-     */
-    public PlayerActionsListener(PlayerActionTracker tracker) {
-        this.tracker = tracker;
-    }
+    // ----------< Interactions >----------
 
-    /**
-     * Called when a player clicks in an inventory.<br>
-     * Updates the player's last inventory interaction time.
-     *
-     * @param event the {@link InventoryClickEvent} triggered
-     */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryInteract(InventoryClickEvent event) {
-        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+    public void onInventoryClick(InventoryClickEvent event) {
+        PlayerActionTracker.recordInventoryInteraction(event.getWhoClicked().getUniqueId());
     }
 
-    /**
-     * Called when a player drags items in an inventory.<br>
-     * Updates the player's last inventory interaction time.
-     *
-     * @param event the {@link InventoryDragEvent} triggered
-     */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        tracker.markInventoryInteraction(event.getWhoClicked().getUniqueId());
+        PlayerActionTracker.recordInventoryInteraction(event.getWhoClicked().getUniqueId());
     }
 
-    /**
-     * Called when a player joins the server.<br>
-     * Creates a new {@link PlayerSprayContext} instance for the player to track their state.
-     *
-     * @param event the {@link PlayerJoinEvent} triggered
-     */
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onJoin(PlayerJoinEvent event) {
-        SprayHandler.getSprayContext(event.getPlayer());
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        PlayerActionTracker.recordDrop(event.getPlayer().getUniqueId());
     }
 
-    /**
-     * Called when a player quits the server.<br>
-     * Clears tracking information for the player.
-     *
-     * @param event the {@link PlayerQuitEvent} triggered
-     */
+    // ----------< Lifecycle >----------
+
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onQuit(PlayerQuitEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
-        tracker.clear(player.getUniqueId());
+
+        SprayHandler.getSprayContext(player);
+
+        ServerUtils.chargeOrDischargeIfCrossbowWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        final Player player = event.getPlayer();
+
+        PlayerActionTracker.clear(player.getUniqueId());
+
         ReloadHandler.cancelReload(player, false);
         ShootingHandler.cancelAutoShooting(player);
-        RecoilHandler.stopAndClearRecoil(player);
+        RecoilHandler.cancelAndRemoveRecoil(player);
         SprayHandler.clearSprayContext(player);
     }
 
-    /**
-     * Called when a player dies.<br>
-     * Stops the player's current reload if it is in progress.<br>
-     * Stops automatic shooting if the player was shooting.<br>
-     * Stops and clears recoil data.
-     *
-     * @param event the {@link PlayerDeathEvent} triggered
-     */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player entity = event.getEntity();
-        ReloadHandler.cancelReload(entity, false);
-        ShootingHandler.cancelAutoShooting(entity);
-        RecoilHandler.stopAndClearRecoil(entity);
-    }
+        final Player player = event.getEntity();
 
-    /**
-     * Called when a player drops an item.<br>
-     * Updates the player's last drop time.
-     *
-     * @param event the {@link PlayerDropItemEvent} triggered
-     */
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onDrop(PlayerDropItemEvent event) {
-        tracker.markDrop(event.getPlayer().getUniqueId());
-    }
+        ServerUtils.dischargeIfCrossbowWeapon(player.getInventory().getItemInMainHand());
 
-    /**
-     * Called when the server has finished ticking the main loop.<br>
-     * Updates player states.
-     *
-     * @param event the {@link ServerTickEndEvent} triggered
-     */
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onTickEnd(ServerTickEndEvent event) {
-        SprayHandler.tick();
+        ReloadHandler.cancelReload(player, false);
+        ShootingHandler.cancelAutoShooting(player);
+        RecoilHandler.cancelAndRemoveRecoil(player);
     }
 }

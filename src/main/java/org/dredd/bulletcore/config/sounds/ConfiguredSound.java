@@ -6,7 +6,7 @@ import org.bukkit.SoundCategory;
  * Immutable representation of a configured sound, parsed from a YAML file.
  * <p>
  * Supports built-in Minecraft or custom sounds from a resource pack.<br>
- * Instances are loaded via {@link SoundManager} and validated at config load time.
+ * Instances are loaded and validated via {@link SoundManager}.
  * <p>
  * <b>Field details:</b>
  * <ul>

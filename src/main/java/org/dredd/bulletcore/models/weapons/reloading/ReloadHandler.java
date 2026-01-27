@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.models.weapons.reloading;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -8,145 +12,157 @@ import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.utils.FormatterUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD;
-import static org.dredd.bulletcore.config.messages.ComponentMessage.WEAPON_RELOAD_CANCEL;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOADING;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_RELOAD_CANCELED;
 
 /**
- * Defines a weapon reload handler interface used to refill ammo/bullets into weapons.
+ * Defines a weapon reload handler used to refill ammo/bullets into weapons.
  *
  * @author dredd
  * @since 1.0.0
  */
 public abstract class ReloadHandler {
 
-    // -----< Static >-----
+    // ----------< Static >----------
+
+    /**
+     * Represents a weapon reload action.
+     *
+     * @param weapon     the weapon currently being reloaded
+     * @param reloadTask the {@link BukkitTask} managing the reload process
+     */
+    private record WeaponReload(Weapon weapon, BukkitTask reloadTask) {}
+
     /**
      * Stores currently running reload tasks for each player.
      */
-    private static final Map<UUID, BukkitTask> reloadTasks = new HashMap<>();
+    private static final Map<UUID, WeaponReload> RELOAD_TASKS = new HashMap<>();
+
+    // -----< Public API >-----
 
     /**
      * Checks whether the specified player is currently reloading a weapon.
      *
-     * @param player the player to check; must not be {@code null}
+     * @param player the player to check
      * @return {@code true} if the player is currently reloading, {@code false} otherwise
      */
     public static boolean isReloading(@NotNull Player player) {
-        return reloadTasks.containsKey(player.getUniqueId());
-    }
-
-    /**
-     * Clears all reload tasks. Called when the plugin is reloaded or disabled.
-     */
-    public static void clearAllReloadTasks() {
-        reloadTasks.values().forEach(BukkitTask::cancel);
-        reloadTasks.clear();
+        return RELOAD_TASKS.containsKey(player.getUniqueId());
     }
 
     /**
      * Cancels the reload task for the specified player.
      *
-     * @param player  the player whose reload task should be canceled; must not be {@code null}
-     * @param success whether the reload was successful or not; {@code true} if successful, {@code false} otherwise
+     * @param player  the player whose reload task should be canceled
+     * @param success whether the reload was successful or not
      */
-    public static void cancelReload(@NotNull Player player, boolean success) {
-        BukkitTask task = reloadTasks.remove(player.getUniqueId());
-        if (task == null) return;
-        task.cancel();
-        player.setCooldown(player.getInventory().getItemInMainHand().getType(), 0);
+    public static void cancelReload(@NotNull Player player,
+                                    boolean success) {
+        final WeaponReload reload = RELOAD_TASKS.remove(player.getUniqueId());
+        if (reload == null) return;
 
-        if (!success && ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(of(player, WEAPON_RELOAD_CANCEL, null));
+        reload.reloadTask.cancel();
+        player.setCooldown(reload.weapon.material, 0);
+
+        if (!success && ConfigManager.instance().enableHotbarMessages)
+            WEAPON_RELOAD_CANCELED.sendActionBar(player, null);
     }
+
+    /**
+     * Clears all reload tasks. Called when the plugin is reloaded or disabled.
+     */
+    public static void cancelAllReloadTasks() {
+        RELOAD_TASKS.values().stream().map(WeaponReload::reloadTask).forEach(BukkitTask::cancel);
+        RELOAD_TASKS.clear();
+    }
+
+    // -----< Internal API >-----
 
     /**
      * Completes the reload process for the specified player and weapon.
      *
-     * @param player        the player reloading the weapon; must not be null
-     * @param weapon        the weapon being reloaded; must not be null
+     * @param player        the player reloading the weapon
+     * @param weapon        the weapon being reloaded
      * @param loadedBullets the new number of bullets loaded in the weapon
      */
-    static void finishReload(@NotNull Player player, @NotNull Weapon weapon, int loadedBullets) {
-        if (ConfigManager.get().enableHotbarMessages)
-            weapon.sendActionbar(player, loadedBullets);
-
+    static void finishReload(@NotNull Player player,
+                             @NotNull Weapon weapon,
+                             int loadedBullets) {
+        cancelReload(player, true);
         weapon.sounds.play(player, weapon.sounds.reloadEnd);
 
-        ReloadHandler.cancelReload(player, true);
+        if (ConfigManager.instance().enableHotbarMessages)
+            weapon.sendWeaponStatus(player, loadedBullets);
     }
 
     /**
-     * Shows a reload countdown message to the specified player.
+     * Updates a reload countdown and shows a message to the specified player.
      *
-     * @param player     the player reloading the weapon; must not be null
-     * @param weapon     the weapon being reloaded; must not be null
-     * @param weaponItem the weapon stack; must not be null
-     * @param millisLeft the number of milliseconds remaining in the reload countdown; must be greater than 0
+     * @param player     the player reloading the weapon
+     * @param weapon     the weapon being reloaded
+     * @param stack      the weapon stack
+     * @param millisLeft the number of milliseconds remaining in the reload countdown
      * @return the number of milliseconds remaining for the next countdown tick
      */
-    static long showReloadCountdown(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponItem, long millisLeft) {
-        if (ConfigManager.get().enableHotbarMessages)
-            player.sendActionBar(of(player, WEAPON_RELOAD,
+    static long updateReloadCountdown(@NotNull Player player,
+                                      @NotNull Weapon weapon,
+                                      @NotNull ItemStack stack,
+                                      long millisLeft) {
+        if (ConfigManager.instance().enableHotbarMessages)
+            WEAPON_RELOADING.sendActionBar(
+                player,
                 Map.of(
-                    "bullets", Integer.toString(weapon.getBulletCount(weaponItem)),
-                    "maxbullets", Integer.toString(weapon.maxBullets),
+                    "bullets", Integer.toString(weapon.getBulletCount(stack)),
+                    "maxbullets", weapon.maxBulletsString,
                     "total", Integer.toString(weapon.ammo.getAmmoCount(player)),
-                    "time", Double.toString(millisLeft / 1000D)
+                    "time", FormatterUtils.formatDouble2(millisLeft / 1000D)
                 )
-            ));
+            );
 
         return millisLeft - 100L;
     }
 
-    // -----< Non-Static >-----
+
+    // ----------< Instance Behavior >----------
 
     /**
      * Called when a player initiates a weapon reload.
      *
-     * @param player      the player initiating the reload; never {@code null}
-     * @param weapon      the weapon being reloaded; never {@code null}
-     * @param weaponStack the weapon {@code ItemStack} at the time reload starts; never {@code null}
+     * @param player      the player initiating the reload
+     * @param weapon      the weapon being reloaded
+     * @param weaponStack the weapon stack at the time reload starts
      */
-    public void tryReload(@NotNull Player player, @NotNull Weapon weapon, @NotNull ItemStack weaponStack) {
+    public void tryReload(@NotNull Player player,
+                          @NotNull Weapon weapon,
+                          @NotNull ItemStack weaponStack) {
         if (isReloading(player)) return;
-
         if (weapon.isAutomatic) ShootingHandler.cancelAutoShooting(player);
-        ConfigManager config = ConfigManager.get();
 
-        // check bullet count on Weapon
-        int bulletCount = weapon.getBulletCount(weaponStack);
-        if (bulletCount >= weapon.maxBullets) {
-            if (config.enableHotbarMessages)
-                weapon.sendActionbar(player, bulletCount);
+        // stop if (weapon_fully_loaded or player_out_of_ammo)
+        final int bulletCount = weapon.getBulletCount(weaponStack);
+        if (bulletCount >= weapon.maxBullets || !weapon.ammo.hasAmmo(player)) {
+            if (ConfigManager.instance().enableHotbarMessages)
+                weapon.sendWeaponStatus(player, bulletCount);
             return;
         }
 
-        // check ammo count in a player's inventory
-        int playerAmmoCount = weapon.ammo.getAmmoCount(player);
-        if (playerAmmoCount <= 0) {
-            if (config.enableHotbarMessages)
-                weapon.sendActionbar(player, bulletCount);
-            return;
-        }
-
+        // play reload start sound
         weapon.sounds.play(player, weapon.sounds.reloadStart);
-        long actualReloadTime = weapon.reloadHandler instanceof SingleReloadHandler
-            ? (weapon.reloadTime / weapon.maxBullets) * (weapon.maxBullets - bulletCount)
-            : weapon.reloadTime;
-        player.setCooldown(weapon.material, (int) (actualReloadTime / 50L));
 
-        BukkitRunnable runnable = create(player, weapon);
+        // show more accurate reload time for single-reload weapons
+        int ticksToReload = weapon.ticksReloadTime;
+        if (weapon.reloadHandler instanceof SingleReloadHandler && bulletCount != 0) {
+            final int bulletsToReload = weapon.maxBullets - bulletCount;
+            ticksToReload = (weapon.ticksReloadTime / weapon.maxBullets) * bulletsToReload;
+        }
+        player.setCooldown(weapon.material, ticksToReload);
 
-        // runs the reload task every 2 ticks (~100 ms), starting immediately.
-        BukkitTask reloadTask = runnable.runTaskTimer(BulletCore.getInstance(), 0L, 2L);
-        reloadTasks.put(player.getUniqueId(), reloadTask);
+        // run the reload task every 2 ticks (~100 ms), starting immediately.
+        final BukkitTask reloadTask = create(player, weapon).runTaskTimer(BulletCore.instance(), 0L, 2L);
+        RELOAD_TASKS.put(player.getUniqueId(), new WeaponReload(weapon, reloadTask));
     }
 
     // -----< Abstract >-----
@@ -159,12 +175,12 @@ public abstract class ReloadHandler {
     /**
      * Creates a reload task for the specified player and weapon.
      * <p>
-     * This method is invoked from {@link ReloadHandler#tryReload(Player, Weapon, ItemStack)} when a reload begins.
+     * This method is invoked from {@link #tryReload(Player, Weapon, ItemStack)} when a reload begins.
      * Implementations should return a {@link BukkitRunnable} that performs the reload logic every {@code 2 ticks}
      * (e.g., visual/audio feedback, ammo transfer).
      *
-     * @param player the player initiating the reload; never {@code null}
-     * @param weapon the weapon being reloaded; never {@code null}
+     * @param player the player initiating the reload
+     * @param weapon the weapon being reloaded
      * @return a {@link BukkitRunnable} that performs the reload behavior
      */
     abstract @NotNull BukkitRunnable create(@NotNull Player player, @NotNull Weapon weapon);
@@ -181,8 +197,8 @@ public abstract class ReloadHandler {
      *   <li>Others (e.g., revolvers) may allow shooting mid-reload, potentially canceling the reload process.</li>
      * </ul>
      *
-     * @param player the player to check; must not be {@code null}
-     * @return {@code true} if the player is allowed to shoot at this time, {@code false} otherwise
+     * @param player the player to check
+     * @return {@code true} if the player is allowed to shoot now, {@code false} otherwise
      */
     public abstract boolean isShootingAllowed(@NotNull Player player);
 }

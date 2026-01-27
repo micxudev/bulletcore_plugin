@@ -4,7 +4,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
@@ -18,13 +18,35 @@ import org.jetbrains.annotations.Nullable;
  * @author dredd
  * @since 1.0.0
  */
-public class BulletTrailParticle {
+public final class BulletTrailParticle {
+
+    // ----------< Static >----------
+
+    // -----< Defaults >-----
 
     /**
      * Default particle spawned along the bullet when a player fires a shot.
      */
-    private static final ConfiguredParticle DEFAULT_PARTICLE =
-        new ConfiguredParticle(Particle.DUST, 1, new Particle.DustOptions(Color.fromRGB(0x505050), 0.5F));
+    private static final ConfiguredParticle DEFAULT_PARTICLE = new ConfiguredParticle(
+        Particle.DUST, 1, new Particle.DustOptions(Color.fromRGB(0x505050), 0.5F)
+    );
+
+    // -----< Loader >-----
+
+    /**
+     * Loads a {@link BulletTrailParticle} from a YAML config.
+     *
+     * @param config the configuration to load from
+     * @return a new {@link BulletTrailParticle} instance
+     */
+    public static @NotNull BulletTrailParticle load(@NotNull YamlConfiguration config) {
+        return new BulletTrailParticle(config);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
 
     /**
      * Distance between particle spawn points in blocks.<br>
@@ -43,26 +65,18 @@ public class BulletTrailParticle {
      */
     public final ConfiguredParticle particle;
 
-    private BulletTrailParticle(double step, double offset, ConfiguredParticle particle) {
-        this.step = step;
-        this.offset = offset;
-        this.particle = particle;
-    }
+    // -----< Construction >-----
 
     /**
-     * Loads a {@link BulletTrailParticle} from a {@link FileConfiguration}.
-     *
-     * @param cfg the configuration to load from
-     * @return a new {@link BulletTrailParticle} instance
+     * Private constructor. Use {@link #load(YamlConfiguration)} instead.
      */
-    public static @NotNull BulletTrailParticle load(@NotNull FileConfiguration cfg) {
-        String s = "particles.";
-        return new BulletTrailParticle(
-            cfg.getDouble(s + "step", 1.0),
-            Math.clamp(cfg.getDouble(s + "offset", 2.0), 0.0, 50.0),
-            ParticleManager.loadParticle(cfg, "bullet_trail", DEFAULT_PARTICLE)
-        );
+    private BulletTrailParticle(@NotNull YamlConfiguration config) {
+        this.step = config.getDouble("particles.step", 1.0D);
+        this.offset = Math.clamp(config.getDouble("particles.offset", 2.0D), 0.0D, 20.0D);
+        this.particle = ParticleManager.loadParticle(config, "bullet_trail", DEFAULT_PARTICLE);
     }
+
+    // -----< Public API >-----
 
     /**
      * Spawns a particle trail along the path of a fired projectile.
@@ -89,14 +103,14 @@ public class BulletTrailParticle {
 
         if (step < 0.01D) return;
 
-        double travelDistance = (result == null)
+        final double travelDistance = (result == null)
             ? weapon.maxDistance - offset
             : eyeLocation.toVector().distance(result.getHitPosition()) - offset;
 
         if (travelDistance <= 0.0D) return;
 
-        Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(offset));
-        Vector stepVec = direction.clone().multiply(step);
+        final Location particleLoc = eyeLocation.clone().add(direction.clone().multiply(offset));
+        final Vector stepVec = direction.clone().multiply(step);
 
         for (double traveled = 0.0D; traveled < travelDistance; traveled += step) {
             ParticleManager.spawnParticle(world, particleLoc, particle);

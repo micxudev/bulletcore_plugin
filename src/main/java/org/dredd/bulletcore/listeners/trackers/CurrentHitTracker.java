@@ -1,12 +1,12 @@
 package org.dredd.bulletcore.listeners.trackers;
 
-import org.dredd.bulletcore.models.armor.ArmorHit;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.dredd.bulletcore.models.armor.ArmorHit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Tracks currently processing hit(s) caused by Weapons.
@@ -14,20 +14,16 @@ import java.util.UUID;
  * @author dredd
  * @since 1.0.0
  */
-public class CurrentHitTracker {
+public final class CurrentHitTracker {
 
     /**
-     * Stores currently processing hits.
+     * Private constructor to prevent instantiation.
      */
-    private static final Map<UUID, UUID> currentHits = new HashMap<>();
+    private CurrentHitTracker() {}
 
-    /**
-     * Stores currently processing armor hits.
-     */
-    private static final Map<UUID, ArmorHit> currentArmorHits = new HashMap<>();
+    // ----------< CURRENT_HITS >----------
 
-
-    // -----< currentHits >-----
+    private static final Map<UUID, UUID> CURRENT_HITS = new HashMap<>();
 
     /**
      * Marks that a hit is currently being processed.
@@ -35,8 +31,9 @@ public class CurrentHitTracker {
      * @param damager UUID of the entity that is attacking
      * @param victim  UUID of the entity that is being attacked
      */
-    public static void startHitProcess(@NotNull UUID damager, @NotNull UUID victim) {
-        currentHits.put(damager, victim);
+    public static void startHitProcess(@NotNull UUID damager,
+                                       @NotNull UUID victim) {
+        CURRENT_HITS.put(damager, victim);
     }
 
     /**
@@ -45,8 +42,9 @@ public class CurrentHitTracker {
      * @param damager UUID of the entity that had been attacking
      * @param victim  UUID of the entity that had been attacked
      */
-    public static void finishHitProcess(@NotNull UUID damager, @NotNull UUID victim) {
-        currentHits.remove(damager, victim);
+    public static void finishHitProcess(@NotNull UUID damager,
+                                        @NotNull UUID victim) {
+        CURRENT_HITS.remove(damager, victim);
     }
 
     /**
@@ -56,13 +54,15 @@ public class CurrentHitTracker {
      * @param victim  UUID of the entity that is being attacked
      * @return {@code true} if a hit is currently being processed, {@code false} otherwise
      */
-    public static boolean isAlreadyHit(@NotNull UUID damager, @NotNull UUID victim) {
-        UUID uuid = currentHits.get(damager);
+    public static boolean isAlreadyHit(@NotNull UUID damager,
+                                       @NotNull UUID victim) {
+        final UUID uuid = CURRENT_HITS.get(damager);
         return uuid != null && uuid.equals(victim);
     }
 
+    // ----------< CURRENT_ARMOR_HITS >----------
 
-    // -----< currentArmorHits >-----
+    private static final Map<UUID, ArmorHit> CURRENT_ARMOR_HITS = new HashMap<>();
 
     /**
      * Adds armor hit.
@@ -70,8 +70,9 @@ public class CurrentHitTracker {
      * @param victimUUID the victim's UUID
      * @param armorHit   the armor hit data
      */
-    public static void addArmorHit(@NotNull UUID victimUUID, @NotNull ArmorHit armorHit) {
-        currentArmorHits.put(victimUUID, armorHit);
+    public static void addArmorHit(@NotNull UUID victimUUID,
+                                   @NotNull ArmorHit armorHit) {
+        CURRENT_ARMOR_HITS.put(victimUUID, armorHit);
     }
 
     /**
@@ -80,7 +81,7 @@ public class CurrentHitTracker {
      * @param victimUUID the victim's UUID
      */
     public static void removeArmorHit(@NotNull UUID victimUUID) {
-        currentArmorHits.remove(victimUUID);
+        CURRENT_ARMOR_HITS.remove(victimUUID);
     }
 
     /**
@@ -90,6 +91,6 @@ public class CurrentHitTracker {
      * @return the armor hit instance, or {@code null} if not found
      */
     public static @Nullable ArmorHit getArmorHit(@NotNull UUID victimUUID) {
-        return currentArmorHits.get(victimUUID);
+        return CURRENT_ARMOR_HITS.get(victimUUID);
     }
 }

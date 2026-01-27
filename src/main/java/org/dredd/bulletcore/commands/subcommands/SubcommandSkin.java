@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,21 +14,21 @@ import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_PLAYERS_ONLY;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_LOADED;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_OWNED_SELF;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_MAINHAND_REQUIRED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore skin} subcommand.
+ * Applies a skin to the weapon in a player's main hand.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class SubcommandSkin implements Subcommand {
+public enum SubcommandSkin implements Subcommand {
+
+    INSTANCE;
 
     private final static String DEFAULT_SKIN_NAME = "--default";
 
@@ -52,34 +55,34 @@ public class SubcommandSkin implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(of(sender, ONLY_PLAYERS, null));
+            COMMAND_PLAYERS_ONLY.sendMessage(sender, null);
             return;
         }
 
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) {
-            sender.sendMessage(of(player, NO_WEAPON_IN_MAINHAND, null));
+            WEAPON_MAINHAND_REQUIRED.sendMessage(player, null);
             return;
         }
 
-        String skinName = args[1];
-        WeaponSkin weaponSkin;
+        final String skinName = args[1];
+        final WeaponSkin weaponSkin;
         if (skinName.equals(DEFAULT_SKIN_NAME)) {
             weaponSkin = weapon.skins.defaultSkin;
         } else {
             if (!SkinsManager.playerHasSkin(player, weapon, skinName)) {
-                sender.sendMessage(of(player, NO_SKIN, Map.of("skin", skinName)));
+                SKIN_NOT_OWNED_SELF.sendMessage(player, null);
                 return;
             }
             weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
             if (weaponSkin == null) {
-                sender.sendMessage(of(player, ERROR_LOADING_SKIN, Map.of("skin", skinName)));
+                SKIN_NOT_LOADED.sendMessage(player, null);
                 return;
             }
         }
 
-        ItemMeta meta = mainHandItem.getItemMeta();
+        final ItemMeta meta = mainHandItem.getItemMeta();
         meta.setCustomModelData(weaponSkin.customModelData());
         meta.displayName(weaponSkin.displayName());
         mainHandItem.setItemMeta(meta);
@@ -89,13 +92,13 @@ public class SubcommandSkin implements Subcommand {
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
         if (!(sender instanceof Player player)) return EMPTY_LIST;
 
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        final Weapon weapon = CustomItemsRegistry.getWeaponOrNull(mainHandItem);
         if (weapon == null) return EMPTY_LIST;
 
         if (args.length == 2) {
-            List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
-            List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+            final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+            final List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
             skinOptions.add(DEFAULT_SKIN_NAME);
             skinOptions.addAll(playerWeaponSkins);
 

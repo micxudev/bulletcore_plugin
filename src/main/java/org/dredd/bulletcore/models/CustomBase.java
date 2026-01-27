@@ -1,43 +1,57 @@
 package org.dredd.bulletcore.models;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
+import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.utils.ComponentUtils;
+import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * The base class for all custom models.
+ * The base class for all custom items.
  *
  * @author dredd
  * @since 1.0.0
  */
 public abstract class CustomBase {
 
+    // -----< Attributes >-----
+
     /**
-     * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).<br>
-     * It's recommended to keep this lowercase and without space.
+     * Lazily initialized {@link ItemStack} representing this custom item.<br>
+     * Created on the first request and cloned for faster subsequent creation.
+     */
+    private volatile @Nullable ItemStack prototype;
+
+    /**
+     * The internal, unique identifier for the item used in commands (e.g., `give {@code ak47}`).
      */
     public final String name;
 
     /**
-     * This is the value used by resource packs to apply the correct model.<br>
-     * Used by the plugin to uniquely identify the in-game item associated with this custom object.
+     * The value used by resource packs to apply the model.<br>
+     * Used by the plugin to uniquely identify the in-game item associated with this custom item.
      */
     public final int customModelData;
 
     /**
-     * The base Minecraft {@link Material} used for the custom item.<br>
+     * The base Minecraft {@link Material} used for this custom item.<br>
      * This affects the item's appearance if no resource pack is used.
      */
     public final Material material;
 
     /**
-     * The name shown on the item in-game. Supports
+     * The name shown on the item stack in-game. Supports
      * <a href="https://docs.adventure.kyori.net/minimessage.html">MiniMessage format</a>.
      */
     public final Component displayName;
@@ -53,36 +67,172 @@ public abstract class CustomBase {
     public final List<Component> lore;
 
     /**
-     * This is the maximum amount that an item will stack, must be between {@code 1} and {@code 99} (inclusive).<br>
-     * Bounds are defined by the {@link ItemMeta#setMaxStackSize(Integer)} method.
+     * The maximum amount that an item will stack,
+     * must be between {@code 1} and {@code 99} (inclusive).
      */
     public final int maxStackSize;
 
+    // -----< Construction >-----
 
     /**
-     * Constructs a new {@link CustomBase} instance.
+     * Loads and validates a custom item base definition from the given config.
      *
-     * @param attrs the {@link BaseAttributes} to use for this custom object
+     * @param config the YAML configuration source
+     * @throws ItemLoadException if validation fails
      */
-    protected CustomBase(BaseAttributes attrs) {
-        this.name = attrs.name;
-        this.customModelData = attrs.customModelData;
-        this.material = attrs.material;
-        this.displayName = attrs.displayName;
+    protected CustomBase(@NotNull YamlConfiguration config) throws ItemLoadException {
+        this.name = config.getString("name", null);
+        if (!CustomItemsRegistry.isValidName(name))
+            throw new ItemLoadException("Name: '" + name + "' does not match " + CustomItemsRegistry.VALID_NAME.pattern());
+
+        this.customModelData = config.getInt("customModelData", 0);
+        if (!CustomItemsRegistry.isValidCustomModelData(customModelData))
+            throw new ItemLoadException("CustomModelData: " + customModelData + " is negative or does not end with 2 zeroes");
+
+        this.material = ServerUtils.getMetaCapableMaterial(config.getString("material", null));
+
+        this.displayName = config.getRichMessage("displayName", ComponentUtils.plainWhite(name));
+
         this.displayNameString = PlainTextComponentSerializer.plainText().serialize(displayName);
-        this.lore = attrs.lore;
-        this.maxStackSize = attrs.maxStackSize;
+
+        final List<String> loreList = config.getStringList("lore");
+        if (loreList.size() > 256)
+            throw new ItemLoadException("Lore cannot have more than 256 lines");
+
+        this.lore = loreList.stream()
+            .map(ComponentUtils::deserialize)
+            .collect(Collectors.toList());
+
+        this.maxStackSize = Math.clamp(config.getInt("maxStackSize", material.getMaxStackSize()), 1, 99);
     }
 
+    // -----< Item Behavior >-----
 
     /**
-     * Creates a new {@link ItemStack} with all the {@link BaseAttributes} already set.
+     * Creates and returns a clone of this custom item's prototype stack.
+     * <p>
+     * Lazily initializes the prototype if it hasn't been created yet.
      *
-     * @return A new {@link ItemStack} with the base attributes applied
+     * @return a new stack representing this custom item
      */
-    protected @NotNull ItemStack createBaseItemStack() {
-        ItemStack itemStack = new ItemStack(material);
-        ItemMeta meta = itemStack.getItemMeta();
+    public final @NotNull ItemStack createItemStack() {
+        if (prototype == null) {
+            synchronized (this) {
+                if (prototype == null)
+                    prototype = createPrototype();
+            }
+        }
+        return prototype.clone();
+    }
+
+    /**
+     * Allows subclasses to add or modify attributes on the base item stack.
+     *
+     * @param stack the base stack to customize
+     */
+    protected void applyCustomAttributes(@NotNull ItemStack stack) {}
+
+    /**
+     * Called when a player right-clicks with this custom item in the main hand.
+     *
+     * @param player the player who right-clicked
+     * @param stack  the item stack that was right-clicked with
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public boolean onRMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {return false;}
+
+    /**
+     * Called when a player left-clicks with this custom item in the main hand.
+     *
+     * @param player the player who left-clicked
+     * @param stack  the item stack that was left-clicked with
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public boolean onLMB(@NotNull Player player,
+                         @NotNull ItemStack stack) {return false;}
+
+    /**
+     * Called when a player swaps to this custom item.
+     *
+     * @param player the player who swapped to this item
+     * @param stack  the item stack that was swapped to
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public boolean onSwapTo(@NotNull Player player,
+                            @NotNull ItemStack stack) {return false;}
+
+    /**
+     * Called when a player swaps away from this custom item.
+     *
+     * @param player the player who swapped away from this item
+     * @param stack  the item stack that was swapped away
+     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
+     */
+    public boolean onSwapAway(@NotNull Player player,
+                              @NotNull ItemStack stack) {return false;}
+
+    /**
+     * Called when a player attempts to swap items {@code using the hotkey} and this item is currently in the
+     * main hand, about to be moved to the off hand.
+     *
+     * @param player              the player performing the swap
+     * @param currentMainHandItem the item stack currently in the player's main hand (representing this custom item)
+     * @param currentOffHandItem  the item stack currently in the player's off hand, which will move
+     *                            to the main hand if the swap completes
+     * @return {@code true} to cancel the swap event, {@code false} to allow it
+     */
+    public boolean onSwapFromMainToOff(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {return false;}
+
+    /**
+     * Called when a player attempts to swap items {@code using the hotkey} and this item is currently in the
+     * off hand, about to be moved to the main hand.
+     *
+     * @param player              the player performing the swap
+     * @param currentMainHandItem the item stack currently in the player's main hand, which will move
+     *                            to the off hand if the swap completes
+     * @param currentOffHandItem  the item stack currently in the player's off hand (representing this custom item)
+     * @return {@code true} to cancel the swap event, {@code false} to allow it
+     */
+    public boolean onSwapFromOffToMain(@NotNull Player player,
+                                       @NotNull ItemStack currentMainHandItem,
+                                       @NotNull ItemStack currentOffHandItem) {return false;}
+
+    /**
+     * Called when a player attempts to drop an item stack representing this custom item.
+     *
+     * @param player    the player who attempts to drop the weapon
+     * @param stack     the item stack that was dropped
+     * @param isFromGui {@code true} if the drop comes from the GUI (inventory), {@code false} (using hotkey Q)
+     * @return {@code true} to cancel the drop event, {@code false} to allow it
+     */
+    public boolean onDropItem(@NotNull Player player,
+                              @NotNull ItemStack stack,
+                              boolean isFromGui) {return false;}
+
+    // -----< Utilities >-----
+
+    /**
+     * Builds the prototype {@link ItemStack} for this custom item.
+     *
+     * @return a fully configured prototype stack
+     */
+    private @NotNull ItemStack createPrototype() {
+        final ItemStack stack = createBaseItemStack();
+        applyCustomAttributes(stack);
+        return stack;
+    }
+
+    /**
+     * Creates a new {@link ItemStack} with all the base attributes already set.
+     *
+     * @return a new stack with all the base attributes applied
+     */
+    private @NotNull ItemStack createBaseItemStack() {
+        final ItemStack itemStack = new ItemStack(material);
+        final ItemMeta meta = itemStack.getItemMeta();
 
         meta.setCustomModelData(customModelData);
         meta.displayName(displayName);
@@ -92,72 +242,4 @@ public abstract class CustomBase {
         itemStack.setItemMeta(meta);
         return itemStack;
     }
-
-    /**
-     * Subclasses must implement this method to provide additional information to the final item stack.<br>
-     *
-     * @return A new {@link ItemStack} with all the necessary attributes and additional ones applied.
-     * @see #createBaseItemStack()
-     */
-    public abstract @NotNull ItemStack createItemStack();
-
-    /**
-     * Called when the player right-clicks the with custom item in hand.
-     *
-     * @param player   The player who right-clicked
-     * @param usedItem The item that was right-clicked
-     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
-     */
-    public abstract boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem);
-
-    /**
-     * Called when the player left-clicks the with custom item in hand.
-     *
-     * @param player   The player who left-clicked
-     * @param usedItem The item that was left-clicked
-     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
-     */
-    public abstract boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem);
-
-    /**
-     * Called when the player swaps to the custom item.
-     *
-     * @param player   The player who swapped to the item
-     * @param usedItem The item that was swapped to
-     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
-     */
-    public abstract boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem);
-
-    /**
-     * Called when the player swaps away from the custom item.
-     *
-     * @param player   The player who swapped away from the item
-     * @param usedItem The item that was swapped away
-     * @return {@code true} if the involved event should be canceled, {@code false} otherwise
-     */
-    public abstract boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem);
-
-    /**
-     * A compact, immutable holder for base-level properties shared by all custom items.
-     * <p>
-     * This record is used to load and transfer shared attributes between the
-     * configuration loader and all classes that extend {@link CustomBase}.
-     * </p>
-     *
-     * <h4>Why use BaseAttributes?</h4>
-     * <ul>
-     *   <li> Avoids duplicated code for common field loading in multiple subclasses</li>
-     *   <li> Centralizes default values and parsing logic for base fields</li>
-     *   <li> Enables safe and immutable passing of base data using Java {@code record}</li>
-     *   <li> Makes the base field set extendable without touching subclasses</li>
-     * </ul>
-     */
-    public record BaseAttributes(
-        String name,
-        int customModelData,
-        Material material,
-        Component displayName,
-        List<Component> lore,
-        int maxStackSize
-    ) {}
 }

@@ -1,11 +1,15 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 /**
  * Handles weapon spray for players.
@@ -16,19 +20,31 @@ import java.util.*;
 public final class SprayHandler {
 
     /**
-     * Stores the spray context data for each player.
-     */
-    private static final Map<UUID, PlayerSprayContext> playerSprayContext = new HashMap<>();
-
-    /**
-     * The minimum percentage of the maximum spray value that the random spray direction should be.
-     */
-    private static final double MIN_SPRAY_PERCENT = 0.5D;
-
-    /**
      * Private constructor to prevent instantiation.
      */
     private SprayHandler() {}
+
+    // ----------< Spray Look-Up Table >----------
+    private static final int LUT_SIZE = 256;
+
+    private static final double[] SIN = new double[LUT_SIZE];
+
+    private static final double[] COS = new double[LUT_SIZE];
+
+    static {
+        for (int i = 0; i < LUT_SIZE; i++) {
+            final double a = (i / (double) LUT_SIZE) * Math.TAU;
+            SIN[i] = Math.sin(a);
+            COS[i] = Math.cos(a);
+        }
+    }
+
+    /**
+     * Stores the spray context data for each player.
+     */
+    private static final Map<UUID, PlayerSprayContext> SPRAY_CONTEXTS = new HashMap<>();
+
+    // ----------< Public API >----------
 
     /**
      * Retrieves the existing or newly created {@link PlayerSprayContext} instance for the given player.<br>
@@ -38,74 +54,7 @@ public final class SprayHandler {
      * @return {@link PlayerSprayContext} instance for the given player
      */
     public static @NotNull PlayerSprayContext getSprayContext(@NotNull Player player) {
-        return playerSprayContext.computeIfAbsent(player.getUniqueId(), k -> new PlayerSprayContext(player));
-    }
-
-    /**
-     * Applies the spray logic for a shot fired by the given player.
-     *
-     * @param player           the player who fired the shot
-     * @param weapon           the weapon used to fire the shot
-     * @param initialDirection the initial direction of the shot
-     * @return a list of size {@link Weapon#pelletsPerShot} where each element is the final direction of each pellet
-     */
-    public static @NotNull List<Vector> handleShot(@NotNull Player player, @NotNull Weapon weapon, @NotNull Vector initialDirection) {
-        int pelletCount = weapon.pelletsPerShot;
-        List<Vector> directions = new ArrayList<>(pelletCount);
-
-        var sprayContext = getSprayContext(player);
-        var state = sprayContext.getState();
-        var modifiers = sprayContext.getModifiers();
-        double finalSpray = weapon.spray.getFinalValue(state, modifiers);
-
-        sprayContext.sendMessage(state, modifiers, finalSpray);
-
-        if (finalSpray <= WeaponSpray.NO_SPRAY) {
-            for (int i = 0; i < pelletCount; i++)
-                directions.add(initialDirection);
-            return directions;
-        }
-
-        // Change Shot Direction
-        double maxSprayRadians = Math.toRadians(finalSpray);
-        double minSprayRadians = maxSprayRadians * MIN_SPRAY_PERCENT;
-        double cosMax = Math.cos(maxSprayRadians);
-        double cosMin = Math.cos(minSprayRadians);
-
-        for (int i = 0; i < pelletCount; i++) {
-            double z = cosMin + (cosMax - cosMin) * Math.random();
-            double sinT = Math.sqrt(1 - z * z);
-            double theta = Math.TAU * Math.random();
-            double x = sinT * Math.cos(theta);
-            double y = sinT * Math.sin(theta);
-            Vector offset = new Vector(x, y, z);
-            Vector pelletDirection = rotateVector(offset, initialDirection).normalize();
-            directions.add(pelletDirection);
-        }
-
-        return directions;
-    }
-
-    /**
-     * Rotates a unit vector from a cone aligned with the Z+ axis
-     * to be aligned around an arbitrary direction vector.
-     *
-     * @param offset    the unit vector within the spray cone, originally centered around the Z+ axis.
-     * @param direction the direction vector that the spray cone should be centered around.
-     * @return the new vector representing the rotated spray direction — the original offset,
-     * reoriented so that it lies within a cone centered around the given direction vector.
-     */
-    private static @NotNull Vector rotateVector(@NotNull Vector offset, @NotNull Vector direction) {
-        Vector up = (direction.getX() == 0 && direction.getZ() == 0) // avoid gimbal lock
-            ? new Vector(1, 0, 0)
-            : new Vector(0, 1, 0);
-
-        Vector right = direction.clone().crossProduct(up).normalize();
-        Vector upAdjusted = right.clone().crossProduct(direction).normalize();
-
-        return right.multiply(offset.getX())
-            .add(upAdjusted.multiply(offset.getY()))
-            .add(direction.clone().multiply(offset.getZ()));
+        return SPRAY_CONTEXTS.computeIfAbsent(player.getUniqueId(), k -> new PlayerSprayContext(player));
     }
 
     /**
@@ -114,13 +63,99 @@ public final class SprayHandler {
      * @param player the player whose spray context should be cleared
      */
     public static void clearSprayContext(@NotNull Player player) {
-        playerSprayContext.remove(player.getUniqueId());
+        SPRAY_CONTEXTS.remove(player.getUniqueId());
     }
 
     /**
      * Update the spray context for each player.
      */
     public static void tick() {
-        playerSprayContext.values().forEach(PlayerSprayContext::tick);
+        SPRAY_CONTEXTS.values().forEach(PlayerSprayContext::tick);
+    }
+
+    /**
+     * Applies the spray logic for a shot fired by the given player.
+     *
+     * @param player           the player who fired the shot
+     * @param weapon           the weapon used to fire the shot
+     * @param initialDirection the normalized initial direction of the shot
+     * @return a Vector array of size {@link Weapon#pelletsPerShot} where each element is the final direction of each pellet
+     */
+    public static @NotNull Vector[] handleShot(@NotNull Player player,
+                                               @NotNull Weapon weapon,
+                                               @NotNull Vector initialDirection) {
+        final Vector[] directions = new Vector[weapon.pelletsPerShot];
+
+        final var sprayContext = getSprayContext(player);
+        final var state = sprayContext.getState();
+        final var modifiers = sprayContext.getModifiers();
+        final double finalSpray = weapon.spray.getFinalValue(state, modifiers);
+
+        sprayContext.sendMessage(state, modifiers, finalSpray);
+
+        if (finalSpray <= WeaponSpray.NO_SPRAY) {
+            Arrays.fill(directions, initialDirection);
+            return directions;
+        }
+
+        // -----< change shot direction >-----
+
+        // calculate cone limits in radians and cos space
+        final double maxSprayRadians = Math.toRadians(finalSpray);
+        final double minSprayRadians = maxSprayRadians * weapon.spray.minSprayPercent;
+        final double cosMax = Math.cos(maxSprayRadians);
+        final double cosMin = Math.cos(minSprayRadians);
+        final double cosRange = cosMax - cosMin;
+
+        // build orthonormal basis
+
+        // forward = initialDirection
+        double fx = initialDirection.getX();
+        double fy = initialDirection.getY();
+        double fz = initialDirection.getZ();
+
+        // avoid gimbal lock
+        final boolean forwardIsVertical = Math.abs(fx) < 1e-12 && Math.abs(fz) < 1e-12;
+        final double up0x = forwardIsVertical ? 1.0 : 0.0;
+        final double up0y = forwardIsVertical ? 0.0 : 1.0;
+        final double up0z = 0.0;
+
+        // calculate right = forward × tmpUp
+        double rx = fy * up0z - fz * up0y;
+        double ry = fz * up0x - fx * up0z;
+        double rz = fx * up0y - fy * up0x;
+
+        // normalize right
+        final double rLenSq = rx * rx + ry * ry + rz * rz;
+        final double invRLen = 1.0 / Math.sqrt(rLenSq);
+        rx *= invRLen;
+        ry *= invRLen;
+        rz *= invRLen;
+
+        // calculate up = right × forward
+        final double ux = ry * fz - rz * fy;
+        final double uy = rz * fx - rx * fz;
+        final double uz = rx * fy - ry * fx;
+
+        final ThreadLocalRandom rng = ThreadLocalRandom.current();
+
+        for (int i = 0; i < directions.length; i++) {
+            // sample a random direction inside the cone (local coordinates)
+            final double z = cosMin + cosRange * rng.nextDouble();
+            final double sinT = Math.sqrt(1.0 - z * z);
+
+            final int idx = rng.nextInt(LUT_SIZE);
+            final double x = sinT * COS[idx];
+            final double y = sinT * SIN[idx];
+
+            // rotate the local offset into world coordinates
+            final double dx = rx * x + ux * y + fx * z;
+            final double dy = ry * x + uy * y + fy * z;
+            final double dz = rz * x + uz * y + fz * z;
+
+            directions[i] = new Vector(dx, dy, dz);
+        }
+
+        return directions;
     }
 }

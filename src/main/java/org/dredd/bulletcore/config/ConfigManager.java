@@ -1,54 +1,75 @@
 package org.dredd.bulletcore.config;
 
-import org.bukkit.Material;
+import java.util.Locale;
+
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.armorstand_features.ASFeatureManager;
 import org.dredd.bulletcore.config.particles.ConfiguredParticle;
+import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
+import org.dredd.bulletcore.config.sounds.SoundManager;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.*;
 
 import static org.bukkit.SoundCategory.MASTER;
-import static org.dredd.bulletcore.config.particles.ParticleManager.loadParticle;
-import static org.dredd.bulletcore.config.sounds.SoundManager.loadSound;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.PLAYER;
 import static org.dredd.bulletcore.config.sounds.SoundPlaybackMode.WORLD;
 
 /**
- * Class for loading and managing the plugin's configuration.
+ * Manages main plugin's configuration.
+ * <p>
+ * Loads values from the config file or defaults, creating a default file if missing.
  *
  * @author dredd
  * @since 1.0.0
  */
 public final class ConfigManager {
 
-    /**
-     * The singleton instance of the {@link ConfigManager}.
-     */
+    // ----------< Static >----------
+
+    // -----< Defaults >-----
+
+    private static final ConfiguredSound DEFAULT_ENTITY_HIT_HEAD_SOUND = new ConfiguredSound(
+        "entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER
+    );
+
+    private static final ConfiguredSound DEFAULT_ENTITY_HIT_BODY_SOUND = new ConfiguredSound(
+        "block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD
+    );
+
+    private static final ConfiguredSound DEFAULT_BLOCK_HIT_SOUND = new ConfiguredSound(
+        "block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD
+    );
+
+    private static final ConfiguredParticle DEFAULT_ENTITY_HIT_PARTICLE = new ConfiguredParticle(
+        Particle.DAMAGE_INDICATOR, 1, null
+    );
+
+    private static final ConfiguredParticle DEFAULT_BLOCK_HIT_PARTICLE = new ConfiguredParticle(
+        Particle.CRIT, 2, null
+    );
+
+    //private static final String CONFIG_FILE_NAME = "config.yml";
+    //private static final List<String> CONFIG_HEADER = List.of("Wiki: <link>");
+
     private static ConfigManager instance;
 
-    /**
-     * Gets the singleton instance of the {@link ConfigManager}
-     *
-     * @return the singleton instance, or {@code null} if called before {@link #reload(BulletCore)}
-     */
-    public static ConfigManager get() {
+    public static ConfigManager instance() {
         return instance;
     }
 
-    /**
-     * Initializes or reloads the config.
-     *
-     * @param plugin the plugin instance
-     */
-    public static void reload(BulletCore plugin) {
+    public static void load(@NotNull BulletCore plugin) {
         instance = new ConfigManager(plugin);
     }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
+    private final BulletCore plugin;
 
     public final Locale locale;
 
@@ -61,69 +82,43 @@ public final class ConfigManager {
     public final DamageThresholds damageThresholds;
 
     public final ConfiguredSound entityHitHeadSound;
+
     public final ConfiguredSound entityHitBodySound;
+
     public final ConfiguredSound blockHitSound;
 
     public final ConfiguredParticle entityHitParticle;
+
     public final ConfiguredParticle blockHitParticle;
 
     public final ASFeatureManager asFeatureManager;
 
-    public final @Unmodifiable Set<Material> ignoredMaterials;
+    // -----< Construction >-----
 
-    /**
-     * Initializes the {@link ConfigManager} instance by loading and parsing configuration values
-     * from the plugin's {@code config.yml} file. This constructor ensures that default
-     * configuration values are saved and reloaded before using them.
-     *
-     * @param plugin the {@link BulletCore} instance
-     */
-    private ConfigManager(BulletCore plugin) {
+    private ConfigManager(@NotNull BulletCore plugin) {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
-        FileConfiguration cfg = plugin.getConfig();
+        final FileConfiguration cfg = plugin.getConfig();
 
-        locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
+        this.plugin = plugin;
 
-        enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
+        this.locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
-        raySize = cfg.getDouble("ray-size", 0.01);
+        this.enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
 
-        fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
+        this.raySize = cfg.getDouble("ray-size", 0.1);
 
-        damageThresholds = DamageThresholds.load(cfg);
+        this.fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
 
-        entityHitHeadSound = loadSound(cfg, "entity_hit_head", new ConfiguredSound("entity.experience_orb.pickup", MASTER, 0.5f, 1.0f, 0L, PLAYER));
-        entityHitBodySound = loadSound(cfg, "entity_hit_body", new ConfiguredSound("block.beehive.drip", MASTER, 5.0f, 1.0f, 0L, WORLD));
-        blockHitSound = loadSound(cfg, "block_hit", new ConfiguredSound("block.metal.hit", MASTER, 2.0f, 1.0f, 0L, WORLD));
+        this.damageThresholds = DamageThresholds.load(cfg);
 
-        entityHitParticle = loadParticle(cfg, "entity_hit", new ConfiguredParticle(Particle.DAMAGE_INDICATOR, 1, null));
-        blockHitParticle = loadParticle(cfg, "block_hit", new ConfiguredParticle(Particle.CRIT, 2, null));
+        this.entityHitHeadSound = SoundManager.loadSound(cfg, "entity-hit-head", DEFAULT_ENTITY_HIT_HEAD_SOUND);
+        this.entityHitBodySound = SoundManager.loadSound(cfg, "entity-hit-body", DEFAULT_ENTITY_HIT_BODY_SOUND);
+        this.blockHitSound = SoundManager.loadSound(cfg, "block-hit", DEFAULT_BLOCK_HIT_SOUND);
 
-        asFeatureManager = new ASFeatureManager(cfg.getConfigurationSection("armorstand-features"));
+        this.entityHitParticle = ParticleManager.loadParticle(cfg, "entity-hit", DEFAULT_ENTITY_HIT_PARTICLE);
+        this.blockHitParticle = ParticleManager.loadParticle(cfg, "block-hit", DEFAULT_BLOCK_HIT_PARTICLE);
 
-        ignoredMaterials = parseMaterials(cfg.getStringList("ignored-materials"));
-        plugin.getLogger().info("-Loaded " + ignoredMaterials.size() + " ignored materials");
-    }
-
-    /**
-     * Parses a list of material names into a set of {@link Material} instances.
-     *
-     * @param materialNames the list of material names to parse; must not be null
-     * @return a set of {@link Material} instances parsed from the given list of material names
-     */
-    public static @NotNull @Unmodifiable Set<Material> parseMaterials(@NotNull List<String> materialNames) {
-        Set<Material> parsedMaterials = HashSet.newHashSet(materialNames.size());
-
-        for (String name : materialNames) {
-            try {
-                Material material = Material.valueOf(name.toUpperCase(Locale.ROOT));
-                parsedMaterials.add(material);
-            } catch (IllegalArgumentException e) {
-                BulletCore.getInstance().getLogger().warning("Skipping invalid material in ignored-materials: " + name);
-            }
-        }
-
-        return Collections.unmodifiableSet(parsedMaterials);
+        this.asFeatureManager = ASFeatureManager.load(cfg);
     }
 }

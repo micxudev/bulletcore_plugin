@@ -1,60 +1,72 @@
 package org.dredd.bulletcore.armorstand_features.features;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Base class for all visual features rendered using invisible armor stands
+ * Base class for visual features rendered with invisible armor stands.
  * <p>
- * Subclasses can implement specific behavior (e.g., positioning, rotation, removal timing).
+ * Subclasses define specific visuals (e.g., position, rotation, lifespan).
  *
  * @author dredd
  * @since 1.0.0
  */
 public abstract class ArmorStandFeature {
 
-    /**
-     * Default value: feature is enabled
-     */
-    protected static final boolean DEF_ENABLED = true;
+    // ----------< Static >----------
+
+    // -----< Defaults >-----
 
     /**
-     * Default value: no custom model data (uses base Minecraft material)
+     * Features are enabled by default
      */
-    protected static final int DEF_MODEL_DATA = 0;
+    private static final boolean DEFAULT_ENABLED = true;
 
     /**
-     * Whether the feature is enabled
+     * Default custom model data (0 = vanilla material).
      */
-    public final boolean enabled;
+    private static final int DEFAULT_CUSTOM_MODEL_DATA = 0;
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
 
     /**
-     * The item used as a visual for this feature (with or without custom model data)
+     * Whether this feature is enabled
      */
-    public final ItemStack item;
+    final boolean enabled;
 
     /**
-     * Constructs a new armor stand feature with the given params.
-     *
-     * @param enabled   whether the feature is active
-     * @param material  the material to use for the visual item
-     * @param modelData custom model data ({@value DEF_MODEL_DATA} = use vanilla material)
+     * The visual item displayed on the armor stand.
      */
-    protected ArmorStandFeature(boolean enabled, @NotNull Material material, int modelData) {
-        this.enabled = enabled;
-        this.item = createItem(material, modelData);
+    final ItemStack item;
+
+    // -----< Construction >-----
+
+    ArmorStandFeature(@NotNull Material material) {
+        this.enabled = DEFAULT_ENABLED;
+        this.item = buildItem(material, DEFAULT_CUSTOM_MODEL_DATA);
     }
 
+    ArmorStandFeature(@NotNull ConfigurationSection section,
+                      @NotNull Material material) {
+        this.enabled = section.getBoolean("enabled", DEFAULT_ENABLED);
+        this.item = buildItem(material, section.getInt("customModelData", DEFAULT_CUSTOM_MODEL_DATA));
+    }
+
+    // -----< Utilities >-----
+
     /**
-     * Creates the visual item with optional custom model data.
-     *
-     * @param material  the base material
-     * @param modelData custom model data, or {@value DEF_MODEL_DATA} for vanilla item
-     * @return the item stack to be used on the armor stand
+     * Builds the item used for display, applying custom model data if present.
      */
-    private @NotNull ItemStack createItem(@NotNull Material material, int modelData) {
-        return modelData == DEF_MODEL_DATA ? new ItemStack(material) : ServerUtils.createCustomModelItem(material, modelData);
+    private @NotNull ItemStack buildItem(@NotNull Material material,
+                                         int modelData) {
+        return modelData == DEFAULT_CUSTOM_MODEL_DATA
+            ? new ItemStack(material)
+            : ServerUtils.createCustomModelItem(material, modelData);
     }
 }

@@ -1,17 +1,17 @@
 package org.dredd.bulletcore.custom_item_manager.registries;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.dredd.bulletcore.custom_item_manager.exceptions.ItemRegisterException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Registry for managing custom items of type {@code T}, where {@code T} extends {@link CustomBase}.
@@ -22,27 +22,55 @@ import java.util.Map;
  */
 public final class ItemRegistry<T extends CustomBase> {
 
+    // ----------< Static >----------
+
+    // -----< Factory Methods >-----
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     */
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
+        return new ItemRegistry<>(16);
+    }
+
+    /**
+     * Creates a new, empty {@code ItemRegistry} with the given initial parameters.
+     *
+     * @param expectedSize the expected size of the registry
+     */
+    @SuppressWarnings("SameParameterValue")
+    static <T extends CustomBase> @NotNull ItemRegistry<T> create(int expectedSize) {
+        return new ItemRegistry<>(expectedSize);
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     /**
      * A mapping of {@link CustomBase#customModelData} keys to their corresponding custom item instances.
      */
-    private final Int2ObjectMap<T> items;
+    private final Int2ObjectMap<T> itemsByModelData;
 
     /**
      * A mapping of item names to their corresponding custom item instances.
      */
     private final Map<String, T> itemsByName;
 
-    private ItemRegistry() {
-        this.items = new Int2ObjectArrayMap<>(16);
-        this.itemsByName = new HashMap<>();
-    }
+    // -----< Construction >-----
 
     /**
-     * Creates a new, empty {@code ItemRegistry} with the default initial parameters.
+     * Private constructor. Use factory methods instead.
+     *
+     * @param expectedSize the expected size of the registry
      */
-    static <T extends CustomBase> @NotNull ItemRegistry<T> create() {
-        return new ItemRegistry<>();
+    private ItemRegistry(int expectedSize) {
+        this.itemsByModelData = new Int2ObjectOpenHashMap<>(expectedSize);
+        this.itemsByName = new HashMap<>(expectedSize);
     }
+
+    // -----< Public API >-----
 
     /**
      * Retrieves an item by its {@link CustomBase#customModelData} key.
@@ -51,7 +79,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @return the item if found, or {@code null} if not registered
      */
     public @Nullable T getItemOrNull(int customModelData) {
-        return items.get(customModelData);
+        return itemsByModelData.get(customModelData);
     }
 
     /**
@@ -70,7 +98,7 @@ public final class ItemRegistry<T extends CustomBase> {
      * @return a collection of all registered custom items
      */
     public @NotNull @Unmodifiable Collection<T> getAll() {
-        return Collections.unmodifiableCollection(items.values());
+        return Collections.unmodifiableCollection(itemsByName.values());
     }
 
     /**
@@ -82,6 +110,8 @@ public final class ItemRegistry<T extends CustomBase> {
         return Collections.unmodifiableSet(itemsByName.keySet());
     }
 
+    // -----< Internal API >-----
+
     /**
      * Registers a new item to the registry.
      *
@@ -89,55 +119,25 @@ public final class ItemRegistry<T extends CustomBase> {
      * @throws ItemRegisterException if the item is already registered by customModelData or name
      */
     void register(@NotNull T item) throws ItemRegisterException {
-        int modelData = item.customModelData;
-        String name = item.name;
+        final int modelData = item.customModelData;
+        final String name = item.name;
 
-        T existingByModelData = items.putIfAbsent(modelData, item);
+        final T existingByModelData = itemsByModelData.putIfAbsent(modelData, item);
         if (existingByModelData != null)
-            throw new ItemRegisterException("Item with customModelData " + modelData + " already registered");
+            throw new ItemRegisterException("Item is already registered with the customModelData: " + modelData);
 
-        T existingByName = itemsByName.putIfAbsent(name, item);
+        final T existingByName = itemsByName.putIfAbsent(name, item);
         if (existingByName != null) {
-            items.remove(modelData, item);
-            throw new ItemRegisterException("Item already registered by name: " + name);
+            itemsByModelData.remove(modelData, item);
+            throw new ItemRegisterException("Item is already registered with the name: " + name);
         }
-    }
-
-    /**
-     * Unregisters an item from the registry.
-     *
-     * @param item the item to unregister
-     */
-    void unregister(@NotNull T item) {
-        items.remove(item.customModelData);
-        itemsByName.remove(item.name, item);
     }
 
     /**
      * Clears all registered items from the registry.
      */
     void clearAll() {
-        items.clear();
+        itemsByModelData.clear();
         itemsByName.clear();
-    }
-
-    /**
-     * Checks if an item exists in the registry by its customModelData.
-     *
-     * @param customModelData the custom model data of the item
-     * @return {@code true} if an item with the given custom model data exists, {@code false} otherwise
-     */
-    boolean exists(int customModelData) {
-        return items.containsKey(customModelData);
-    }
-
-    /**
-     * Checks if an item exists in the registry by its name.
-     *
-     * @param name the name of the item
-     * @return {@code true} if an item with the given name exists, {@code false} otherwise
-     */
-    boolean exists(@NotNull String name) {
-        return itemsByName.containsKey(name);
     }
 }

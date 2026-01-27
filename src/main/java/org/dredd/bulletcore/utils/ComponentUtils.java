@@ -1,28 +1,19 @@
 package org.dredd.bulletcore.utils;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.TextColor.color;
-import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 /**
- * Utility class for working with Adventure {@link net.kyori.adventure.text.Component} elements.
- *
- * <p>Provides methods for styling text components with common defaults, like disabling italics or setting color.</p>
+ * Utility class for {@link Component} instances.
  *
  * @since 1.0.0
  */
 public final class ComponentUtils {
-
-    /**
-     * Pre-configured instance of {@link MiniMessage} for parsing MiniMessage formatted strings.
-     */
-    public static final MiniMessage MINI = MiniMessage.miniMessage();
 
     /**
      * Private constructor to prevent instantiation.
@@ -30,18 +21,32 @@ public final class ComponentUtils {
     private ComponentUtils() {}
 
     /**
-     * Default white text color used for neutral UI components.
+     * Neutral white color used for UI text.
      */
-    public static final TextColor WHITE = color(226, 229, 240);
+    public static final TextColor WHITE = TextColor.color(226, 229, 240);
 
     /**
-     * Returns a non-italic {@link TextComponent} with the given content and color.
-     *
-     * @param content the text to display
-     * @param color   the color to apply (nullable; if {@code null}, default color is used)
-     * @return a non-italic {@link TextComponent}
+     * Predefined non-italic white style.
      */
-    public static @NotNull TextComponent noItalic(@NotNull String content, @Nullable TextColor color) {
-        return text(content, color).decoration(ITALIC, false);
+    public static final Style PLAIN_WHITE_STYLE = Style.style(WHITE, TextDecoration.ITALIC.withState(false));
+
+    /**
+     * Creates a white, non-italic {@link TextComponent} with the given content.
+     *
+     * @param text the content
+     * @return a styled text component
+     */
+    public static @NotNull TextComponent plainWhite(@NotNull String text) {
+        return Component.text(text, PLAIN_WHITE_STYLE);
+    }
+
+    /**
+     * Parses a MiniMessage string into a {@link Component}.
+     *
+     * @param message MiniMessage-formatted input
+     * @return the parsed component
+     */
+    public static @NotNull Component deserialize(@NotNull String message) {
+        return MiniMessage.miniMessage().deserialize(message);
     }
 }

@@ -1,65 +1,6 @@
-# Plugin Name
 name: BulletCore
-
-# Plugin Version
 version: 1.0.0
-
-# Main plugin class that extends JavaPlugin
 main: org.dredd.bulletcore.BulletCore
-
-# Target Paper API version
 api-version: 1.21.1
-
-# This tells Paper to automatically download and load the specified
-# external libraries at runtime from Maven Central.
 libraries:
-  - com.fasterxml.jackson.core:jackson-databind:2.19.2
-
-# Command definitions
-commands:
-  bulletcore:
-    description: Main command for BulletCore
-    # This permission controls whether the /bulletcore command is visible and usable.
-    # Players must have this permission to access any subcommands, even if they have other permissions.
-    permission: bulletcore.command.view
-
-
-# Permission nodes hierarchy
-permissions:
-  # Top-level wildcard permission that grants **all permissions** related to BulletCore.
-  # Assign this to players or groups who should have full access to all plugin features.
-  bulletcore.*:
-    description: Grants full access to all BulletCore features and commands.
-    children:
-      bulletcore.command.*: true  # Grants access to all BulletCore subcommands
-
-  # Mid-level wildcard that grants access to **all commands** provided by BulletCore.
-  # This is useful for users who should be able to use every command, but not necessarily every permission node.
-  bulletcore.command.*:
-    description: Grants access to all BulletCore commands.
-    children:
-      bulletcore.command.view: true     # Allows using /bulletcore and seeing it in help
-      bulletcore.command.give: true     # Allows using /bulletcore give
-      bulletcore.command.reload: true   # Allows using /bulletcore reload
-      bulletcore.command.skin: true     # Allows using /bulletcore skin
-      bulletcore.command.skin_manage: true # Allows using /bulletcore skin_manage
-      bulletcore.command.spray_info: true # Allows using /bulletcore spray_info
-
-  # Individual permissions
-  bulletcore.command.view:
-    description: Allows players to view and use the /bulletcore base command.
-
-  bulletcore.command.give:
-    description: Allows use of /bulletcore give to give custom items to players.
-
-  bulletcore.command.reload:
-    description: Allows use of /bulletcore reload to reload plugin data.
-
-  bulletcore.command.skin:
-    description: Allows use of /bulletcore skin to change weapon skin.
-
-  bulletcore.command.skin_manage:
-    description: Allows use of /bulletcore skin_manage to manage weapon skins.
-
-  bulletcore.command.spray_info:
-    description: Allows use of /bulletcore spray_info to view spray debug info.
+  - tools.jackson.core:jackson-databind:3.0.0

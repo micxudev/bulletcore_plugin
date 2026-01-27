@@ -1,6 +1,14 @@
 package org.dredd.bulletcore.config.particles;
 
-import org.bukkit.*;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,24 +17,45 @@ import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-import java.util.NoSuchElementException;
-
 /**
- * Utility class for loading and spawning configured particles defined in YAML.<br>
+ * Utility class for loading and spawning configured particles.
+ * <p>
  * Particle configurations must be located under the {@code particles.<key>} path in the YAML.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class ParticleManager {
+public final class ParticleManager {
 
     /**
      * Private constructor to prevent instantiation.
      */
     private ParticleManager() {}
 
-    // -----< Loading >-----
+    // ----------< Loader >----------
+
+    /**
+     * Loads a {@link ConfiguredParticle} from config, falling back to a default if parsing fails.
+     *
+     * @param cfg the YAML configuration
+     * @param key the key under {@code particles.<key>} to load
+     * @param def the fallback {@link ConfiguredParticle} to use if parsing fails
+     * @return a valid {@link ConfiguredParticle}, either parsed, or fallback
+     */
+    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg,
+                                                           @NotNull String key,
+                                                           @NotNull ConfiguredParticle def) {
+        try {
+            return parseParticle(cfg, key);
+        } catch (NoSuchElementException ignored) {
+            // Ignored, the particle configuration is optional
+        } catch (Exception e) {
+            BulletCore.logError(e.getMessage() + "; falling back to default particle.");
+        }
+        return def;
+    }
+
+    // ----------< Parser >----------
 
     /**
      * Parses a {@link ConfiguredParticle} from the given config using the key under {@code particles.<key>}.
@@ -37,32 +66,35 @@ public class ParticleManager {
      * @throws NoSuchElementException   if the configuration is missing
      * @throws IllegalArgumentException if the configuration is invalid
      */
-    private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg, @NotNull String key) {
-        String fullKey = "particles." + key;
-        ConfigurationSection section = cfg.getConfigurationSection(fullKey);
+    private static @NotNull ConfiguredParticle parseParticle(@NotNull FileConfiguration cfg,
+                                                             @NotNull String key) {
+        final String fullKey = "particles." + key;
+        final ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
             throw new NoSuchElementException("Missing particle configuration for key: " + fullKey);
 
-        String particleName = section.getString("particle");
+        final String particleName = section.getString("particle");
 
-        Particle particle;
+        final Particle particle;
         try {
             particle = Particle.valueOf(particleName.toUpperCase(Locale.ROOT));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid particle '" + particleName + "' for key: " + fullKey);
         }
 
-        int count = Math.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
+        final int count = Math.clamp(section.getInt("count", 1), 0, Integer.MAX_VALUE);
 
-        Object data;
+        final Object data;
         try {
             data = getParticleData(particle.getDataType(), section);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid particle data for key: " + fullKey + " - " + e.getMessage());
         }
 
         return new ConfiguredParticle(particle, count, data);
     }
+
+    // -----< Particle Data >-----
 
     /**
      * Parses particle-specific data for a given particle type.
@@ -76,21 +108,22 @@ public class ParticleManager {
      * @return the parsed particle data object, or {@code null} if no data is required
      * @throws IllegalArgumentException if required values are missing, invalid, or unsupported
      */
-    private static @Nullable Object getParticleData(@NotNull Class<?> dataType, @NotNull ConfigurationSection section) {
+    private static @Nullable Object getParticleData(@NotNull Class<?> dataType,
+                                                    @NotNull ConfigurationSection section) {
         // 0. most of the particles have Void data class
         if (dataType == Void.class) return null;
 
         // 1. DUST
         if (dataType == Particle.DustOptions.class) {
-            Color color = parseColor(section.getString("color"));
-            float size = clampSize(section.getDouble("size", 1.0));
+            final Color color = parseColor(section.getString("color"));
+            final float size = clampSize(section.getDouble("size", 1.0));
             return new Particle.DustOptions(color, size);
         }
 
         // 2. ITEM
         if (dataType == ItemStack.class) {
-            Material type = parseItem(section.getString("item"));
-            ItemStack itemStack = new ItemStack(type);
+            final Material type = parseItem(section.getString("item"));
+            final ItemStack itemStack = new ItemStack(type);
             if (itemStack.isEmpty())
                 throw new IllegalArgumentException("Empty stack is not allowed for particle item");
             return itemStack;
@@ -98,15 +131,15 @@ public class ParticleManager {
 
         // 3. BLOCK, FALLING_DUST, DUST_PILLAR, BLOCK_MARKER
         if (dataType == BlockData.class) {
-            Material type = parseItem(section.getString("item"));
+            final Material type = parseItem(section.getString("item"));
             return Bukkit.createBlockData(type);
         }
 
         // 4. DUST_COLOR_TRANSITION
         if (dataType == Particle.DustTransition.class) {
-            Color fromColor = parseColor(section.getString("from-color"));
-            Color toColor = parseColor(section.getString("to-color"));
-            float size = clampSize(section.getDouble("size", 1.0));
+            final Color fromColor = parseColor(section.getString("from-color"));
+            final Color toColor = parseColor(section.getString("to-color"));
+            final float size = clampSize(section.getDouble("size", 1.0));
             return new Particle.DustTransition(fromColor, toColor, size);
         }
 
@@ -140,7 +173,7 @@ public class ParticleManager {
     private static @NotNull Color parseColor(@Nullable String colorStr) {
         try {
             return Color.fromRGB(Integer.parseInt(colorStr.substring(1), 16));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Expected hex color format #RRGGBB, but got: '" + colorStr + "'");
         }
     }
@@ -165,31 +198,12 @@ public class ParticleManager {
     private static @NotNull Material parseItem(@Nullable String itemName) {
         try {
             return Material.valueOf(itemName.toUpperCase(Locale.ROOT));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("This particle requires 'item' value, but got: '" + itemName + "'");
         }
     }
 
-    /**
-     * Loads a {@link ConfiguredParticle} from config, falling back to a default if parsing fails.
-     *
-     * @param cfg the YAML configuration
-     * @param key the key under {@code particles.<key>} to load
-     * @param def the fallback {@link ConfiguredParticle} to use if parsing fails
-     * @return a valid {@link ConfiguredParticle}, either parsed, or fallback
-     */
-    public static @NotNull ConfiguredParticle loadParticle(@NotNull FileConfiguration cfg, @NotNull String key, @NotNull ConfiguredParticle def) {
-        try {
-            return parseParticle(cfg, key);
-        } catch (NoSuchElementException ignored) {
-            // Ignored, the particle configuration is optional
-        } catch (IllegalArgumentException e) {
-            BulletCore.getInstance().getLogger().severe(e.getMessage() + "; Falling back to default particle");
-        }
-        return def;
-    }
-
-    // -----< Usage >-----
+    // ----------< Public API >----------
 
     /**
      * Spawns the given {@link ConfiguredParticle} at the specified location in the world.
@@ -198,7 +212,10 @@ public class ParticleManager {
      * @param location the location where the particle should appear
      * @param particle the configured particle to spawn
      */
-    public static void spawnParticle(@NotNull World world, @NotNull Location location, @NotNull ConfiguredParticle particle) {
-        world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
+    public static void spawnParticle(@NotNull World world,
+                                     @NotNull Location location,
+                                     @NotNull ConfiguredParticle particle) {
+        if (particle.count() > 0)
+            world.spawnParticle(particle.particle(), location, particle.count(), particle.data());
     }
 }

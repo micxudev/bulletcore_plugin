@@ -3,7 +3,7 @@ package org.dredd.bulletcore.utils;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Utility class for mathematical helper functions.
+ * Utility class for math.
  *
  * @since 1.0.0
  */

@@ -1,7 +1,7 @@
 package org.dredd.bulletcore.models.grenades;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.dredd.bulletcore.custom_item_manager.exceptions.ItemLoadException;
 import org.dredd.bulletcore.models.CustomBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,37 +13,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Grenade extends CustomBase {
 
-    public Grenade(BaseAttributes attrs) {
-        super(attrs);
+    // -----< Construction >-----
+
+    /**
+     * Loads and validates a grenade item definition from the given config.
+     *
+     * @param config the YAML configuration source
+     * @throws ItemLoadException if validation fails
+     */
+    public Grenade(@NotNull YamlConfiguration config) throws ItemLoadException {
+        super(config);
     }
 
-    @Override
-    public @NotNull ItemStack createItemStack() {
-        // Add only grenade-specific attributes
-        return createBaseItemStack();
-    }
+    // -----< Grenade Behavior >-----
 
-    @Override
-    public boolean onRMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Right-click with Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onLMB(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Left-click with Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapTo(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Swapped to Grenade");
-        return false;
-    }
-
-    @Override
-    public boolean onSwapAway(@NotNull Player player, @NotNull ItemStack usedItem) {
-        //System.out.println("Swapped away from Grenade");
-        return false;
-    }
+    // Override only needed methods from CustomBase
 }

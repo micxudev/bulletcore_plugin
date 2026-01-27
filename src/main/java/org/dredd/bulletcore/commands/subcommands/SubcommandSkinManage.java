@@ -1,5 +1,9 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,23 +15,30 @@ import org.dredd.bulletcore.models.weapons.skins.WeaponSkin;
 import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_INVALID_OPERATION;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.PLAYER_NOT_FOUND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKINS_ADDED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKINS_REMOVED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_ADDED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_ALREADY_OWNED_OTHER;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_FOUND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_NOT_OWNED_OTHER;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.SKIN_REMOVED_SUCCESS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.WEAPON_NOT_FOUND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore skin_manage} subcommand.
+ * Manages weapon skins for the player.
  *
  * @author dredd
  * @since 1.0.0
  */
-public class SubcommandSkinManage implements Subcommand {
+public enum SubcommandSkinManage implements Subcommand {
+
+    INSTANCE;
 
     private static final List<String> OPERATIONS = List.of("add", "remove");
+
     private static final String ALL_OPTION = "--all";
 
     @Override
@@ -52,96 +63,102 @@ public class SubcommandSkinManage implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        String operation = args[1];
+        final String operation = args[1];
         if (!OPERATIONS.contains(operation)) {
-            sender.sendMessage(of(sender, INVALID_OPERATION, Map.of("operation", operation)));
+            COMMAND_INVALID_OPERATION.sendMessage(sender, Map.of("operation", operation));
             return;
         }
 
-        String playerName = args[2];
-        Player player = Bukkit.getPlayerExact(playerName);
+        final String playerName = args[2];
+        final Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) {
-            sender.sendMessage(of(sender, PLAYER_NOT_FOUND, Map.of("player", playerName)));
+            PLAYER_NOT_FOUND.sendMessage(sender, Map.of("player", playerName));
             return;
         }
 
-        String weaponName = args[3];
-        Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
+        final String weaponName = args[3];
+        final Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) {
-            sender.sendMessage(of(sender, INVALID_WEAPON, Map.of("weapon", weaponName)));
+            WEAPON_NOT_FOUND.sendMessage(sender, Map.of("weapon", weaponName));
             return;
         }
 
-        String skinName = args[4];
+        final String skinName = args[4];
         if (skinName.equals(ALL_OPTION)) {
             switch (operation) {
                 case "add" -> {
-                    int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
-                    sender.sendMessage(of(sender, SKINS_ADDED, Map.of("count", Integer.toString(skinsAdded))));
+                    final int skinsAdded = SkinsManager.addAllWeaponSkinsToPlayer(player, weapon);
+                    SKINS_ADDED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsAdded)));
                 }
                 case "remove" -> {
-                    int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
-                    sender.sendMessage(of(sender, SKINS_REMOVED, Map.of("count", Integer.toString(skinsRemoved))));
+                    final int skinsRemoved = SkinsManager.removeAllWeaponSkinsFromPlayer(player, weapon);
+                    SKINS_REMOVED_SUCCESS.sendMessage(sender, Map.of("count", Integer.toString(skinsRemoved)));
                 }
             }
-            return;
-        }
-
-        WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
-        if (weaponSkin == null) {
-            sender.sendMessage(of(sender, SKIN_NOT_FOUND, Map.of("skin", skinName)));
             return;
         }
 
         switch (operation) {
             case "add" -> {
+                final WeaponSkin weaponSkin = SkinsManager.getWeaponSkin(weapon, skinName);
+                if (weaponSkin == null) {
+                    SKIN_NOT_FOUND.sendMessage(sender, null);
+                    return;
+                }
+
                 if (SkinsManager.addSkinToPlayer(player, weapon, skinName))
-                    sender.sendMessage(of(sender, SKIN_ADDED, null));
+                    SKIN_ADDED_SUCCESS.sendMessage(sender, null);
                 else
-                    sender.sendMessage(of(sender, SKIN_ALREADY_OWNED, null));
+                    SKIN_ALREADY_OWNED_OTHER.sendMessage(sender, null);
             }
             case "remove" -> {
                 if (SkinsManager.removeSkinFromPlayer(player, weapon, skinName))
-                    sender.sendMessage(of(sender, SKIN_REMOVED, null));
+                    SKIN_REMOVED_SUCCESS.sendMessage(sender, null);
                 else
-                    sender.sendMessage(of(sender, SKIN_NOT_OWNED, null));
+                    SKIN_NOT_OWNED_OTHER.sendMessage(sender, null);
             }
         }
     }
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String[] args) {
-        String operation = args[1];
+        final String operation = args[1];
         if (args.length == 2)
             return StringUtil.copyPartialMatches(operation, OPERATIONS, new ArrayList<>());
+
         if (!OPERATIONS.contains(operation)) return EMPTY_LIST;
 
-        String playerName = args[2];
+
+        final String playerName = args[2];
         if (args.length == 3)
             return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
-        Player player = Bukkit.getPlayerExact(playerName);
+
+        final Player player = Bukkit.getPlayerExact(playerName);
         if (player == null) return EMPTY_LIST;
 
-        String weaponName = args[3];
+
+        final String weaponName = args[3];
         if (args.length == 4)
             return StringUtil.copyPartialMatches(weaponName, SkinsManager.getWeaponNamesWithSkins(), new ArrayList<>());
-        Weapon weapon = CustomItemsRegistry.weapon.getItemOrNull(weaponName);
+
+        final Weapon weapon = CustomItemsRegistry.WEAPON.getItemOrNull(weaponName);
         if (weapon == null) return EMPTY_LIST;
+
 
         if (args.length == 5) {
             return switch (operation) {
                 case "add" -> {
-                    List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
+                    final List<String> missingWeaponSkins = SkinsManager.getMissingWeaponSkins(player, weapon);
                     if (missingWeaponSkins.isEmpty()) yield EMPTY_LIST;
-                    List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
+                    final List<String> skinOptions = new ArrayList<>(missingWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(missingWeaponSkins);
                     yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));
                 }
                 case "remove" -> {
-                    List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
+                    final List<String> playerWeaponSkins = SkinsManager.getPlayerWeaponSkins(player, weapon);
                     if (playerWeaponSkins.isEmpty()) yield EMPTY_LIST;
-                    List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
+                    final List<String> skinOptions = new ArrayList<>(playerWeaponSkins.size() + 1);
                     skinOptions.add(ALL_OPTION);
                     skinOptions.addAll(playerWeaponSkins);
                     yield StringUtil.copyPartialMatches(args[4], skinOptions, new ArrayList<>(skinOptions.size()));

@@ -1,96 +1,167 @@
 package org.dredd.bulletcore.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
-import org.dredd.bulletcore.commands.subcommands.*;
+import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.commands.subcommands.Subcommand;
+import org.dredd.bulletcore.commands.subcommands.SubcommandCanCollide;
+import org.dredd.bulletcore.commands.subcommands.SubcommandGive;
+import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSkin;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSkinManage;
+import org.dredd.bulletcore.commands.subcommands.SubcommandSprayInfo;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
-
-import static org.dredd.bulletcore.config.messages.ComponentMessage.*;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_MISSING_SUBCOMMAND;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_NOT_ENOUGH_ARGS;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_NO_PERMISSION;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_UNKNOWN_SUBCOMMAND;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Handles the execution and tab completion of the {@value #MAIN_COMMAND_NAME } command.
- * <p>
- * This class serves as the central routing point for all the subcommands,
- * delegating logic to specific handler classes.
- *
- * <p>Implements {@link TabExecutor} to support both command execution and tab suggestions.
+ * Handles execution and tab completion for the main plugin command.
  *
  * @author dredd
  * @since 1.0.0
  */
-public final class CommandHandler implements TabExecutor {
+public final class CommandHandler extends Command {
 
-    /**
-     * The name of the main command for this plugin.
-     */
-    public static final String MAIN_COMMAND_NAME = "bulletcore";
+    // ----------< Static >----------
 
-    /**
-     * A map of registered subcommands by name.
-     */
-    private final Map<String, Subcommand> subCommands = new LinkedHashMap<>();
+    private static final String MAIN_COMMAND_NAME = "bulletcore";
 
-    /**
-     * Constructs a new {@code CommandHandler} instance.
-     * <p>Registers all subcommands for the main command.
-     */
-    public CommandHandler() {
-        registerSubcommand(new SubcommandGive());
-        registerSubcommand(new SubcommandReload());
-        registerSubcommand(new SubcommandSkin());
-        registerSubcommand(new SubcommandSkinManage());
-        registerSubcommand(new SubcommandSprayInfo());
+    private static final String MAIN_COMMAND_PERMISSION = "bulletcore.command";
+
+    private static final String ALL_SUBCOMMANDS_PERMISSION = "bulletcore.command.*";
+
+    // -----< Permission Utilities >-----
+
+    private static boolean canUseAllSubcommands(@NotNull CommandSender sender) {
+        return sender.hasPermission(ALL_SUBCOMMANDS_PERMISSION);
     }
 
-    /**
-     * Registers a subcommand with the main command.
-     *
-     * @param subcommand the subcommand to register
-     */
-    private void registerSubcommand(Subcommand subcommand) {
-        subCommands.put(subcommand.getName().toLowerCase(Locale.ROOT), subcommand);
+    private static boolean canUseSubcommand(@NotNull CommandSender sender,
+                                            @NotNull Subcommand sub) {
+        return sender.hasPermission(sub.getPermission());
     }
 
-    /**
-     * Handles the execution of the {@value #MAIN_COMMAND_NAME } subcommand.
-     *
-     * @param sender  the source of the command
-     * @param command the command that was executed
-     * @param label   the alias used to execute the command
-     * @param args    the command arguments
-     * @return {@code true} if the command was handled, {@code false} otherwise
-     */
+    private static boolean canExecuteSubcommand(@NotNull CommandSender sender,
+                                                @NotNull Subcommand sub) {
+        return canUseAllSubcommands(sender) || canUseSubcommand(sender, sub);
+    }
+
+    // -----< Lifecycle Management >-----
+
+    private static CommandHandler INSTANCE;
+
+    private static final List<Subcommand> SUBCOMMANDS = List.of(
+        SubcommandCanCollide.INSTANCE,
+        SubcommandGive.INSTANCE,
+        SubcommandReload.INSTANCE,
+        SubcommandSkin.INSTANCE,
+        SubcommandSkinManage.INSTANCE,
+        SubcommandSprayInfo.INSTANCE
+    );
+
+    public static void init(@NotNull BulletCore plugin) {
+        if (INSTANCE == null) {
+            INSTANCE = new CommandHandler(plugin);
+            SUBCOMMANDS.forEach(INSTANCE::addSubcommand);
+            INSTANCE.register();
+        }
+    }
+
+    public static void destroy() {
+        if (INSTANCE != null) {
+            INSTANCE.unregister();
+            INSTANCE = null;
+        }
+    }
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
+    private final BulletCore plugin;
+
+    private final Map<String, Subcommand> subCommands;
+
+    private final List<String> subCommandNames;
+
+    // -----< Construction >-----
+
+    private CommandHandler(@NotNull BulletCore plugin) {
+        super(MAIN_COMMAND_NAME, "", "", EMPTY_LIST);
+        setPermission(MAIN_COMMAND_PERMISSION);
+
+        this.plugin = plugin;
+        this.subCommands = new HashMap<>();
+        this.subCommandNames = new ArrayList<>();
+    }
+
+    // -----< Command & Subcommand Registration >-----
+
+    private void addSubcommand(@NotNull Subcommand sub) {
+        final String name = sub.getName().toLowerCase(Locale.ROOT);
+        subCommands.put(name, sub);
+        subCommandNames.add(name);
+        plugin.registerPermission(sub.getPermission());
+    }
+
+    private void register() {
+        plugin.registerPermission(MAIN_COMMAND_PERMISSION);
+        plugin.registerPermission(ALL_SUBCOMMANDS_PERMISSION);
+
+        plugin.getServer().getCommandMap()
+            .getKnownCommands()
+            .put(getName(), this);
+    }
+
+    private void unregister() {
+        plugin.getServer().getCommandMap()
+            .getKnownCommands()
+            .remove(getName());
+    }
+
+    // -----< Command Execution & Tab Completion Overrides >-----
+
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+    public boolean execute(@NotNull CommandSender sender,
+                           @NotNull String label,
+                           @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(of(sender, NO_SUBCOMMAND_PROVIDED, Map.of("command", MAIN_COMMAND_NAME)));
+            COMMAND_MISSING_SUBCOMMAND.sendMessage(sender, Map.of("command", MAIN_COMMAND_NAME));
             return true;
         }
 
-        Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
+        final Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
         if (sub == null) {
-            sender.sendMessage(of(sender, UNKNOWN_SUBCOMMAND, Map.of("subcommand", args[0])));
+            COMMAND_UNKNOWN_SUBCOMMAND.sendMessage(sender, Map.of("subcommand", args[0]));
             return true;
         }
 
-        boolean checkPermission = sub.getPermission() != null && !sub.getPermission().isBlank();
-        if (checkPermission && !sender.hasPermission(sub.getPermission())) {
-            sender.sendMessage(of(sender, NO_SUBCOMMAND_PERMISSION, null));
+        if (!canExecuteSubcommand(sender, sub)) {
+            COMMAND_NO_PERMISSION.sendMessage(sender, null);
             return true;
         }
 
         if (args.length - 1 < sub.getMinArgs()) {
-            sender.sendMessage(of(sender, NOT_ENOUGH_ARGS, Map.of(
-                "command", MAIN_COMMAND_NAME, "subcommand", args[0], "args", sub.getUsageArgs())
-            ));
+            COMMAND_NOT_ENOUGH_ARGS.sendMessage(
+                sender,
+                Map.of(
+                    "command", MAIN_COMMAND_NAME,
+                    "subcommand", args[0],
+                    "args", sub.getUsageArgs()
+                )
+            );
             return true;
         }
 
@@ -98,40 +169,26 @@ public final class CommandHandler implements TabExecutor {
         return true;
     }
 
-    /**
-     * Provides dynamic tab completion for {@value #MAIN_COMMAND_NAME } subcommands and arguments.
-     *
-     * @param sender  the source of the command
-     * @param command the command being tab-completed
-     * @param label   the alias used
-     * @param args    the arguments currently typed
-     * @return a list of possible completions
-     */
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                               @NotNull String label, @NotNull String[] args) {
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender,
+                                             @NotNull String label,
+                                             @NotNull String[] args) {
         if (args.length == 1)
             return StringUtil.copyPartialMatches(args[0], getAllowedSubcommands(sender), new ArrayList<>());
 
-        Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
-        return (sub != null && (sub.getPermission() == null || sub.getPermission().isBlank()
-            || sender.hasPermission(sub.getPermission())))
+        final Subcommand sub = subCommands.get(args[0].toLowerCase(Locale.ROOT));
+        return (sub != null && canExecuteSubcommand(sender, sub))
             ? sub.tabComplete(sender, args)
             : EMPTY_LIST;
     }
 
-    /**
-     * Returns a list of subcommand names that the sender has permission to use.
-     *
-     * @param sender the command sender (player or console)
-     * @return a list of subcommand names that the sender has permission to use
-     */
-    private @NotNull @Unmodifiable List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
-        return subCommands.entrySet().stream()
-            .filter(entry -> {
-                String perm = entry.getValue().getPermission();
-                return perm == null || perm.isBlank() || sender.hasPermission(perm);
-            })
+    // -----< Utilities >-----
+
+    private @NotNull List<String> getAllowedSubcommands(@NotNull CommandSender sender) {
+        return canUseAllSubcommands(sender)
+            ? subCommandNames
+            : subCommands.entrySet().stream()
+            .filter(entry -> canUseSubcommand(sender, entry.getValue()))
             .map(Map.Entry::getKey)
             .toList();
     }

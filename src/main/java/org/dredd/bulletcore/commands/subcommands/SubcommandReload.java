@@ -1,23 +1,24 @@
 package org.dredd.bulletcore.commands.subcommands;
 
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.command.CommandSender;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.dredd.bulletcore.config.messages.ComponentMessage.CONFIG_RELOADED;
-import static org.dredd.bulletcore.config.messages.MessageManager.of;
+import static org.dredd.bulletcore.config.messages.component.ComponentMessage.CONFIG_RELOADED;
 import static org.dredd.bulletcore.utils.ServerUtils.EMPTY_LIST;
 
 /**
- * Implements the {@code /bulletcore reload} subcommand.
+ * Reloads the plugin config.
  *
  * @author dredd
  * @since 1.0.0
  */
-public final class SubcommandReload implements Subcommand {
+public enum SubcommandReload implements Subcommand {
+
+    INSTANCE;
 
     @Override
     public @NotNull String getName() {
@@ -41,10 +42,10 @@ public final class SubcommandReload implements Subcommand {
 
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String[] args) {
-        long startTime = System.currentTimeMillis();
-        BulletCore.initAll();
-        long endTime = System.currentTimeMillis();
-        sender.sendMessage(of(sender, CONFIG_RELOADED, Map.of("time", Long.toString(endTime - startTime))));
+        final long startTime = System.currentTimeMillis();
+        BulletCore.init(BulletCore.instance());
+        final long endTime = System.currentTimeMillis();
+        CONFIG_RELOADED.sendMessage(sender, Map.of("time", Long.toString(endTime - startTime)));
     }
 
     @Override

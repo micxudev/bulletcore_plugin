@@ -1,5 +1,8 @@
 package org.dredd.bulletcore.config.sounds;
 
+import java.util.Locale;
+import java.util.NoSuchElementException;
+
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,11 +11,9 @@ import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-import java.util.NoSuchElementException;
-
 /**
- * Utility class for loading and playing configured sounds defined in YAML.<br>
+ * Utility class for loading and playing configured sounds.
+ * <p>
  * Sound configurations must be located under the {@code sounds.<key>} path in the YAML.
  *
  * @author dredd
@@ -21,14 +22,41 @@ import java.util.NoSuchElementException;
 public final class SoundManager {
 
     /**
+     * Private constructor to prevent instantiation.
+     */
+    private SoundManager() {}
+
+    // ----------< Constants >----------
+
+    /**
      * The value used to indicate that a sound should use a random seed.
      */
     private static final long RANDOM_SEED = -1L;
 
+    // ----------< Loader >----------
+
     /**
-     * Private constructor to prevent instantiation.
+     * Loads a {@link ConfiguredSound} from config, falling back to a default if parsing fails.
+     *
+     * @param cfg the YAML configuration
+     * @param key the key under {@code sounds.<key>} to load
+     * @param def the fallback {@link ConfiguredSound} to use if parsing fails
+     * @return a valid {@link ConfiguredSound}, either parsed or fallback
      */
-    private SoundManager() {}
+    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg,
+                                                     @NotNull String key,
+                                                     @NotNull ConfiguredSound def) {
+        try {
+            return parseSound(cfg, key);
+        } catch (NoSuchElementException ignored) {
+            // Ignored, the sound configuration is optional
+        } catch (Exception e) {
+            BulletCore.logError(e.getMessage() + "; falling back to default sound.");
+        }
+        return def;
+    }
+
+    // ----------< Parser >----------
 
     /**
      * Parses a {@link ConfiguredSound} from the given config using the key under {@code sounds.<key>}.
@@ -39,32 +67,33 @@ public final class SoundManager {
      * @throws NoSuchElementException   if the configuration is missing
      * @throws IllegalArgumentException if the configuration is invalid
      */
-    private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg, @NotNull String key) {
-        String fullKey = "sounds." + key;
-        ConfigurationSection section = cfg.getConfigurationSection(fullKey);
+    private static @NotNull ConfiguredSound parseSound(@NotNull FileConfiguration cfg,
+                                                       @NotNull String key) {
+        final String fullKey = "sounds." + key;
+        final ConfigurationSection section = cfg.getConfigurationSection(fullKey);
         if (section == null)
             throw new NoSuchElementException("Missing sound configuration for key: " + fullKey);
 
-        String sound = section.getString("sound");
+        final String sound = section.getString("sound");
         if (sound == null || sound.isBlank())
             throw new IllegalArgumentException("Missing or empty 'sound' for key: " + fullKey);
 
-        String categoryName = section.getString("category", "MASTER").toUpperCase(Locale.ROOT);
-        SoundCategory category;
+        final String categoryName = section.getString("category", "MASTER").toUpperCase(Locale.ROOT);
+        final SoundCategory category;
         try {
             category = SoundCategory.valueOf(categoryName);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid sound category '" + categoryName + "' for key: " + fullKey);
         }
 
-        float volume = Math.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
+        final float volume = Math.clamp((float) section.getDouble("volume", 1.0), 0.0f, Float.MAX_VALUE);
 
-        float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
+        final float pitch = Math.clamp((float) section.getDouble("pitch", 1.0), 0.5f, 2.0f);
 
-        long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
+        final long seed = Math.clamp(section.getLong("seed", 0L), RANDOM_SEED, Long.MAX_VALUE);
 
-        String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
-        SoundPlaybackMode mode;
+        final String modeName = section.getString("mode", "WORLD").toUpperCase(Locale.ROOT);
+        final SoundPlaybackMode mode;
         try {
             mode = SoundPlaybackMode.valueOf(modeName);
         } catch (IllegalArgumentException e) {
@@ -74,24 +103,7 @@ public final class SoundManager {
         return new ConfiguredSound(sound, category, volume, pitch, seed, mode);
     }
 
-    /**
-     * Loads a {@link ConfiguredSound} from config, falling back to a default if parsing fails.
-     *
-     * @param cfg the YAML configuration
-     * @param key the key under {@code sounds.<key>} to load
-     * @param def the fallback {@link ConfiguredSound} to use if parsing fails
-     * @return a valid {@link ConfiguredSound}, either parsed or fallback
-     */
-    public static @NotNull ConfiguredSound loadSound(@NotNull FileConfiguration cfg, @NotNull String key, @NotNull ConfiguredSound def) {
-        try {
-            return parseSound(cfg, key);
-        } catch (NoSuchElementException ignored) {
-            // Ignored, the sound configuration is optional
-        } catch (IllegalArgumentException e) {
-            BulletCore.getInstance().getLogger().severe(e.getMessage() + "; Falling back to default sound");
-        }
-        return def;
-    }
+    // ----------< Public API >----------
 
     /**
      * Plays the given {@link ConfiguredSound} at the specified location either in the world or for the player.
@@ -100,8 +112,10 @@ public final class SoundManager {
      * @param location the location where the sound will be heard from
      * @param sound    the configured sound to play
      */
-    public static void playSound(@NotNull Player player, @NotNull Location location, @NotNull ConfiguredSound sound) {
-        boolean hasSeed = sound.seed() != RANDOM_SEED;
+    public static void playSound(@NotNull Player player,
+                                 @NotNull Location location,
+                                 @NotNull ConfiguredSound sound) {
+        final boolean hasSeed = sound.seed() != RANDOM_SEED;
 
         if (sound.mode() == SoundPlaybackMode.WORLD) {
             if (hasSeed)
