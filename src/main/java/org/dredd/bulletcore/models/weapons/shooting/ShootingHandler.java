@@ -16,7 +16,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
@@ -40,7 +39,6 @@ import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.BODY;
 import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.FEET;
@@ -375,32 +373,15 @@ public final class ShootingHandler {
     private static double getFinalDamage(@NotNull Player victim,
                                          @NotNull DamagePoint damagePoint,
                                          @NotNull Weapon weapon) {
-        final PlayerInventory inv = victim.getInventory();
+        final double initialDamage = damagePoint.getDamage(weapon.damage);
+        final ItemStack armorStack = damagePoint.getArmor(victim.getInventory());
 
-        final var result = switch (damagePoint) {
-            case HEAD -> new HitResult(weapon.damage.head(), inv.getHelmet());
-            case BODY -> new HitResult(weapon.damage.body(), inv.getChestplate());
-            case LEGS -> new HitResult(weapon.damage.legs(), inv.getLeggings());
-            case FEET -> new HitResult(weapon.damage.feet(), inv.getBoots());
-        };
+        final Armor armor = CustomItemsRegistry.getArmorOrNull(armorStack);
+        if (armor == null) return initialDamage;
 
-        final Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
-        if (armor == null) return result.initialDamage();
-
-        final ArmorHit armorHit = new ArmorHit(armor, result.initialDamage(), damagePoint, victim);
+        final ArmorHit armorHit = new ArmorHit(armor, initialDamage, damagePoint, victim);
         CurrentHitTracker.addArmorHit(victim.getUniqueId(), armorHit);
 
-        return result.initialDamage() * (1 - armor.damageReduction);
+        return initialDamage * (1 - armor.damageReduction);
     }
-
-    /**
-     * Represents the result of a hit using {@link Weapon}.
-     *
-     * @param initialDamage The initial damage caused by the hit
-     * @param armorStack    The armor stack worn by the victim during the hit into {@link DamagePoint}
-     */
-    private record HitResult(
-        double initialDamage,
-        @Nullable ItemStack armorStack
-    ) {}
 }
