@@ -5,7 +5,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents different hit regions on a {@link LivingEntity}.
@@ -20,10 +19,10 @@ public enum DamagePoint {
      */
     HEAD {
         @Override
-        public double getDamage(@NonNull WeaponDamage damage) {return damage.head();}
+        public double getDamage(@NotNull WeaponDamage damage) {return damage.head();}
 
         @Override
-        public @Nullable ItemStack getArmor(@NonNull PlayerInventory inv) {return inv.getHelmet();}
+        public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getHelmet();}
     },
 
     /**
@@ -31,10 +30,10 @@ public enum DamagePoint {
      */
     BODY {
         @Override
-        public double getDamage(@NonNull WeaponDamage damage) {return damage.body();}
+        public double getDamage(@NotNull WeaponDamage damage) {return damage.body();}
 
         @Override
-        public @Nullable ItemStack getArmor(@NonNull PlayerInventory inv) {return inv.getChestplate();}
+        public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getChestplate();}
     },
 
     /**
@@ -42,10 +41,10 @@ public enum DamagePoint {
      */
     LEGS {
         @Override
-        public double getDamage(@NonNull WeaponDamage damage) {return damage.legs();}
+        public double getDamage(@NotNull WeaponDamage damage) {return damage.legs();}
 
         @Override
-        public @Nullable ItemStack getArmor(@NonNull PlayerInventory inv) {return inv.getLeggings();}
+        public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getLeggings();}
     },
 
     /**
@@ -53,10 +52,10 @@ public enum DamagePoint {
      */
     FEET {
         @Override
-        public double getDamage(@NonNull WeaponDamage damage) {return damage.feet();}
+        public double getDamage(@NotNull WeaponDamage damage) {return damage.feet();}
 
         @Override
-        public @Nullable ItemStack getArmor(@NonNull PlayerInventory inv) {return inv.getBoots();}
+        public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getBoots();}
     };
 
     /**
