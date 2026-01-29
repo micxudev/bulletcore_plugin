@@ -23,6 +23,9 @@ public enum DamagePoint {
 
         @Override
         public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getHelmet();}
+
+        @Override
+        public void setArmor(@NotNull PlayerInventory inv, @Nullable ItemStack stack) {inv.setHelmet(stack);}
     },
 
     /**
@@ -34,6 +37,9 @@ public enum DamagePoint {
 
         @Override
         public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getChestplate();}
+
+        @Override
+        public void setArmor(@NotNull PlayerInventory inv, @Nullable ItemStack stack) {inv.setChestplate(stack);}
     },
 
     /**
@@ -45,6 +51,9 @@ public enum DamagePoint {
 
         @Override
         public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getLeggings();}
+
+        @Override
+        public void setArmor(@NotNull PlayerInventory inv, @Nullable ItemStack stack) {inv.setLeggings(stack);}
     },
 
     /**
@@ -56,6 +65,9 @@ public enum DamagePoint {
 
         @Override
         public @Nullable ItemStack getArmor(@NotNull PlayerInventory inv) {return inv.getBoots();}
+
+        @Override
+        public void setArmor(@NotNull PlayerInventory inv, @Nullable ItemStack stack) {inv.setBoots(stack);}
     };
 
     /**
@@ -74,4 +86,13 @@ public enum DamagePoint {
      * if no such armor piece is present
      */
     public abstract @Nullable ItemStack getArmor(@NotNull PlayerInventory inventory);
+
+    /**
+     * Sets the armor piece for the current damage point in the given player inventory.
+     *
+     * @param inventory the player's inventory for which the armor piece will be set
+     * @param stack     the item stack representing the armor piece to set, or {@code null}
+     *                  if armor piece should be removed
+     */
+    public abstract void setArmor(@NotNull PlayerInventory inventory, @Nullable ItemStack stack);
 }

@@ -228,20 +228,21 @@ public enum WeaponListener implements Listener {
         //System.err.println("2. Damager " + damager.getName() + " damaging victim " + victim.getName());
 
         @SuppressWarnings("deprecation") final var shieldDamageModifier = EntityDamageEvent.DamageModifier.BLOCKING;
-        final double damageAmountBlockedByShield = event.getDamage(shieldDamageModifier);
-        final boolean isDamageBlockedByShield = damageAmountBlockedByShield != 0.0D;
-        //System.err.println("3. Damage blocked by shield: " + damageAmountBlockedByShield);
+        final double damageBlockedByShield = event.getDamage(shieldDamageModifier);
+        final boolean wasAnyDamageBlockedByShield = damageBlockedByShield != 0.0D;
+        //System.err.println("3. Original damage blocked by shield: " + damageBlockedByShield);
 
-        if (isDamageBlockedByShield) {
-            //System.err.println("4. Shield block. Using value from weapon to damage shield.");
-            event.setDamage(shieldDamageModifier, -currentHit.weapon().damage.shield());
-            return;
+        final double customShieldDamage = currentHit.weapon().damage.shield();
+
+        if (wasAnyDamageBlockedByShield) {
+            //System.err.println("4.1. Shield block. Using value from weapon to damage shield: " + customShieldDamage);
+            event.setDamage(shieldDamageModifier, -customShieldDamage);
         }
 
         final ArmorHit armorHit = CurrentHitTracker.getArmorHit(victim.getUniqueId());
         if (armorHit != null) {
-            //System.err.println("4. Damaging armor by " + armorHit.armorDamage() + " durability");
-            armorHit.run();
+            //System.err.println("4.2. Try damaging armor. Blocked damage: " + (wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D));
+            armorHit.applyArmorDamage(wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D);
         }
     }
 

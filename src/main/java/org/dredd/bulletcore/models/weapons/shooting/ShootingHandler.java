@@ -303,7 +303,7 @@ public final class ShootingHandler {
 
         if (victimPlayer != null) {
             damagePoint = getDamagePoint(victimPlayer, hitPoint);
-            finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
+            finalDamage = getFinalHPDamage(victimPlayer, damagePoint, weapon);
 
             victimKnockbackResistance = victimPlayer.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
             if (victimKnockbackResistance != null) {
@@ -363,16 +363,17 @@ public final class ShootingHandler {
     }
 
     /**
-     * Calculates the final damage to be applied to the victim taking the worn {@link Armor} into account.
+     * Calculates the final Health Points damage to be applied to the victim
+     * taking the worn {@link Armor} into account.
      *
      * @param victim      the victim player receiving the damage
      * @param damagePoint the damage point of the hit
      * @param weapon      the weapon used to cause the damage
      * @return the final damage to be applied to the victim
      */
-    private static double getFinalDamage(@NotNull Player victim,
-                                         @NotNull DamagePoint damagePoint,
-                                         @NotNull Weapon weapon) {
+    private static double getFinalHPDamage(@NotNull Player victim,
+                                           @NotNull DamagePoint damagePoint,
+                                           @NotNull Weapon weapon) {
         final double initialDamage = damagePoint.getDamage(weapon.damage);
         final ItemStack armorStack = damagePoint.getArmor(victim.getInventory());
 
