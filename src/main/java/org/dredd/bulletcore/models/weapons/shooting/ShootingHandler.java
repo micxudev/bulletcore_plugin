@@ -16,7 +16,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
@@ -40,7 +39,6 @@ import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.BODY;
 import static org.dredd.bulletcore.models.weapons.damage.DamagePoint.FEET;
@@ -297,12 +295,15 @@ public final class ShootingHandler {
         DamagePoint damagePoint = DamagePoint.BODY; // non-player entities will default to BODY
         double finalDamage = weapon.damage.body();
 
+        // START: PLAYER ONLY
+        final Player victimPlayer = victim instanceof Player p ? p : null;
+
         AttributeInstance victimKnockbackResistance = null;
         double originalKnockbackValue = 0.0;
 
-        if (victim instanceof Player victimPlayer) {
+        if (victimPlayer != null) {
             damagePoint = getDamagePoint(victimPlayer, hitPoint);
-            finalDamage = getFinalDamage(victimPlayer, damagePoint, weapon);
+            finalDamage = getFinalHPDamage(victimPlayer, damagePoint, weapon);
 
             victimKnockbackResistance = victimPlayer.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
             if (victimKnockbackResistance != null) {
@@ -310,16 +311,21 @@ public final class ShootingHandler {
                 victimKnockbackResistance.setBaseValue(weapon.victimKnockbackResistance);
             }
         }
+        // END: PLAYER ONLY
 
         try {
-            CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId()); // prevents recursion for the same hit
+            CurrentHitTracker.startHitProcess(damager.getUniqueId(), victim.getUniqueId(), weapon);
             victim.damage(finalDamage, damager); // fires EntityDamageByEntityEvent
             victim.setNoDamageTicks(0); // allows constant hits
         } finally {
-            if (victimKnockbackResistance != null)
-                victimKnockbackResistance.setBaseValue(originalKnockbackValue);
             CurrentHitTracker.finishHitProcess(damager.getUniqueId(), victim.getUniqueId());
-            CurrentHitTracker.removeArmorHit(victim.getUniqueId());
+
+            // PLAYER ONLY
+            if (victimPlayer != null) {
+                if (victimKnockbackResistance != null)
+                    victimKnockbackResistance.setBaseValue(originalKnockbackValue);
+                CurrentHitTracker.removeArmorHit(victim.getUniqueId());
+            }
         }
 
         return damagePoint;
@@ -357,42 +363,26 @@ public final class ShootingHandler {
     }
 
     /**
-     * Calculates the final damage to be applied to the victim taking the worn {@link Armor} into account.
+     * Calculates the final Health Points damage to be applied to the victim
+     * taking the worn {@link Armor} into account.
      *
      * @param victim      the victim player receiving the damage
      * @param damagePoint the damage point of the hit
      * @param weapon      the weapon used to cause the damage
      * @return the final damage to be applied to the victim
      */
-    private static double getFinalDamage(@NotNull Player victim,
-                                         @NotNull DamagePoint damagePoint,
-                                         @NotNull Weapon weapon) {
-        final PlayerInventory inv = victim.getInventory();
+    private static double getFinalHPDamage(@NotNull Player victim,
+                                           @NotNull DamagePoint damagePoint,
+                                           @NotNull Weapon weapon) {
+        final double initialDamage = damagePoint.getDamage(weapon.damage);
+        final ItemStack armorStack = damagePoint.getArmor(victim.getInventory());
 
-        final var result = switch (damagePoint) {
-            case HEAD -> new HitResult(weapon.damage.head(), inv.getHelmet());
-            case BODY -> new HitResult(weapon.damage.body(), inv.getChestplate());
-            case LEGS -> new HitResult(weapon.damage.legs(), inv.getLeggings());
-            case FEET -> new HitResult(weapon.damage.feet(), inv.getBoots());
-        };
+        final Armor armor = CustomItemsRegistry.getArmorOrNull(armorStack);
+        if (armor == null) return initialDamage;
 
-        final Armor armor = CustomItemsRegistry.getArmorOrNull(result.armorStack());
-        if (armor == null) return result.initialDamage();
-
-        final ArmorHit armorHit = new ArmorHit(armor, result.initialDamage(), damagePoint, victim);
+        final ArmorHit armorHit = new ArmorHit(armor, initialDamage, damagePoint, victim);
         CurrentHitTracker.addArmorHit(victim.getUniqueId(), armorHit);
 
-        return result.initialDamage() * (1 - armor.damageReduction);
+        return initialDamage * (1 - armor.damageReduction);
     }
-
-    /**
-     * Represents the result of a hit using {@link Weapon}.
-     *
-     * @param initialDamage The initial damage caused by the hit
-     * @param armorStack    The armor stack worn by the victim during the hit into {@link DamagePoint}
-     */
-    private record HitResult(
-        double initialDamage,
-        @Nullable ItemStack armorStack
-    ) {}
 }

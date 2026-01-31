@@ -19,9 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
-import org.dredd.bulletcore.models.armor.Armor;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
+import org.dredd.bulletcore.models.weapons.shooting.CurrentHit;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.dredd.bulletcore.utils.ServerUtils;
@@ -207,20 +207,42 @@ public enum WeaponListener implements Listener {
     }
 
     /**
-     * Damage the {@link Armor}.
+     * Applies custom durability damage to shields and armor when a player is hit by a custom weapon.
+     * <p>
+     * If the incoming damage is blocked by a shield, the default shield durability loss is replaced
+     * with a weapon-defined shield damage value.
+     * <p>
+     * If the hit is <b>not</b> blocked by a shield, and an {@link ArmorHit} is registered for the victim,
+     * custom armor durability damage is applied.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void damageArmorOnEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    public void damageShieldAndArmorOnEntityDamageByEntity(EntityDamageByEntityEvent event) {
         //System.err.println("===============================");
-        //System.err.println("0. EntityDamageByEntityEvent (armor damage).");
+        //System.err.println("0. EntityDamageByEntityEvent (shield, armor damage).");
 
-        if (!(event.getDamager() instanceof Player && event.getEntity() instanceof Player victim)) return;
+        if (!(event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim)) return;
         //System.err.println("1. Damager and Victim are Players.");
+
+        final CurrentHit currentHit = CurrentHitTracker.getCurrentHit(damager.getUniqueId(), victim.getUniqueId());
+        if (currentHit == null) return;
+        //System.err.println("2. Damager " + damager.getName() + " damaging victim " + victim.getName());
+
+        @SuppressWarnings("deprecation") final var shieldDamageModifier = EntityDamageEvent.DamageModifier.BLOCKING;
+        final double damageBlockedByShield = event.getDamage(shieldDamageModifier);
+        final boolean wasAnyDamageBlockedByShield = damageBlockedByShield != 0.0D;
+        //System.err.println("3. Original damage blocked by shield: " + damageBlockedByShield);
+
+        final double customShieldDamage = currentHit.weapon().damage.shield();
+
+        if (wasAnyDamageBlockedByShield) {
+            //System.err.println("4.1. Shield block. Using value from weapon to damage shield: " + customShieldDamage);
+            event.setDamage(shieldDamageModifier, -customShieldDamage);
+        }
 
         final ArmorHit armorHit = CurrentHitTracker.getArmorHit(victim.getUniqueId());
         if (armorHit != null) {
-            //System.err.println("2. Damaging armor.");
-            armorHit.run();
+            //System.err.println("4.2. Try damaging armor. Blocked damage: " + (wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D));
+            armorHit.applyArmorDamage(wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D);
         }
     }
 
