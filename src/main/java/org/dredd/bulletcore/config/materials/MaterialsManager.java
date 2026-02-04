@@ -6,12 +6,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
@@ -52,8 +50,6 @@ public final class MaterialsManager {
 
     private final Set<Material> ignoredMaterials;
 
-    public final Predicate<Block> canCollide;
-
     // -----< Construction >-----
 
     private MaterialsManager(@NotNull BulletCore plugin) {
@@ -66,9 +62,22 @@ public final class MaterialsManager {
             ? initializeDefaults(ignoredMaterialsFile)
             : loadIgnoredMaterialsFromFile(ignoredMaterialsFile);
 
-        this.canCollide = block -> !ignoredMaterials.contains(block.getType());
-
         plugin.logInfo("-Loaded " + ignoredMaterials.size() + " ignored materials");
+    }
+
+    // -----< Public API >-----
+
+    /**
+     * Determines whether bullets should pass through the given material.
+     * <p>
+     * Ignored materials do not stop bullets during ray tracing.
+     *
+     * @param material the material to test
+     * @return {@code true} if bullets should pass through this material,
+     * {@code false} if the material may stop the bullet
+     */
+    public boolean isIgnored(@NotNull Material material) {
+        return ignoredMaterials.contains(material);
     }
 
     // -----< Utilities >-----
