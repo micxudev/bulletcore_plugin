@@ -159,6 +159,12 @@ public class Weapon extends CustomBase {
      */
     public final WeaponSkins skins;
 
+    /**
+     * Defines how many blocks of each {@link org.bukkit.Material} this weapon
+     * can penetrate before the bullet is stopped.
+     */
+    public final WeaponBlocksPenetration blocksPenetration;
+
     // -----< Construction >-----
 
     /**
@@ -198,6 +204,7 @@ public class Weapon extends CustomBase {
         this.sounds = WeaponSounds.load(config);
         this.trailParticle = BulletTrailParticle.load(config);
         this.skins = WeaponSkins.load(config, super.customModelData, super.displayName);
+        this.blocksPenetration = WeaponBlocksPenetration.load(config);
 
         super.lore.add(0, Component.empty()); // Bullets will be here on ItemStack creation
         super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet(), damage.shield())));

@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.models.weapons.shooting;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -7,6 +8,7 @@ import java.util.function.Predicate;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -62,6 +64,11 @@ public final class ShootingHandler {
      * Stores currently running automatic shooting tasks for each player.
      */
     private static final Map<UUID, BukkitTask> AUTO_SHOOTING_TASKS = new HashMap<>();
+
+    /**
+     * Stores the number of penetrated blocks for each material for the currently processing pellet.
+     */
+    private static final Map<Material, Integer> CURRENT_PELLET_PENETRATED_BLOCKS = new EnumMap<>(Material.class);
 
     // ----------< Public API >----------
 
@@ -220,14 +227,31 @@ public final class ShootingHandler {
         final Predicate<Entity> entityFilter = entity ->
             entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
 
-        final Predicate<Block> canCollide = MaterialsManager.instance().canCollide;
-
         final World world = player.getWorld();
         final Location eyeLocation = player.getEyeLocation();
 
         // rayTrace each pellet direction separately
         final Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection());
         for (final Vector direction : directions) {
+            CURRENT_PELLET_PENETRATED_BLOCKS.clear(); // Clear the previous pellets / shots
+
+            final Predicate<Block> canCollide = block -> {
+                // return true  == this block will stop the bullet
+                // return false == the bullet will go through this block
+
+                final Material blockType = block.getType();
+
+                if (MaterialsManager.instance().isIgnored(blockType)) return false;
+
+                final int penetrationLimit = weapon.blocksPenetration.getPenetrationLimit(blockType);
+                if (penetrationLimit <= 0) return true;
+
+                // Check how many blocks of this material already penetrated
+                // by the current pellet incremented by 1 and updated in the map.
+                final int newValue = CURRENT_PELLET_PENETRATED_BLOCKS.merge(blockType, 1, Integer::sum);
+                return newValue > penetrationLimit;
+            };
+
             final RayTraceResult result = world.rayTrace(
                 eyeLocation,
                 direction,

@@ -74,7 +74,7 @@ public enum SubcommandCanCollide implements Subcommand {
         final Block hitBlock = result.getHitBlock();
         final var placeholders = Map.of("block", hitBlock.translationKey());
 
-        final boolean willCollide = MaterialsManager.instance().canCollide.test(hitBlock);
+        final boolean willCollide = !MaterialsManager.instance().isIgnored(hitBlock.getType());
         if (willCollide)
             DEBUG_BLOCK_COLLIDABLE.sendMessage(player, placeholders);
         else
