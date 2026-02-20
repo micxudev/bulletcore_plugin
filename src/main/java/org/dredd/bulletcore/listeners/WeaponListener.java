@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -243,21 +242,6 @@ public enum WeaponListener implements Listener {
         if (armorHit != null) {
             //System.err.println("4.2. Try damaging armor. Blocked damage: " + (wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D));
             armorHit.applyArmorDamage(wasAnyDamageBlockedByShield ? customShieldDamage : 0.0D);
-        }
-    }
-
-    /**
-     * Suppress arm swing animation when holding a weapon.
-     */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void suppressWeaponSwingOnPlayerAnimation(PlayerAnimationEvent event) {
-        //System.err.println("===============================");
-        //System.err.println("0. PlayerAnimationEvent.");
-
-        //System.err.println("1. MainHand item: " + event.getPlayer().getInventory().getItemInMainHand().getType());
-        if (isWeapon(event.getPlayer().getInventory().getItemInMainHand())) {
-            //System.err.println("2. MainHand item is a Weapon. Cancel event.");
-            event.setCancelled(true);
         }
     }
 

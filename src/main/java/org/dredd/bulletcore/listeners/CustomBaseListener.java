@@ -1,5 +1,6 @@
 package org.dredd.bulletcore.listeners;
 
+import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,15 +34,6 @@ public enum CustomBaseListener implements Listener {
 
         final Player player = event.getPlayer();
 
-        // If less than 25 ms passed since LastDrop, assume this event caused by using drop key (Q), do not process
-        // (due to PlayerDropItemEvent being fired right before this event, but
-        // if the drop comes from GUI AND there is no block within the player interaction range,
-        // for some reason PlayerDropItemEvent will be fired only after this event)
-        final long now = System.currentTimeMillis();
-        final long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
-
-        if (now - lastDrop < 25L) return;
-
         final ItemStack usedItem = event.getItem();
         if (usedItem == null) return;
 
@@ -50,12 +42,32 @@ public enum CustomBaseListener implements Listener {
 
         final Action action = event.getAction();
         if (action.isLeftClick()) {
-            if (usedCustomItem.onLMB(player, usedItem))
-                event.setCancelled(true);
+            event.setCancelled(true);
         } else if (action.isRightClick()) {
             if (usedCustomItem.onRMB(player, usedItem))
                 event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerArmSwing(PlayerArmSwingEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+
+        final Player player = event.getPlayer();
+
+        // If less than 25 ms passed since LastDrop, assume this event caused by using drop key (Q)
+        // (due to PlayerDropItemEvent being fired right before this event)
+        final long now = System.currentTimeMillis();
+        final long lastDrop = PlayerActionTracker.getLastDrop(player.getUniqueId());
+        if (now - lastDrop < 25L) return;
+
+        final ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+
+        final CustomBase usedCustomItem = CustomItemsRegistry.getItemOrNull(mainHandItem);
+        if (usedCustomItem == null) return;
+
+        if (usedCustomItem.onLMB(player, mainHandItem))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
