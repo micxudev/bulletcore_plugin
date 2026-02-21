@@ -229,9 +229,10 @@ public final class ShootingHandler {
 
         final World world = player.getWorld();
         final Location eyeLocation = player.getEyeLocation();
+        final Vector aimDirection = eyeLocation.getDirection();
 
         // rayTrace each pellet direction separately
-        final Vector[] directions = SprayHandler.handleShot(player, weapon, eyeLocation.getDirection());
+        final Vector[] directions = SprayHandler.handleShot(player, weapon, aimDirection);
         for (final Vector direction : directions) {
             CURRENT_PELLET_PENETRATED_BLOCKS.clear(); // Clear the previous pellets / shots
 
@@ -283,6 +284,12 @@ public final class ShootingHandler {
                 ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
                 config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
             }
+        }
+
+        if (weapon.recoilImpulse > 0.0D) {
+            final Vector recoil = aimDirection.clone().multiply(weapon.recoilImpulse);
+            final Vector newVelocity = player.getVelocity().subtract(recoil);
+            player.setVelocity(newVelocity);
         }
 
         return true;

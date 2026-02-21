@@ -130,6 +130,15 @@ public class Weapon extends CustomBase {
     public final int pelletsPerShot;
 
     /**
+     * Velocity impulse applied to the shooter immediately after firing
+     * which pushes the shooter in the direction opposite to their aim.
+     * <p>
+     * The magnitude represents blocks per tick and is added to the
+     * player's current velocity.
+     */
+    public final double recoilImpulse;
+
+    /**
      * Weapon damage values for each body part.
      */
     public final WeaponDamage damage;
@@ -197,6 +206,7 @@ public class Weapon extends CustomBase {
         this.isAutomatic = config.getBoolean("isAutomatic", false);
         this.victimKnockbackResistance = Math.clamp(config.getDouble("victimKnockbackResistance", 0.0D), 0.0D, 1.0D);
         this.pelletsPerShot = Math.clamp(config.getInt("pelletsPerShot", 1), 1, 20);
+        this.recoilImpulse = Math.clamp(config.getDouble("recoilImpulse", 0.0D), 0.0D, 1.0D);
 
         this.damage = WeaponDamage.load(config);
         this.recoil = WeaponRecoil.load(config);
