@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.ClickType;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.armorstand_features.features.BulletHoleFeature;
 import org.dredd.bulletcore.listeners.trackers.CurrentHitTracker;
 import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
@@ -279,5 +281,13 @@ public enum WeaponListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void updateStatesOnServerTickEnd(ServerTickEndEvent event) {
         SprayHandler.tick();
+    }
+
+    /**
+     * Despawn bullet holes on block break.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void despawnOnBlockBreak(BlockBreakEvent event) {
+        BulletHoleFeature.despawnOnBlockBreak(event.getBlock());
     }
 }

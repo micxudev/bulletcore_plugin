@@ -282,7 +282,7 @@ public final class ShootingHandler {
                 // Block hit
                 SoundManager.playSound(player, hitLocation, config.blockHitSound);
                 ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-                config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace());
+                config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace(), result.getHitBlock());
             }
         }
 
