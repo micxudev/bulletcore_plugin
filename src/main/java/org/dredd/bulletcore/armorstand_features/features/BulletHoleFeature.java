@@ -128,8 +128,8 @@ public final class BulletHoleFeature extends ArmorStandFeature {
         entry.removalTask = Bukkit.getScheduler().runTaskLater(
             BulletCore.instance(),
             () -> {
-                stand.remove();
                 SPAWNED.remove(block, entry);
+                stand.remove();
             },
             removeAfterTicks
         );
