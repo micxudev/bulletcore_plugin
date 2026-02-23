@@ -55,15 +55,4 @@ public final class ArmorStandHandler {
             }
         );
     }
-
-    /**
-     * Removes the given armor stand after the specified delay in ticks.
-     *
-     * @param stand            the armor stand to remove
-     * @param removeAfterTicks number of ticks before removing (20 ticks = 1 second)
-     */
-    public static void scheduleRemoval(@NotNull ArmorStand stand,
-                                       long removeAfterTicks) {
-        Bukkit.getScheduler().runTaskLater(BulletCore.instance(), stand::remove, removeAfterTicks);
-    }
 }

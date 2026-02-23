@@ -1,12 +1,18 @@
 package org.dredd.bulletcore.armorstand_features.features;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import io.papermc.paper.math.Rotations;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.scheduler.BukkitTask;
+import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.armorstand_features.ArmorStandHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,6 +85,77 @@ public final class BulletHoleFeature extends ArmorStandFeature {
             : new BulletHoleFeature(section);
     }
 
+    // -----< Spawned >-----
+
+    /**
+     * Represents a spawned bullet hole entry bound to a block.
+     * <p>
+     * Stores the armor stand and its scheduled removal task so that
+     * the task can be canceled if the block is broken beforehand.
+     */
+    private static final class SpawnedEntry {
+
+        private final ArmorStand stand;
+        private BukkitTask removalTask;
+
+        private SpawnedEntry(@NotNull ArmorStand stand) {
+            this.stand = stand;
+        }
+    }
+
+    /**
+     * Tracks all spawned bullet hole armor stands per block.
+     * <p>
+     * One block may have multiple bullet holes.
+     */
+    private static final Multimap<Block, SpawnedEntry> SPAWNED = HashMultimap.create();
+
+    /**
+     * Registers a newly spawned bullet hole armor stand.
+     * <p>
+     * The stand is associated with the given block and scheduled
+     * for automatic removal after the specified delay.
+     *
+     * @param block            the block the bullet hole belongs to
+     * @param stand            the spawned armor stand
+     * @param removeAfterTicks delay in ticks before automatic removal
+     */
+    private static void registerBulletHole(@NotNull Block block,
+                                           @NotNull ArmorStand stand,
+                                           long removeAfterTicks) {
+        final SpawnedEntry entry = new SpawnedEntry(stand);
+        SPAWNED.put(block, entry);
+        entry.removalTask = Bukkit.getScheduler().runTaskLater(
+            BulletCore.instance(),
+            () -> {
+                SPAWNED.remove(block, entry);
+                stand.remove();
+            },
+            removeAfterTicks
+        );
+    }
+
+    /**
+     * Removes all bullet holes associated with the given block.
+     * <p>
+     * Invoked when a block is broken to:
+     * <ul>
+     *     <li>Cancel removal tasks</li>
+     *     <li>Despawn all associated armor stands from the world</li>
+     * </ul>
+     *
+     * @param block the broken block
+     */
+    public static void despawnOnBlockBreak(@NotNull Block block) {
+        final var entries = SPAWNED.removeAll(block);
+        if (entries.isEmpty()) return;
+
+        for (final SpawnedEntry entry : entries) {
+            entry.removalTask.cancel();
+            entry.stand.remove();
+        }
+    }
+
 
     // ----------< Instance >----------
 
@@ -115,10 +192,12 @@ public final class BulletHoleFeature extends ArmorStandFeature {
      * @param world        the world to spawn in
      * @param hitLocation  the location where the bullet hit
      * @param hitBlockFace the face of the block that was hit
+     * @param hitBlock     the block that was hit
      */
     public void spawn(@NotNull World world,
                       @NotNull Location hitLocation,
-                      @NotNull BlockFace hitBlockFace) {
+                      @NotNull BlockFace hitBlockFace,
+                      @NotNull Block hitBlock) {
         if (!enabled) return;
 
         final Location spawnLoc = hitLocation.clone()
@@ -131,7 +210,7 @@ public final class BulletHoleFeature extends ArmorStandFeature {
         }
 
         final ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, mapFaceToRotation(hitBlockFace));
-        ArmorStandHandler.scheduleRemoval(stand, removeAfterTicks);
+        BulletHoleFeature.registerBulletHole(hitBlock, stand, removeAfterTicks);
     }
 
     // -----< Utilities >-----
@@ -144,12 +223,13 @@ public final class BulletHoleFeature extends ArmorStandFeature {
      */
     private @NotNull Rotations mapFaceToRotation(@NotNull BlockFace face) {
         return switch (face) {
-            case UP -> HEAD_ROT_UP;
-            case DOWN -> HEAD_ROT_DOWN;
+            case NORTH -> HEAD_ROT_NORTH;
+            case EAST -> HEAD_ROT_EAST;
             case SOUTH -> HEAD_ROT_SOUTH;
             case WEST -> HEAD_ROT_WEST;
-            case EAST -> HEAD_ROT_EAST;
-            default -> HEAD_ROT_NORTH;
+            case UP -> HEAD_ROT_UP;
+            case DOWN -> HEAD_ROT_DOWN;
+            default -> throw new IllegalStateException("Unexpected BlockFace: " + face);
         };
     }
 }
