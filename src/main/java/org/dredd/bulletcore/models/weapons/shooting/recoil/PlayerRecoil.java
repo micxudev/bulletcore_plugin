@@ -148,8 +148,8 @@ public final class PlayerRecoil {
         final float oldX = currentRecoilX;
         final float oldY = currentRecoilY;
 
-        currentRecoilX = MathUtils.lerp(currentRecoilX, targetRecoilX, lerpFactor);
-        currentRecoilY = MathUtils.lerp(currentRecoilY, targetRecoilY, lerpFactor);
+        currentRecoilX = MathUtils.clampedLerp(currentRecoilX, targetRecoilX, lerpFactor);
+        currentRecoilY = MathUtils.clampedLerp(currentRecoilY, targetRecoilY, lerpFactor);
 
         final float deltaYaw = (currentRecoilX - oldX) * speed;
         final float deltaPitch = (currentRecoilY - oldY) * speed;

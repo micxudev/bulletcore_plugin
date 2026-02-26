@@ -29,15 +29,91 @@ public final class MathUtils {
     }
 
     /**
-     * Linearly interpolates between two values.
+     * Linearly interpolates between two values and clamps the interpolation
+     * factor to the range {@code [0, 1]}.
      *
-     * @param a The first value
-     * @param b The second value
-     * @param t The interpolation value, clamped between 0 and 1
-     * @return The interpolated value
+     * @param a The start value
+     * @param b The end value
+     * @param t The interpolation factor
+     * @return The interpolated value clamped between {@code a} and {@code b}
      */
-    public static float lerp(float a, float b, float t) {
-        return a + (b - a) * Math.clamp(t, 0.0f, 1.0f);
+    public static float clampedLerp(float a, float b, float t) {
+        if (t <= 0.0f) return a;
+        if (t >= 1.0f) return b;
+        return a + (b - a) * t;
+    }
+
+    /**
+     * Linearly interpolates between two values.
+     * <p>
+     * The interpolation factor {@code t} is <strong>NOT clamped</strong>.
+     * <br>
+     * This means values of {@code t} outside the range {@code [0, 1]}
+     * will extrapolate beyond {@code a} and {@code b}.
+     *
+     * @param a The start value
+     * @param b The end value
+     * @param t The interpolation factor
+     * @return The interpolated (or extrapolated) value
+     */
+    public static double lerp(double a, double b, double t) {
+        return a + (b - a) * t;
+    }
+
+    /**
+     * Returns the mathematical floor of the given value as an {@code int}.
+     * <p>
+     * The result is the largest integer less than or equal to {@code a}.
+     *
+     * @param a The input value
+     * @return The floor of {@code a}
+     */
+    public static int floor(double a) {
+        final int floor = (int) a;
+        return (a < floor) ? floor - 1 : floor;
+    }
+
+    /**
+     * Returns the mathematical floor of the given value as a {@code long}.
+     * <p>
+     * The result is the largest long less than or equal to {@code a}.
+     *
+     * @param a The input value
+     * @return The floor of {@code a}
+     */
+    public static long lfloor(double a) {
+        final long floor = (long) a;
+        return (a < floor) ? floor - 1L : floor;
+    }
+
+    /**
+     * Returns the sign of the given value.
+     * <ul>
+     *     <li>{@code 0} if the value is zero</li>
+     *     <li>{@code 1} if the value is positive</li>
+     *     <li>{@code -1} if the value is negative</li>
+     * </ul>
+     * @param a The input value
+     * @return The sign of {@code a}
+     */
+    public static int sign(double a) {
+        if (a == 0.0D) return 0;
+        return (a > 0.0D) ? 1 : -1;
+    }
+
+    /**
+     * Returns the fractional part of the given value.
+     * <p>
+     * The result is always in the range {@code [0, 1)} for finite inputs.
+     * <p>
+     * For negative values, the fractional part is still positive:
+     * {@code frac(-3.7) == 0.3}.
+     *
+     * @param a The input value
+     * @return The fractional part of {@code a}
+     */
+    public static double frac(double a) {
+        return a - lfloor(a);
     }
 
     /**
