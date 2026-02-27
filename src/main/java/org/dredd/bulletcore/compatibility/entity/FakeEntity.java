@@ -1,7 +1,10 @@
 package org.dredd.bulletcore.compatibility.entity;
 
+import java.util.Objects;
+
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -37,18 +40,19 @@ public abstract class FakeEntity {
 
     // -----< Instance fields >-----
 
-    protected final EntityType type;
-    protected final Location location;
+    protected final @NotNull EntityType type;
+    protected final @NotNull Location location;
     protected final @Nullable Location offset;
-    protected final Vector motion;
+    protected final @NotNull Vector motion;
 
 
     // -----< Constructor >-----
 
-    public FakeEntity(@NotNull EntityType type, @NotNull Location location) {
+    public FakeEntity(@NotNull EntityType type, World world) {
+        Objects.requireNonNull(world, "World cannot be null");
         this.type = type;
-        this.location = new Location(location.getWorld(), 0, 0, 0);
-        this.offset = type != EntityType.ARMOR_STAND ? null : new Location(location.getWorld(), 0, -1.7775, 0);
+        this.location = new Location(world, 0, 0, 0);
+        this.offset = type != EntityType.ARMOR_STAND ? null : new Location(location.getWorld(), 0, -1.67875, 0);
         this.motion = new Vector();
     }
 

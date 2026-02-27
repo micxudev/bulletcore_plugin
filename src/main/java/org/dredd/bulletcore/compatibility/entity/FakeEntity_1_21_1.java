@@ -69,14 +69,13 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     // -----< Constructor >-----
 
     public FakeEntity_1_21_1(@NotNull EntityType type, @NotNull Location location, @Nullable Object data) {
-        super(type, location);
+        super(type, location.getWorld());
 
         final CraftWorld world = (CraftWorld) location.getWorld();
         final ServerLevel handle = world.getHandle();
 
-        final double x = location.getX();
-        final double y = location.getY();
-        final double z = location.getZ();
+        final Location spawnLoc = location.clone();
+        if (offset != null) spawnLoc.add(offset);
 
         // Some entity types require extra data to be displayed.
         // It is up to the caller to make sure that "data" is not null and is of correct type.
@@ -84,16 +83,28 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         this.entity = switch (type) {
             case ITEM -> {
                 final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
-                yield new ItemEntity(handle, x, y, z, item);
+                final ItemEntity itemEntity = new ItemEntity(net.minecraft.world.entity.EntityType.ITEM, handle);
+                itemEntity.setItem(item);
+                yield itemEntity;
             }
             case FALLING_BLOCK -> {
                 final BlockState blockState = ((CraftBlockData) ((Material) data).createBlockData()).getState();
                 this.entityData = Block.getId(blockState);
-                yield new FallingBlockEntity(handle, x, y, z, blockState);
+                yield new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, handle);
             }
             case FIREWORK_ROCKET -> {
                 final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
-                yield new FireworkRocketEntity(handle, item, x, y, z, true);
+                yield new FireworkRocketEntity(handle, item, 0, 0, 0, true);
+            }
+            case ARMOR_STAND -> {
+                final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
+                final ArmorStand armorStand = new ArmorStand(net.minecraft.world.entity.EntityType.ARMOR_STAND, handle);
+                armorStand.setItemSlot(EquipmentSlot.HEAD, item);
+                armorStand.setMarker(true);
+                armorStand.setInvisible(true);
+                armorStand.setShowArms(false);
+                armorStand.setNoBasePlate(true);
+                yield armorStand;
             }
             case ITEM_DISPLAY -> {
                 final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
@@ -101,13 +112,10 @@ public class FakeEntity_1_21_1 extends FakeEntity {
                 itemDisplay.setItemStack(item);
                 yield itemDisplay;
             }
-            default -> world.makeEntity(location, type.getEntityClass());
+            default -> world.makeEntity(spawnLoc, type.getEntityClass());
         };
 
-
-        if (type == EntityType.ARMOR_STAND) ((ArmorStand) entity).setMarker(true);
-
-        this.setLocation(x, y, z, location.getYaw(), location.getPitch());
+        this.setLocation(spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), spawnLoc.getYaw(), spawnLoc.getPitch());
         this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), EMPTY_PACKET_CONSUMER, Collections.emptySet());
         this.trackedByPlayers = new ReferenceOpenHashSet<>();
     }
