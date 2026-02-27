@@ -17,6 +17,7 @@ import org.dredd.bulletcore.listeners.WeaponListener;
 import org.dredd.bulletcore.models.CustomItemType;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSpawner;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.utils.JsonUtils;
@@ -95,6 +96,7 @@ public final class BulletCore extends JavaPlugin {
 
         CommandHandler.init(this);
         BulletCore.init(this);
+        ProjectileSpawner.init(this);
 
         registerListener(CustomBaseListener.INSTANCE);
         registerListener(WeaponListener.INSTANCE);
@@ -108,6 +110,7 @@ public final class BulletCore extends JavaPlugin {
     public void onDisable() {
         CommandHandler.destroy();
         JsonUtils.shutdownSaveExecutor();
+        ProjectileSpawner.destroy();
         BulletCore.cancelAndClear();
         plugin = null;
     }
