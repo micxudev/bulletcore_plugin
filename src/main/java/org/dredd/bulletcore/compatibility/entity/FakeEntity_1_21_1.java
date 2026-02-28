@@ -106,6 +106,12 @@ public class FakeEntity_1_21_1 extends FakeEntity {
                 armorStand.setNoBasePlate(true);
                 yield armorStand;
             }
+            case BLOCK_DISPLAY -> {
+                final BlockState blockState = ((CraftBlockData) ((Material) data).createBlockData()).getState();
+                final var blockDisplay = new Display.BlockDisplay(net.minecraft.world.entity.EntityType.BLOCK_DISPLAY, handle);
+                blockDisplay.setBlockState(blockState);
+                yield blockDisplay;
+            }
             case ITEM_DISPLAY -> {
                 final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
                 final var itemDisplay = new Display.ItemDisplay(net.minecraft.world.entity.EntityType.ITEM_DISPLAY, handle);
