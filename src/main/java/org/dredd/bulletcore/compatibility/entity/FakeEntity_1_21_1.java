@@ -74,8 +74,8 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         final CraftWorld world = (CraftWorld) location.getWorld();
         final ServerLevel handle = world.getHandle();
 
-        final Location spawnLoc = location.clone();
-        if (offset != null) spawnLoc.add(offset);
+        // Mutating location is a bad thing, but acceptable for now
+        if (offset != null) location.add(offset);
 
         // Some entity types require extra data to be displayed.
         // It is up to the caller to make sure that "data" is not null and is of correct type.
@@ -118,10 +118,10 @@ public class FakeEntity_1_21_1 extends FakeEntity {
                 itemDisplay.setItemStack(item);
                 yield itemDisplay;
             }
-            default -> world.makeEntity(spawnLoc, type.getEntityClass());
+            default -> world.makeEntity(location, type.getEntityClass());
         };
 
-        this.setLocation(spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ(), spawnLoc.getYaw(), spawnLoc.getPitch());
+        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), EMPTY_PACKET_CONSUMER, Collections.emptySet());
         this.trackedByPlayers = new ReferenceOpenHashSet<>();
     }

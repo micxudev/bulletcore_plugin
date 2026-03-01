@@ -22,6 +22,7 @@ import org.dredd.bulletcore.models.weapons.reloading.DefaultReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadHandler;
 import org.dredd.bulletcore.models.weapons.reloading.ReloadType;
 import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSettings;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.WeaponRecoil;
 import org.dredd.bulletcore.models.weapons.shooting.spray.WeaponSpray;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
@@ -139,6 +140,11 @@ public class Weapon extends CustomBase {
     public final double recoilImpulse;
 
     /**
+     * Settings related to a flying bullet/projectile.
+     */
+    public final ProjectileSettings projectileSettings;
+
+    /**
      * Weapon damage values for each body part.
      */
     public final WeaponDamage damage;
@@ -208,6 +214,7 @@ public class Weapon extends CustomBase {
         this.pelletsPerShot = Math.clamp(config.getInt("pelletsPerShot", 1), 1, 20);
         this.recoilImpulse = Math.clamp(config.getDouble("recoilImpulse", 0.0D), 0.0D, 1.0D);
 
+        this.projectileSettings = ProjectileSettings.load(config);
         this.damage = WeaponDamage.load(config);
         this.recoil = WeaponRecoil.load(config);
         this.spray = WeaponSpray.load(config);

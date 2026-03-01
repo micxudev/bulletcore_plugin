@@ -24,8 +24,11 @@ public final class ProjectileSettings {
     // -----< Loader >-----
 
     public static @NotNull ProjectileSettings load(@NotNull YamlConfiguration config) throws ItemLoadException {
-        final ConfigurationSection section = config.getConfigurationSection("projectile");
-        if (section == null) throw new ItemLoadException("Missing 'projectile' section.");
+        final String sectionPath = "projectile";
+        ConfigurationSection section = config.getConfigurationSection(sectionPath);
+        if (section == null) {
+            section = config.createSection(sectionPath);
+        }
         return new ProjectileSettings(section);
     }
 
@@ -43,6 +46,7 @@ public final class ProjectileSettings {
 
     private static @Nullable Object loadDisguiseData(@NotNull ConfigurationSection section,
                                                      @Nullable EntityType type) throws ItemLoadException {
+        if (type == null) return null;
         return switch (type) {
             case FALLING_BLOCK, BLOCK_DISPLAY -> {
                 // Material is expected
@@ -80,6 +84,7 @@ public final class ProjectileSettings {
     public final @Nullable EntityType disguiseType;
     public final @Nullable Object disguiseData;
 
+    public final double muzzleVelocity;
     public final double gravity;
     public final double minSpeed;
     public final double maxSpeed;
@@ -102,10 +107,11 @@ public final class ProjectileSettings {
         this.disguiseType = loadDisguiseType(config);
         this.disguiseData = loadDisguiseData(config, disguiseType);
 
+        this.muzzleVelocity = Math.clamp(config.getDouble("muzzleVelocity", 100.0D), 0.0D, 1000.0D) / 20.0D;
         this.gravity = Math.clamp(config.getDouble("gravity", 10.0D), 0.0D, 100.0D) / 200.0D;
         this.minSpeed = clampDivideIfNotUsed(config.getDouble("minSpeed", NOT_USED), 0.0D, 1000.0D, 20.0D);
         this.maxSpeed = clampDivideIfNotUsed(config.getDouble("maxSpeed", NOT_USED), 0.0D, 1000.0D, 20.0D);
-        this.maxDistance = clampDivideIfNotUsed(config.getDouble("maxDistance", 64.0D), 1.0D, 300.0D, 1);
+        this.maxDistance = clampDivideIfNotUsed(config.getDouble("maxDistance", 64.0D), 1.0D, 300.0D, 1.0D);
 
         this.decrease = Math.clamp(config.getDouble("decrease", 0.99D), 0.0D, 3.0D);
         this.decreaseInWater = Math.clamp(config.getDouble("decreaseInWater", 0.96D), 0.0D, 3.0D);
