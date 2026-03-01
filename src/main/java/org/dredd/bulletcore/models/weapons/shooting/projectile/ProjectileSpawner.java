@@ -4,9 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.compatibility.entity.FakeEntity;
+import org.dredd.bulletcore.compatibility.entity.FakeEntity_1_21_1;
+import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,6 +47,28 @@ public final class ProjectileSpawner implements Runnable {
         INSTANCE.spawn0(projectile);
     }
 
+    // TODO: improve
+    public static void createShootSpawn(@NotNull Location startLocation,
+                                        @NotNull Vector normalizedDirection,
+                                        @NotNull Weapon weapon,
+                                        @NotNull Player shooter) {
+        // This location can be mutated by FakeEntity (due to offset used for Armorstand)
+        final Location perProjectileLocation = startLocation.clone();
+
+        final ProjectileSettings settings = weapon.projectileSettings;
+        final EntityType disguiseType = settings.disguiseType;
+
+        // Because of that FakeEntity must be created before WeaponProjectile
+        final FakeEntity fakeEntity = (disguiseType != null)
+            ? new FakeEntity_1_21_1(disguiseType, perProjectileLocation, settings.disguiseData)
+            : null;
+
+        final Vector motion = normalizedDirection.clone().multiply(settings.muzzleVelocity);
+        final WeaponProjectile projectile = new WeaponProjectile(weapon, shooter, perProjectileLocation, motion);
+
+        projectile.spawnDisguise(fakeEntity);
+        ProjectileSpawner.spawn(projectile);
+    }
 
     // ----------< Instance >----------
 

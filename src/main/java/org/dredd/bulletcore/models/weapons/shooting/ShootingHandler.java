@@ -1,20 +1,14 @@
 package org.dredd.bulletcore.models.weapons.shooting;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Predicate;
 
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +19,6 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.config.ConfigManager;
-import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.config.particles.ParticleManager;
 import org.dredd.bulletcore.config.sounds.ConfiguredSound;
 import org.dredd.bulletcore.config.sounds.SoundManager;
@@ -38,6 +31,7 @@ import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
+import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSpawner;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
@@ -64,11 +58,6 @@ public final class ShootingHandler {
      * Stores currently running automatic shooting tasks for each player.
      */
     private static final Map<UUID, BukkitTask> AUTO_SHOOTING_TASKS = new HashMap<>();
-
-    /**
-     * Stores the number of penetrated blocks for each material for the currently processing pellet.
-     */
-    private static final Map<Material, Integer> CURRENT_PELLET_PENETRATED_BLOCKS = new EnumMap<>(Material.class);
 
     // ----------< Public API >----------
 
@@ -189,6 +178,7 @@ public final class ShootingHandler {
      * @param weapon the weapon used
      * @return {@code true} if the shot was successful, {@code false} otherwise.
      */
+    // TODO: double check
     private static boolean shoot(@NotNull Player player,
                                  @NotNull Weapon weapon) {
         // always update the last trigger-pull time whenever this method is called,
@@ -223,67 +213,14 @@ public final class ShootingHandler {
         RecoilHandler.handleShot(player, weapon.recoil);
 
 
-        // -----< RayTracing >-----
-        final Predicate<Entity> entityFilter = entity ->
-            entity instanceof LivingEntity victim && !entity.equals(player) && !skipHit(victim);
-
-        final World world = player.getWorld();
+        // -----< Creating and Shooting Projectile(s) >-----
         final Location eyeLocation = player.getEyeLocation();
         final Vector aimDirection = eyeLocation.getDirection();
 
-        // rayTrace each pellet direction separately
+        // Create and shoot each pellet separately
         final Vector[] directions = SprayHandler.handleShot(player, weapon, aimDirection);
         for (final Vector direction : directions) {
-            CURRENT_PELLET_PENETRATED_BLOCKS.clear(); // Clear the previous pellets / shots
-
-            final Predicate<Block> canCollide = block -> {
-                // return true  == this block will stop the bullet
-                // return false == the bullet will go through this block
-
-                final Material blockType = block.getType();
-
-                if (MaterialsManager.instance().isIgnored(blockType)) return false;
-
-                final int penetrationLimit = weapon.blocksPenetration.getPenetrationLimit(blockType);
-                if (penetrationLimit <= 0) return true;
-
-                // Check how many blocks of this material already penetrated
-                // by the current pellet incremented by 1 and updated in the map.
-                final int newValue = CURRENT_PELLET_PENETRATED_BLOCKS.merge(blockType, 1, Integer::sum);
-                return newValue > penetrationLimit;
-            };
-
-            final RayTraceResult result = world.rayTrace(
-                eyeLocation,
-                direction,
-                weapon.maxDistance,
-                FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
-                false,                     // false == will collide with all blocks (even GRASS, but not AIR)
-                config.raySize,            // 0 == precise, > 0 == expands, < 0 == shrinks (hitbox for raycast)
-                entityFilter,
-                canCollide
-            );
-
-            weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, world);
-
-            // handle result
-            if (result == null) continue;
-
-            final Location hitLocation = result.getHitPosition().toLocation(world);
-
-            if (result.getHitEntity() instanceof LivingEntity victim) {
-                // Entity hit
-                final DamagePoint damagePoint = applyCustomDamage(victim, player, weapon, hitLocation);
-                final ConfiguredSound sound = damagePoint == HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
-                final Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : eyeLocation;
-                SoundManager.playSound(player, soundLocation, sound);
-                ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
-            } else if (result.getHitBlock() != null) {
-                // Block hit
-                SoundManager.playSound(player, hitLocation, config.blockHitSound);
-                ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-                config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace(), result.getHitBlock());
-            }
+            ProjectileSpawner.createShootSpawn(eyeLocation, direction, weapon, player);
         }
 
         if (weapon.recoilImpulse > 0.0D) {
@@ -295,13 +232,48 @@ public final class ShootingHandler {
         return true;
     }
 
+
+    // ----------< HitHandler >----------
+    // TODO: move all below to a new HitHandler class
+    /*
+     * No logical changes done.
+     * Only:
+     * 1. Config refetch using ConfigManager.instance()
+     * 2. eyeLocation for shooter is taken from the current location (shooter.getEyeLocation())
+     *
+     * New problems:
+     * 1. Shooter / World may have changed e.g. (teleport to nether,end / left game) // TODO: test,handle
+     * */
+    public static void handleHit(@NotNull Player shooter,
+                                 @NotNull Weapon weapon,
+                                 @NotNull RayTraceResult result,
+                                 @NotNull World world) {
+        final Location hitLocation = result.getHitPosition().toLocation(world);
+        final ConfigManager config = ConfigManager.instance();
+
+        if (result.getHitEntity() instanceof LivingEntity victim) {
+            // Entity hit
+            final DamagePoint damagePoint = applyCustomDamage(victim, shooter, weapon, hitLocation);
+            final ConfiguredSound sound = damagePoint == HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
+            final Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : shooter.getEyeLocation();
+            SoundManager.playSound(shooter, soundLocation, sound);
+            ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
+        } else if (result.getHitBlock() != null) {
+            // Block hit
+            SoundManager.playSound(shooter, hitLocation, config.blockHitSound);
+            ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
+            config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace(), result.getHitBlock());
+        }
+    }
+
     /**
      * Evaluates whether the bullet should skip the specified entity and go beyond it.
      *
      * @param victim the entity being evaluated for skipping
      * @return true if the entity should be skipped; false otherwise
      */
-    private static boolean skipHit(@NotNull LivingEntity victim) {
+    // TODO: return private/move to used place
+    public static boolean skipHit(@NotNull LivingEntity victim) {
         return victim.isInvulnerable()
             || victim instanceof ArmorStand
             || (victim instanceof Player p && switch (p.getGameMode()) {
