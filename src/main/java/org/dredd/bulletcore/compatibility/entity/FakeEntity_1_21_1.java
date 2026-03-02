@@ -233,44 +233,9 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     }
 
     @Override
-    public void show(@NotNull Player player) {
-        if (!player.isOnline()) return;
-
-        final var connection = ((CraftPlayer) player).getHandle().connection;
-
-        final Entity entity = this.entity;
-        final Vec3 pos = entity.position();
-
-        connection.send(new ClientboundAddEntityPacket(entity.getId(), entity.getUUID(), pos.x, pos.y, pos.z, entity.getXRot(), entity.getYRot(), entity.getType(), entityData, Vec3.ZERO, entity.getYHeadRot()));
-        connection.send(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
-        connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
-        connection.send(new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false));
-
-        final var equipmentPacket = getEquipmentPacket();
-        if (equipmentPacket != null) {
-            connection.send(equipmentPacket);
-        }
-
-        // Inject the player's packet connection into this listener, so we can
-        // show the player position/velocity/rotation changes
-        trackedByPlayers.add(connection);
-    }
-
-    @Override
     public void remove() {
         sendPackets(new ClientboundRemoveEntitiesPacket(entity.getId()));
         trackedByPlayers.clear();
-    }
-
-    @Override
-    public void remove(@NotNull Player player) {
-        if (!player.isOnline()) return;
-
-        final var connection = ((CraftPlayer) player).getHandle().connection;
-        connection.send(new ClientboundRemoveEntitiesPacket(entity.getId()));
-
-        if (!trackedByPlayers.remove(connection))
-            throw new IllegalStateException("Tried to remove player that was never added");
     }
 
 

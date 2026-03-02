@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -187,35 +186,11 @@ public abstract class FakeEntity {
     public abstract void show();
 
     /**
-     * Shows the entity to the given player.
-     * <p>
-     * Sends an Add Entity Packet and a Set Entity Data Packet.
-     *
-     * @param player The player to show the entity to.
-     */
-    public abstract void show(@NotNull Player player);
-
-    /**
      * Hides the entity for all players that currently see it.
      * <p>
      * Sends an Remove Entities Packet.
-     * <p>
-     * Players will no longer be able to see the entity
-     * (unless they are added back using {@link #show(Player)}).
      */
     public abstract void remove();
-
-    /**
-     * Hides the entity for the given player.
-     * <p>
-     * Sends an Remove Entities Packet.
-     * <p>
-     * The player will no longer be able to see the entity
-     * (unless they are added back using {@link #show(Player)}).
-     *
-     * @param player The player to hide the entity from.
-     */
-    public abstract void remove(@NotNull Player player);
 
 
     // -----< Equipment >-----
