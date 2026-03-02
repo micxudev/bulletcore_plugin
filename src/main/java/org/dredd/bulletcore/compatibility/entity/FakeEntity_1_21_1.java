@@ -1,10 +1,8 @@
 package org.dredd.bulletcore.compatibility.entity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -16,7 +14,6 @@ import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
-import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Display;
@@ -30,6 +27,7 @@ import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,14 +49,12 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     // -----< Static fields >-----
 
     public static final EquipmentSlot[] SLOTS = EquipmentSlot.values();
-    public static final Consumer<Packet<?>> EMPTY_PACKET_CONSUMER = (packet) -> {};
+
 
     // -----< Instance fields >-----
 
     private final Entity entity;
-    private final ServerEntity serverEntity;
     private final Set<ServerGamePacketListenerImpl> trackedByPlayers;
-
     private int entityData;
 
 
@@ -117,9 +113,8 @@ public class FakeEntity_1_21_1 extends FakeEntity {
             default -> world.makeEntity(location, type.getEntityClass());
         };
 
-        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-        this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), EMPTY_PACKET_CONSUMER, Collections.emptySet());
         this.trackedByPlayers = new ReferenceOpenHashSet<>();
+        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 
 
@@ -153,6 +148,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         super.setLocation(x, y, z, yaw, pitch);
 
         // Needed for teleport packet.
+        final Entity entity = this.entity;
         entity.setPosRaw(x, y, z);
         entity.setYHeadRot(yaw);
         entity.setYRot(yaw);
@@ -168,6 +164,8 @@ public class FakeEntity_1_21_1 extends FakeEntity {
 
         location.setYaw(yaw);
         location.setPitch(pitch);
+
+        final Entity entity = this.entity;
         entity.setYHeadRot(yaw);
         entity.setYRot(yaw);
         entity.setXRot(pitch);
@@ -184,6 +182,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
 
     @Override
     public void setPositionRaw(double x, double y, double z, float yaw, float pitch) {
+        final Entity entity = this.entity;
         final var teleportPacket = new ClientboundTeleportEntityPacket(entity);
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
@@ -192,6 +191,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
 
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
+        final Entity entity = this.entity;
         final var positionRotationPacket = new PosRot(entity.getId(), dx, dy, dz, yaw, pitch, false);
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
@@ -207,7 +207,10 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         final var nearbyPlayers = location.getWorld().getNearbyPlayers(location, viewDistanceInBlocks);
         if (nearbyPlayers.isEmpty()) return;
 
-        final var spawnPacket = new ClientboundAddEntityPacket(entity, serverEntity, entityData);
+        final Entity entity = this.entity;
+        final Vec3 pos = entity.position();
+
+        final var spawnPacket = new ClientboundAddEntityPacket(entity.getId(), entity.getUUID(), pos.x, pos.y, pos.z, entity.getXRot(), entity.getYRot(), entity.getType(), entityData, Vec3.ZERO, entity.getYHeadRot());
         final var metaPacket = new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll());
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
         final var rotationPacket = new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false);
@@ -233,12 +236,16 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         if (!player.isOnline()) return;
 
         final var connection = ((CraftPlayer) player).getHandle().connection;
-        connection.send(new ClientboundAddEntityPacket(entity, serverEntity, entityData));
+
+        final Entity entity = this.entity;
+        final Vec3 pos = entity.position();
+
+        connection.send(new ClientboundAddEntityPacket(entity.getId(), entity.getUUID(), pos.x, pos.y, pos.z, entity.getXRot(), entity.getYRot(), entity.getType(), entityData, Vec3.ZERO, entity.getYHeadRot()));
         connection.send(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
         connection.send(new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false));
-        final var equipmentPacket = getEquipmentPacket();
 
+        final var equipmentPacket = getEquipmentPacket();
         if (equipmentPacket != null) {
             connection.send(equipmentPacket);
         }
