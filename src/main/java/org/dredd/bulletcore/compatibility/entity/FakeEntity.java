@@ -2,14 +2,12 @@ package org.dredd.bulletcore.compatibility.entity;
 
 import java.util.Objects;
 
-import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,19 +58,7 @@ public abstract class FakeEntity {
 
     protected abstract boolean getMeta(int metaFlag);
 
-    public final boolean isOnFire() {return getMeta(FIRE_FLAG);}
-
-    public final boolean isInvisible() {return getMeta(INVISIBLE_FLAG);}
-
-    public final boolean isGlowing() {return getMeta(GLOWING_FLAG);}
-
     protected abstract void setMeta(int metaFlag, boolean isEnabled);
-
-    public final void setOnFire(boolean isOnFire) {setMeta(FIRE_FLAG, isOnFire);}
-
-    public final void setInvisible(boolean isInvisible) {setMeta(INVISIBLE_FLAG, isInvisible);}
-
-    public final void setGlowing(boolean isGlowing) {setMeta(GLOWING_FLAG, isGlowing);}
 
     /**
      * Updates the meta for all players that currently see it.<br>
@@ -82,12 +68,6 @@ public abstract class FakeEntity {
 
 
     // -----< Location >-----
-
-    public double getX() {return location.getX();}
-
-    public double getY() {return location.getY();}
-
-    public double getZ() {return location.getZ();}
 
     public float getYaw() {return location.getYaw();}
 
@@ -111,41 +91,6 @@ public abstract class FakeEntity {
      * @param pitch The absolute pitch rotation of the entity.
      */
     public abstract void setRotation(float yaw, float pitch);
-
-    /**
-     * Shorthand for calling {@link #setPosition(double, double, double, float, float)}.
-     *
-     * @param pos The non-null new position of the entity.
-     * @param yaw The yaw to set the entity at.
-     * @param pitch The pitch to set the entity at.
-     */
-    public final void setPosition(@NotNull Vector pos, float yaw, float pitch) {
-        setPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, false);
-    }
-
-    /**
-     * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
-     *
-     * @param x The new position on the x-axis.
-     * @param y The new position on the y-axis.
-     * @param z The new position on the z-axis.
-     */
-    public final void setPosition(double x, double y, double z) {
-        setPosition(x, y, z, getYaw(), getPitch(), false);
-    }
-
-    /**
-     * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
-     *
-     * @param x The new position on the x-axis.
-     * @param y The new position on the y-axis.
-     * @param z The new position on the z-axis.
-     * @param yaw The yaw to set the entity at.
-     * @param pitch The pitch to set the entity at.
-     */
-    public final void setPosition(double x, double y, double z, float yaw, float pitch) {
-        setPosition(x, y, z, yaw, pitch, false);
-    }
 
     /**
      * Sets position of this entity. When the new location is within 8 blocks, a move-look packet is
@@ -248,31 +193,40 @@ public abstract class FakeEntity {
     // -----< Visibility >-----
 
     /**
-     * Shows this entity to all players within range of the entity. Effectively the same as calling
-     * {@link #show(Player)} for each player. Sends an Add Entity packet and an Entity Meta packet.
+     * Shows this entity to all players within range of the entity.
+     * <p>
+     * Sends an Add Entity Packet and a Set Entity Data Packet.
      */
     public abstract void show();
 
     /**
-     * Shows the entity to the given player. Sends an add Entity packet and an Entity Meta packet.
+     * Shows the entity to the given player.
+     * <p>
+     * Sends an Add Entity Packet and a Set Entity Data Packet.
      *
-     * @param player The non-null player to show the entity to.
+     * @param player The player to show the entity to.
      */
     public abstract void show(@NotNull Player player);
 
     /**
-     * Hides the entity for all players that currently see it. Sends an entity destroy packet. Players
-     * will not be able to see position or rotation or meta or velocity changes after calling this
-     * method (Unless they are added back using {@link #show(Player)}).
+     * Hides the entity for all players that currently see it.
+     * <p>
+     * Sends an Remove Entities Packet.
+     * <p>
+     * Players will no longer be able to see the entity
+     * (unless they are added back using {@link #show(Player)}).
      */
     public abstract void remove();
 
     /**
-     * Hides the entity for the given player. Sends an Entity Destroy packet. The player will not be
-     * able to see position or rotation or meta or velocity changes after calling this method (Unless
-     * they are added back using {@link #show(Player)}).
+     * Hides the entity for the given player.
+     * <p>
+     * Sends an Remove Entities Packet.
+     * <p>
+     * The player will no longer be able to see the entity
+     * (unless they are added back using {@link #show(Player)}).
      *
-     * @param player The non-null player to hide the entity from.
+     * @param player The player to hide the entity from.
      */
     public abstract void remove(@NotNull Player player);
 
@@ -297,16 +251,6 @@ public abstract class FakeEntity {
     // -----< Random Stuff >-----
 
     /**
-     * Sets the custom name of the entity.<br>
-     * Use <code>null</code> to remove the any previous display name.<br>
-     * Supports color codes using {@link org.bukkit.ChatColor}.<br>
-     * After calling this method, use {@link #updateMeta()} to show the information to clients.
-     *
-     * @param name The nullable custom name to set.
-     */
-    public abstract void setCustomName(@Nullable String name);
-
-    /**
      * Disables entity gravity. This has no effect server-side, and will not affect
      * motion/position/rotation/anything. Instead, this method tells the client that the entity should
      * not automatically have gravity applied. After calling this method use {@link #updateMeta()} to
@@ -315,12 +259,4 @@ public abstract class FakeEntity {
      * @param gravity true -> gravity, false -> no gravity.
      */
     public abstract void setGravity(boolean gravity);
-
-    /**
-     * Plays an entity effect for this entity. Make sure that the given effect can be used for this
-     * entity type.
-     *
-     * @param effect The non-null effect to play.
-     */
-    public abstract void playEffect(@NotNull EntityEffect effect);
 }

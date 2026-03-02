@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -32,14 +31,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Bukkit;
-import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -314,20 +311,8 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     // -----< Random Stuff >-----
 
     @Override
-    public void setCustomName(@Nullable String name) {
-        entity.setCustomName(CraftChatMessage.fromStringOrNull(name));
-        entity.setCustomNameVisible(name != null && !name.isEmpty());
-    }
-
-    @Override
     public void setGravity(boolean gravity) {
         entity.setNoGravity(!gravity);
-    }
-
-    @Override
-    public void playEffect(@NotNull EntityEffect effect) {
-        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
-        sendPackets(new ClientboundEntityEventPacket(entity, effect.getData()));
     }
 
 
