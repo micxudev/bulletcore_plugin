@@ -41,6 +41,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.PosRot;
 import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
@@ -125,19 +126,21 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     // -----< Entity Meta >-----
 
     @Override
-    protected boolean getMeta(int metaFlag) {
-        return entity.getSharedFlag(metaFlag);
+    protected boolean getMeta(@NonNull EntityMetaFlag flag) {
+        return entity.getSharedFlag(flag.index);
     }
 
     @Override
-    protected void setMeta(int metaFlag, boolean isEnabled) {
-        entity.setSharedFlag(metaFlag, isEnabled);
+    protected void setMeta(@NonNull EntityMetaFlag flag, boolean enabled) {
+        entity.setSharedFlag(flag.index, enabled);
     }
 
     @Override
     public void updateMeta() {
-        if (type == EntityType.ARMOR_STAND)
-            ((ArmorStand) entity).setHeadPose(new Rotations(getPitch(), 0, 0));
+        if (entity instanceof ArmorStand armorStand) {
+            // TODO: how does this affect?
+            armorStand.setHeadPose(new Rotations(getPitch(), 0, 0));
+        }
 
         sendPackets(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
     }

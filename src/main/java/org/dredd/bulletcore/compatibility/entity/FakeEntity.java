@@ -24,20 +24,7 @@ import static org.bukkit.util.NumberConversions.square;
  */
 public abstract class FakeEntity {
 
-    // -----< Static fields >-----
-
-    // Constants defining entity's metadata.
-    // (2 is missing due to it being unused in new versions)
-    public static final int FIRE_FLAG = 0;
-    public static final int SNEAKING_FLAG = 1;
-    public static final int SPRINTING_FLAG = 3;
-    public static final int SWIMMING_FLAG = 4;
-    public static final int INVISIBLE_FLAG = 5;
-    public static final int GLOWING_FLAG = 6;
-    public static final int GLIDING_FLAG = 7;
-
-
-    // -----< Instance fields >-----
+    // -----< Attributes >-----
 
     protected final @NotNull EntityType type;
     protected final @NotNull Location location;
@@ -56,9 +43,9 @@ public abstract class FakeEntity {
 
     // -----< Entity Meta >-----
 
-    protected abstract boolean getMeta(int metaFlag);
+    protected abstract boolean getMeta(@NotNull EntityMetaFlag flag);
 
-    protected abstract void setMeta(int metaFlag, boolean isEnabled);
+    protected abstract void setMeta(@NotNull EntityMetaFlag flag, boolean enabled);
 
     /**
      * Updates the meta for all players that currently see it.<br>
