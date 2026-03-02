@@ -166,12 +166,7 @@ public abstract class AProjectile {
      */
     public final void spawnDisguise(@Nullable FakeEntity fakeEntity) {
         if (fakeEntity == null || disguise != null) return;
-
         this.disguise = fakeEntity;
-
-        if (getGravity() == NO_GRAVITY)
-            fakeEntity.setGravity(false);
-
         fakeEntity.show();
     }
 

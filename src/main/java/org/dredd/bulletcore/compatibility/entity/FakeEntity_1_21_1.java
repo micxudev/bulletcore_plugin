@@ -112,6 +112,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
             }
             default -> world.makeEntity(location, type.getEntityClass());
         };
+        entity.setNoGravity(true);
 
         this.trackedByPlayers = new ReferenceOpenHashSet<>();
         this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
@@ -315,14 +316,6 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         return equipmentList.isEmpty()
             ? null
             : new ClientboundSetEquipmentPacket(entity.getId(), equipmentList);
-    }
-
-
-    // -----< Random Stuff >-----
-
-    @Override
-    public void setGravity(boolean gravity) {
-        entity.setNoGravity(!gravity);
     }
 
 

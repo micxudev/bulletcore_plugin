@@ -233,17 +233,4 @@ public abstract class FakeEntity {
      * This method should be called after calling {@link #setEquipment(EquipmentSlot, ItemStack)}.
      */
     public abstract void updateEquipment();
-
-
-    // -----< Random Stuff >-----
-
-    /**
-     * Disables entity gravity. This has no effect server-side, and will not affect
-     * motion/position/rotation/anything. Instead, this method tells the client that the entity should
-     * not automatically have gravity applied. After calling this method use {@link #updateMeta()} to
-     * show the information to clients.
-     *
-     * @param gravity true -> gravity, false -> no gravity.
-     */
-    public abstract void setGravity(boolean gravity);
 }
