@@ -173,7 +173,6 @@ public abstract class AProjectile {
             fakeEntity.setGravity(false);
 
         fakeEntity.show();
-        fakeEntity.setMotion(motion);
     }
 
     /**
@@ -193,7 +192,6 @@ public abstract class AProjectile {
             final Vector normalizedMotion = getNormalizedMotion();
             disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), useTeleport);
         }
-        disguise.setMotion(motion);
 
         lastDisguiseUpdateTick = aliveTicks;
     }

@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerEntity;
@@ -32,7 +31,6 @@ import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -162,15 +160,6 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     }
 
     @Override
-    public void setMotion(double dx, double dy, double dz) {
-        motion.setX(dx);
-        motion.setY(dy);
-        motion.setZ(dz);
-
-        sendPackets(new ClientboundSetEntityMotionPacket(entity.getId(), new Vec3(dx, dy, dz)));
-    }
-
-    @Override
     public void setRotation(float yaw, float pitch) {
         if (offset != null) {
             yaw += offset.getYaw();
@@ -222,7 +211,6 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         final var metaPacket = new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll());
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
         final var rotationPacket = new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false);
-        final var motionPacket = new ClientboundSetEntityMotionPacket(entity.getId(), new Vec3(motion.getX(), motion.getY(), motion.getZ()));
         final var equipmentPacket = getEquipmentPacket();
 
         for (final Player temp : nearbyPlayers) {
@@ -234,7 +222,6 @@ public class FakeEntity_1_21_1 extends FakeEntity {
             connection.send(metaPacket);
             connection.send(headRotationPacket);
             connection.send(rotationPacket);
-            connection.send(motionPacket);
             if (equipmentPacket != null) {
                 connection.send(equipmentPacket);
             }
@@ -250,7 +237,6 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         connection.send(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
         connection.send(new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false));
-        connection.send(new ClientboundSetEntityMotionPacket(entity.getId(), new Vec3(motion.getX(), motion.getY(), motion.getZ())));
         final var equipmentPacket = getEquipmentPacket();
 
         if (equipmentPacket != null) {

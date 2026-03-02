@@ -38,12 +38,12 @@ public abstract class FakeEntity {
     public static final int GLOWING_FLAG = 6;
     public static final int GLIDING_FLAG = 7;
 
+
     // -----< Instance fields >-----
 
     protected final @NotNull EntityType type;
     protected final @NotNull Location location;
     protected final @Nullable Location offset;
-    protected final @NotNull Vector motion;
 
 
     // -----< Constructor >-----
@@ -53,7 +53,6 @@ public abstract class FakeEntity {
         this.type = type;
         this.location = new Location(world, 0, 0, 0);
         this.offset = type != EntityType.ARMOR_STAND ? null : new Location(location.getWorld(), 0, -1.67875, 0);
-        this.motion = new Vector();
     }
 
 
@@ -101,25 +100,6 @@ public abstract class FakeEntity {
         location.setYaw(yaw);
         location.setPitch(pitch);
     }
-
-    /**
-     * Shorthand for {@link #setMotion(double, double, double)}.
-     *
-     * @param motion The motion the entity is moving with.
-     * @see #setMotion(double, double, double)
-     */
-    public final void setMotion(@NotNull Vector motion) {
-        setMotion(motion.getX(), motion.getY(), motion.getZ());
-    }
-
-    /**
-     * Sends an entity velocity packet to all players who can see this entity.
-     *
-     * @param dx The change of position in the x-axis.
-     * @param dy The change of position in the y-axis.
-     * @param dz The change of position in the z-axis.
-     */
-    public abstract void setMotion(double dx, double dy, double dz);
 
     /**
      * Sends an entity rotation packet to all players who can see this entity.
