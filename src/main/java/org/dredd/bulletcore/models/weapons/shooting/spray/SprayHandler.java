@@ -1,6 +1,5 @@
 package org.dredd.bulletcore.models.weapons.shooting.spray;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +24,7 @@ public final class SprayHandler {
     private SprayHandler() {}
 
     // ----------< Spray Look-Up Table >----------
+
     private static final int LUT_SIZE = 256;
 
     private static final double[] SIN = new double[LUT_SIZE];
@@ -79,7 +79,10 @@ public final class SprayHandler {
      * @param player           the player who fired the shot
      * @param weapon           the weapon used to fire the shot
      * @param initialDirection the normalized initial direction of the shot
-     * @return a Vector array of size {@link Weapon#pelletsPerShot} where each element is the final direction of each pellet
+     * @return a newly allocated array (of size {@link Weapon#pelletsPerShot})
+     *         containing exclusively newly created {@link Vector} instances;
+     *         neither the array nor any of its elements are shared or reused
+     *         (including {@code initialDirection})
      */
     public static @NotNull Vector[] handleShot(@NotNull Player player,
                                                @NotNull Weapon weapon,
@@ -94,7 +97,9 @@ public final class SprayHandler {
         sprayContext.sendMessage(state, modifiers, finalSpray);
 
         if (finalSpray <= WeaponSpray.NO_SPRAY) {
-            Arrays.fill(directions, initialDirection);
+            for (int i = 0; i < directions.length; i++) {
+                directions[i] = initialDirection.clone();
+            }
             return directions;
         }
 
@@ -110,9 +115,9 @@ public final class SprayHandler {
         // build orthonormal basis
 
         // forward = initialDirection
-        double fx = initialDirection.getX();
-        double fy = initialDirection.getY();
-        double fz = initialDirection.getZ();
+        final double fx = initialDirection.getX();
+        final double fy = initialDirection.getY();
+        final double fz = initialDirection.getZ();
 
         // avoid gimbal lock
         final boolean forwardIsVertical = Math.abs(fx) < 1e-12 && Math.abs(fz) < 1e-12;
