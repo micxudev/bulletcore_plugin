@@ -31,6 +31,8 @@ import org.dredd.bulletcore.models.armor.ArmorHit;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
+import org.dredd.bulletcore.models.weapons.shooting.projectile.AProjectile;
+import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileFactory;
 import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSpawner;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
@@ -220,7 +222,8 @@ public final class ShootingHandler {
         // Create and shoot each pellet separately
         final Vector[] directions = SprayHandler.handleShot(player, weapon, aimDirection);
         for (final Vector direction : directions) {
-            ProjectileSpawner.createShootSpawn(eyeLocation, direction, weapon, player);
+            final AProjectile projectile = ProjectileFactory.create(eyeLocation, direction, weapon, player);
+            ProjectileSpawner.spawn(projectile);
         }
 
         if (weapon.recoilImpulse > 0.0D) {

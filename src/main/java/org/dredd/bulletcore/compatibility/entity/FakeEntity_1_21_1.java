@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -40,9 +41,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-
-import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.PosRot;
-import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
 
 public class FakeEntity_1_21_1 extends FakeEntity {
 
@@ -172,7 +170,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         entity.setXRot(pitch);
 
         final byte byteYaw = convertYaw(yaw);
-        final var rotationPacket = new Rot(entity.getId(), byteYaw, convertPitch(pitch), false);
+        final var rotationPacket = new ClientboundMoveEntityPacket.Rot(entity.getId(), byteYaw, convertPitch(pitch), false);
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, byteYaw);
 
         sendPackets(rotationPacket, headRotationPacket);
@@ -193,7 +191,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
         final Entity entity = this.entity;
-        final var positionRotationPacket = new PosRot(entity.getId(), dx, dy, dz, yaw, pitch, false);
+        final var positionRotationPacket = new ClientboundMoveEntityPacket.PosRot(entity.getId(), dx, dy, dz, yaw, pitch, false);
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
         sendPackets(positionRotationPacket, headRotationPacket);
@@ -214,7 +212,7 @@ public class FakeEntity_1_21_1 extends FakeEntity {
         final var spawnPacket = new ClientboundAddEntityPacket(entity.getId(), entity.getUUID(), pos.x, pos.y, pos.z, entity.getXRot(), entity.getYRot(), entity.getType(), entityData, Vec3.ZERO, entity.getYHeadRot());
         final var metaPacket = new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll());
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
-        final var rotationPacket = new Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false);
+        final var rotationPacket = new ClientboundMoveEntityPacket.Rot(entity.getId(), convertYaw(getYaw()), convertPitch(getPitch()), false);
         final var equipmentPacket = getEquipmentPacket();
 
         for (final Player temp : nearbyPlayers) {
