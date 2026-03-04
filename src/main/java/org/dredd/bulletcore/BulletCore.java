@@ -119,7 +119,10 @@ public final class BulletCore extends JavaPlugin {
     public void onDisable() {
         CommandHandler.destroy();
         JsonUtils.shutdownSaveExecutor();
-        projectileSpawner.shutdown();
+        if (projectileSpawner != null) {
+            projectileSpawner.shutdown();
+            projectileSpawner = null;
+        }
         BulletCore.cancelAndClear();
         plugin = null;
     }
