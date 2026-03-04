@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -267,22 +266,6 @@ public final class ShootingHandler {
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
             config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace(), result.getHitBlock());
         }
-    }
-
-    /**
-     * Evaluates whether the bullet should skip the specified entity and go beyond it.
-     *
-     * @param victim the entity being evaluated for skipping
-     * @return true if the entity should be skipped; false otherwise
-     */
-    // TODO: return private/move to used place
-    public static boolean skipHit(@NotNull LivingEntity victim) {
-        return victim.isInvulnerable()
-            || victim instanceof ArmorStand
-            || (victim instanceof Player p && switch (p.getGameMode()) {
-            case CREATIVE, SPECTATOR -> true;
-            default -> false;
-        });
     }
 
     /**

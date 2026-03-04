@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -16,39 +18,49 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
-import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-// Created per WeaponProjectile since
-// there is a state in penetratedBlocks
-public class ProjectileRayTracer {
+public final class ProjectileRayTracer {
 
     private final Map<Material, Integer> penetratedBlocks;
-    private final Predicate<Entity> entityFilter;
+    private final @Nullable Predicate<Entity> canHit;
     private final Predicate<Block> canCollide;
     private final double raySize;
+    private final boolean enableEntityCollisions;
 
     public ProjectileRayTracer(@NotNull Weapon weapon,
                                @NotNull Player shooter) {
         this.penetratedBlocks = new EnumMap<>(Material.class);
 
-        // TODO:
-        //   1) handle disableEntityCollisions.
-        //   2) Maybe return temp self-collision immunity
-        //      if (getAliveTicks() < 10 && entity.getEntityId() == shooter.getEntityId())
-        //          return true;
-        //
-        //      // Don't hit shooter's transport.
-        //      // If the shooter is riding
-        //      // (e.g., horse and this horse has a passenger who is a shooter -> return true == prevent hit)
-        //      return entity.getPassengers().contains(shooter);
+        final boolean enableEntityCollisions =
+            weapon.projectileSettings.enableEntityCollisions;
 
-        // Unchanged since moved from ShootingHandler
-        this.entityFilter = entity ->
-            entity instanceof LivingEntity victim && !entity.equals(shooter) && !ShootingHandler.skipHit(victim);
+        if (enableEntityCollisions) {
+            this.canHit = entity -> {
+                // return true  == this entity will be hit (bullet stops)
+                // return false == the bullet will go through this entity
 
-        // Unchanged since moved from ShootingHandler
+                if (entity == shooter) return false;
+
+                if (entity.isInvulnerable()) return false;
+
+                if (!(entity instanceof LivingEntity victim)) return false;
+
+                if (victim instanceof ArmorStand) return false;
+
+                if (victim instanceof Player player)
+                    return player.getGameMode() != GameMode.SPECTATOR;
+
+                // If the shooter is riding (e.g., horse
+                // and this horse has a passenger who is the shooter ->
+                // skip hit (bullet will go through))
+                return !entity.getPassengers().contains(shooter);
+            };
+        } else {
+            this.canHit = null;
+        }
+
         this.canCollide = block -> {
             // return true  == this block will stop the bullet
             // return false == the bullet will go through this block
@@ -67,21 +79,32 @@ public class ProjectileRayTracer {
         };
 
         this.raySize = weapon.projectileSettings.raySize;
+        this.enableEntityCollisions = enableEntityCollisions;
     }
 
-    // TODO: improve input
+    // TODO: improve input to include start as Location, replace end with maxDistance
     public @Nullable RayTraceResult cast(@NotNull World world,
                                          @NotNull Vector start,
                                          @NotNull Vector end,
                                          @NotNull Vector direction) {
-        return world.rayTrace(
+        if (enableEntityCollisions)
+            return world.rayTrace(
+                new Location(world, start.getX(), start.getY(), start.getZ()), // BAD
+                direction,
+                start.distance(end),  // BAD
+                FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
+                false,                     // false == will collide with all blocks (even GRASS, but not AIR)
+                raySize,                   // 0 == precise, > 0 == expands, < 0 == shrinks (hitbox for raycast)
+                canHit,
+                canCollide
+            );
+
+        return world.rayTraceBlocks(
             new Location(world, start.getX(), start.getY(), start.getZ()), // BAD
             direction,
             start.distance(end),  // BAD
             FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
             false,                     // false == will collide with all blocks (even GRASS, but not AIR)
-            raySize,                   // 0 == precise, > 0 == expands, < 0 == shrinks (hitbox for raycast)
-            entityFilter,
             canCollide
         );
     }

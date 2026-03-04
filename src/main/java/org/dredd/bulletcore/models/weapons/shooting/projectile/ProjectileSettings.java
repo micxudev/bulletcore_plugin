@@ -98,7 +98,7 @@ public final class ProjectileSettings {
     public final int maxAliveTicks;
     public final boolean removeAtMinSpeed;
     public final boolean removeAtMaxSpeed;
-    public final boolean disableEntityCollisions;
+    public final boolean enableEntityCollisions;
 
 
     // -----< Construction >-----
@@ -121,7 +121,7 @@ public final class ProjectileSettings {
         this.maxAliveTicks = Math.clamp(config.getInt("maxAliveTicks", 600), 1, 600);
         this.removeAtMinSpeed = config.getBoolean("removeAtMinSpeed", false);
         this.removeAtMaxSpeed = config.getBoolean("removeAtMaxSpeed", false);
-        this.disableEntityCollisions = config.getBoolean("disableEntityCollisions", false);
+        this.enableEntityCollisions = config.getBoolean("enableEntityCollisions", true);
     }
 
     private double clampDivideIfNotUsed(double raw, double min, double max, double divisor) {
