@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.models.weapons.Weapon;
-import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
+import org.dredd.bulletcore.models.weapons.damage.HitHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class WeaponProjectile extends AProjectile {
@@ -105,7 +105,7 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Hit (either entity or block that STOPPED THE BULLET)
-        ShootingHandler.handleHit(getShooter(), weapon, result, getWorld());
+        HitHandler.handleHit(getShooter(), weapon, result, getWorld());
 
         return true;
     }
