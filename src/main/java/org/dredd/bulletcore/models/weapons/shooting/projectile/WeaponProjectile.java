@@ -94,6 +94,9 @@ public class WeaponProjectile extends AProjectile {
             getNormalizedMotion()
         );
 
+        // TODO: apply trail particle, add into config to enable/disable?
+        //weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, getWorld());
+
         // No hit
         if (result == null) {
             setRawLocation(newLocation);

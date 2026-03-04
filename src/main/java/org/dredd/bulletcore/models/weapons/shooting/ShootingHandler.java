@@ -178,7 +178,6 @@ public final class ShootingHandler {
      * @param weapon the weapon used
      * @return {@code true} if the shot was successful, {@code false} otherwise.
      */
-    // TODO: double check
     private static boolean shoot(@NotNull Player player,
                                  @NotNull Weapon weapon) {
         // always update the last trigger-pull time whenever this method is called,
@@ -217,13 +216,14 @@ public final class ShootingHandler {
         final Location eyeLocation = player.getEyeLocation();
         final Vector aimDirection = eyeLocation.getDirection();
 
-        // Create and shoot each pellet separately
+        // create and shoot each pellet separately
         final Vector[] directions = SprayHandler.handleShot(player, weapon, aimDirection);
         for (final Vector direction : directions) {
             final AProjectile projectile = ProjectileFactory.create(eyeLocation, direction, weapon, player);
             BulletCore.projectileSpawner().spawn(projectile);
         }
 
+        // push the shooter backwards (opposite to aim direction)
         if (weapon.recoilImpulse > 0.0D) {
             final Vector recoil = aimDirection.clone().multiply(weapon.recoilImpulse);
             final Vector newVelocity = player.getVelocity().subtract(recoil);
@@ -253,17 +253,29 @@ public final class ShootingHandler {
         final ConfigManager config = ConfigManager.instance();
 
         if (result.getHitEntity() instanceof LivingEntity victim) {
-            // Entity hit
-            final DamagePoint damagePoint = applyCustomDamage(victim, shooter, weapon, hitLocation);
-            final ConfiguredSound sound = damagePoint == HEAD ? config.entityHitHeadSound : config.entityHitBodySound;
-            final Location soundLocation = sound.mode() == SoundPlaybackMode.WORLD ? hitLocation : shooter.getEyeLocation();
+            // Living Entity hit
+
+            final DamagePoint damagePoint =
+                applyCustomDamage(victim, shooter, weapon, hitLocation);
+
+            final ConfiguredSound sound = (damagePoint == HEAD)
+                ? config.entityHitHeadSound
+                : config.entityHitBodySound;
+
+            final Location soundLocation = (sound.mode() == SoundPlaybackMode.WORLD)
+                ? hitLocation
+                : shooter.getEyeLocation();
+
             SoundManager.playSound(shooter, soundLocation, sound);
             ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
         } else if (result.getHitBlock() != null) {
             // Block hit
+
             SoundManager.playSound(shooter, hitLocation, config.blockHitSound);
             ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-            config.asFeatureManager.bulletHole.spawn(world, hitLocation, result.getHitBlockFace(), result.getHitBlock());
+            config.asFeatureManager.bulletHole.spawn(
+                world, hitLocation, result.getHitBlockFace(), result.getHitBlock()
+            );
         }
     }
 
