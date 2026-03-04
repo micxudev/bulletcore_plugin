@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.dredd.bulletcore.BulletCore;
 import org.jetbrains.annotations.NotNull;
@@ -16,32 +15,6 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0.0
  */
 public final class ProjectileSpawner implements Runnable {
-
-    // ----------< Static >----------
-
-    private static ProjectileSpawner INSTANCE;
-
-    public static void init(@NotNull BulletCore plugin) {
-        if (INSTANCE == null) {
-            INSTANCE = new ProjectileSpawner(plugin);
-        }
-    }
-
-    public static void destroy() {
-        if (INSTANCE != null) {
-            INSTANCE.shutdown();
-            INSTANCE = null;
-        }
-    }
-
-    public static void spawn(@NotNull AProjectile projectile) {
-        if (INSTANCE == null)
-            throw new IllegalStateException("ProjectileSpawner not initialized");
-        INSTANCE.spawn0(projectile);
-    }
-
-
-    // ----------< Instance >----------
 
     // -----< Attributes >-----
 
@@ -57,7 +30,7 @@ public final class ProjectileSpawner implements Runnable {
 
     // -----< Construction >-----
 
-    private ProjectileSpawner(@NotNull Plugin plugin) {
+    public ProjectileSpawner(@NotNull BulletCore plugin) {
         this.activeProjectiles = new ArrayList<>(64);
         this.task = Bukkit.getScheduler().runTaskTimer(plugin, this, 1L, 1L);
     }
@@ -67,7 +40,7 @@ public final class ProjectileSpawner implements Runnable {
     /**
      * Spawns a projectile, performs its first tick immediately, and registers it if it survives.
      */
-    private void spawn0(@NotNull AProjectile projectile) {
+    public void spawn(@NotNull AProjectile projectile) {
         final boolean shouldRemove = projectile.tick();
 
         if (shouldRemove) {
@@ -93,7 +66,7 @@ public final class ProjectileSpawner implements Runnable {
 
             if (shouldRemove) {
                 projectile.remove();
-                projectiles.remove(i); // shifts left
+                projectiles.remove(i); // shifts left, do not increment i
                 continue;
             }
 
@@ -105,7 +78,7 @@ public final class ProjectileSpawner implements Runnable {
      * Stops ticking and removes all active projectiles.
      * Should be called on plugin disable.
      */
-    private void shutdown() {
+    public void shutdown() {
         task.cancel();
         activeProjectiles.forEach(AProjectile::remove);
         activeProjectiles.clear();

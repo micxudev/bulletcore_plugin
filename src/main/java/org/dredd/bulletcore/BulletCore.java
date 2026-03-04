@@ -38,6 +38,11 @@ public final class BulletCore extends JavaPlugin {
      */
     private static BulletCore plugin;
 
+    /**
+     * Projectile spawner instance.
+     */
+    private static ProjectileSpawner projectileSpawner;
+
     // -----< Initialization & Lifecycle >-----
 
     /**
@@ -68,8 +73,13 @@ public final class BulletCore extends JavaPlugin {
 
     // -----< Access Utilities >-----
 
-    public static BulletCore instance() {
-        return plugin;
+    public static BulletCore instance() {return plugin;}
+
+    public static ProjectileSpawner projectileSpawner() {
+        if (projectileSpawner == null) {
+            projectileSpawner = new ProjectileSpawner(plugin);
+        }
+        return projectileSpawner;
     }
 
     public static void logInfo(String msg) {
@@ -96,7 +106,6 @@ public final class BulletCore extends JavaPlugin {
 
         CommandHandler.init(this);
         BulletCore.init(this);
-        ProjectileSpawner.init(this);
 
         registerListener(CustomBaseListener.INSTANCE);
         registerListener(WeaponListener.INSTANCE);
@@ -110,7 +119,7 @@ public final class BulletCore extends JavaPlugin {
     public void onDisable() {
         CommandHandler.destroy();
         JsonUtils.shutdownSaveExecutor();
-        ProjectileSpawner.destroy();
+        projectileSpawner.shutdown();
         BulletCore.cancelAndClear();
         plugin = null;
     }

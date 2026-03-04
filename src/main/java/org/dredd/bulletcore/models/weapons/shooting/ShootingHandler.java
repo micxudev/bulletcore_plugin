@@ -32,7 +32,6 @@ import org.dredd.bulletcore.models.weapons.damage.DamagePoint;
 import org.dredd.bulletcore.models.weapons.damage.DamageThresholds;
 import org.dredd.bulletcore.models.weapons.shooting.projectile.AProjectile;
 import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileFactory;
-import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSpawner;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.shooting.spray.SprayHandler;
 import org.jetbrains.annotations.NotNull;
@@ -222,7 +221,7 @@ public final class ShootingHandler {
         final Vector[] directions = SprayHandler.handleShot(player, weapon, aimDirection);
         for (final Vector direction : directions) {
             final AProjectile projectile = ProjectileFactory.create(eyeLocation, direction, weapon, player);
-            ProjectileSpawner.spawn(projectile);
+            BulletCore.projectileSpawner().spawn(projectile);
         }
 
         if (weapon.recoilImpulse > 0.0D) {
