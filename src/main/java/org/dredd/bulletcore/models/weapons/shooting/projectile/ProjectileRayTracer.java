@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ProjectileRayTracer {
 
+    private final World world;
     private final Map<Material, Integer> penetratedBlocks;
     private final @Nullable Predicate<Entity> canHit;
     private final Predicate<Block> canCollide;
@@ -30,11 +31,13 @@ public final class ProjectileRayTracer {
     private final boolean enableEntityCollisions;
 
     public ProjectileRayTracer(@NotNull Weapon weapon,
-                               @NotNull Player shooter) {
+                               @NotNull Player shooter,
+                               @NotNull World world) {
+        this.world = world;
         this.penetratedBlocks = new EnumMap<>(Material.class);
 
-        final boolean enableEntityCollisions =
-            weapon.projectileSettings.enableEntityCollisions;
+        final ProjectileSettings settings = weapon.projectileSettings;
+        final boolean enableEntityCollisions = settings.enableEntityCollisions;
 
         if (enableEntityCollisions) {
             this.canHit = entity -> {
@@ -78,20 +81,18 @@ public final class ProjectileRayTracer {
             return newValue > penetrationLimit;
         };
 
-        this.raySize = weapon.projectileSettings.raySize;
+        this.raySize = settings.raySize;
         this.enableEntityCollisions = enableEntityCollisions;
     }
 
-    // TODO: improve input to include start as Location, replace end with maxDistance
-    public @Nullable RayTraceResult cast(@NotNull World world,
-                                         @NotNull Vector start,
-                                         @NotNull Vector end,
-                                         @NotNull Vector direction) {
+    public @Nullable RayTraceResult cast(@NotNull Location start,
+                                         @NotNull Vector direction,
+                                         double maxDistance) {
         if (enableEntityCollisions)
             return world.rayTrace(
-                new Location(world, start.getX(), start.getY(), start.getZ()), // BAD
+                start,
                 direction,
-                start.distance(end),  // BAD
+                maxDistance,
                 FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
                 false,                     // false == will collide with all blocks (even GRASS, but not AIR)
                 raySize,                   // 0 == precise, > 0 == expands, < 0 == shrinks (hitbox for raycast)
@@ -100,9 +101,9 @@ public final class ProjectileRayTracer {
             );
 
         return world.rayTraceBlocks(
-            new Location(world, start.getX(), start.getY(), start.getZ()), // BAD
+            start,
             direction,
-            start.distance(end),  // BAD
+            maxDistance,
             FluidCollisionMode.ALWAYS, // ALWAYS == water/lava will stop bullets (let canCollide predicate handle it)
             false,                     // false == will collide with all blocks (even GRASS, but not AIR)
             canCollide

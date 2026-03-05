@@ -15,6 +15,7 @@ public class WeaponProjectile extends AProjectile {
     // -----< Attributes >-----
 
     private final @NotNull Weapon weapon;
+    private final @NotNull Player shooter;
     private final @NotNull ProjectileSettings settings;
     private final @NotNull ProjectileRayTracer rayTrace;
 
@@ -25,11 +26,12 @@ public class WeaponProjectile extends AProjectile {
                             @NotNull Player shooter,
                             @NotNull Location location,
                             @NotNull Vector motion) {
-        super(shooter, location, motion);
+        super(location, motion);
 
         this.weapon = weapon;
+        this.shooter = shooter;
         this.settings = weapon.projectileSettings;
-        this.rayTrace = new ProjectileRayTracer(weapon, shooter); // TODO: setup here for access to instance methods (e.g. getAliveTicks())
+        this.rayTrace = new ProjectileRayTracer(weapon, shooter, getWorld());
     }
 
 
@@ -64,48 +66,30 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public int getMaximumAliveTicks() {return settings.maxAliveTicks;}
 
+    @Override
+    public double getMaxDistance() {
+        final double max = settings.maxDistance;
+        return (max == NOT_USED) ? super.getMaxDistance() : max;
+    }
+
 
     // -----< Behavior >-----
 
-    public boolean hasTraveledMaxDistance() {
-        final double max = settings.maxDistance;
-        return max != NOT_USED && getDistanceTravelled() >= max;
-    }
-
     @Override
-    public boolean updatePosition() {
-        final Vector newLocation = getLocation().add(getMotion());
-
-        if (!getWorld().isChunkLoaded(newLocation.getBlockX() >> 4, newLocation.getBlockZ() >> 4)) {
-            // Remove projectile if new location would be in an unloaded chunk
-            return true;
-        }
-
-        // Do not check for new collisions if there is no motion
-        final double motionLength = getMotionLength();
-        if (motionLength < Vector.getEpsilon()) return false;
-
-        // Check if there is a collision
-        // that the bullet will not survive
-        final RayTraceResult result = rayTrace.cast(
-            getWorld(),
-            getLocation(),
-            newLocation,
-            getNormalizedMotion()
-        );
+    public boolean handleCollisions(@NotNull Location currentLocation,
+                                    @NotNull Vector direction,
+                                    double moveDistance) {
+        // Check if there is a collision that the bullet will not survive
+        final RayTraceResult result = rayTrace.cast(currentLocation, direction, moveDistance);
 
         // TODO: apply trail particle, add into config to enable/disable?
-        //weapon.trailParticle.spawn(eyeLocation, direction, result, weapon, getWorld());
+        //weapon.trailParticle.spawn(currentLocation, direction, moveDistance, weapon, getWorld());
 
-        // No hit
-        if (result == null) {
-            setRawLocation(newLocation);
-            addDistanceTravelled(motionLength);
-            return hasTraveledMaxDistance();
-        }
+        // No such hit, keep the projectile alive
+        if (result == null) return false;
 
-        // Hit (either entity or block that STOPPED THE BULLET)
-        HitHandler.handleHit(getShooter(), weapon, result, getWorld());
+        // Is such Hit (either entity or block that STOPPED THE BULLET)
+        HitHandler.handleHit(shooter, weapon, result, getWorld());
 
         return true;
     }

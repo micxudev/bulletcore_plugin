@@ -1,21 +1,20 @@
 package org.dredd.bulletcore.models.weapons.shooting.projectile;
 
+import java.util.Objects;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.compatibility.entity.FakeEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.bukkit.util.NumberConversions.square;
-
 public abstract class AProjectile {
 
     // ----------< Static >----------
 
-    private static final int CHECK_FOR_NEW_PLAYER_RATE = 40;
+    private static final int CHECK_FOR_NEW_PLAYER_RATE = 20;
 
     public static final double NOT_USED = -1.0D;
 
@@ -26,32 +25,33 @@ public abstract class AProjectile {
 
     // -----< Attributes >-----
 
-    private final @Nullable Player shooter;
     private final @NotNull World world;
+    private final @NotNull Location currentLocation;
+    private final @NotNull Vector motion;
+    private double motionLength;
+    private double traveledDistance;
+
     private @Nullable FakeEntity disguise;
     private int lastDisguiseUpdateTick;
-    private @NotNull Vector location;
-    private @NotNull Vector motion;
-    private double motionLength;
     private int aliveTicks;
-    private double distanceTravelled;
     private boolean dead;
 
 
     // -----< Construction >-----
 
-    protected AProjectile(@Nullable Player shooter,
-                          @NotNull Location location,
+    protected AProjectile(@NotNull Location location,
                           @NotNull Vector motion) {
-        this.shooter = shooter;
-        this.world = location.getWorld();
-        this.disguise = null;
-        this.lastDisguiseUpdateTick = 0; // with 0 the disguise will NOT be updated after first updatePosition(), is this intended?
-        this.location = location.toVector();
-        this.motion = motion;
+        final World world = location.getWorld();
+        Objects.requireNonNull(world, "World cannot be null");
+        this.world = world;
+        this.currentLocation = location.clone();
+        this.motion = motion.clone();
         this.motionLength = motion.length();
-        this.aliveTicks = 0; // is incremented after updateDisguise()
-        this.distanceTravelled = 0.0D;
+        this.traveledDistance = 0.0D;
+
+        this.disguise = null;
+        this.lastDisguiseUpdateTick = 0;
+        this.aliveTicks = 0;
         this.dead = false;
     }
 
@@ -76,42 +76,15 @@ public abstract class AProjectile {
 
     public int getMaximumAliveTicks() {return 600;}
 
+    public double getMaxDistance() {return 1_000_000.0D;}
+
 
     // -----< Getters >-----
 
-    public final @Nullable Player getShooter() {return shooter;}
-
     public final @NotNull World getWorld() {return world;}
 
-    public @NotNull Vector getLocation() {return location.clone();}
-
     public @NotNull Block getCurrentBlock() {
-        return world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-    }
-
-    public @NotNull Vector getMotion() {return motion.clone();}
-
-    public double getMotionLength() {return motionLength;}
-
-    public @NotNull Vector getNormalizedMotion() {
-        final Vector motion = getMotion();
-        return motionLength == 0.0D
-            ? motion
-            : motion.multiply(1.0D / motionLength);
-    }
-
-    public int getAliveTicks() {return aliveTicks;}
-
-    public double getDistanceTravelled() {return distanceTravelled;}
-
-
-    // -----< Setters >-----
-
-    public void setRawLocation(@NotNull Vector location) {this.location = location;}
-
-    public void setMotion(@NotNull Vector motion) {
-        this.motion = motion;
-        this.motionLength = motion.length();
+        return world.getBlockAt(currentLocation.getBlockX(), currentLocation.getBlockY(), currentLocation.getBlockZ());
     }
 
 
@@ -119,42 +92,80 @@ public abstract class AProjectile {
 
     /** @return true if projectile should be removed */
     public boolean tick() {
+        // 1. Early validity checks
         if (dead) return true;
+        if (aliveTicks >= getMaximumAliveTicks()) return true;
 
-        // Update motion BEFORE updating position, see #339
-        final double gravity = getGravity();
-        if (gravity != NO_GRAVITY) motion.setY(motion.getY() - gravity);
-        motion.multiply(getDrag());
-
-        // Handle collisions, will update location and distance traveled
-        if (updatePosition()) return true;
-
-        // If lived max ticks or is out of world in Y direction, remove
+        final Location location = currentLocation;
+        final World world = this.world;
         final double locationY = location.getY();
-        if (aliveTicks >= getMaximumAliveTicks() ||
-            locationY < world.getMinHeight() || locationY > world.getMaxHeight()) {
-            return true;
+        if (locationY < world.getMinHeight() || locationY > world.getMaxHeight()) return true;
+        if (!location.isChunkLoaded()) return true;
+
+        // 2. Update motion (gravity + drag)
+        final double gravity = getGravity();
+        final Vector velocity = motion;
+        if (gravity != NO_GRAVITY) velocity.setY(velocity.getY() - gravity);
+        final double drag = getDrag();
+        velocity.multiply(drag); // TODO 0. NOT NOW (change definition + application of drag)
+        this.motionLength *= drag;
+
+        // 3. Check min/max speed
+        final double minSpeed = getMinSpeed();
+        final double maxSpeed = getMaxSpeed();
+        if (minSpeed != NOT_USED && motionLength < minSpeed) {
+            // minSpeed IS used AND current velocity is slower than the minimum
+            if (doRemoveAtMinSpeed()) return true;
+            // increase to the minimum speed
+            // TODO 1. is this correct and optimal to set the minimum speed?
+            velocity.normalize().multiply(minSpeed);
+            this.motionLength = minSpeed;
+        } else if (maxSpeed != NOT_USED && motionLength > maxSpeed) {
+            // maxSpeed IS used AND current velocity is faster than the maximum
+            if (doRemoveAtMaxSpeed()) return true;
+            // decrease to the maximum speed
+            // TODO 2. is this correct and optimal to set the maximum speed?
+            velocity.normalize().multiply(maxSpeed);
+            this.motionLength = maxSpeed;
         }
 
-        // No gravity and no motion -> update using teleport packet (why?)
-        if (gravity == NO_GRAVITY && motionLength < Vector.getEpsilon()) {
-            motionLength = 0;
+        // 4. Check if there is still motion
+        if (motionLength < Vector.getEpsilon()) {
+            velocity.zero();
+            this.motionLength = 0.0D;
             updateDisguise(true);
             aliveTicks++;
             return false;
         }
 
-        motionLength = motion.length();
+        // 5. Compute move distance, clamped by maximum remaining range
+        final double maxDistance = getMaxDistance();
+        final double remainingDistance = maxDistance - traveledDistance;
+        final double moveDistance = Math.min(motionLength, remainingDistance);
 
-        final double minSpeed = getMinSpeed();
-        final double maxSpeed = getMaxSpeed();
-        if (minSpeed != NOT_USED && motionLength < minSpeed) {
-            if (doRemoveAtMinSpeed()) return true;
-            setMotion(getNormalizedMotion().multiply(minSpeed));
-        } else if (maxSpeed != NOT_USED && motionLength > maxSpeed) {
-            if (doRemoveAtMaxSpeed()) return true;
-            setMotion(getNormalizedMotion().multiply(maxSpeed));
+        // 6. Ray trace for collision detection
+        if (handleCollisions(location, velocity, moveDistance)) return true;
+
+        // 7. Update traveled distance
+        this.traveledDistance += moveDistance;
+        if (traveledDistance >= maxDistance) {
+            // ...
+            // if we are here it means we most probably
+            // did not move by moveDistance, so the
+            // final location should be calculated...
+            // and then 'updateDisguise(false)' can be called to notify the disguise update
+            // but right after that we return true and this
+            // disguise will be removed.
+            // Do we even have to do this?
+            // ...
+            return true;
         }
+
+        // TODO 4. Since we get here distanceTravelled < maxDistance -> position can be updated fully by motion, right???
+
+        // 8. Update position
+        location.add(velocity);
+        location.setDirection(velocity);
 
         updateDisguise(false);
         aliveTicks++;
@@ -181,34 +192,18 @@ public abstract class AProjectile {
         // Show for new players in range
         if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
 
-        if (motionLength == 0.0D) {
-            disguise.setPosition(location.getX(), location.getY(), location.getZ(), disguise.getYaw(), disguise.getPitch(), useTeleport);
-        } else {
-            final Vector normalizedMotion = getNormalizedMotion();
-            disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), useTeleport);
-        }
+        final Location l = currentLocation;
+        disguise.setPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(), useTeleport);
 
-        lastDisguiseUpdateTick = aliveTicks;
-    }
-
-    private float calculateYaw(@NotNull Vector normalizedMotion) {
-        return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + Math.TAU) % Math.TAU);
-    }
-
-    private float calculatePitch(@NotNull Vector normalizedMotion) {
-        final double horizontalDistance = Math.sqrt(square(normalizedMotion.getX()) + square(normalizedMotion.getZ()));
-        return (float) Math.toDegrees(Math.atan(-normalizedMotion.getY() / horizontalDistance));
+        this.lastDisguiseUpdateTick = aliveTicks;
     }
 
     /**
-     * Must update the projectile's position/velocity, handle physical interactions
-     * during that movement and update {@link #distanceTravelled} using {@link #addDistanceTravelled}.
-     *
-     * @return true if projectile should be removed
+     * @return {@code true} if projectile collided so that it should be removed, {@code false} to keep it alive.
      */
-    public abstract boolean updatePosition();
-
-    public final void addDistanceTravelled(double amount) {this.distanceTravelled += amount;}
+    public abstract boolean handleCollisions(@NotNull Location currentLocation,
+                                             @NotNull Vector direction,
+                                             double moveDistance);
 
     /**
      * Marks projectile for removal and will be removed on this or next tick.
