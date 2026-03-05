@@ -57,10 +57,6 @@ public final class ProjectileFactory {
             ? FakeEntityFactory.create(disguiseType, spawnLocation, settings.disguiseData)
             : null;
 
-        final WeaponProjectile projectile = new WeaponProjectile(weapon, shooter, spawnLocation, motion);
-
-        projectile.spawnDisguise(disguise);
-
-        return projectile;
+        return new WeaponProjectile(weapon, shooter, spawnLocation, motion, disguise);
     }
 }

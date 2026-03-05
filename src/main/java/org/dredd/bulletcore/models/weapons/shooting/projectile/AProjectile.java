@@ -25,13 +25,13 @@ public abstract class AProjectile {
 
     // -----< Attributes >-----
 
-    private final @NotNull World world;
-    private final @NotNull Location currentLocation;
-    private final @NotNull Vector motion;
+    private final World world;
+    private final Location currentLocation;
+    private final Vector motion;
     private double motionLength;
     private double traveledDistance;
 
-    private @Nullable FakeEntity disguise;
+    private final @Nullable FakeEntity disguise;
     private int lastDisguiseUpdateTick;
     private int aliveTicks;
     private boolean dead;
@@ -40,7 +40,8 @@ public abstract class AProjectile {
     // -----< Construction >-----
 
     protected AProjectile(@NotNull Location location,
-                          @NotNull Vector motion) {
+                          @NotNull Vector motion,
+                          @Nullable FakeEntity disguise) {
         final World world = location.getWorld();
         Objects.requireNonNull(world, "World cannot be null");
         this.world = world;
@@ -49,8 +50,8 @@ public abstract class AProjectile {
         this.motionLength = motion.length();
         this.traveledDistance = 0.0D;
 
-        this.disguise = null;
-        this.lastDisguiseUpdateTick = 0;
+        this.disguise = disguise;
+        this.lastDisguiseUpdateTick = -1;
         this.aliveTicks = 0;
         this.dead = false;
     }
@@ -83,9 +84,7 @@ public abstract class AProjectile {
 
     public final @NotNull World getWorld() {return world;}
 
-    public @NotNull Block getCurrentBlock() {
-        return world.getBlockAt(currentLocation.getBlockX(), currentLocation.getBlockY(), currentLocation.getBlockZ());
-    }
+    public @NotNull Block getCurrentBlock() {return currentLocation.getBlock();}
 
 
     // -----< Behavior >-----
@@ -173,24 +172,20 @@ public abstract class AProjectile {
     }
 
     /**
-     * Spawn or ignore if this projectile already spawned a disguise.
-     */
-    public final void spawnDisguise(@Nullable FakeEntity fakeEntity) {
-        if (fakeEntity == null || disguise != null) return;
-        this.disguise = fakeEntity;
-        fakeEntity.show();
-    }
-
-    /**
      * Must not be called multiple times on the same tick.
      *
      * @param useTeleport true to use teleport packet
      */
     protected void updateDisguise(boolean useTeleport) {
-        if (disguise == null || lastDisguiseUpdateTick == aliveTicks) return;
+        final FakeEntity disguise = this.disguise;
+        if (disguise == null) return;
+
+        final int aliveTicks = this.aliveTicks;
+        if (aliveTicks == lastDisguiseUpdateTick) return;
 
         // Show for new players in range
-        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
+        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0)
+            disguise.show();
 
         final Location l = currentLocation;
         disguise.setPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(), useTeleport);

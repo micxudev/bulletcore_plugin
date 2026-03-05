@@ -4,9 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.dredd.bulletcore.compatibility.entity.FakeEntity;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.dredd.bulletcore.models.weapons.damage.HitHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class WeaponProjectile extends AProjectile {
 
@@ -14,10 +16,10 @@ public class WeaponProjectile extends AProjectile {
 
     // -----< Attributes >-----
 
-    private final @NotNull Weapon weapon;
-    private final @NotNull Player shooter;
-    private final @NotNull ProjectileSettings settings;
-    private final @NotNull ProjectileRayTracer rayTrace;
+    private final Weapon weapon;
+    private final Player shooter;
+    private final ProjectileSettings settings;
+    private final ProjectileRayTracer rayTrace;
 
 
     // -----< Construction >-----
@@ -25,8 +27,9 @@ public class WeaponProjectile extends AProjectile {
     public WeaponProjectile(@NotNull Weapon weapon,
                             @NotNull Player shooter,
                             @NotNull Location location,
-                            @NotNull Vector motion) {
-        super(location, motion);
+                            @NotNull Vector motion,
+                            @Nullable FakeEntity disguise) {
+        super(location, motion, disguise);
 
         this.weapon = weapon;
         this.shooter = shooter;
