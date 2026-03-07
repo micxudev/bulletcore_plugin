@@ -132,7 +132,7 @@ public abstract class AProjectile {
         if (motionLength < Vector.getEpsilon()) {
             velocity.zero();
             this.motionLength = 0.0D;
-            updateDisguise(true);
+            updateDisguise();
             aliveTicks++;
             return false;
         }
@@ -166,17 +166,15 @@ public abstract class AProjectile {
         location.add(velocity);
         location.setDirection(velocity);
 
-        updateDisguise(false);
+        updateDisguise();
         aliveTicks++;
         return false;
     }
 
     /**
      * Must not be called multiple times on the same tick.
-     *
-     * @param useTeleport true to use teleport packet
      */
-    protected void updateDisguise(boolean useTeleport) {
+    protected void updateDisguise() {
         final FakeEntity disguise = this.disguise;
         if (disguise == null) return;
 
@@ -188,7 +186,7 @@ public abstract class AProjectile {
             disguise.show();
 
         final Location l = currentLocation;
-        disguise.setPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(), useTeleport);
+        disguise.setPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 
         this.lastDisguiseUpdateTick = aliveTicks;
     }
@@ -207,7 +205,7 @@ public abstract class AProjectile {
         if (dead) return;
         this.dead = true;
 
-        updateDisguise(true);
+        updateDisguise();
 
         if (disguise != null) disguise.remove();
     }

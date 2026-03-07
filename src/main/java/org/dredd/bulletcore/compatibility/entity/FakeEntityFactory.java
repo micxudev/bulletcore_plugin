@@ -30,9 +30,7 @@ public final class FakeEntityFactory {
      * <b>Current support:</b> {@code 1.21.1} (implemented by {@link FakeEntity_1_21_1}).
      *
      * @param type           the {@link EntityType} to emulate
-     * @param entityLocation the initial spawn location of the fake entity;
-     *                       the provided {@link Location} instance may be
-     *                       modified internally (e.g., to apply visual offsets)
+     * @param entityLocation the initial spawn location of the fake entity
      * @param disguiseData   optional additional data required by certain entity
      *                       types; depending on {@code type}, this may be:
      *                       <ul>
@@ -42,12 +40,12 @@ public final class FakeEntityFactory {
      *                       </ul>
      *
      * @return a newly constructed {@link FakeEntity} instance that is not yet
-     *         visible to any players and must be explicitly spawned/shown
-     *         through its API
+     *         visible to any players and must be explicitly shown through its API
      */
-    public static FakeEntity create(@NotNull EntityType type,
-                                    @NotNull Location entityLocation,
-                                    @Nullable Object disguiseData) {
+    public static @Nullable FakeEntity create(@Nullable EntityType type,
+                                              @NotNull Location entityLocation,
+                                              @Nullable Object disguiseData) {
+        if (type == null) return null;
         return new FakeEntity_1_21_1(type, entityLocation, disguiseData);
     }
 }

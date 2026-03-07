@@ -5,17 +5,11 @@ import java.util.Objects;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static org.bukkit.util.NumberConversions.square;
 
 /**
  * Defines a packet based {@link org.bukkit.entity.Entity} with no server functions. Faked entities
  * are not ticked, rendered, moved, or in any other way "handled" by the server.
- *
  * <p>
  * Fake entities are usually used for visual effects, since faked entities can control appearances
  * per player. After changing a visual effect (metadata + display name + gravity + etc), a metadata
@@ -27,27 +21,25 @@ public abstract class FakeEntity {
 
     protected final @NotNull EntityType type;
     protected final @NotNull Location location;
-    protected final @Nullable Location offset;
 
 
-    // -----< Constructor >-----
+    // -----< Construction >-----
 
     public FakeEntity(@NotNull EntityType type, World world) {
         Objects.requireNonNull(world, "World cannot be null");
         this.type = type;
         this.location = new Location(world, 0, 0, 0);
-        this.offset = type != EntityType.ARMOR_STAND ? null : new Location(location.getWorld(), 0, -1.67875, 0);
     }
 
 
     // -----< Entity Meta >-----
 
-    protected abstract boolean getMeta(@NotNull EntityMetaFlag flag);
+    public abstract boolean getMeta(@NotNull EntityMetaFlag flag);
 
-    protected abstract void setMeta(@NotNull EntityMetaFlag flag, boolean enabled);
+    public abstract void setMeta(@NotNull EntityMetaFlag flag, boolean enabled);
 
     /**
-     * Updates the meta for all players that currently see it.<br>
+     * Updates the meta for all players that currently see this entity.<br>
      * This method should be called after any modifications to entity meta.
      */
     public abstract void updateMeta();
@@ -55,9 +47,9 @@ public abstract class FakeEntity {
 
     // -----< Location >-----
 
-    public float getYaw() {return location.getYaw();}
+    public final float getYaw() {return location.getYaw();}
 
-    public float getPitch() {return location.getPitch();}
+    public final float getPitch() {return location.getPitch();}
 
     protected void setLocation(double x, double y, double z, float yaw, float pitch) {
         location.setX(x);
@@ -68,118 +60,40 @@ public abstract class FakeEntity {
     }
 
     /**
-     * Sends an entity rotation packet to all players who can see this entity.
-     * <p>
-     * Implementing classes should set <code>this.location</code> using {@link Location#setYaw(float)}
-     * and {@link Location#setPitch(float)}.
-     *
-     * @param yaw The absolute yaw rotation of the entity.
-     * @param pitch The absolute pitch rotation of the entity.
-     */
-    public abstract void setRotation(float yaw, float pitch);
-
-    /**
-     * Sets position of this entity. When the new location is within 8 blocks, a move-look packet is
-     * sent (using a relative position). Otherwise, a teleport packet is sent (using an absolute
-     * position).
-     *
-     * <p>
-     * If you do not want to change the entity's yaw/pitch, you may use {@link #getYaw()} and
-     * {@link #getPitch()}.
+     * Sets the new position of this entity.
      *
      * @param x The new position on the x-axis.
      * @param y The new position on the y-axis.
      * @param z The new position on the z-axis.
      * @param yaw The yaw to set the entity at.
      * @param pitch The pitch to set the entity at.
-     * @param raw true to always use a teleport packet.
      */
-    public final void setPosition(double x, double y, double z, float yaw, float pitch, boolean raw) {
-        if (offset != null) {
-            x += offset.getX();
-            y += offset.getY();
-            z += offset.getZ();
-            yaw += offset.getYaw();
-            pitch += offset.getPitch();
-        }
-
-        double lengthSquared = raw ? 0.0 : square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
-
-        // When the change of position >8, then we cannot use the move-look
-        // packet since it is limited by the size of a short. When we cannot
-        // use move-look, we use a teleport packet instead.
-        if (raw || lengthSquared == 0.0 || lengthSquared > 64.0) {
-            setLocation(x, y, z, yaw, pitch);
-            setPositionRaw(x, y, z, yaw, pitch);
-        } else {
-            setPositionRotation(x - location.getX(), y - location.getY(), z - location.getZ(), yaw, pitch);
-            setLocation(x, y, z, yaw, pitch);
-        }
-
+    public final void setPosition(double x, double y, double z, float yaw, float pitch) {
+        setLocation(x, y, z, yaw, pitch);
+        sendTeleportPacket(yaw);
         if (type == EntityType.ARMOR_STAND) updateMeta();
     }
 
-    private void setPositionRotation(double dx, double dy, double dz, float yaw, float pitch) {
-        setPositionRotation((short) (dx * 4096), (short) (dy * 4096), (short) (dz * 4096), convertYaw(yaw), convertPitch(pitch));
+    /**
+     * Converts (yaw/pitch) degrees as float into byte<br>
+     * (protocol uses byte for sending yaw/pitch)<br>
+     * (server packs float to byte, client unpacks byte to float back)
+     */
+    protected final byte convertToByte(float degrees) {
+        return (byte) (degrees * 256.0F / 360.0F);
     }
 
     /**
-     * Sends an entity move-look packet to all players who can see this entity. Effectively sets the
-     * relative position of the entity.
-     *
-     * <p>
-     * This method is protected to prevent accidental/improper usage.
-     *
-     * @param dx The change of position across the x-axis.
-     * @param dy The change of position across the y-axis.
-     * @param dz The change of position across the z-axis.
+     * Sends a Teleport Entity Packet to all players who can see this entity.
      * @param yaw The absolute yaw rotation of the entity.
-     * @param pitch The absolute pitch rotation of the entity.
      */
-    protected abstract void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch);
-
-    /**
-     * Sends an entity teleport packet to all players who can see this entity. Effectively sets the
-     * absolute position of the entity.
-     *
-     * <p>
-     * This method is protected to prevent accidental/improper usage.
-     *
-     * @param x The absolute x position of the entity.
-     * @param y The absolute y position of the entity.
-     * @param z The absolute z position of the entity.
-     * @param yaw The absolute yaw rotation of the entity.
-     * @param pitch The absolute pitch rotation of the entity.
-     */
-    protected abstract void setPositionRaw(double x, double y, double z, float yaw, float pitch);
-
-    protected final byte convertPitch(float degrees) {
-        degrees *= 256.0f / 360.0f;
-        if (!type.isAlive()) {
-            return (byte) -degrees;
-        }
-        return (byte) degrees;
-    }
-
-    protected final byte convertYaw(float degrees) {
-        degrees *= 256.0f / 360.0f;
-        return switch (type) {
-            case ARROW -> (byte) -degrees;
-            case WITHER_SKULL, ENDER_DRAGON -> (byte) (degrees - 128.0f);
-            default -> {
-                if (!type.isAlive() && type != EntityType.ARMOR_STAND) {
-                    yield (byte) (degrees - 64.0f);
-                }
-                yield (byte) degrees;
-            }
-        };
-    }
+    protected abstract void sendTeleportPacket(float yaw);
 
 
     // -----< Visibility >-----
 
     /**
-     * Shows this entity to all players within range of the entity.
+     * Shows this entity to all players within the view server distance from the entity's location.
      * <p>
      * Sends an Add Entity Packet and a Set Entity Data Packet.
      */
@@ -188,24 +102,7 @@ public abstract class FakeEntity {
     /**
      * Hides the entity for all players that currently see it.
      * <p>
-     * Sends an Remove Entities Packet.
+     * Sends a Remove Entities Packet.
      */
     public abstract void remove();
-
-
-    // -----< Equipment >-----
-
-    /**
-     * Sets new item to given equipment slot.
-     *
-     * @param equipmentSlot the equipment slot to modify
-     * @param itemStack the item stack set to slot
-     */
-    public abstract void setEquipment(@NotNull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack);
-
-    /**
-     * Updates the equipment for all players that currently see it.<br>
-     * This method should be called after calling {@link #setEquipment(EquipmentSlot, ItemStack)}.
-     */
-    public abstract void updateEquipment();
 }

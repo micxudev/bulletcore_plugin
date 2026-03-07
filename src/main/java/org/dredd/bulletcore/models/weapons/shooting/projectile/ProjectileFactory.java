@@ -1,7 +1,6 @@
 package org.dredd.bulletcore.models.weapons.shooting.projectile;
 
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.dredd.bulletcore.compatibility.entity.FakeEntity;
@@ -48,14 +47,12 @@ public final class ProjectileFactory {
                                               @NotNull Player shooter) {
         final ProjectileSettings settings = weapon.projectileSettings;
 
-        // TODO: Fix: spawnLocation can be mutated by FakeEntity (due to offset used for Armorstand)
         final Location spawnLocation = startLocation.clone();
         final Vector motion = normalizedDirection.clone().multiply(settings.muzzleVelocity);
 
-        final EntityType disguiseType = settings.disguiseType;
-        final FakeEntity disguise = (disguiseType != null)
-            ? FakeEntityFactory.create(disguiseType, spawnLocation, settings.disguiseData)
-            : null;
+        final FakeEntity disguise = FakeEntityFactory.create(
+            settings.disguiseType, spawnLocation, settings.disguiseData
+        );
 
         return new WeaponProjectile(weapon, shooter, spawnLocation, motion, disguise);
     }
