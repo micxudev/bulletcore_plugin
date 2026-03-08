@@ -101,8 +101,8 @@ public final class FakeEntity_1_21_1 extends FakeEntity {
                 final ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data);
                 final var itemDisplay = new Display.ItemDisplay(net.minecraft.world.entity.EntityType.ITEM_DISPLAY, nmsWorld);
                 itemDisplay.setItemStack(item);
-                //itemDisplay.getEntityData().set(Display.DATA_POS_ROT_INTERPOLATION_DURATION_ID, 1);
-                //itemDisplay.setViewRange(5.0F);
+                itemDisplay.getEntityData().set(Display.DATA_POS_ROT_INTERPOLATION_DURATION_ID, 1);
+                itemDisplay.setViewRange(2.0F);
                 yield itemDisplay;
             }
             default -> bukkitWorld.makeEntity(location, type.getEntityClass());
