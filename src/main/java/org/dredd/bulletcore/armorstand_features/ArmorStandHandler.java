@@ -2,7 +2,6 @@ package org.dredd.bulletcore.armorstand_features;
 
 import io.papermc.paper.math.Rotations;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -25,18 +24,18 @@ public final class ArmorStandHandler {
     /**
      * Spawns an invisible, static armor stand with the given head item and rotation.
      *
-     * @param world         the world to spawn in
      * @param spawnLocation the location to place the stand
      * @param headItem      the item to display on the head
      * @param headRotations the head rotation
      * @return the spawned armor stand
      */
-    public static @NotNull ArmorStand spawn(@NotNull World world,
-                                            @NotNull Location spawnLocation,
+    public static @NotNull ArmorStand spawn(@NotNull Location spawnLocation,
                                             @NotNull ItemStack headItem,
                                             @NotNull Rotations headRotations) {
-        return world.spawn(
-            spawnLocation, ArmorStand.class, a -> {
+        return spawnLocation.getWorld().spawn(
+            spawnLocation,
+            ArmorStand.class,
+            a -> {
                 a.setInvisible(true);
                 a.setSmall(true);
                 a.setArms(false);

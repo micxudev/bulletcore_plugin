@@ -3,7 +3,6 @@ package org.dredd.bulletcore.models.weapons;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -93,13 +92,11 @@ public final class BulletTrailParticle {
      * @param direction   the normalized firing direction
      * @param result      the ray-trace result of the shot, or {@code null} if no collision occurred
      * @param weapon      the weapon, used to determine maximum firing range
-     * @param world       the world in which to spawn particles
      */
     public void spawn(@NotNull Location eyeLocation,
                       @NotNull Vector direction,
                       @Nullable RayTraceResult result,
-                      @NotNull Weapon weapon,
-                      @NotNull World world) {
+                      @NotNull Weapon weapon) {
 
         if (step < 0.01D) return;
 
@@ -113,7 +110,7 @@ public final class BulletTrailParticle {
         final Vector stepVec = direction.clone().multiply(step);
 
         for (double traveled = 0.0D; traveled < travelDistance; traveled += step) {
-            ParticleManager.spawnParticle(world, particleLoc, particle);
+            ParticleManager.spawnParticle(particleLoc, particle);
             particleLoc.add(stepVec);
         }
     }

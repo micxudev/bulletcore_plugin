@@ -119,9 +119,9 @@ public final class SoundManager {
 
         if (sound.mode() == SoundPlaybackMode.WORLD) {
             if (hasSeed)
-                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
+                location.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());
             else
-                player.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
+                location.getWorld().playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch());
         } else {
             if (hasSeed)
                 player.playSound(location, sound.sound(), sound.category(), sound.volume(), sound.pitch(), sound.seed());

@@ -86,7 +86,7 @@ public class WeaponProjectile extends AProjectile {
         final RayTraceResult result = rayTrace.cast(currentLocation, direction, moveDistance);
 
         // TODO: apply trail particle, add into config to enable/disable?
-        //weapon.trailParticle.spawn(currentLocation, direction, moveDistance, weapon, getWorld());
+        //weapon.trailParticle.spawn(currentLocation, direction, moveDistance, weapon);
 
         // No such hit, keep the projectile alive
         if (result == null) return false;

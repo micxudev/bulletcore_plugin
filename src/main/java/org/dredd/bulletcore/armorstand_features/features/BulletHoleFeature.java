@@ -6,7 +6,6 @@ import io.papermc.paper.math.Rotations;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -189,13 +188,11 @@ public final class BulletHoleFeature extends ArmorStandFeature {
      * Spawns a bullet hole at the given block hit location.<br>
      * The armor stand's position and rotation are adjusted to match the block face.
      *
-     * @param world        the world to spawn in
      * @param hitLocation  the location where the bullet hit
      * @param hitBlockFace the face of the block that was hit
      * @param hitBlock     the block that was hit
      */
-    public void spawn(@NotNull World world,
-                      @NotNull Location hitLocation,
+    public void spawn(@NotNull Location hitLocation,
                       @NotNull BlockFace hitBlockFace,
                       @NotNull Block hitBlock) {
         if (!enabled) return;
@@ -209,7 +206,7 @@ public final class BulletHoleFeature extends ArmorStandFeature {
             case DOWN -> spawnLoc.add(0, HORIZONTAL_OFFSET, HORIZONTAL_OFFSET);
         }
 
-        final ArmorStand stand = ArmorStandHandler.spawn(world, spawnLoc, item, mapFaceToRotation(hitBlockFace));
+        final ArmorStand stand = ArmorStandHandler.spawn(spawnLoc, item, mapFaceToRotation(hitBlockFace));
         BulletHoleFeature.registerBulletHole(hitBlock, stand, removeAfterTicks);
     }
 

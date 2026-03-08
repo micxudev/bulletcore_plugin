@@ -41,8 +41,6 @@ public final class HitHandler {
      */
     private HitHandler() {}
 
-    // TODO: test when the shooter goes to a different world, leaves the game, etc.
-
     /**
      * Processes the hit result from a ray trace which stopped the bullet/projectile.
      *
@@ -73,15 +71,13 @@ public final class HitHandler {
                 : shooter.getEyeLocation();
 
             SoundManager.playSound(shooter, soundLocation, sound);
-            ParticleManager.spawnParticle(world, hitLocation, config.entityHitParticle);
+            ParticleManager.spawnParticle(hitLocation, config.entityHitParticle);
         } else if (result.getHitBlock() != null) {
             // Block hit
 
             SoundManager.playSound(shooter, hitLocation, config.blockHitSound);
-            ParticleManager.spawnParticle(world, hitLocation, config.blockHitParticle);
-            config.asFeatureManager.bulletHole.spawn(
-                world, hitLocation, result.getHitBlockFace(), result.getHitBlock()
-            );
+            ParticleManager.spawnParticle(hitLocation, config.blockHitParticle);
+            config.asFeatureManager.bulletHole.spawn(hitLocation, result.getHitBlockFace(), result.getHitBlock());
         }
     }
 
