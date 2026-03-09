@@ -20,6 +20,7 @@ public class WeaponProjectile extends AProjectile {
     private final Player shooter;
     private final ProjectileSettings settings;
     private final ProjectileRayTracer rayTrace;
+    private final ProjectileTrailState trailState;
 
 
     // -----< Construction >-----
@@ -35,6 +36,7 @@ public class WeaponProjectile extends AProjectile {
         this.shooter = shooter;
         this.settings = weapon.projectileSettings;
         this.rayTrace = new ProjectileRayTracer(weapon, shooter, getWorld());
+        this.trailState = new ProjectileTrailState(weapon.trailParticle);
     }
 
 
@@ -85,8 +87,7 @@ public class WeaponProjectile extends AProjectile {
         // Check if there is a collision that the bullet will not survive
         final RayTraceResult result = rayTrace.cast(currentLocation, direction, moveDistance);
 
-        // TODO: apply trail particle, add into config to enable/disable?
-        //weapon.trailParticle.spawn(currentLocation, direction, moveDistance, weapon);
+        trailState.spawn(currentLocation, direction, result, moveDistance);
 
         // No such hit, keep the projectile alive
         if (result == null) return false;

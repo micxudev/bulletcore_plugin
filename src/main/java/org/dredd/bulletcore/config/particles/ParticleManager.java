@@ -8,6 +8,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -214,5 +215,20 @@ public final class ParticleManager {
                                      @NotNull ConfiguredParticle particle) {
         if (particle.count() > 0)
             location.getWorld().spawnParticle(particle.particle(), location, particle.count(), particle.data());
+    }
+
+    /**
+     * Spawns the given {@link ConfiguredParticle} at the specified coordinates in the world.
+     *
+     * @param world    the world where the particle should appear
+     * @param particle the configured particle to spawn
+     */
+    public static void spawnParticle(@NotNull World world,
+                                     @NotNull ConfiguredParticle particle,
+                                     double x,
+                                     double y,
+                                     double z) {
+        if (particle.count() > 0)
+            world.spawnParticle(particle.particle(), x, y, z, particle.count(), particle.data());
     }
 }
