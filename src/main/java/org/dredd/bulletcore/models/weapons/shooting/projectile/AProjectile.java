@@ -18,8 +18,6 @@ public abstract class AProjectile {
 
     public static final double NOT_USED = -1.0D;
 
-    public static final double NO_GRAVITY = 0.0D;
-
 
     // ----------< Instance >----------
 
@@ -77,9 +75,9 @@ public abstract class AProjectile {
 
     // -----< Getters >-----
 
-    public final @NotNull World getWorld() {return world;}
+    protected final @NotNull World getWorld() {return world;}
 
-    public final @NotNull Block getCurrentBlock() {return location.getBlock();}
+    protected final @NotNull Block getCurrentBlock() {return location.getBlock();}
 
 
     // -----< Behavior >-----
@@ -102,12 +100,8 @@ public abstract class AProjectile {
 
         // 2. Update velocity (gravity + drag)
         final Vector velocity = this.velocity;
-        final double gravity = getGravity();
-        if (gravity != NO_GRAVITY) {
-            velocity.setY(velocity.getY() - gravity);
-        }
-        final double drag = getDrag();
-        velocity.multiply(drag);
+        velocity.setY(velocity.getY() - getGravity());
+        velocity.multiply(getDrag());
 
         double velocityLength = velocity.length();
 
