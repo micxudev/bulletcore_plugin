@@ -74,11 +74,6 @@ public class Weapon extends CustomBase {
     public final ReloadHandler reloadHandler;
 
     /**
-     * Maximum distance a bullet can travel before it is discarded.
-     */
-    public final double maxDistance;
-
-    /**
      * This number of milliseconds must elapse before the next shot is available.
      */
     public final long delayBetweenShots;
@@ -201,7 +196,6 @@ public class Weapon extends CustomBase {
         if (reloadHandler == null)
             throw new ItemLoadException("Invalid 'reloadHandler' name: " + reloadHandlerName);
 
-        this.maxDistance = Math.clamp(config.getDouble("maxDistance", 64.0D), 1.0D, 300.0D);
         this.delayBetweenShots = Math.clamp(config.getLong("delayBetweenShots", 500L), 50L, Long.MAX_VALUE);
         this.ticksDelayBetweenShots = Math.max(1L, delayBetweenShots / 50L);
         this.lastTriggerPulls = new Object2LongOpenHashMap<>();
@@ -225,7 +219,7 @@ public class Weapon extends CustomBase {
 
         super.lore.add(0, Component.empty()); // Bullets will be here on ItemStack creation
         super.lore.add(1, LORE_WEAPON_DAMAGE.toTranslatable(formatDoubles(damage.head(), damage.body(), damage.legs(), damage.feet(), damage.shield())));
-        super.lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(maxDistance)));
+        super.lore.add(2, LORE_WEAPON_DISTANCE.toTranslatable(formatDouble(projectileSettings.maxDistance)));
         super.lore.add(3, LORE_WEAPON_AMMO.toTranslatable(ammo.displayNameString));
     }
 

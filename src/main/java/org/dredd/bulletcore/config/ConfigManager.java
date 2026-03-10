@@ -69,13 +69,9 @@ public final class ConfigManager {
 
     // -----< Attributes >-----
 
-    private final BulletCore plugin;
-
     public final Locale locale;
 
     public final boolean enableHotbarMessages;
-
-    public final double raySize;
 
     public final long fireResumeThreshold;
 
@@ -100,13 +96,9 @@ public final class ConfigManager {
         plugin.reloadConfig();
         final FileConfiguration cfg = plugin.getConfig();
 
-        this.plugin = plugin;
-
         this.locale = Locale.forLanguageTag(cfg.getString("locale", "en-US"));
 
         this.enableHotbarMessages = cfg.getBoolean("enable-hotbar-messages", true);
-
-        this.raySize = cfg.getDouble("ray-size", 0.1);
 
         this.fireResumeThreshold = Math.clamp(cfg.getLong("fire-resume-threshold", 1000L), -1L, Long.MAX_VALUE);
 
