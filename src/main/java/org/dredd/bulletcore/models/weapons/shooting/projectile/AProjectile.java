@@ -14,7 +14,7 @@ public abstract class AProjectile {
 
     // ----------< Static >----------
 
-    private static final int CHECK_FOR_NEW_PLAYER_RATE = 20;
+    private static final int SHOW_DISGUISE_FOR_NEW_PLAYERS_RATE = 20;
 
     public static final double NOT_USED = -1.0D;
 
@@ -26,13 +26,13 @@ public abstract class AProjectile {
     // -----< Attributes >-----
 
     private final World world;
-    private final Location currentLocation;
-    private final Vector motion;
-    private double motionLength;
+    private final Location location;
+    private final Vector velocity;
+    private double velocityLength;
     private double traveledDistance;
 
     private final @Nullable FakeEntity disguise;
-    private int lastDisguiseUpdateTick;
+    private int disguiseLastUpdateTick;
     private int aliveTicks;
     private boolean removed;
 
@@ -40,51 +40,47 @@ public abstract class AProjectile {
     // -----< Construction >-----
 
     protected AProjectile(@NotNull Location location,
-                          @NotNull Vector motion,
+                          @NotNull Vector velocity,
                           @Nullable FakeEntity disguise) {
         final World world = location.getWorld();
         Objects.requireNonNull(world, "World cannot be null");
         this.world = world;
-        this.currentLocation = location.clone();
-        this.motion = motion.clone();
-        this.motionLength = motion.length();
-        this.traveledDistance = 0.0D;
+        this.location = location.clone();
+        this.velocity = velocity.clone();
 
         this.disguise = disguise;
-        this.lastDisguiseUpdateTick = -1;
-        this.aliveTicks = 0;
-        this.removed = false;
+        this.disguiseLastUpdateTick = -1;
     }
 
 
     // -----< Settings >-----
 
-    public double getGravity() {return 0.05D;}
+    protected double getGravity() {return 0.05D;}
 
-    public double getMinSpeed() {return NOT_USED;}
+    protected double getMinSpeed() {return NOT_USED;}
 
-    public boolean doRemoveAtMinSpeed() {return false;}
+    protected boolean doRemoveAtMinSpeed() {return false;}
 
-    public double getMaxSpeed() {return NOT_USED;}
+    protected double getMaxSpeed() {return NOT_USED;}
 
-    public boolean doRemoveAtMaxSpeed() {return false;}
+    protected boolean doRemoveAtMaxSpeed() {return false;}
 
-    public double getDrag() {
+    protected double getDrag() {
         if (getCurrentBlock().isLiquid()) return 0.96D;
         if (world.isThundering() || world.hasStorm()) return 0.98D;
         return 0.99D;
     }
 
-    public int getMaximumAliveTicks() {return 600;}
+    protected int getMaximumAliveTicks() {return 600;}
 
-    public double getMaxDistance() {return 1_000_000.0D;}
+    protected double getMaxDistance() {return 1_000.0D;}
 
 
     // -----< Getters >-----
 
     public final @NotNull World getWorld() {return world;}
 
-    public @NotNull Block getCurrentBlock() {return currentLocation.getBlock();}
+    public final @NotNull Block getCurrentBlock() {return location.getBlock();}
 
 
     // -----< Behavior >-----
@@ -99,43 +95,46 @@ public abstract class AProjectile {
         if (removed) return true;
         if (aliveTicks >= getMaximumAliveTicks()) return true;
 
-        final Location location = currentLocation;
+        final Location location = this.location;
         final World world = this.world;
         final double locationY = location.getY();
         if (locationY < world.getMinHeight() || locationY > world.getMaxHeight()) return true;
         if (!location.isChunkLoaded()) return true;
 
-        // 2. Update motion (gravity + drag)
+        // 2. Update velocity (gravity + drag)
+        final Vector velocity = this.velocity;
         final double gravity = getGravity();
-        final Vector velocity = motion;
-        if (gravity != NO_GRAVITY) velocity.setY(velocity.getY() - gravity);
+        if (gravity != NO_GRAVITY) {
+            velocity.setY(velocity.getY() - gravity);
+        }
         final double drag = getDrag();
         velocity.multiply(drag); // TODO 0. NOT NOW (change definition + application of drag)
-        this.motionLength *= drag;
+
+        this.velocityLength = velocity.length();
 
         // 3. Check min/max speed
         final double minSpeed = getMinSpeed();
         final double maxSpeed = getMaxSpeed();
-        if (minSpeed != NOT_USED && motionLength < minSpeed) {
+        if (minSpeed != NOT_USED && velocityLength < minSpeed) {
             // minSpeed IS used AND current velocity is slower than the minimum
             if (doRemoveAtMinSpeed()) return true;
             // increase to the minimum speed
             // TODO 1. is this correct and optimal to set the minimum speed?
             velocity.normalize().multiply(minSpeed);
-            this.motionLength = minSpeed;
-        } else if (maxSpeed != NOT_USED && motionLength > maxSpeed) {
+            this.velocityLength = minSpeed;
+        } else if (maxSpeed != NOT_USED && velocityLength > maxSpeed) {
             // maxSpeed IS used AND current velocity is faster than the maximum
             if (doRemoveAtMaxSpeed()) return true;
             // decrease to the maximum speed
             // TODO 2. is this correct and optimal to set the maximum speed?
             velocity.normalize().multiply(maxSpeed);
-            this.motionLength = maxSpeed;
+            this.velocityLength = maxSpeed;
         }
 
-        // 4. Check if there is still motion
-        if (motionLength < 1.0E-6) {
+        // 4. Check if there is still velocity
+        if (velocityLength < 1.0E-6) {
             velocity.zero();
-            this.motionLength = 0.0D;
+            this.velocityLength = 0.0D;
             updateDisguise();
             aliveTicks++;
             return false;
@@ -144,7 +143,7 @@ public abstract class AProjectile {
         // 5. Compute move distance, clamped by maximum remaining range
         final double maxDistance = getMaxDistance();
         final double remainingDistance = maxDistance - traveledDistance;
-        final double moveDistance = Math.min(motionLength, remainingDistance);
+        final double moveDistance = Math.min(velocityLength, remainingDistance);
 
         // 6. Ray trace for collision detection
         if (handleCollisions(location, velocity, moveDistance)) return true;
@@ -164,7 +163,8 @@ public abstract class AProjectile {
             return true;
         }
 
-        // TODO 4. Since we get here distanceTravelled < maxDistance -> position can be updated fully by motion, right???
+        // TODO 4. Since we get here distanceTravelled < maxDistance
+        // -> position can be updated fully by the velocity, right???
 
         // 8. Update position
         location.add(velocity);
@@ -183,16 +183,15 @@ public abstract class AProjectile {
         if (disguise == null) return;
 
         final int aliveTicks = this.aliveTicks;
-        if (aliveTicks == lastDisguiseUpdateTick) return;
+        if (aliveTicks == disguiseLastUpdateTick) return;
 
-        // Show for new players in range
-        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0)
+        if (aliveTicks % SHOW_DISGUISE_FOR_NEW_PLAYERS_RATE == 0)
             disguise.show();
 
-        final Location l = currentLocation;
+        final Location l = location;
         disguise.setPosition(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 
-        this.lastDisguiseUpdateTick = aliveTicks;
+        this.disguiseLastUpdateTick = aliveTicks;
     }
 
     /**
@@ -203,9 +202,9 @@ public abstract class AProjectile {
      * @param moveDistance the distance that the projectile is able to move this tick
      * @return {@code true} if projectile collided so that it should be removed, {@code false} to keep it alive
      */
-    public abstract boolean handleCollisions(@NotNull Location location,
-                                             @NotNull Vector velocity,
-                                             double moveDistance);
+    protected abstract boolean handleCollisions(@NotNull Location location,
+                                                @NotNull Vector velocity,
+                                                double moveDistance);
 
     /**
      * Marks the projectile as removed and removes the disguise entity if it exists.
@@ -214,6 +213,7 @@ public abstract class AProjectile {
         if (removed) return;
         this.removed = true;
 
+        final FakeEntity disguise = this.disguise;
         if (disguise != null) disguise.remove();
     }
 }

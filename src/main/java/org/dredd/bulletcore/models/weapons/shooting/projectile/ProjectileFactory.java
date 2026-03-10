@@ -28,7 +28,7 @@ public final class ProjectileFactory {
      * Instead, defensive copies are created to ensure the original objects are not modified.
      * <p>
      * The direction vector is expected to be normalized. It is multiplied by the
-     * weapon's configured muzzle velocity to compute the projectile's initial motion.
+     * weapon's configured muzzle velocity to compute the projectile's initial velocity.
      * <p>
      * If the weapon defines a disguise type in its {@link ProjectileSettings},
      * a corresponding {@link FakeEntity} is created and attached to the projectile.
@@ -48,12 +48,12 @@ public final class ProjectileFactory {
         final ProjectileSettings settings = weapon.projectileSettings;
 
         final Location spawnLocation = startLocation.clone();
-        final Vector motion = normalizedDirection.clone().multiply(settings.muzzleVelocity);
+        final Vector velocity = normalizedDirection.clone().multiply(settings.muzzleVelocity);
 
         final FakeEntity disguise = FakeEntityFactory.create(
             settings.disguiseType, spawnLocation, settings.disguiseData
         );
 
-        return new WeaponProjectile(weapon, shooter, spawnLocation, motion, disguise);
+        return new WeaponProjectile(weapon, shooter, spawnLocation, velocity, disguise);
     }
 }

@@ -12,14 +12,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class WeaponProjectile extends AProjectile {
 
-    // ----------< Instance >----------
-
     // -----< Attributes >-----
 
     private final Weapon weapon;
     private final Player shooter;
     private final ProjectileSettings settings;
-    private final ProjectileRayTracer rayTrace;
+    private final ProjectileRayTracer rayTracer;
     private final ProjectileTrailState trailState;
 
 
@@ -28,14 +26,14 @@ public class WeaponProjectile extends AProjectile {
     public WeaponProjectile(@NotNull Weapon weapon,
                             @NotNull Player shooter,
                             @NotNull Location location,
-                            @NotNull Vector motion,
+                            @NotNull Vector velocity,
                             @Nullable FakeEntity disguise) {
-        super(location, motion, disguise);
+        super(location, velocity, disguise);
 
         this.weapon = weapon;
         this.shooter = shooter;
         this.settings = weapon.projectileSettings;
-        this.rayTrace = new ProjectileRayTracer(weapon, shooter, getWorld());
+        this.rayTracer = new ProjectileRayTracer(weapon, shooter, getWorld());
         this.trailState = new ProjectileTrailState(weapon.trailParticle);
     }
 
@@ -43,22 +41,22 @@ public class WeaponProjectile extends AProjectile {
     // -----< Settings Override >-----
 
     @Override
-    public double getGravity() {return settings.gravity;}
+    protected double getGravity() {return settings.gravity;}
 
     @Override
-    public double getMinSpeed() {return settings.minSpeed;}
+    protected double getMinSpeed() {return settings.minSpeed;}
 
     @Override
-    public boolean doRemoveAtMinSpeed() {return settings.removeAtMinSpeed;}
+    protected boolean doRemoveAtMinSpeed() {return settings.removeAtMinSpeed;}
 
     @Override
-    public double getMaxSpeed() {return settings.maxSpeed;}
+    protected double getMaxSpeed() {return settings.maxSpeed;}
 
     @Override
-    public boolean doRemoveAtMaxSpeed() {return settings.removeAtMaxSpeed;}
+    protected boolean doRemoveAtMaxSpeed() {return settings.removeAtMaxSpeed;}
 
     @Override
-    public double getDrag() {
+    protected double getDrag() {
         if (getCurrentBlock().isLiquid())
             return settings.decreaseInWater;
 
@@ -69,10 +67,10 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public int getMaximumAliveTicks() {return settings.maxAliveTicks;}
+    protected int getMaximumAliveTicks() {return settings.maxAliveTicks;}
 
     @Override
-    public double getMaxDistance() {
+    protected double getMaxDistance() {
         final double max = settings.maxDistance;
         return (max == NOT_USED) ? super.getMaxDistance() : max;
     }
@@ -81,18 +79,15 @@ public class WeaponProjectile extends AProjectile {
     // -----< Behavior >-----
 
     @Override
-    public boolean handleCollisions(@NotNull Location location,
-                                    @NotNull Vector velocity,
-                                    double moveDistance) {
-        // Check if there is a collision that the bullet will not survive
-        final RayTraceResult result = rayTrace.cast(location, velocity, moveDistance);
+    protected boolean handleCollisions(@NotNull Location location,
+                                       @NotNull Vector velocity,
+                                       double moveDistance) {
+        final RayTraceResult result = rayTracer.cast(location, velocity, moveDistance);
 
         trailState.spawn(location, velocity, result, moveDistance);
 
-        // No such hit, keep the projectile alive
         if (result == null) return false;
 
-        // Is such Hit (either entity or block that STOPPED THE BULLET)
         HitHandler.handleHit(shooter, weapon, result, getWorld());
 
         return true;
