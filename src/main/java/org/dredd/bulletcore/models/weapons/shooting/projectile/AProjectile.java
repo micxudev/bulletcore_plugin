@@ -28,7 +28,6 @@ public abstract class AProjectile {
     private final World world;
     private final Location location;
     private final Vector velocity;
-    private double velocityLength;
     private double traveledDistance;
 
     private final @Nullable FakeEntity disguise;
@@ -108,33 +107,31 @@ public abstract class AProjectile {
             velocity.setY(velocity.getY() - gravity);
         }
         final double drag = getDrag();
-        velocity.multiply(drag); // TODO 0. NOT NOW (change definition + application of drag)
+        velocity.multiply(drag);
 
-        this.velocityLength = velocity.length();
+        double velocityLength = velocity.length();
 
         // 3. Check min/max speed
         final double minSpeed = getMinSpeed();
         final double maxSpeed = getMaxSpeed();
+        double targetSpeed = velocityLength;
+
         if (minSpeed != NOT_USED && velocityLength < minSpeed) {
-            // minSpeed IS used AND current velocity is slower than the minimum
             if (doRemoveAtMinSpeed()) return true;
-            // increase to the minimum speed
-            // TODO 1. is this correct and optimal to set the minimum speed?
-            velocity.normalize().multiply(minSpeed);
-            this.velocityLength = minSpeed;
+            targetSpeed = minSpeed;
         } else if (maxSpeed != NOT_USED && velocityLength > maxSpeed) {
-            // maxSpeed IS used AND current velocity is faster than the maximum
             if (doRemoveAtMaxSpeed()) return true;
-            // decrease to the maximum speed
-            // TODO 2. is this correct and optimal to set the maximum speed?
-            velocity.normalize().multiply(maxSpeed);
-            this.velocityLength = maxSpeed;
+            targetSpeed = maxSpeed;
+        }
+
+        if (targetSpeed != velocityLength) {
+            velocity.multiply(targetSpeed / velocityLength);
+            velocityLength = targetSpeed;
         }
 
         // 4. Check if there is still velocity
         if (velocityLength < 1.0E-6) {
             velocity.zero();
-            this.velocityLength = 0.0D;
             updateDisguise();
             aliveTicks++;
             return false;
@@ -151,24 +148,19 @@ public abstract class AProjectile {
         // 7. Update traveled distance
         this.traveledDistance += moveDistance;
         if (traveledDistance >= maxDistance) {
-            // ...
-            // if we are here it means we most probably
-            // did not move by moveDistance, so the
-            // final location should be calculated...
-            // and then 'updateDisguise(false)' can be called to notify the disguise update
-            // but right after that we return true and this
-            // disguise will be removed.
-            // Do we even have to do this?
-            // ...
+            // no real benefit to update the final location
+            // (the projectile will be removed immediately)
             return true;
         }
 
-        // TODO 4. Since we get here distanceTravelled < maxDistance
-        // -> position can be updated fully by the velocity, right???
-
         // 8. Update position
         location.add(velocity);
-        location.setDirection(velocity);
+        if (disguise != null) {
+            // updates yaw and pitch
+            // (only useful for disguise)
+            // (no disguise => no update)
+            location.setDirection(velocity);
+        }
 
         updateDisguise();
         aliveTicks++;
