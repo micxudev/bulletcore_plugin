@@ -213,8 +213,23 @@ public final class ParticleManager {
      */
     public static void spawnParticle(@NotNull Location location,
                                      @NotNull ConfiguredParticle particle) {
-        if (particle.count() > 0)
-            location.getWorld().spawnParticle(particle.particle(), location, particle.count(), particle.data());
+        if (particle.count() <= 0) return;
+
+        location.getWorld().spawnParticle(
+            particle.particle(),
+            null,
+            null,
+            location.getX(),
+            location.getY(),
+            location.getZ(),
+            particle.count(),
+            0.0D,
+            0.0D,
+            0.0D,
+            1.0D,
+            particle.data(),
+            true
+        );
     }
 
     /**
@@ -228,7 +243,22 @@ public final class ParticleManager {
                                      double x,
                                      double y,
                                      double z) {
-        if (particle.count() > 0)
-            world.spawnParticle(particle.particle(), x, y, z, particle.count(), particle.data());
+        if (particle.count() <= 0) return;
+
+        world.spawnParticle(
+            particle.particle(),
+            null,
+            null,
+            x,
+            y,
+            z,
+            particle.count(),
+            0.0D,
+            0.0D,
+            0.0D,
+            1.0D,
+            particle.data(),
+            true
+        );
     }
 }
