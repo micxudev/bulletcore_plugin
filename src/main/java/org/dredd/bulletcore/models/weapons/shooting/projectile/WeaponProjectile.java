@@ -81,13 +81,13 @@ public class WeaponProjectile extends AProjectile {
     // -----< Behavior >-----
 
     @Override
-    public boolean handleCollisions(@NotNull Location currentLocation,
-                                    @NotNull Vector direction,
+    public boolean handleCollisions(@NotNull Location location,
+                                    @NotNull Vector velocity,
                                     double moveDistance) {
         // Check if there is a collision that the bullet will not survive
-        final RayTraceResult result = rayTrace.cast(currentLocation, direction, moveDistance);
+        final RayTraceResult result = rayTrace.cast(location, velocity, moveDistance);
 
-        trailState.spawn(currentLocation, direction, result, moveDistance);
+        trailState.spawn(location, velocity, result, moveDistance);
 
         // No such hit, keep the projectile alive
         if (result == null) return false;

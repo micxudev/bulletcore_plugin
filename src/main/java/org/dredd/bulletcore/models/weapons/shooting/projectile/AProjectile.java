@@ -34,7 +34,7 @@ public abstract class AProjectile {
     private final @Nullable FakeEntity disguise;
     private int lastDisguiseUpdateTick;
     private int aliveTicks;
-    private boolean dead;
+    private boolean removed;
 
 
     // -----< Construction >-----
@@ -53,7 +53,7 @@ public abstract class AProjectile {
         this.disguise = disguise;
         this.lastDisguiseUpdateTick = -1;
         this.aliveTicks = 0;
-        this.dead = false;
+        this.removed = false;
     }
 
 
@@ -89,10 +89,14 @@ public abstract class AProjectile {
 
     // -----< Behavior >-----
 
-    /** @return true if projectile should be removed */
+    /**
+     * Performs a single tick of the projectile's movement.
+     *
+     * @return {@code true} if projectile should be removed, {@code false} to keep it alive
+     */
     public boolean tick() {
         // 1. Early validity checks
-        if (dead) return true;
+        if (removed) return true;
         if (aliveTicks >= getMaximumAliveTicks()) return true;
 
         final Location location = currentLocation;
@@ -129,7 +133,7 @@ public abstract class AProjectile {
         }
 
         // 4. Check if there is still motion
-        if (motionLength < Vector.getEpsilon()) {
+        if (motionLength < 1.0E-6) {
             velocity.zero();
             this.motionLength = 0.0D;
             updateDisguise();
@@ -172,9 +176,9 @@ public abstract class AProjectile {
     }
 
     /**
-     * Must not be called multiple times on the same tick.
+     * Updates the disguise entity, showing it for new players or just updating its position.
      */
-    protected void updateDisguise() {
+    private void updateDisguise() {
         final FakeEntity disguise = this.disguise;
         if (disguise == null) return;
 
@@ -192,20 +196,23 @@ public abstract class AProjectile {
     }
 
     /**
-     * @return {@code true} if projectile collided so that it should be removed, {@code false} to keep it alive.
+     * Performs the ray trace for collision detection.
+     *
+     * @param location     the current projectile location
+     * @param velocity     the current projectile velocity
+     * @param moveDistance the distance that the projectile is able to move this tick
+     * @return {@code true} if projectile collided so that it should be removed, {@code false} to keep it alive
      */
-    public abstract boolean handleCollisions(@NotNull Location currentLocation,
-                                             @NotNull Vector direction,
+    public abstract boolean handleCollisions(@NotNull Location location,
+                                             @NotNull Vector velocity,
                                              double moveDistance);
 
     /**
-     * Marks projectile for removal and will be removed on this or next tick.
+     * Marks the projectile as removed and removes the disguise entity if it exists.
      */
     public void remove() {
-        if (dead) return;
-        this.dead = true;
-
-        updateDisguise();
+        if (removed) return;
+        this.removed = true;
 
         if (disguise != null) disguise.remove();
     }
