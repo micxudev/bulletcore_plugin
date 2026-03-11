@@ -1,5 +1,11 @@
 package org.dredd.bulletcore.compatibility.entity;
 
+/**
+ * Defines meta flags for entities.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public enum EntityMetaFlag {
 
     FIRE(0),

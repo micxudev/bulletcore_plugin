@@ -135,7 +135,7 @@ public final class FakeEntity_1_21_1 extends FakeEntity {
             armorStand.setHeadPose(new Rotations(getPitch(), 0, 0));
         }
 
-        sendPackets(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
+        sendPacket(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData().packAll()));
     }
 
 
@@ -159,7 +159,8 @@ public final class FakeEntity_1_21_1 extends FakeEntity {
         final var teleportPacket = new ClientboundTeleportEntityPacket(entity);
         final var headRotationPacket = new ClientboundRotateHeadPacket(entity, convertToByte(yaw));
 
-        sendPackets(teleportPacket, headRotationPacket);
+        sendPacket(teleportPacket);
+        sendPacket(headRotationPacket);
     }
 
 
@@ -186,22 +187,21 @@ public final class FakeEntity_1_21_1 extends FakeEntity {
 
             connection.send(spawnPacket);
             connection.send(metaPacket);
-            if (equipmentPacket != null) {
-                connection.send(equipmentPacket);
-            }
+            connection.send(equipmentPacket);
         }
     }
 
     @Override
     public void remove() {
-        sendPackets(new ClientboundRemoveEntitiesPacket(entity.getId()));
+        sendPacket(new ClientboundRemoveEntitiesPacket(entity.getId()));
         trackedByPlayers.clear();
     }
 
 
     // -----< Utils >-----
-    private void sendPackets(@NotNull Packet<?>... packets) {
+    private void sendPacket(@NotNull Packet<?> packet) {
         final var iterator = trackedByPlayers.iterator();
+
         while (iterator.hasNext()) {
             final var connection = iterator.next();
 
@@ -210,9 +210,7 @@ public final class FakeEntity_1_21_1 extends FakeEntity {
                 continue;
             }
 
-            for (final var packet : packets) {
-                connection.send(packet);
-            }
+            connection.send(packet);
         }
     }
 
