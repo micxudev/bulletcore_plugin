@@ -47,13 +47,12 @@ public final class ProjectileFactory {
                                               @NotNull Player shooter) {
         final ProjectileSettings settings = weapon.projectileSettings;
 
-        final Location spawnLocation = startLocation.clone();
         final Vector velocity = normalizedDirection.clone().multiply(settings.muzzleVelocity);
 
         final FakeEntity disguise = FakeEntityFactory.create(
-            settings.disguiseType, spawnLocation, settings.disguiseData
+            settings.disguiseType, startLocation, settings.disguiseData
         );
 
-        return new WeaponProjectile(weapon, shooter, spawnLocation, velocity, disguise);
+        return new WeaponProjectile(weapon, shooter, startLocation, velocity, disguise);
     }
 }
