@@ -63,9 +63,14 @@ public abstract class AProjectile {
     protected boolean doRemoveAtMaxSpeed() {return false;}
 
     protected double getDrag() {
-        if (getCurrentBlock().isLiquid()) return 0.96D;
-        if (world.isThundering() || world.hasStorm()) return 0.98D;
-        return 0.99D;
+        if (getCurrentBlock().isLiquid())
+            return 0.9D;
+
+        final World world = this.world;
+        if (world.isThundering() || world.hasStorm())
+            return 0.96;
+
+        return 1.0D;
     }
 
     protected int getMaximumAliveTicks() {return 600;}
@@ -88,67 +93,87 @@ public abstract class AProjectile {
      * @return {@code true} if projectile should be removed, {@code false} to keep it alive
      */
     public boolean tick() {
-        // 1. Early validity checks
-        if (removed) return true;
-        if (aliveTicks >= getMaximumAliveTicks()) return true;
+
+        // 1. -----< Early validity checks >-----
+        if (removed || aliveTicks >= getMaximumAliveTicks())
+            return true;
 
         final Location location = this.location;
         final World world = this.world;
-        final double locationY = location.getY();
-        if (locationY < world.getMinHeight() || locationY > world.getMaxHeight()) return true;
-        if (!location.isChunkLoaded()) return true;
 
-        // 2. Update velocity (gravity + drag)
+        final double y = location.getY();
+        if (y < world.getMinHeight() || y > world.getMaxHeight() || !location.isChunkLoaded())
+            return true;
+
+
+        // 2. -----< Velocity update >-----
         final Vector velocity = this.velocity;
+
         velocity.setY(velocity.getY() - getGravity());
         velocity.multiply(getDrag());
 
-        double velocityLength = velocity.length();
+        double speed = velocity.length();
 
-        // 3. Check min/max speed
-        final double minSpeed = getMinSpeed();
-        final double maxSpeed = getMaxSpeed();
-        double targetSpeed = velocityLength;
 
-        if (minSpeed != NOT_USED && velocityLength < minSpeed) {
-            if (doRemoveAtMinSpeed()) return true;
-            targetSpeed = minSpeed;
-        } else if (maxSpeed != NOT_USED && velocityLength > maxSpeed) {
-            if (doRemoveAtMaxSpeed()) return true;
-            targetSpeed = maxSpeed;
-        }
-
-        if (targetSpeed != velocityLength) {
-            velocity.multiply(targetSpeed / velocityLength);
-            velocityLength = targetSpeed;
-        }
-
-        // 4. Check if there is still velocity
-        if (velocityLength < 1.0E-6) {
+        // 3. -----< Stop very slow projectiles >-----
+        if (speed < 5.0E-3) {
             velocity.zero();
             updateDisguise();
             aliveTicks++;
             return false;
         }
 
-        // 5. Compute move distance, clamped by maximum remaining range
+
+        // 4. -----< Clamp speed >-----
+        final double minSpeed = getMinSpeed();
+        final double maxSpeed = getMaxSpeed();
+
+        if (minSpeed != NOT_USED || maxSpeed != NOT_USED) {
+            // either minSpeed or maxSpeed is used => clamp speed
+
+            double targetSpeed = speed;
+
+            if (minSpeed != NOT_USED && speed < minSpeed) {
+                if (doRemoveAtMinSpeed()) return true;
+                targetSpeed = minSpeed;
+            }
+
+            if (maxSpeed != NOT_USED && speed > maxSpeed) {
+                if (doRemoveAtMaxSpeed()) return true;
+                targetSpeed = maxSpeed;
+            }
+
+            if (targetSpeed != speed) {
+                velocity.multiply(targetSpeed / speed);
+                speed = targetSpeed;
+            }
+        }
+
+
+        // 5. -----< Distance clamp >-----
         final double maxDistance = getMaxDistance();
         final double remainingDistance = maxDistance - traveledDistance;
-        final double moveDistance = Math.min(velocityLength, remainingDistance);
+        final double moveDistance = Math.min(speed, remainingDistance);
 
-        // 6. Ray trace for collision detection
-        if (handleCollisions(location, velocity, moveDistance)) return true;
 
-        // 7. Update traveled distance
+        // 6. -----< Collision detection >-----
+        if (handleCollisions(location, velocity, moveDistance))
+            return true;
+
+
+        // 7. -----< Distance update >-----
         this.traveledDistance += moveDistance;
+
         if (traveledDistance >= maxDistance) {
             // no real benefit to update the final location
             // (the projectile will be removed immediately)
             return true;
         }
 
-        // 8. Update position
+
+        // 8. -----< Move projectile >-----
         location.add(velocity);
+
         if (disguise != null) {
             // updates yaw and pitch
             // (only useful for disguise)
@@ -158,6 +183,7 @@ public abstract class AProjectile {
 
         updateDisguise();
         aliveTicks++;
+
         return false;
     }
 

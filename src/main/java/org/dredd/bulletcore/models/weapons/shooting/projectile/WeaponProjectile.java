@@ -1,6 +1,7 @@
 package org.dredd.bulletcore.models.weapons.shooting.projectile;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -58,12 +59,13 @@ public class WeaponProjectile extends AProjectile {
     @Override
     protected double getDrag() {
         if (getCurrentBlock().isLiquid())
-            return settings.decreaseInWater;
+            return settings.dragInWater;
 
-        if (getWorld().isThundering() || getWorld().hasStorm())
-            return settings.decreaseWhenRainingOrSnowing;
+        final World world = getWorld();
+        if (world.isThundering() || world.hasStorm())
+            return settings.dragWhenRainingOrSnowing;
 
-        return settings.decrease;
+        return settings.drag;
     }
 
     @Override

@@ -90,9 +90,9 @@ public final class ProjectileSettings {
     public final double maxSpeed;
     public final double maxDistance;
 
-    public final double decrease;
-    public final double decreaseInWater;
-    public final double decreaseWhenRainingOrSnowing;
+    public final double drag;
+    public final double dragInWater;
+    public final double dragWhenRainingOrSnowing;
 
     public final double raySize;
     public final int maxAliveTicks;
@@ -107,15 +107,15 @@ public final class ProjectileSettings {
         this.disguiseType = loadDisguiseType(config);
         this.disguiseData = loadDisguiseData(config, disguiseType);
 
-        this.muzzleVelocity = Math.clamp(config.getDouble("muzzleVelocity", 150.0D), 0.0D, 1000.0D) / 20.0D;
+        this.muzzleVelocity = Math.clamp(config.getDouble("muzzleVelocity", 150.0D), 1.0D, 1000.0D) / 20.0D;
         this.gravity = Math.clamp(config.getDouble("gravity", 0.5D), 0.0D, 100.0D) / 200.0D;
-        this.minSpeed = clampDivideIfNotUsed(config.getDouble("minSpeed", NOT_USED), 0.0D, 1000.0D, 20.0D);
-        this.maxSpeed = clampDivideIfNotUsed(config.getDouble("maxSpeed", NOT_USED), 0.0D, 1000.0D, 20.0D);
+        this.minSpeed = clampDivideIfNotUsed(config.getDouble("minSpeed", NOT_USED), 1.0D, 1000.0D, 20.0D);
+        this.maxSpeed = clampDivideIfNotUsed(config.getDouble("maxSpeed", NOT_USED), 1.0D, 1000.0D, 20.0D);
         this.maxDistance = clampDivideIfNotUsed(config.getDouble("maxDistance", 80.0D), 1.0D, 300.0D, 1.0D);
 
-        this.decrease = Math.clamp(config.getDouble("decrease", 0.99D), 0.0D, 3.0D);
-        this.decreaseInWater = Math.clamp(config.getDouble("decreaseInWater", 0.96D), 0.0D, 3.0D);
-        this.decreaseWhenRainingOrSnowing = Math.clamp(config.getDouble("decreaseWhenRainingOrSnowing", 0.98D), 0.0D, 3.0D);
+        this.drag = Math.clamp(config.getDouble("drag", 1.0D), 0.01D, 10.0D);
+        this.dragInWater = Math.clamp(config.getDouble("dragInWater", 0.9D), 0.01D, 10.0D);
+        this.dragWhenRainingOrSnowing = Math.clamp(config.getDouble("dragWhenRainingOrSnowing", 0.96D), 0.01D, 10.0D);
 
         this.raySize = Math.clamp(config.getDouble("raySize", 0.15D), 0.0D, 1.0D);
         this.maxAliveTicks = Math.clamp(config.getInt("maxAliveTicks", 600), 1, 600);
