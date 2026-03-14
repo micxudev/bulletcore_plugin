@@ -128,17 +128,19 @@ public abstract class AProjectile {
         final double minSpeed = getMinSpeed();
         final double maxSpeed = getMaxSpeed();
 
-        if (minSpeed != NOT_USED || maxSpeed != NOT_USED) {
-            // either minSpeed or maxSpeed is used => clamp speed
+        final boolean isMinSpeedUsed = minSpeed != NOT_USED;
+        final boolean isMaxSpeedUsed = maxSpeed != NOT_USED;
+
+        if (isMinSpeedUsed || isMaxSpeedUsed) {
 
             double targetSpeed = speed;
 
-            if (minSpeed != NOT_USED && speed < minSpeed) {
+            if (isMinSpeedUsed && speed < minSpeed) {
                 if (doRemoveAtMinSpeed()) return true;
                 targetSpeed = minSpeed;
             }
 
-            if (maxSpeed != NOT_USED && speed > maxSpeed) {
+            if (isMaxSpeedUsed && speed > maxSpeed) {
                 if (doRemoveAtMaxSpeed()) return true;
                 targetSpeed = maxSpeed;
             }
@@ -162,13 +164,13 @@ public abstract class AProjectile {
 
 
         // 7. -----< Distance update >-----
-        this.traveledDistance += moveDistance;
-
-        if (traveledDistance >= maxDistance) {
+        if (moveDistance == remainingDistance) {
             // no real benefit to update the final location
             // (the projectile will be removed immediately)
             return true;
         }
+
+        this.traveledDistance += moveDistance;
 
 
         // 8. -----< Move projectile >-----
