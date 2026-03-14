@@ -32,9 +32,9 @@ public enum MaterialCategory {
 
     // ----------< Static >----------
 
-    private static final class AllMaterials {
+    public static final class AllMaterials {
 
-        private static final int TOTAL_MATERIALS;
+        public static final int TOTAL_MATERIALS;
 
         private static final Set<Material> ITEMS_ONLY;
 

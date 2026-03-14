@@ -1,7 +1,5 @@
 package org.dredd.bulletcore.models.weapons.shooting.projectile;
 
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import org.bukkit.FluidCollisionMode;
@@ -16,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.dredd.bulletcore.config.materials.MaterialCategory;
 import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.models.weapons.Weapon;
 import org.jetbrains.annotations.NotNull;
@@ -23,18 +22,28 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ProjectileRayTracer {
 
+    // ----------< Static >----------
+
+    private static final int TOTAL_MATERIALS = MaterialCategory.AllMaterials.TOTAL_MATERIALS;
+
+
+    // ----------< Instance >----------
+
+    // -----< Attributes >-----
+
     private final World world;
-    private final Map<Material, Integer> penetratedBlocks;
+    private int[] penetratedBlocks; // Lazy initialized
     private final @Nullable Predicate<Entity> canHit;
     private final Predicate<Block> canCollide;
     private final double raySize;
     private final boolean enableEntityCollisions;
 
+    // -----< Construction >-----
+
     public ProjectileRayTracer(@NotNull Weapon weapon,
                                @NotNull Player shooter,
                                @NotNull World world) {
         this.world = world;
-        this.penetratedBlocks = new EnumMap<>(Material.class);
 
         final ProjectileSettings settings = weapon.projectileSettings;
         final boolean enableEntityCollisions = settings.enableEntityCollisions;
@@ -75,15 +84,24 @@ public final class ProjectileRayTracer {
             final int penetrationLimit = weapon.blocksPenetration.getPenetrationLimit(blockType);
             if (penetrationLimit <= 0) return true;
 
+            // Lazy initialize penetratedBlocks array on first collision check
+            int[] penetratedBlocks = this.penetratedBlocks;
+            if (penetratedBlocks == null) {
+                penetratedBlocks = this.penetratedBlocks = new int[TOTAL_MATERIALS];
+            }
+
             // Check how many blocks of this material already penetrated
-            // by the current pellet incremented by 1 and updated in the map.
-            final int newValue = penetratedBlocks.merge(blockType, 1, Integer::sum);
+            // by the current pellet incremented by 1 and updated in the array.
+            final int newValue = ++penetratedBlocks[blockType.ordinal()];
+
             return newValue > penetrationLimit;
         };
 
         this.raySize = settings.raySize;
         this.enableEntityCollisions = enableEntityCollisions;
     }
+
+    // -----< Ray Casting >-----
 
     public @Nullable RayTraceResult cast(@NotNull Location start,
                                          @NotNull Vector direction,

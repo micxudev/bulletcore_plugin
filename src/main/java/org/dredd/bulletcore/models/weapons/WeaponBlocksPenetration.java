@@ -1,19 +1,20 @@
 package org.dredd.bulletcore.models.weapons;
 
-import java.util.EnumMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
+import org.dredd.bulletcore.config.materials.MaterialCategory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class WeaponBlocksPenetration {
 
     // ----------< Static >----------
+
+    private static final int TOTAL_MATERIALS = MaterialCategory.AllMaterials.TOTAL_MATERIALS;
 
     // -----< Loader >-----
 
@@ -32,7 +33,7 @@ public final class WeaponBlocksPenetration {
 
     // -----< Attributes >-----
 
-    private final Map<Material, Integer> blockPenetrationLimits;
+    private final int[] blockPenetrationLimits;
 
     // -----< Construction >-----
 
@@ -51,10 +52,10 @@ public final class WeaponBlocksPenetration {
      * material a bullet may penetrate before being stopped.
      *
      * @param config the configuration to load from
-     * @return a map of block materials to their penetration limits
+     * @return an array of block materials to their penetration limits
      */
-    private Map<Material, Integer> parseBlockPenetrationLimits(@Nullable YamlConfiguration config) {
-        final Map<Material, Integer> result = new EnumMap<>(Material.class);
+    private int[] parseBlockPenetrationLimits(@Nullable YamlConfiguration config) {
+        final int[] result = new int[TOTAL_MATERIALS];
 
         final ConfigurationSection section = config.getConfigurationSection("blocks_penetration");
         if (section == null) return result;
@@ -74,11 +75,13 @@ public final class WeaponBlocksPenetration {
 
             final int penetrationLimit = Math.clamp(section.getInt(key, 1), 1, 100);
 
-            result.put(material, penetrationLimit);
+            result[material.ordinal()] = penetrationLimit;
         }
 
         return result;
     }
+
+    // -----< Accessors >-----
 
     /**
      * Returns the block penetration limit for the given material.
@@ -90,7 +93,6 @@ public final class WeaponBlocksPenetration {
      * @return the penetration limit, or {@code 0} if none is defined
      */
     public int getPenetrationLimit(@NotNull Material material) {
-        final Integer limit = blockPenetrationLimits.get(material);
-        return (limit != null) ? limit : 0;
+        return blockPenetrationLimits[material.ordinal()];
     }
 }
