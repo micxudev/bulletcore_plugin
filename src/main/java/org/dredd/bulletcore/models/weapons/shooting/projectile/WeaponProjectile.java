@@ -11,19 +11,64 @@ import org.dredd.bulletcore.models.weapons.damage.HitHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Projectile implementation used for {@link Weapon} fired projectiles.
+ * <p>
+ * This class connects the generic projectile simulation provided by
+ * {@link AProjectile} with weapon-specific configuration and behavior.
+ * <p>
+ * The projectile physics settings are defined by
+ * {@link ProjectileSettings} associated with the weapon.
+ * <p>
+ * Collision detection is delegated to {@link ProjectileRayTracer}, while
+ * visual particle effects are handled by {@link ProjectileTrailState}.
+ * <p>
+ * When a collision is detected, the impact is processed by {@link HitHandler}.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public class WeaponProjectile extends AProjectile {
 
     // -----< Attributes >-----
 
+    /**
+     * The weapon used to fire this projectile.
+     */
     private final Weapon weapon;
+
+    /**
+     * The player who fired the projectile.
+     */
     private final Player shooter;
+
+    /**
+     * Configuration defining the projectile's physical behavior.
+     */
     private final ProjectileSettings settings;
+
+    /**
+     * Performs ray tracing for projectile collision detection.
+     */
     private final ProjectileRayTracer rayTracer;
+
+    /**
+     * Maintains state required for spawning projectile trail particles.
+     */
     private final ProjectileTrailState trailState;
 
 
     // -----< Construction >-----
 
+    /**
+     * Creates a new weapon projectile instance.
+     *
+     * @param weapon    the weapon used to fire the projectile
+     * @param shooter   the player who fired the projectile
+     * @param location  the initial projectile location
+     * @param velocity  the initial projectile velocity (blocks per tick)
+     * @param disguise  optional visual representation of the projectile
+     */
     public WeaponProjectile(@NotNull Weapon weapon,
                             @NotNull Player shooter,
                             @NotNull Location location,
@@ -48,13 +93,13 @@ public class WeaponProjectile extends AProjectile {
     protected double getMinSpeed() {return settings.minSpeed;}
 
     @Override
-    protected boolean doRemoveAtMinSpeed() {return settings.removeAtMinSpeed;}
+    protected boolean removeWhenMinSpeedReached() {return settings.removeWhenMinSpeedReached;}
 
     @Override
     protected double getMaxSpeed() {return settings.maxSpeed;}
 
     @Override
-    protected boolean doRemoveAtMaxSpeed() {return settings.removeAtMaxSpeed;}
+    protected boolean removeWhenMaxSpeedReached() {return settings.removeWhenMaxSpeedReached;}
 
     @Override
     protected double getDrag() {
@@ -80,6 +125,14 @@ public class WeaponProjectile extends AProjectile {
 
     // -----< Behavior >-----
 
+    /**
+     * Performs and handles collision detection in the following way:
+     * <ol>
+     *     <li>Cast a ray along the projectile movement path to detect a hit.</li>
+     *     <li>Spawn trail particles along the traveled path.</li>
+     *     <li>If a collision occurred, process the hit and terminate the projectile.</li>
+     * </ol>
+     */
     @Override
     protected boolean handleCollisions(@NotNull Location location,
                                        @NotNull Vector velocity,

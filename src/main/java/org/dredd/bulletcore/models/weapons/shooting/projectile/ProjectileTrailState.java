@@ -10,23 +10,84 @@ import org.dredd.bulletcore.models.weapons.BulletTrailParticle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Maintains state for spawning particle trails behind a moving projectile.
+ * <p>
+ * This class ensures particles are spawned at constant intervals ({@link #step}) along the
+ * projectile's path regardless of how far the projectile moves each tick.
+ * <p>
+ * Because projectiles may travel varying distances per tick, particles are not
+ * simply spawned every tick. Instead, the class tracks the remaining distance
+ * until the next particle spawn position and carries that state between updates.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class ProjectileTrailState {
 
-    private final double step;
+    // -----< Attributes >-----
 
+    /**
+     * Particle configuration used when spawning the trail.
+     */
     private final ConfiguredParticle particle;
 
+    /**
+     * Distance between consecutive particles along the projectile path.
+     * <p>
+     * Measured in blocks.
+     */
+    private final double step;
+
+    /**
+     * Remaining distance until the next particle spawn location.
+     * <p>
+     * This value is preserved between updates so that particles remain evenly
+     * spaced even when projectile movement varies between ticks.
+     */
     private double distanceToNextParticle;
 
+    /**
+     * Whether particle spawning should be skipped entirely.
+     * <p>
+     * This is enabled when {@link #step} is tiny to avoid excessive
+     * particle spawning.
+     */
     private final boolean doNotSpawn;
 
+    // -----< Construction >-----
+
+    /**
+     * Creates a new projectile trail state using the specified configuration.
+     *
+     * @param trailParticle particle trail configuration defining spacing,
+     *                      offset, and particle type
+     */
     public ProjectileTrailState(@NotNull BulletTrailParticle trailParticle) {
-        this.step = trailParticle.step;
         this.particle = trailParticle.particle;
+        this.step = trailParticle.step;
         this.distanceToNextParticle = trailParticle.offset;
         this.doNotSpawn = step < 0.01D;
     }
 
+    // -----< Public API >-----
+
+    /**
+     * Spawns trail particles along the projectile's movement path.
+     * <p>
+     * Particles are spawned at fixed spatial intervals rather than once per tick.<br>
+     * This ensures visually consistent trail spacing even when the projectile travels
+     * large or tiny distances in a single update.
+     * <p>
+     * If the projectile collided with a block or entity during this movement,
+     * particle spawning will stop at the collision point.
+     *
+     * @param currentLocation current projectile location
+     * @param direction       projectile movement direction (not required to be normalized)
+     * @param result          collision result if the projectile hit something this tick,
+     *                        or {@code null} if no collision occurred
+     * @param moveDistance    maximum distance the projectile attempted to move this tick
+     */
     public void spawn(@NotNull Location currentLocation,
                       @NotNull Vector direction,
                       @Nullable RayTraceResult result,
