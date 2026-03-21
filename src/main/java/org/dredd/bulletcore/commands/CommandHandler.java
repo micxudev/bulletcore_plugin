@@ -17,6 +17,7 @@ import org.dredd.bulletcore.commands.subcommands.SubcommandReload;
 import org.dredd.bulletcore.commands.subcommands.SubcommandSkin;
 import org.dredd.bulletcore.commands.subcommands.SubcommandSkinManage;
 import org.dredd.bulletcore.commands.subcommands.SubcommandSprayInfo;
+import org.dredd.bulletcore.commands.subcommands.SubcommandTiers;
 import org.jetbrains.annotations.NotNull;
 
 import static org.dredd.bulletcore.config.messages.component.ComponentMessage.COMMAND_MISSING_SUBCOMMAND;
@@ -67,7 +68,8 @@ public final class CommandHandler extends Command {
         SubcommandReload.INSTANCE,
         SubcommandSkin.INSTANCE,
         SubcommandSkinManage.INSTANCE,
-        SubcommandSprayInfo.INSTANCE
+        SubcommandSprayInfo.INSTANCE,
+        SubcommandTiers.INSTANCE
     );
 
     public static void init(@NotNull BulletCore plugin) {

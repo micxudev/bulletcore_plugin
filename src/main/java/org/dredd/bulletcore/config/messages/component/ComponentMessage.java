@@ -261,7 +261,42 @@ public enum ComponentMessage {
      * <p>
      * {@code %block%} – the block’s translation key
      */
-    DEBUG_BLOCK_NON_COLLIDABLE("<red>Bullets will go through <white><lang:%block%></white>");
+    DEBUG_BLOCK_NON_COLLIDABLE("<red>Bullets will go through <white><lang:%block%></white>"),
+
+
+    // -----< Tier >-----
+
+    /**
+     * Shown when the specified tier kit does not exist.
+     * <p>
+     * {@code %kit%} – the tier kit name
+     */
+    TIER_KIT_NOT_FOUND("<red>Tier kit not found <white>%kit%</white>"),
+
+    /**
+     * Shown when the specified tier does not exist.
+     * <p>
+     * {@code %tier%} – the tier name
+     */
+    TIER_NOT_FOUND("<red>Tier not found <white>%tier%</white>"),
+
+    /**
+     * Shown when a tier is successfully set for a player.
+     * <p>
+     * {@code %player%} – the player name<br>
+     * {@code %kit%} – the tier kit name<br>
+     * {@code %tier%} – the tier name
+     */
+    TIER_SET_SUCCESS("<green>Set tier <white>%tier%</white> on kit <white>%kit%</white> for player <white>%player%</white>"),
+
+    /**
+     * Shown when attempting to set a tier already assigned to the player.
+     * <p>
+     * {@code %player%} – the player name<br>
+     * {@code %kit%} – the tier kit name<br>
+     * {@code %tier%} – the tier name
+     */
+    TIER_ALREADY_SET("<yellow><white>%player%</white> already has tier <white>%tier%</white> on kit <white>%kit%</white>");
 
 
     // ----------< Instance >----------

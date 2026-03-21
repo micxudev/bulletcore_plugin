@@ -20,7 +20,9 @@ import org.dredd.bulletcore.models.weapons.shooting.ShootingHandler;
 import org.dredd.bulletcore.models.weapons.shooting.projectile.ProjectileSpawner;
 import org.dredd.bulletcore.models.weapons.shooting.recoil.RecoilHandler;
 import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
+import org.dredd.bulletcore.tiers.TiersManager;
 import org.dredd.bulletcore.utils.JsonUtils;
+import org.dredd.bulletcore.utils.LogUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,6 +54,7 @@ public final class BulletCore extends JavaPlugin {
     public static void init(@NotNull BulletCore plugin) {
         BulletCore.cancelAndClear();
 
+        TiersManager.load(plugin);
         SkinsManager.load(plugin);
         MessageManager.load(plugin);
         StylesManager.load(plugin);
@@ -118,6 +121,7 @@ public final class BulletCore extends JavaPlugin {
     @Override
     public void onDisable() {
         CommandHandler.destroy();
+        LogUtils.shutdownLogExecutor();
         JsonUtils.shutdownSaveExecutor();
         if (projectileSpawner != null) {
             projectileSpawner.shutdown();
