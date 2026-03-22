@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -76,6 +75,8 @@ public final class TiersManager {
      */
     private final Map<UUID, Map<String, String>> playerTiersStorage;
 
+    private final Map<UUID, Pair<TierKit, Tier>> playerHighestTiers;
+
     private final Tops tops;
 
     // 3. Log
@@ -100,6 +101,7 @@ public final class TiersManager {
         this.tiersDataFile = new File(tiersFolder, DATA_FILE_NAME);
         this.playerTiersStorage = JsonUtils.load(tiersDataFile, new TypeReference<>() {}, new HashMap<>());
 
+        this.playerHighestTiers = new HashMap<>();
         this.tops = new Tops(TOP_MAX_SIZE);
 
         // 3. Log
@@ -229,29 +231,30 @@ public final class TiersManager {
                                   @NotNull TierKit kit,
                                   @NotNull Tier tier) {
         final UUID playerId = player.getUniqueId();
-
-        final var playerTiers =
-            instance.playerTiersStorage.computeIfAbsent(playerId, k -> new HashMap<>());
-
         final String kitName = kit.name();
         final String newTierName = tier.name();
 
-        final String oldTierName = playerTiers.put(kitName, newTierName);
+        final var playerKitTiers =
+            instance.playerTiersStorage.computeIfAbsent(playerId, k -> new HashMap<>());
+
+        final String oldTierName = playerKitTiers.put(kitName, newTierName);
         if (newTierName.equals(oldTierName)) return false;
 
         final String playerName = player.getName();
 
-        // 1. Update top
+        // 1. Update highest tier
+        final var playerHighestTier = getHighestTier(playerKitTiers);
+        instance.playerHighestTiers.put(playerId, playerHighestTier);
+
+        // 2. Update top
         instance.tops.onTierSet(
             playerId,
             playerName,
             kitName,
             getTierByNameOrNull(oldTierName),
             tier,
-            () -> getHighestTier(playerTiers).right() // will compute only if needed
+            playerHighestTier.right()
         );
-
-        // 2. TODO: set tag for player
 
         // 3. Save log entry
         final String logMessage =
@@ -277,7 +280,12 @@ public final class TiersManager {
         return kitTop != null ? kitTop.getTopEntry(place) : null;
     }
 
-    // TODO: replace by single map (UUID -> Pair<TierKit, Tier>)
+    public static @Nullable Pair<TierKit, Tier> getPlayerHighestTier(@NotNull UUID playerId) {
+        return instance.playerHighestTiers.get(playerId);
+    }
+
+    // ----------< Internal >----------
+
     private static @NotNull Pair<TierKit, Tier> getHighestTier(@NotNull Map<String, String> playerKitTiers) {
         TierKit highestTierKit = TierKit.EMPTY;
         Tier highestTier = Tier.EMPTY;
@@ -340,11 +348,12 @@ public final class TiersManager {
                 }
 
 
-                final Map<String, String> kits = entry.getValue();
+                // kitName -> tierName
+                final Map<String, String> playerKitTiers = entry.getValue();
 
-                int totalPlayerPoints = 0;
+                int playerTotalPoints = 0;
 
-                for (final var kitEntry : kits.entrySet()) {
+                for (final var kitEntry : playerKitTiers.entrySet()) {
                     final String kitName = kitEntry.getKey();
 
                     final TierKit tierKit = tierKitsByName.get(kitName);
@@ -361,13 +370,16 @@ public final class TiersManager {
                         continue;
                     }
 
-                    totalPlayerPoints += tier.points();
+                    playerTotalPoints += tier.points();
 
                     updateKitTop(playerId, playerName, kitName, tier);
                 }
 
-                totalPointsByPlayer.put(playerId, totalPlayerPoints);
-                updateGlobalTop(playerId, playerName, () -> getHighestTier(kits).right(), totalPlayerPoints);
+                final var playerHighestTier = getHighestTier(playerKitTiers);
+                playerHighestTiers.put(playerId, playerHighestTier);
+
+                totalPointsByPlayer.put(playerId, playerTotalPoints);
+                updateGlobalTop(playerId, playerName, playerHighestTier.right(), playerTotalPoints);
             }
         }
 
@@ -376,7 +388,7 @@ public final class TiersManager {
                                @NotNull String kitName,
                                @Nullable Tier oldTier,
                                @NotNull Tier newTier,
-                               @NotNull Supplier<Tier> highestPlayerTier) {
+                               @NotNull Tier highestPlayerTier) {
             final int oldPoints = totalPointsByPlayer.getOrDefault(playerId, 0);
             final int newPoints = oldPoints - (oldTier != null ? oldTier.points() : 0) + newTier.points();
 
@@ -387,7 +399,7 @@ public final class TiersManager {
 
         private void updateGlobalTop(@NotNull UUID playerId,
                                      @NotNull String playerName,
-                                     @NotNull Supplier<Tier> highestPlayerTier,
+                                     @NotNull Tier highestPlayerTier,
                                      int newTotalPoints) {
             globalTop.update(playerId, playerName, highestPlayerTier, newTotalPoints);
         }
@@ -397,7 +409,7 @@ public final class TiersManager {
                                   @NotNull String kitName,
                                   @NotNull Tier tier) {
             final TopList kitTop = topsByKitName.computeIfAbsent(kitName, k -> new TopList(topMaxSize));
-            kitTop.update(playerId, playerName, () -> tier, tier.points());
+            kitTop.update(playerId, playerName, tier, tier.points());
         }
 
 
@@ -420,7 +432,7 @@ public final class TiersManager {
 
             private void update(@NotNull UUID playerId,
                                 @NotNull String playerName,
-                                @NotNull Supplier<Tier> tier,
+                                @NotNull Tier tier,
                                 int points) {
                 final List<Entry> top = this.top;
                 final int topMaxSize = this.topMaxSize;
@@ -441,7 +453,7 @@ public final class TiersManager {
 
                 // 3. insert
                 if (index < topMaxSize) {
-                    top.add(index, new Entry(playerId, playerName, tier.get(), points));
+                    top.add(index, new Entry(playerId, playerName, tier, points));
                 }
 
                 // 4. trim to topMaxSize
