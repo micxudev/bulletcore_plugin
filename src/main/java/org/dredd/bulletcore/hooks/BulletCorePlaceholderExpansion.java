@@ -6,7 +6,7 @@ import org.dredd.bulletcore.tiers.TiersManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
+public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getIdentifier() {return "bulletcore";}
@@ -37,11 +37,10 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
     // ----------< Helpers >----------
 
     // place starts at 1, not 0
-    private static int parsePlace(@NotNull String str,
-                                  int offset) {
+    private static int parsePlace(@NotNull String str, int offset) {
         int result = 0;
         for (int i = offset; i < str.length(); i++) {
-            char c = str.charAt(i);
+            final char c = str.charAt(i);
             if (c < '0' || c > '9') break;
             result = result * 10 + (c - '0');
         }
@@ -76,7 +75,7 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
         private static @Nullable String handle(@Nullable OfflinePlayer player,
                                                @NotNull String params) {
             if (params.startsWith("top_", 6)) {
-                return handleTop(player, params);
+                return handleTop(params);
             }
 
             if (params.startsWith("highest_", 6)) {
@@ -87,8 +86,7 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
         }
 
 
-        private static @Nullable String handleTop(@Nullable OfflinePlayer player,
-                                                  @NotNull String params) {
+        private static @Nullable String handleTop(@NotNull String params) {
             if (params.startsWith("global_", 10)) {
                 return handleTopGlobal(params);
             }
@@ -100,7 +98,7 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             return null;
         }
 
-        private static @Nullable String handleTopGlobal(String params) {
+        private static @Nullable String handleTopGlobal(@NotNull String params) {
             if (params.startsWith("player_", 17)) {
                 final int place = parsePlace(params, 24);
                 final var entry = TiersManager.getGlobalTopEntry(place);
@@ -122,7 +120,7 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             return null;
         }
 
-        private static @Nullable String handleTopKit(String params) {
+        private static @Nullable String handleTopKit(@NotNull String params) {
             // find next '_' -> end of kitName
             final int kitEnd = params.indexOf('_', 14);
             if (kitEnd == -1) return null;
@@ -132,21 +130,21 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             final int next = kitEnd + 1;
 
             if (params.startsWith("player_", next)) {
-                int place = parsePlace(params, next + 7);
-                var entry = TiersManager.getKitTopEntry(kitName, place);
+                final int place = parsePlace(params, next + 7);
+                final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.playerName() : "";
             }
 
             if (params.startsWith("tier_", next)) {
-                int place = parsePlace(params, next + 5);
-                var entry = TiersManager.getKitTopEntry(kitName, place);
+                final int place = parsePlace(params, next + 5);
+                final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.tier().name() : "";
             }
 
             if (params.startsWith("points_", next)) {
-                int place = parsePlace(params, next + 7);
-                var entry = TiersManager.getKitTopEntry(kitName, place);
-                return entry != null ? Integer.toString(entry.tier().points()) : "";
+                final int place = parsePlace(params, next + 7);
+                final var entry = TiersManager.getKitTopEntry(kitName, place);
+                return entry != null ? Integer.toString(entry.points()) : "";
             }
 
             return null;
@@ -162,11 +160,11 @@ public class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
                 return Integer.toString(totalPoints);
             }
 
-            var pair = TiersManager.getPlayerHighestTier(player.getUniqueId());
+            final var pair = TiersManager.getPlayerHighestTier(player.getUniqueId());
             if (pair == null) return "";
 
-            var kit = pair.left();
-            var tier = pair.right();
+            final var kit = pair.left();
+            final var tier = pair.right();
 
             if (params.startsWith("kit_name", 14)) return kit.name();
             if (params.startsWith("kit_icon", 14)) return kit.icon();
