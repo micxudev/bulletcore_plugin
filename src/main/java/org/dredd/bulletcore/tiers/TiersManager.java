@@ -75,8 +75,6 @@ public final class TiersManager {
      */
     private final Map<UUID, Map<String, String>> playerTiersStorage;
 
-    private final Map<UUID, Pair<TierKit, Tier>> playerHighestTiers;
-
     private final Tops tops;
 
     // 3. Log
@@ -101,7 +99,6 @@ public final class TiersManager {
         this.tiersDataFile = new File(tiersFolder, DATA_FILE_NAME);
         this.playerTiersStorage = JsonUtils.load(tiersDataFile, new TypeReference<>() {}, new HashMap<>());
 
-        this.playerHighestTiers = new HashMap<>();
         this.tops = new Tops(TOP_MAX_SIZE);
 
         // 3. Log
@@ -244,7 +241,7 @@ public final class TiersManager {
 
         // 1. Update highest tier
         final var playerHighestTier = getHighestTier(playerKitTiers);
-        instance.playerHighestTiers.put(playerId, playerHighestTier);
+        instance.tops.highestTierByPlayer.put(playerId, playerHighestTier);
 
         // 2. Update top
         instance.tops.onTierSet(
@@ -281,7 +278,11 @@ public final class TiersManager {
     }
 
     public static @Nullable Pair<TierKit, Tier> getPlayerHighestTier(@NotNull UUID playerId) {
-        return instance.playerHighestTiers.get(playerId);
+        return instance.tops.highestTierByPlayer.get(playerId);
+    }
+
+    public static int getPlayerTotalPoints(@NotNull UUID playerId) {
+        return instance.tops.totalPointsByPlayer.getOrDefault(playerId, 0);
     }
 
     // ----------< Internal >----------
@@ -319,19 +320,22 @@ public final class TiersManager {
 
         private final int topMaxSize;
 
-        private final Object2IntMap<UUID> totalPointsByPlayer;
-
         private final TopList globalTop;
 
         private final Map<String, TopList> topsByKitName;
+
+        private final Map<UUID, Pair<TierKit, Tier>> highestTierByPlayer;
+
+        private final Object2IntMap<UUID> totalPointsByPlayer;
 
         // -----< Construction >-----
 
         private Tops(int topMaxSize) {
             this.topMaxSize = topMaxSize;
-            this.totalPointsByPlayer = new Object2IntOpenHashMap<>();
             this.globalTop = new TopList(topMaxSize);
             this.topsByKitName = new HashMap<>();
+            this.highestTierByPlayer = new HashMap<>();
+            this.totalPointsByPlayer = new Object2IntOpenHashMap<>();
         }
 
         // -----< Internal Updates >-----
@@ -376,7 +380,7 @@ public final class TiersManager {
                 }
 
                 final var playerHighestTier = getHighestTier(playerKitTiers);
-                playerHighestTiers.put(playerId, playerHighestTier);
+                highestTierByPlayer.put(playerId, playerHighestTier);
 
                 totalPointsByPlayer.put(playerId, playerTotalPoints);
                 updateGlobalTop(playerId, playerName, playerHighestTier.right(), playerTotalPoints);
