@@ -2,5 +2,6 @@ name: BulletCore
 version: 1.0.0
 main: org.dredd.bulletcore.BulletCore
 api-version: 1.21.1
+softdepend: [ "PlaceholderAPI" ]
 libraries:
   - tools.jackson.core:jackson-databind:3.0.0

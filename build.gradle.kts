@@ -10,11 +10,15 @@ java {
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    maven {
+        url = uri("https://repo.extendedclip.com/releases/")
+    }
 }
 
 dependencies {
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
     compileOnly("tools.jackson.core:jackson-databind:3.0.0")
+    compileOnly("me.clip:placeholderapi:2.12.2")
 }
 
 tasks {

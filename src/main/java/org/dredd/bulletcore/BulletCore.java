@@ -10,6 +10,7 @@ import org.dredd.bulletcore.config.materials.MaterialsManager;
 import org.dredd.bulletcore.config.messages.component.MessageManager;
 import org.dredd.bulletcore.config.messages.translatable.StylesManager;
 import org.dredd.bulletcore.custom_item_manager.registries.CustomItemsRegistry;
+import org.dredd.bulletcore.hooks.BulletCorePlaceholderExpansion;
 import org.dredd.bulletcore.listeners.CustomBaseListener;
 import org.dredd.bulletcore.listeners.PlayerActionsListener;
 import org.dredd.bulletcore.listeners.UnknownCommandListener;
@@ -115,6 +116,10 @@ public final class BulletCore extends JavaPlugin {
         registerListener(PlayerActionsListener.INSTANCE);
         registerListener(UnknownCommandListener.INSTANCE);
 
+        if (isPluginEnabled("PlaceholderAPI")) {
+            new BulletCorePlaceholderExpansion().register();
+        }
+
         logInfo("==================================================================");
     }
 
@@ -152,5 +157,15 @@ public final class BulletCore extends JavaPlugin {
         final PluginManager pluginManager = getServer().getPluginManager();
         if (pluginManager.getPermission(permission.getName()) == null)
             pluginManager.addPermission(permission);
+    }
+
+    /**
+     * Checks if the given plugin is enabled or not
+     *
+     * @param pluginName name of the plugin to check (case-sensitive)
+     * @return {@code true} if the plugin is enabled, {@code false} otherwise.
+     */
+    private boolean isPluginEnabled(@NotNull String pluginName) {
+        return getServer().getPluginManager().isPluginEnabled(pluginName);
     }
 }
