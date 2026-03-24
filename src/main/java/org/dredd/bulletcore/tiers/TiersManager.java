@@ -109,6 +109,7 @@ public final class TiersManager {
         try {
             if (!configFile.exists()) {
                 writeDefaultConfig(configFile);
+                plugin.logInfo("Created default tiers config file \"" + configFile + "\"");
                 return Pair.of(Collections.emptyMap(), Collections.emptyMap());
             }
 
@@ -121,7 +122,7 @@ public final class TiersManager {
             final ConfigurationSection tiersSection = config.getConfigurationSection("tiers");
             if (tiersSection != null) {
                 tiers = loadTiers(tiersSection);
-                plugin.logInfo("-Loaded " + tiers.size() + " tiers");
+                plugin.logInfo("-Loaded " + tiers.size() + " tier(s)");
             } else {
                 tiers = Collections.emptyMap();
                 plugin.logError("Missing 'tiers' section in file \"" + configFile + "\"");
@@ -130,7 +131,7 @@ public final class TiersManager {
             final ConfigurationSection kitsSection = config.getConfigurationSection("kits");
             if (kitsSection != null) {
                 kits = loadTierKits(kitsSection);
-                plugin.logInfo("-Loaded " + kits.size() + " tier kits");
+                plugin.logInfo("-Loaded " + kits.size() + " tier kit(s)");
             } else {
                 kits = Collections.emptyMap();
                 plugin.logError("Missing 'kits' section in file \"" + configFile + "\"");
