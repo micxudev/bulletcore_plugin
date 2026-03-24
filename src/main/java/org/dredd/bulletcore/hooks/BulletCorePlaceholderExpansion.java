@@ -160,7 +160,7 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
                 return Integer.toString(totalPoints);
             }
 
-            final var pair = TiersManager.getPlayerHighestTier(player.getUniqueId());
+            final var pair = TiersManager.getPlayerHighestKitTier(player.getUniqueId());
             if (pair == null) return "";
 
             final var kit = pair.left();
