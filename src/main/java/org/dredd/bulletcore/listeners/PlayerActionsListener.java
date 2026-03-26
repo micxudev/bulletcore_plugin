@@ -52,6 +52,8 @@ public enum PlayerActionsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
 
+        ServerUtils.addKnownPlayer(player);
+
         SprayHandler.getSprayContext(player);
 
         ServerUtils.chargeOrDischargeIfCrossbowWeapon(player.getInventory().getItemInMainHand(), player.isSneaking());

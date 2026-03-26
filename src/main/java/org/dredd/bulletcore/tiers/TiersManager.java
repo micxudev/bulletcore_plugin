@@ -18,7 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.dredd.bulletcore.BulletCore;
 import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.JsonUtils;
@@ -225,10 +224,10 @@ public final class TiersManager {
     }
 
     public static boolean setTier(@NotNull CommandSender sender,
-                                  @NotNull Player player,
+                                  @NotNull UUID playerId,
+                                  @NotNull String playerName,
                                   @NotNull TierKit kit,
                                   @NotNull Tier tier) {
-        final UUID playerId = player.getUniqueId();
         final String kitName = kit.name();
         final String newTierName = tier.name();
 
@@ -237,8 +236,6 @@ public final class TiersManager {
 
         final String oldTierName = playerKitTiers.put(kitName, newTierName);
         if (newTierName.equals(oldTierName)) return false;
-
-        final String playerName = player.getName();
 
         // Update tops
         instance.tops.onTierSet(

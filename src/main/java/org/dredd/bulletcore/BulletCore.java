@@ -24,6 +24,7 @@ import org.dredd.bulletcore.models.weapons.skins.SkinsManager;
 import org.dredd.bulletcore.tiers.TiersManager;
 import org.dredd.bulletcore.utils.JsonUtils;
 import org.dredd.bulletcore.utils.LogUtils;
+import org.dredd.bulletcore.utils.ServerUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -108,6 +109,7 @@ public final class BulletCore extends JavaPlugin {
     public void onEnable() {
         logInfo("==========================< BulletCore >==========================");
 
+        ServerUtils.loadKnownPlayers();
         CommandHandler.init(this);
         BulletCore.init(this);
 

@@ -3,10 +3,9 @@ package org.dredd.bulletcore.commands.subcommands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.dredd.bulletcore.tiers.Tier;
 import org.dredd.bulletcore.tiers.TierKit;
@@ -55,8 +54,8 @@ public enum SubcommandTiers implements Subcommand {
     @Override
     public void execute(@NotNull CommandSender sender, @NonNull @NotNull String[] args) {
         final String playerName = args[1];
-        final Player player = Bukkit.getPlayerExact(playerName);
-        if (player == null) {
+        final UUID playerId = ServerUtils.getPlayerUUID(playerName);
+        if (playerId == null) {
             PLAYER_NOT_FOUND.sendMessage(sender, Map.of("player", playerName));
             return;
         }
@@ -75,7 +74,7 @@ public enum SubcommandTiers implements Subcommand {
             return;
         }
 
-        final boolean added = TiersManager.setTier(sender, player, kit, tier);
+        final boolean added = TiersManager.setTier(sender, playerId, playerName, kit, tier);
         (added ? TIER_SET_SUCCESS : TIER_ALREADY_SET).sendMessage(
             sender,
             Map.of(
@@ -90,9 +89,9 @@ public enum SubcommandTiers implements Subcommand {
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NonNull @NotNull String[] args) {
         final String playerName = args[1];
         if (args.length == 2)
-            return StringUtil.copyPartialMatches(playerName, ServerUtils.getOnlinePlayerNames(), new ArrayList<>());
+            return StringUtil.copyPartialMatches(playerName, ServerUtils.getKnownPlayerNames(), new ArrayList<>());
 
-        if (Bukkit.getPlayerExact(playerName) == null) return EMPTY_LIST;
+        if (ServerUtils.getPlayerUUID(playerName) == null) return EMPTY_LIST;
 
 
         final String kitName = args[2];

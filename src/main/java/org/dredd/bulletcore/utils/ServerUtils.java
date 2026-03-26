@@ -1,13 +1,16 @@
 package org.dredd.bulletcore.utils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +45,11 @@ public final class ServerUtils {
      */
     private static final List<ItemStack> CHARGED_PROJECTILES_LIST = Collections.singletonList(new ItemStack(Material.ARROW));
 
+    /**
+     * Stores all known players that have ever joined the server.
+     */
+    private static final Map<String, UUID> KNOWN_PLAYERS = new HashMap<>();
+
     // ----------< Miscellaneous Methods >----------
 
     /**
@@ -51,6 +59,51 @@ public final class ServerUtils {
         return Bukkit.getOnlinePlayers().stream()
             .map(Player::getName)
             .toList();
+    }
+
+    /**
+     * Loads all known players (last known name → UUID) from disk into memory.
+     * <p>
+     * This method uses {@link Bukkit#getOfflinePlayers()} to retrieve all players
+     * that have ever joined the server and caches their last known names.
+     * <p>
+     * <b>Performance:</b> This operation may be expensive as it accesses player data
+     * files from disk. It should only be called once during server startup.
+     */
+    public static void loadKnownPlayers() {
+        for (final OfflinePlayer player : Bukkit.getOfflinePlayers()) {
+            final String knownPlayerName = player.getName();
+            if (knownPlayerName == null) continue;
+            KNOWN_PLAYERS.put(knownPlayerName, player.getUniqueId());
+        }
+    }
+
+    /**
+     * Updates the known players cache when a player joins the server.
+     *
+     * @param player the player who joined
+     */
+    public static void addKnownPlayer(@NotNull Player player) {
+        KNOWN_PLAYERS.put(player.getName(), player.getUniqueId());
+    }
+
+    /**
+     * Retrieves the UUID of a player by their last known name.
+     *
+     * @param playerName the player name
+     * @return the UUID of the player, or {@code null} if not found
+     */
+    public static @Nullable UUID getPlayerUUID(@NotNull String playerName) {
+        return KNOWN_PLAYERS.get(playerName);
+    }
+
+    /**
+     * Returns a view of all known player names.
+     *
+     * @return a collection view of known player names
+     */
+    public static Iterable<String> getKnownPlayerNames() {
+        return KNOWN_PLAYERS.keySet();
     }
 
     /**
