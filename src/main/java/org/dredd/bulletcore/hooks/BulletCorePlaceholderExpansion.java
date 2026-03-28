@@ -69,7 +69,9 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             %bulletcore_tiers_highest_total_points%
             %bulletcore_tiers_highest_kit_name%
             %bulletcore_tiers_highest_kit_icon%
+            %bulletcore_tiers_highest_kit_displayname%
             %bulletcore_tiers_highest_tier_name%
+            %bulletcore_tiers_highest_tier_displayname%
         */
 
         private static @Nullable String handle(@Nullable OfflinePlayer player,
@@ -168,7 +170,9 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
             if (params.startsWith("kit_name", 14)) return kit.name();
             if (params.startsWith("kit_icon", 14)) return kit.icon();
+            if (params.startsWith("kit_displayname", 14)) return kit.displayName();
             if (params.startsWith("tier_name", 14)) return tier.name();
+            if (params.startsWith("tier_displayname", 14)) return tier.displayName();
 
             return null;
         }

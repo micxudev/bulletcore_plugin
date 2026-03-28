@@ -14,13 +14,11 @@ import java.util.regex.Pattern;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.dredd.bulletcore.BulletCore;
-import org.dredd.bulletcore.utils.ComponentUtils;
 import org.dredd.bulletcore.utils.JsonUtils;
 import org.dredd.bulletcore.utils.LogUtils;
 import org.jetbrains.annotations.NotNull;
@@ -185,7 +183,7 @@ public final class TiersManager {
             }
 
             final int points = Math.clamp(tierSection.getInt("points", 100), 0, 1_000);
-            final Component displayName = tierSection.getRichMessage("displayName", ComponentUtils.plainWhite(tierName));
+            final String displayName = tierSection.getString("displayName", tierName);
 
             final Tier tier = new Tier(tierName, points, displayName);
             result.put(tierName, tier);
@@ -211,7 +209,7 @@ public final class TiersManager {
             }
 
             final String icon = kitSection.getString("icon", "");
-            final Component displayName = kitSection.getRichMessage("displayName", ComponentUtils.plainWhite(kitName));
+            final String displayName = kitSection.getString("displayName", kitName);
 
             final TierKit tierKit = new TierKit(kitName, icon, displayName);
             result.put(kitName, tierKit);
