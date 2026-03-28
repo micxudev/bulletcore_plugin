@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -40,6 +41,11 @@ public final class TiersManager {
     private static final String LOG_FILE_NAME = "tiers.log";
 
     private static final int TOP_MAX_SIZE = 10; // can be added to config
+
+    /**
+     * Valid name pattern for tier, kit-tier names.
+     */
+    public static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9]+");
 
     private static TiersManager instance;
 
@@ -168,8 +174,13 @@ public final class TiersManager {
         for (final String tierName : tiersSection.getKeys(false)) {
             final ConfigurationSection tierSection = tiersSection.getConfigurationSection(tierName);
 
+            if (!isValidName(tierName)) {
+                plugin.logError("Skipping tier \"" + tierName + "\": Does not match pattern " + VALID_NAME.pattern());
+                continue;
+            }
+
             if (tierSection == null) {
-                plugin.logError("Skipping tier \"" + tierName + "\": is not a config section");
+                plugin.logError("Skipping tier \"" + tierName + "\": Is not a section");
                 continue;
             }
 
@@ -189,8 +200,13 @@ public final class TiersManager {
         for (final String kitName : kitsSection.getKeys(false)) {
             final ConfigurationSection kitSection = kitsSection.getConfigurationSection(kitName);
 
+            if (!isValidName(kitName)) {
+                plugin.logError("Skipping tier kit \"" + kitName + "\": Does not match pattern " + VALID_NAME.pattern());
+                continue;
+            }
+
             if (kitSection == null) {
-                plugin.logError("Skipping tier kit \"" + kitName + "\": is not a config section");
+                plugin.logError("Skipping tier kit \"" + kitName + "\": Is not a section");
                 continue;
             }
 
@@ -227,31 +243,57 @@ public final class TiersManager {
                                   @NotNull UUID playerId,
                                   @NotNull String playerName,
                                   @NotNull TierKit kit,
-                                  @NotNull Tier tier) {
+                                  @Nullable Tier tier) {
         final String kitName = kit.name();
-        final String newTierName = tier.name();
+        final String newTierName = (tier == null) ? null : tier.name();
 
         final var playerKitTiers =
             instance.playerTiersStorage.computeIfAbsent(playerId, k -> new HashMap<>());
 
-        final String oldTierName = playerKitTiers.put(kitName, newTierName);
-        if (newTierName.equals(oldTierName)) return false;
+        final String oldTierName;
+        if (newTierName == null) {
+            // remove tier request
+            oldTierName = playerKitTiers.remove(kitName);
+            if (oldTierName == null) return false;
 
-        // Update tops
-        instance.tops.onTierSet(
-            playerId,
-            playerName,
-            kitName,
-            getTierByNameOrNull(oldTierName),
-            tier,
-            getHighestKitTier(playerKitTiers)
-        );
+            if (playerKitTiers.isEmpty()) {
+                instance.playerTiersStorage.remove(playerId);
+            }
+
+            // remove old tier
+            final Tier tierToRemove = getTierByNameOrNull(oldTierName);
+            if (tierToRemove != null) {
+                instance.tops.onTierRemove(
+                    playerId,
+                    playerName,
+                    kitName,
+                    tierToRemove,
+                    getHighestKitTier(playerKitTiers)
+                );
+            }
+
+        } else {
+            // set tier request
+            oldTierName = playerKitTiers.put(kitName, newTierName);
+            if (newTierName.equals(oldTierName)) return false;
+
+            // set new tier
+            instance.tops.onTierSet(
+                playerId,
+                playerName,
+                kitName,
+                getTierByNameOrNull(oldTierName),
+                tier,
+                getHighestKitTier(playerKitTiers)
+            );
+        }
 
         // Save log entry
         final String logMessage =
             "sender: " + sender.getName() +
                 ", kit: " + kitName +
-                ", tier: " + newTierName +
+                ", old tier: " + (oldTierName == null ? "--none" : oldTierName) +
+                ", new tier: " + (newTierName == null ? "--none" : newTierName) +
                 ", player: " + playerName;
 
         LogUtils.appendLogAsync(logMessage, instance.tiersLogFile);
@@ -281,10 +323,12 @@ public final class TiersManager {
 
     // ----------< Internal >----------
 
-    private static @NotNull Pair<TierKit, Tier> getHighestKitTier(@NotNull Map<String, String> playerKitTiers) {
-        TierKit highestTierKit = TierKit.EMPTY;
-        Tier highestTier = Tier.EMPTY;
-        int highestTierPoints = highestTier.points();
+    private static @Nullable Pair<TierKit, Tier> getHighestKitTier(@NotNull Map<String, String> playerKitTiers) {
+        if (playerKitTiers.isEmpty()) return null;
+
+        TierKit highestTierKit = null;
+        Tier highestTier = null;
+        int highestTierPoints = Integer.MIN_VALUE;
 
         for (final var entry : instance.tierKitsByName.entrySet()) {
             final String kitName = entry.getKey();
@@ -304,7 +348,13 @@ public final class TiersManager {
             }
         }
 
+        if (highestTierKit == null) return null;
+
         return Pair.of(highestTierKit, highestTier);
+    }
+
+    private static boolean isValidName(@Nullable String name) {
+        return name != null && VALID_NAME.matcher(name).matches();
     }
 
 
@@ -348,6 +398,7 @@ public final class TiersManager {
 
                 // kitName -> tierName
                 final Map<String, String> playerKitTiers = entry.getValue();
+                if (playerKitTiers.isEmpty()) continue;
 
                 int playerTotalPoints = 0;
 
@@ -374,11 +425,34 @@ public final class TiersManager {
                 }
 
                 final var playerHighestKitTier = getHighestKitTier(playerKitTiers);
-                highestKitTierByPlayer.put(playerId, playerHighestKitTier);
+                if (playerHighestKitTier == null) continue;
 
+                highestKitTierByPlayer.put(playerId, playerHighestKitTier);
                 totalPointsByPlayer.put(playerId, playerTotalPoints);
                 updateGlobalTop(playerId, playerName, playerHighestKitTier.right(), playerTotalPoints);
             }
+        }
+
+
+        private void onTierRemove(@NotNull UUID playerId,
+                                  @NotNull String playerName,
+                                  @NotNull String kitName,
+                                  @NotNull Tier tier,
+                                  @Nullable Pair<TierKit, Tier> playerHighestKitTier) {
+            if (playerHighestKitTier == null) {
+                // player has no more tiers
+                highestKitTierByPlayer.remove(playerId);
+                totalPointsByPlayer.removeInt(playerId);
+                removeFromGlobalTop(playerId);
+            } else {
+                final int oldPoints = totalPointsByPlayer.getOrDefault(playerId, 0);
+                final int newPoints = oldPoints - tier.points();
+
+                highestKitTierByPlayer.put(playerId, playerHighestKitTier);
+                totalPointsByPlayer.put(playerId, newPoints);
+                updateGlobalTop(playerId, playerName, playerHighestKitTier.right(), newPoints);
+            }
+            removeFromKitTop(playerId, kitName);
         }
 
         private void onTierSet(@NotNull UUID playerId,
@@ -396,6 +470,7 @@ public final class TiersManager {
             updateKitTop(playerId, playerName, kitName, newTier);
         }
 
+
         private void updateGlobalTop(@NotNull UUID playerId,
                                      @NotNull String playerName,
                                      @NotNull Tier playerHighestTier,
@@ -409,6 +484,18 @@ public final class TiersManager {
                                   @NotNull Tier tier) {
             final TopList kitTop = topsByKitName.computeIfAbsent(kitName, k -> new TopList(topMaxSize));
             kitTop.update(playerId, playerName, tier, tier.points());
+        }
+
+
+        private void removeFromGlobalTop(@NotNull UUID playerId) {
+            globalTop.remove(playerId);
+        }
+
+        private void removeFromKitTop(@NotNull UUID playerId,
+                                      @NotNull String kitName) {
+            final TopList kitTop = topsByKitName.get(kitName);
+            if (kitTop == null) return;
+            kitTop.remove(playerId);
         }
 
 
@@ -437,12 +524,7 @@ public final class TiersManager {
                 final int topMaxSize = this.topMaxSize;
 
                 // 1. remove old entry if exists
-                for (int i = 0; i < top.size(); i++) {
-                    if (top.get(i).playerId().equals(playerId)) {
-                        top.remove(i);
-                        break;
-                    }
-                }
+                remove(playerId);
 
                 // 2. find insertion index
                 int index = 0;
@@ -458,6 +540,16 @@ public final class TiersManager {
                 // 4. trim to topMaxSize
                 if (top.size() > topMaxSize) {
                     top.remove(topMaxSize);
+                }
+            }
+
+            private void remove(@NotNull UUID playerId) {
+                final List<Entry> top = this.top;
+                for (int i = 0; i < top.size(); i++) {
+                    if (top.get(i).playerId().equals(playerId)) {
+                        top.remove(i);
+                        break;
+                    }
                 }
             }
         }

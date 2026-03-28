@@ -31,6 +31,8 @@ public enum SubcommandTiers implements Subcommand {
 
     INSTANCE;
 
+    private static final String NONE_TIER_OPTION = "--none";
+
     @Override
     public @NotNull String getName() {
         return "tiers";
@@ -68,10 +70,15 @@ public enum SubcommandTiers implements Subcommand {
         }
 
         final String tierName = args[3];
-        final Tier tier = TiersManager.getTierByNameOrNull(tierName);
-        if (tier == null) {
-            TIER_NOT_FOUND.sendMessage(sender, Map.of("tier", tierName));
-            return;
+        final Tier tier;
+        if (tierName.equals(NONE_TIER_OPTION)) {
+            tier = null;
+        } else {
+            tier = TiersManager.getTierByNameOrNull(tierName);
+            if (tier == null) {
+                TIER_NOT_FOUND.sendMessage(sender, Map.of("tier", tierName));
+                return;
+            }
         }
 
         final boolean added = TiersManager.setTier(sender, playerId, playerName, kit, tier);
@@ -102,8 +109,11 @@ public enum SubcommandTiers implements Subcommand {
 
 
         final String tierName = args[3];
-        if (args.length == 4)
-            return StringUtil.copyPartialMatches(tierName, TiersManager.getAllTierNames(), new ArrayList<>());
+        if (args.length == 4) {
+            final List<String> output = new ArrayList<>();
+            output.add(NONE_TIER_OPTION);
+            return StringUtil.copyPartialMatches(tierName, TiersManager.getAllTierNames(), output);
+        }
 
         return EMPTY_LIST;
     }

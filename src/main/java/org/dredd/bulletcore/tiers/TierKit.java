@@ -6,7 +6,4 @@ public record TierKit(
     String name,
     String icon,
     Component displayName
-) {
-
-    public static final TierKit EMPTY = new TierKit("EMPTY", "", Component.empty());
-}
+) {}
