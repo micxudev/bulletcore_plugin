@@ -3,5 +3,6 @@ package org.dredd.bulletcore.tiers;
 public record TierKit(
     String name,
     String icon,
-    String displayName
+    String displayName,
+    int topSize
 ) {}
