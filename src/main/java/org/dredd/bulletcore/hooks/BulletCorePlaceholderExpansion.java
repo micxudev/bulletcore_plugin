@@ -104,19 +104,19 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             if (params.startsWith("player_", 17)) {
                 final int place = parsePlace(params, 24);
                 final var entry = TiersManager.getGlobalTopEntry(place);
-                return entry != null ? entry.playerName() : "";
+                return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("tier_", 17)) {
                 final int place = parsePlace(params, 22);
                 final var entry = TiersManager.getGlobalTopEntry(place);
-                return entry != null ? entry.tier().name() : "";
+                return entry != null ? entry.tier().name() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("points_", 17)) {
                 final int place = parsePlace(params, 24);
                 final var entry = TiersManager.getGlobalTopEntry(place);
-                return entry != null ? Integer.toString(entry.points()) : "";
+                return entry != null ? Integer.toString(entry.points()) : TiersManager.getEmptyPlaceholderValue();
             }
 
             return null;
@@ -134,19 +134,19 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             if (params.startsWith("player_", next)) {
                 final int place = parsePlace(params, next + 7);
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
-                return entry != null ? entry.playerName() : "";
+                return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("tier_", next)) {
                 final int place = parsePlace(params, next + 5);
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
-                return entry != null ? entry.tier().name() : "";
+                return entry != null ? entry.tier().name() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("points_", next)) {
                 final int place = parsePlace(params, next + 7);
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
-                return entry != null ? Integer.toString(entry.points()) : "";
+                return entry != null ? Integer.toString(entry.points()) : TiersManager.getEmptyPlaceholderValue();
             }
 
             return null;
@@ -155,7 +155,7 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
         private static @Nullable String handleHighest(@Nullable OfflinePlayer player,
                                                       @NotNull String params) {
-            if (player == null) return "";
+            if (player == null) return TiersManager.getEmptyPlaceholderValue();
 
             if (params.startsWith("total_points", 14)) {
                 final int totalPoints = TiersManager.getPlayerTotalPoints(player.getUniqueId());
@@ -163,7 +163,7 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
             }
 
             final var pair = TiersManager.getPlayerHighestKitTier(player.getUniqueId());
-            if (pair == null) return "";
+            if (pair == null) return TiersManager.getEmptyPlaceholderValue();
 
             final var kit = pair.left();
             final var tier = pair.right();

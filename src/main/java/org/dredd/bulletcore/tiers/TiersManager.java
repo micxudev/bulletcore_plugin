@@ -38,8 +38,6 @@ public final class TiersManager {
 
     private static final String LOG_FILE_NAME = "tiers.log";
 
-    private static final int TOP_MAX_SIZE = 10; // can be added to config
-
     /**
      * Valid name pattern for tier, kit-tier names.
      */
@@ -59,12 +57,8 @@ public final class TiersManager {
 
     private final BulletCore plugin;
 
-    // 1. Config
-    private final Map<String, Tier> tiersByName;
+    private final Config config;
 
-    private final Map<String, TierKit> tierKitsByName;
-
-    // 2. Data
     private final File tiersDataFile;
 
     /**
@@ -80,7 +74,6 @@ public final class TiersManager {
 
     private final Tops tops;
 
-    // 3. Log
     private final File tiersLogFile;
 
     // -----< Construction >-----
@@ -93,148 +86,31 @@ public final class TiersManager {
             plugin.logError("Failed to create tiers folder \"" + tiersFolder + "\"");
         }
 
-        // 1. Config
-        final var tiersConfig = loadConfig(new File(tiersFolder, CONFIG_FILE_NAME));
-        this.tiersByName = tiersConfig.left();
-        this.tierKitsByName = tiersConfig.right();
+        this.config = new Config(new File(tiersFolder, CONFIG_FILE_NAME));
 
-        // 2. Data
         this.tiersDataFile = new File(tiersFolder, DATA_FILE_NAME);
         this.playerTiersStorage = JsonUtils.load(tiersDataFile, new TypeReference<>() {}, new HashMap<>());
+        this.tops = new Tops(config.topSize);
 
-        this.tops = new Tops(TOP_MAX_SIZE);
-
-        // 3. Log
         this.tiersLogFile = new File(tiersFolder, LOG_FILE_NAME);
     }
-
-    private @NotNull Pair<Map<String, Tier>, Map<String, TierKit>> loadConfig(@NotNull File configFile) {
-        try {
-            if (!configFile.exists()) {
-                writeDefaultConfig(configFile);
-                plugin.logInfo("Created default tiers config file \"" + configFile + "\"");
-                return Pair.of(Collections.emptyMap(), Collections.emptyMap());
-            }
-
-            final var config = new YamlConfiguration();
-            config.load(configFile);
-
-            final Map<String, Tier> tiers;
-            final Map<String, TierKit> kits;
-
-            final ConfigurationSection tiersSection = config.getConfigurationSection("tiers");
-            if (tiersSection != null) {
-                tiers = loadTiers(tiersSection);
-                plugin.logInfo("-Loaded " + tiers.size() + " tier(s)");
-            } else {
-                tiers = Collections.emptyMap();
-                plugin.logError("Missing 'tiers' section in file \"" + configFile + "\"");
-            }
-
-            final ConfigurationSection kitsSection = config.getConfigurationSection("kits");
-            if (kitsSection != null) {
-                kits = loadTierKits(kitsSection);
-                plugin.logInfo("-Loaded " + kits.size() + " tier kit(s)");
-            } else {
-                kits = Collections.emptyMap();
-                plugin.logError("Missing 'kits' section in file \"" + configFile + "\"");
-            }
-
-            return Pair.of(tiers, kits);
-
-        } catch (Exception e) {
-            plugin.logError("Failed to load tiers config file \"" + configFile + "\": " + e.getMessage());
-            return Pair.of(Collections.emptyMap(), Collections.emptyMap());
-        }
-    }
-
-    private void writeDefaultConfig(@NotNull File configFile) throws Exception {
-        final var config = new YamlConfiguration();
-
-        final ConfigurationSection tiersSection = config.createSection("tiers");
-
-        final ConfigurationSection tierSection = tiersSection.createSection("tier_name");
-        tierSection.set("points", 100);
-        tierSection.set("displayName", "<!i><b><red>Name</red></b></!i>");
-
-        final ConfigurationSection kitsSection = config.createSection("kits");
-
-        final ConfigurationSection kitSection = kitsSection.createSection("kit_name");
-        kitSection.set("icon", "<symbol>");
-        kitSection.set("displayName", "<!i><b><red>Name</red></b></!i>");
-
-        config.save(configFile);
-    }
-
-    private @NotNull Map<String, Tier> loadTiers(@NotNull ConfigurationSection tiersSection) {
-        final Map<String, Tier> result = new HashMap<>();
-
-        for (final String tierName : tiersSection.getKeys(false)) {
-            final ConfigurationSection tierSection = tiersSection.getConfigurationSection(tierName);
-
-            if (!isValidName(tierName)) {
-                plugin.logError("Skipping tier \"" + tierName + "\": Does not match pattern " + VALID_NAME.pattern());
-                continue;
-            }
-
-            if (tierSection == null) {
-                plugin.logError("Skipping tier \"" + tierName + "\": Is not a section");
-                continue;
-            }
-
-            final int points = Math.clamp(tierSection.getInt("points", 100), 0, 1_000);
-            final String displayName = tierSection.getString("displayName", tierName);
-
-            final Tier tier = new Tier(tierName, points, displayName);
-            result.put(tierName, tier);
-        }
-
-        return Collections.unmodifiableMap(result);
-    }
-
-    private @NotNull Map<String, TierKit> loadTierKits(@NotNull ConfigurationSection kitsSection) {
-        final Map<String, TierKit> result = new LinkedHashMap<>();
-
-        for (final String kitName : kitsSection.getKeys(false)) {
-            final ConfigurationSection kitSection = kitsSection.getConfigurationSection(kitName);
-
-            if (!isValidName(kitName)) {
-                plugin.logError("Skipping tier kit \"" + kitName + "\": Does not match pattern " + VALID_NAME.pattern());
-                continue;
-            }
-
-            if (kitSection == null) {
-                plugin.logError("Skipping tier kit \"" + kitName + "\": Is not a section");
-                continue;
-            }
-
-            final String icon = kitSection.getString("icon", "");
-            final String displayName = kitSection.getString("displayName", kitName);
-
-            final TierKit tierKit = new TierKit(kitName, icon, displayName);
-            result.put(kitName, tierKit);
-        }
-
-        return Collections.unmodifiableMap(result);
-    }
-
 
     // ----------< Public API >----------
 
     public static @Nullable Tier getTierByNameOrNull(@Nullable String tierName) {
-        return tierName != null ? instance.tiersByName.get(tierName) : null;
+        return tierName != null ? instance.config.tiersByName.get(tierName) : null;
     }
 
     public static @NotNull @Unmodifiable Collection<String> getAllTierNames() {
-        return Collections.unmodifiableSet(instance.tiersByName.keySet());
+        return Collections.unmodifiableSet(instance.config.tiersByName.keySet());
     }
 
     public static @Nullable TierKit getTierKitByNameOrNull(@Nullable String kitName) {
-        return kitName != null ? instance.tierKitsByName.get(kitName) : null;
+        return kitName != null ? instance.config.tierKitsByName.get(kitName) : null;
     }
 
     public static @NotNull @Unmodifiable Collection<String> getAllTierKitNames() {
-        return Collections.unmodifiableSet(instance.tierKitsByName.keySet());
+        return Collections.unmodifiableSet(instance.config.tierKitsByName.keySet());
     }
 
     public static boolean setTier(@NotNull CommandSender sender,
@@ -319,6 +195,10 @@ public final class TiersManager {
         return instance.tops.totalPointsByPlayer.getOrDefault(playerId, 0);
     }
 
+    public static @NotNull String getEmptyPlaceholderValue() {
+        return instance.config.emptyPlaceholderValue;
+    }
+
     // ----------< Internal >----------
 
     private static @Nullable Pair<TierKit, Tier> getHighestKitTier(@NotNull Map<String, String> playerKitTiers) {
@@ -328,7 +208,7 @@ public final class TiersManager {
         Tier highestTier = null;
         int highestTierPoints = Integer.MIN_VALUE;
 
-        for (final var entry : instance.tierKitsByName.entrySet()) {
+        for (final var entry : instance.config.tierKitsByName.entrySet()) {
             final String kitName = entry.getKey();
 
             final String tierName = playerKitTiers.get(kitName);
@@ -353,6 +233,142 @@ public final class TiersManager {
 
     private static boolean isValidName(@Nullable String name) {
         return name != null && VALID_NAME.matcher(name).matches();
+    }
+
+
+    private final class Config {
+
+        // -----< Attributes >-----
+
+        private final int topSize;
+
+        private final String emptyPlaceholderValue;
+
+        private final Map<String, Tier> tiersByName;
+
+        private final Map<String, TierKit> tierKitsByName;
+
+        // -----< Construction >-----
+
+        private Config(@NotNull File configFile) {
+            this.topSize = 10;
+            this.emptyPlaceholderValue = "none";
+            final Pair<Map<String, Tier>, Map<String, TierKit>> config = loadConfig(configFile);
+            this.tiersByName = config.left();
+            this.tierKitsByName = config.right();
+        }
+
+        // -----< Load/Save >-----
+
+        private @NotNull Pair<Map<String, Tier>, Map<String, TierKit>> loadConfig(@NotNull File configFile) {
+            try {
+                if (!configFile.exists()) {
+                    writeDefaultConfig(configFile);
+                    plugin.logInfo("Created default tiers config file \"" + configFile + "\"");
+                    return Pair.of(Collections.emptyMap(), Collections.emptyMap());
+                }
+
+                final var config = new YamlConfiguration();
+                config.load(configFile);
+
+                final Map<String, Tier> tiers;
+                final Map<String, TierKit> kits;
+
+                final ConfigurationSection tiersSection = config.getConfigurationSection("tiers");
+                if (tiersSection != null) {
+                    tiers = loadTiers(tiersSection);
+                    plugin.logInfo("-Loaded " + tiers.size() + " tier(s)");
+                } else {
+                    tiers = Collections.emptyMap();
+                    plugin.logError("Missing 'tiers' section in file \"" + configFile + "\"");
+                }
+
+                final ConfigurationSection kitsSection = config.getConfigurationSection("kits");
+                if (kitsSection != null) {
+                    kits = loadTierKits(kitsSection);
+                    plugin.logInfo("-Loaded " + kits.size() + " tier kit(s)");
+                } else {
+                    kits = Collections.emptyMap();
+                    plugin.logError("Missing 'kits' section in file \"" + configFile + "\"");
+                }
+
+                return Pair.of(tiers, kits);
+
+            } catch (Exception e) {
+                plugin.logError("Failed to load tiers config file \"" + configFile + "\": " + e.getMessage());
+                return Pair.of(Collections.emptyMap(), Collections.emptyMap());
+            }
+        }
+
+        private void writeDefaultConfig(@NotNull File configFile) throws Exception {
+            final var config = new YamlConfiguration();
+
+            final ConfigurationSection tiersSection = config.createSection("tiers");
+
+            final ConfigurationSection tierSection = tiersSection.createSection("tier_name");
+            tierSection.set("points", 100);
+            tierSection.set("displayName", "<!i><b><red>Name</red></b></!i>");
+
+            final ConfigurationSection kitsSection = config.createSection("kits");
+
+            final ConfigurationSection kitSection = kitsSection.createSection("kit_name");
+            kitSection.set("icon", "<symbol>");
+            kitSection.set("displayName", "<!i><b><red>Name</red></b></!i>");
+
+            config.save(configFile);
+        }
+
+        private @NotNull Map<String, Tier> loadTiers(@NotNull ConfigurationSection tiersSection) {
+            final Map<String, Tier> result = new HashMap<>();
+
+            for (final String tierName : tiersSection.getKeys(false)) {
+                final ConfigurationSection tierSection = tiersSection.getConfigurationSection(tierName);
+
+                if (!isValidName(tierName)) {
+                    plugin.logError("Skipping tier \"" + tierName + "\": Does not match pattern " + VALID_NAME.pattern());
+                    continue;
+                }
+
+                if (tierSection == null) {
+                    plugin.logError("Skipping tier \"" + tierName + "\": Is not a section");
+                    continue;
+                }
+
+                final int points = Math.clamp(tierSection.getInt("points", 100), 0, 1_000);
+                final String displayName = tierSection.getString("displayName", tierName);
+
+                final Tier tier = new Tier(tierName, points, displayName);
+                result.put(tierName, tier);
+            }
+
+            return Collections.unmodifiableMap(result);
+        }
+
+        private @NotNull Map<String, TierKit> loadTierKits(@NotNull ConfigurationSection kitsSection) {
+            final Map<String, TierKit> result = new LinkedHashMap<>();
+
+            for (final String kitName : kitsSection.getKeys(false)) {
+                final ConfigurationSection kitSection = kitsSection.getConfigurationSection(kitName);
+
+                if (!isValidName(kitName)) {
+                    plugin.logError("Skipping tier kit \"" + kitName + "\": Does not match pattern " + VALID_NAME.pattern());
+                    continue;
+                }
+
+                if (kitSection == null) {
+                    plugin.logError("Skipping tier kit \"" + kitName + "\": Is not a section");
+                    continue;
+                }
+
+                final String icon = kitSection.getString("icon", "");
+                final String displayName = kitSection.getString("displayName", kitName);
+
+                final TierKit tierKit = new TierKit(kitName, icon, displayName);
+                result.put(kitName, tierKit);
+            }
+
+            return Collections.unmodifiableMap(result);
+        }
     }
 
 
@@ -403,7 +419,7 @@ public final class TiersManager {
                 for (final var kitEntry : playerKitTiers.entrySet()) {
                     final String kitName = kitEntry.getKey();
 
-                    final TierKit tierKit = tierKitsByName.get(kitName);
+                    final TierKit tierKit = config.tierKitsByName.get(kitName);
                     if (tierKit == null) {
                         plugin.logError("Saved in data-file tier kit \"" + kitName + "\" no longer found in config. Did you delete/rename it?");
                         continue;
@@ -411,7 +427,7 @@ public final class TiersManager {
 
                     final String tierName = kitEntry.getValue();
 
-                    final Tier tier = tiersByName.get(tierName);
+                    final Tier tier = config.tiersByName.get(tierName);
                     if (tier == null) {
                         plugin.logError("Saved in data-file tier \"" + tierName + "\" no longer found in config. Did you delete/rename it?");
                         continue;
