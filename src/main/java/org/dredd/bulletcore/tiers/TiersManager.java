@@ -26,35 +26,26 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.core.type.TypeReference;
 
+/**
+ * Utility class for managing tiers.
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class TiersManager {
 
-    // ----------< Static >----------
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private TiersManager() {}
 
-    private static final String TIERS_FOLDER_NAME = "tiers";
+    // ----------< Attributes >----------
 
-    private static final String CONFIG_FILE_NAME = "tiers.yml";
+    private static BulletCore plugin;
 
-    private static final String DATA_FILE_NAME = "tiers.json";
+    private static Config config;
 
-    private static final String LOG_FILE_NAME = "tiers.log";
-
-    private static TiersManager instance;
-
-    public static void load(@NotNull BulletCore plugin) {
-        instance = new TiersManager(plugin);
-        instance.tops.rebuildOnStartUp();
-    }
-
-
-    // ----------< Instance >----------
-
-    // -----< Attributes >-----
-
-    private final BulletCore plugin;
-
-    private final Config config;
-
-    private final File tiersDataFile;
+    private static File tiersDataFile;
 
     /**
      * Tiers storage format:
@@ -65,47 +56,52 @@ public final class TiersManager {
      * }
      * }</pre>
      */
-    private final Map<UUID, Map<String, String>> playerTiersStorage;
+    private static Map<UUID, Map<String, String>> playerTiersStorage;
 
-    private final Tops tops;
+    private static Tops tops;
 
-    private final File tiersLogFile;
+    private static File tiersLogFile;
 
-    // -----< Construction >-----
+    // ----------< Init >----------
 
-    private TiersManager(@NotNull BulletCore plugin) {
-        this.plugin = plugin;
+    /**
+     * Loads the tiers data, config from the files, and initializes the top lists.
+     */
+    public static void load(@NotNull BulletCore plugin) {
+        TiersManager.plugin = plugin;
 
-        final File tiersFolder = new File(plugin.getDataFolder(), TIERS_FOLDER_NAME);
+        final File tiersFolder = new File(plugin.getDataFolder(), "tiers");
         if (!tiersFolder.exists() && !tiersFolder.mkdirs()) {
             plugin.logError("Failed to create tiers folder \"" + tiersFolder + "\"");
         }
 
-        this.config = new Config(new File(tiersFolder, CONFIG_FILE_NAME));
+        config = new Config(new File(tiersFolder, "tiers.yml"));
 
-        this.tiersDataFile = new File(tiersFolder, DATA_FILE_NAME);
-        this.playerTiersStorage = JsonUtils.load(tiersDataFile, new TypeReference<>() {}, new HashMap<>());
-        this.tops = new Tops();
+        tiersDataFile = new File(tiersFolder, "tiers.json");
+        playerTiersStorage = JsonUtils.load(tiersDataFile, new TypeReference<>() {}, new HashMap<>());
+        tops = new Tops();
 
-        this.tiersLogFile = new File(tiersFolder, LOG_FILE_NAME);
+        tiersLogFile = new File(tiersFolder, "tiers.log");
+
+        tops.rebuildOnStartUp();
     }
 
     // ----------< Public API >----------
 
     public static @Nullable Tier getTierByNameOrNull(@Nullable String tierName) {
-        return tierName != null ? instance.config.tiersByName.get(tierName) : null;
+        return tierName != null ? config.tiersByName.get(tierName) : null;
     }
 
     public static @NotNull @Unmodifiable Collection<String> getAllTierNames() {
-        return Collections.unmodifiableSet(instance.config.tiersByName.keySet());
+        return Collections.unmodifiableSet(config.tiersByName.keySet());
     }
 
     public static @Nullable TierKit getTierKitByNameOrNull(@Nullable String kitName) {
-        return kitName != null ? instance.config.tierKitsByName.get(kitName) : null;
+        return kitName != null ? config.tierKitsByName.get(kitName) : null;
     }
 
     public static @NotNull @Unmodifiable Collection<String> getAllTierKitNames() {
-        return Collections.unmodifiableSet(instance.config.tierKitsByName.keySet());
+        return Collections.unmodifiableSet(config.tierKitsByName.keySet());
     }
 
     public static boolean setTier(@NotNull CommandSender sender,
@@ -117,7 +113,7 @@ public final class TiersManager {
         final String newTierName = (tier == null) ? null : tier.name();
 
         final var playerKitTiers =
-            instance.playerTiersStorage.computeIfAbsent(playerId, k -> new HashMap<>());
+            playerTiersStorage.computeIfAbsent(playerId, k -> new HashMap<>());
 
         final String oldTierName;
         if (newTierName == null) {
@@ -126,13 +122,13 @@ public final class TiersManager {
             if (oldTierName == null) return false;
 
             if (playerKitTiers.isEmpty()) {
-                instance.playerTiersStorage.remove(playerId);
+                playerTiersStorage.remove(playerId);
             }
 
             // remove old tier
             final Tier tierToRemove = getTierByNameOrNull(oldTierName);
             if (tierToRemove != null) {
-                instance.tops.onTierRemove(
+                tops.onTierRemove(
                     playerId,
                     playerName,
                     kitName,
@@ -147,7 +143,7 @@ public final class TiersManager {
             if (newTierName.equals(oldTierName)) return false;
 
             // set new tier
-            instance.tops.onTierSet(
+            tops.onTierSet(
                 playerId,
                 playerName,
                 tierKit,
@@ -165,33 +161,33 @@ public final class TiersManager {
                 ", new tier: " + (newTierName == null ? "--none" : newTierName) +
                 ", player: " + playerName;
 
-        LogUtils.appendLogAsync(logMessage, instance.tiersLogFile);
+        LogUtils.appendLogAsync(logMessage, tiersLogFile);
 
         // Save storage
-        JsonUtils.saveAsync(instance.playerTiersStorage, instance.tiersDataFile, true);
+        JsonUtils.saveAsync(playerTiersStorage, tiersDataFile, true);
 
         return true;
     }
 
     public static @Nullable TiersManager.Tops.Entry getGlobalTopEntry(int place) {
-        return instance.tops.globalTop.getTopEntry(place);
+        return tops.globalTop.getTopEntry(place);
     }
 
     public static @Nullable TiersManager.Tops.Entry getKitTopEntry(@NotNull String kitName, int place) {
-        final var kitTop = instance.tops.topsByKitName.get(kitName);
+        final var kitTop = tops.topsByKitName.get(kitName);
         return kitTop != null ? kitTop.getTopEntry(place) : null;
     }
 
     public static @Nullable Pair<TierKit, Tier> getPlayerHighestKitTier(@NotNull UUID playerId) {
-        return instance.tops.highestKitTierByPlayer.get(playerId);
+        return tops.highestKitTierByPlayer.get(playerId);
     }
 
     public static int getPlayerTotalPoints(@NotNull UUID playerId) {
-        return instance.tops.totalPointsByPlayer.getOrDefault(playerId, 0);
+        return tops.totalPointsByPlayer.getOrDefault(playerId, 0);
     }
 
     public static @NotNull String getEmptyPlaceholderValue() {
-        return instance.config.emptyPlaceholderValue;
+        return config.emptyPlaceholderValue;
     }
 
     // ----------< Internal >----------
@@ -203,7 +199,7 @@ public final class TiersManager {
         Tier highestTier = null;
         int highestTierPoints = Integer.MIN_VALUE;
 
-        for (final var entry : instance.config.tierKitsByName.entrySet()) {
+        for (final var entry : config.tierKitsByName.entrySet()) {
             final String kitName = entry.getKey();
 
             final String tierName = playerKitTiers.get(kitName);
@@ -227,7 +223,7 @@ public final class TiersManager {
     }
 
 
-    private final class Config {
+    private static final class Config {
 
         // ----------< Static >----------
 
@@ -377,7 +373,7 @@ public final class TiersManager {
     }
 
 
-    public final class Tops {
+    private static final class Tops {
 
         // -----< Attributes >-----
 
