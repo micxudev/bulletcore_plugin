@@ -6,6 +6,24 @@ import org.dredd.bulletcore.tiers.TiersManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * PlaceholderAPI expansion for BulletCore.
+ * <p>
+ * Placeholders use the format: {@code %bulletcore_params%}.
+ * <p>
+ * Requests are handled by {@link #onRequest(OfflinePlayer, String)},
+ * where {@code params} is the part after the identifier.
+ * <p>
+ * Return values:
+ * <ul>
+ *   <li>{@code null} – invalid placeholder (no replacement)</li>
+ *   <li>empty string – valid placeholder with no value available</li>
+ *   <li>non-empty string – resolved value</li>
+ * </ul>
+ *
+ * @author dredd
+ * @since 1.0.0
+ */
 public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
