@@ -47,6 +47,11 @@ public final class BulletCore extends JavaPlugin {
      */
     private static ProjectileSpawner projectileSpawner;
 
+    /**
+     * PlaceholderAPI expansion instance.
+     */
+    private static BulletCorePlaceholderExpansion placeholderExpansion;
+
     // -----< Initialization & Lifecycle >-----
 
     /**
@@ -119,7 +124,8 @@ public final class BulletCore extends JavaPlugin {
         registerListener(UnknownCommandListener.INSTANCE);
 
         if (isPluginEnabled("PlaceholderAPI")) {
-            new BulletCorePlaceholderExpansion().register();
+            placeholderExpansion = new BulletCorePlaceholderExpansion();
+            placeholderExpansion.register();
         }
 
         logInfo("==================================================================");
@@ -127,6 +133,9 @@ public final class BulletCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (placeholderExpansion != null) {
+            placeholderExpansion.unregister();
+        }
         CommandHandler.destroy();
         LogUtils.shutdownLogExecutor();
         JsonUtils.shutdownSaveExecutor();
