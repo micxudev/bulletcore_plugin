@@ -127,12 +127,14 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
         private static @Nullable String handleTopGlobal(@NotNull String params) {
             if (params.startsWith("player_", 17)) {
                 final int place = parsePlace(params, 24);
+                if (place <= 0) return null;
                 final var entry = TiersManager.getGlobalTopEntry(place);
                 return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("points_", 17)) {
                 final int place = parsePlace(params, 24);
+                if (place <= 0) return null;
                 final var entry = TiersManager.getGlobalTopEntry(place);
                 return entry != null ? Integer.toString(entry.points()) : TiersManager.getEmptyPlaceholderValue();
             }
@@ -151,18 +153,21 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
             if (params.startsWith("player_", next)) {
                 final int place = parsePlace(params, next + 7);
+                if (place <= 0) return null;
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("tier_name_", next)) {
                 final int place = parsePlace(params, next + 10);
+                if (place <= 0) return null;
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.tier().name() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("tier_displayname_", next)) {
                 final int place = parsePlace(params, next + 17);
+                if (place <= 0) return null;
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.tier().displayName() : TiersManager.getEmptyPlaceholderValue();
             }
