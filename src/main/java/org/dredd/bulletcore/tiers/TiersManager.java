@@ -186,6 +186,16 @@ public final class TiersManager {
         return tops.totalPointsByPlayer.getOrDefault(playerId, 0);
     }
 
+    public static @Nullable Tier getPlayerTierOnKit(@NotNull UUID playerId,
+                                                    @NotNull String kitName) {
+        final var playerKitTiers = playerTiersStorage.get(playerId);
+        if (playerKitTiers == null) return null;
+
+        final String tierName = playerKitTiers.get(kitName);
+
+        return getTierByNameOrNull(tierName);
+    }
+
     public static @NotNull String getEmptyPlaceholderValue() {
         return config.emptyPlaceholderValue;
     }

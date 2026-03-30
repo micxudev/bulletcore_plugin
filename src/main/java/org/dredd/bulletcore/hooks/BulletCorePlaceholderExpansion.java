@@ -2,6 +2,7 @@ package org.dredd.bulletcore.hooks;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+import org.dredd.bulletcore.tiers.Tier;
 import org.dredd.bulletcore.tiers.TiersManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,25 +72,30 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
     private static final class TiersModule {
 
         /*
-            tiers module placeholders:
+            Tiers module placeholders:
 
             global top:
             %bulletcore_tiers_top_global_player_<place>%
-            %bulletcore_tiers_top_global_tier_<place>%
             %bulletcore_tiers_top_global_points_<place>%
 
             kit top:
             %bulletcore_tiers_top_kit_<kitName>_player_<place>%
-            %bulletcore_tiers_top_kit_<kitName>_tier_<place>%
-            %bulletcore_tiers_top_kit_<kitName>_points_<place>%
+            %bulletcore_tiers_top_kit_<kitName>_tier_name_<place>%
+            %bulletcore_tiers_top_kit_<kitName>_tier_displayname_<place>%
 
-            player highest kit-tier:
-            %bulletcore_tiers_highest_total_points%
-            %bulletcore_tiers_highest_kit_name%
-            %bulletcore_tiers_highest_kit_icon%
-            %bulletcore_tiers_highest_kit_displayname%
-            %bulletcore_tiers_highest_tier_name%
-            %bulletcore_tiers_highest_tier_displayname%
+            player:
+            %bulletcore_tiers_player_total_points%
+
+            player highest:
+            %bulletcore_tiers_player_highest_kit_name%
+            %bulletcore_tiers_player_highest_kit_icon%
+            %bulletcore_tiers_player_highest_kit_displayname%
+            %bulletcore_tiers_player_highest_tier_name%
+            %bulletcore_tiers_player_highest_tier_displayname%
+
+            player kit:
+            %bulletcore_tiers_player_kit_<kitName>_tier_name%
+            %bulletcore_tiers_player_kit_<kitName>_tier_displayname%
         */
 
         private static @Nullable String handle(@Nullable OfflinePlayer player,
@@ -98,8 +104,8 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
                 return handleTop(params);
             }
 
-            if (params.startsWith("highest_", 6)) {
-                return handleHighest(player, params);
+            if (params.startsWith("player_", 6)) {
+                return handlePlayer(player, params);
             }
 
             return null;
@@ -123,12 +129,6 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
                 final int place = parsePlace(params, 24);
                 final var entry = TiersManager.getGlobalTopEntry(place);
                 return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
-            }
-
-            if (params.startsWith("tier_", 17)) {
-                final int place = parsePlace(params, 22);
-                final var entry = TiersManager.getGlobalTopEntry(place);
-                return entry != null ? entry.tier().name() : TiersManager.getEmptyPlaceholderValue();
             }
 
             if (params.startsWith("points_", 17)) {
@@ -155,42 +155,74 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
                 return entry != null ? entry.playerName() : TiersManager.getEmptyPlaceholderValue();
             }
 
-            if (params.startsWith("tier_", next)) {
-                final int place = parsePlace(params, next + 5);
+            if (params.startsWith("tier_name_", next)) {
+                final int place = parsePlace(params, next + 10);
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
                 return entry != null ? entry.tier().name() : TiersManager.getEmptyPlaceholderValue();
             }
 
-            if (params.startsWith("points_", next)) {
-                final int place = parsePlace(params, next + 7);
+            if (params.startsWith("tier_displayname_", next)) {
+                final int place = parsePlace(params, next + 17);
                 final var entry = TiersManager.getKitTopEntry(kitName, place);
-                return entry != null ? Integer.toString(entry.points()) : TiersManager.getEmptyPlaceholderValue();
+                return entry != null ? entry.tier().displayName() : TiersManager.getEmptyPlaceholderValue();
             }
 
             return null;
         }
 
 
-        private static @Nullable String handleHighest(@Nullable OfflinePlayer player,
-                                                      @NotNull String params) {
+        private static @Nullable String handlePlayer(@Nullable OfflinePlayer player,
+                                                     @NotNull String params) {
             if (player == null) return TiersManager.getEmptyPlaceholderValue();
 
-            if (params.startsWith("total_points", 14)) {
+            if (params.startsWith("total_points", 13)) {
                 final int totalPoints = TiersManager.getPlayerTotalPoints(player.getUniqueId());
                 return Integer.toString(totalPoints);
             }
 
+            if (params.startsWith("highest_", 13)) {
+                return handlePlayerHighest(player, params);
+            }
+
+            if (params.startsWith("kit_", 13)) {
+                return handlePlayerKit(player, params);
+            }
+
+            return null;
+        }
+
+        private static @Nullable String handlePlayerHighest(@NotNull OfflinePlayer player,
+                                                            @NotNull String params) {
             final var pair = TiersManager.getPlayerHighestKitTier(player.getUniqueId());
             if (pair == null) return TiersManager.getEmptyPlaceholderValue();
 
             final var kit = pair.left();
             final var tier = pair.right();
 
-            if (params.startsWith("kit_name", 14)) return kit.name();
-            if (params.startsWith("kit_icon", 14)) return kit.icon();
-            if (params.startsWith("kit_displayname", 14)) return kit.displayName();
-            if (params.startsWith("tier_name", 14)) return tier.name();
-            if (params.startsWith("tier_displayname", 14)) return tier.displayName();
+            if (params.startsWith("kit_name", 21)) return kit.name();
+            if (params.startsWith("kit_icon", 21)) return kit.icon();
+            if (params.startsWith("kit_displayname", 21)) return kit.displayName();
+            if (params.startsWith("tier_name", 21)) return tier.name();
+            if (params.startsWith("tier_displayname", 21)) return tier.displayName();
+
+            return null;
+        }
+
+        private static @Nullable String handlePlayerKit(@NotNull OfflinePlayer player,
+                                                        @NotNull String params) {
+            // find next '_' -> end of kitName
+            final int kitEnd = params.indexOf('_', 17);
+            if (kitEnd == -1) return null;
+
+            final String kitName = params.substring(17, kitEnd);
+
+            final int next = kitEnd + 1;
+
+            final Tier tier = TiersManager.getPlayerTierOnKit(player.getUniqueId(), kitName);
+            if (tier == null) return TiersManager.getEmptyPlaceholderValue();
+
+            if (params.startsWith("tier_name", next)) return tier.name();
+            if (params.startsWith("tier_displayname", next)) return tier.displayName();
 
             return null;
         }
