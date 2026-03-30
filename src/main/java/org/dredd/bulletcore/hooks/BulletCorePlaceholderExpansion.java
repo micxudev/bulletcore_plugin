@@ -55,7 +55,17 @@ public final class BulletCorePlaceholderExpansion extends PlaceholderExpansion {
 
     // ----------< Helpers >----------
 
-    // place starts at 1, not 0
+    /**
+     * Parses a positive integer starting at the given offset.
+     * <p>
+     * Reads consecutive digit characters and stops at the first non-digit.
+     * <p>
+     * Indexing is 1-based (e.g. "player_1" → place = 1).
+     *
+     * @param str    source string
+     * @param offset index to start parsing from
+     * @return parsed integer, or {@code 0} if no digits are found
+     */
     private static int parsePlace(@NotNull String str, int offset) {
         int result = 0;
         for (int i = offset; i < str.length(); i++) {
